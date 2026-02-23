@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Contabee.Api/Contabee.Api.csproj" />
+  <Project Path="ContaBeeMovil/ContaBeeMovil.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+</Solution>

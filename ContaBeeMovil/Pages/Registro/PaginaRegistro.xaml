@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ContaBeeMovil.Pages.Registro.PaginaRegistro"
+             Title="PaginaRegistro">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- Título -->
+            <Label Text="Crear Cuenta"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   Margin="0,20,0,30"/>
+
+            <!-- Nombre -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="Transparent">
+                <Entry Placeholder="Nombre completo"
+                       Text="{Binding Nombre}"
+                       Margin="10,5"/>
+            </Border>
+
+            <!-- Email -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="Transparent">
+                <Entry Placeholder="Correo electrónico"
+                       Text="{Binding Email}"
+                       Keyboard="Email"
+                       Margin="10,5"/>
+            </Border>
+
+            <!-- Contraseña -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="Transparent">
+                <Entry Placeholder="Contraseña (mínimo 6 caracteres)"
+                       Text="{Binding Password}"
+                       IsPassword="True"
+                       Margin="10,5"/>
+            </Border>
+
+            <!-- Confirmar Contraseña -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="Transparent">
+                <Entry Placeholder="Confirmar contraseña"
+                       Text="{Binding ConfirmarPassword}"
+                       IsPassword="True"
+                       Margin="10,5"/>
+            </Border>
+
+            <!-- Cupón (Opcional) -->
+            <Border StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="Transparent">
+                <Entry Placeholder="Cupón de registro (opcional)"
+                       Text="{Binding CuponRegistro}"
+                       Margin="10,5"/>
+            </Border>
+
+            <!-- Mensaje de error -->
+            <Label Text="{Binding MensajeError}"
+                   TextColor="Red"
+                   IsVisible="{Binding TieneError}"
+                   Margin="0,5"/>
+
+            <!-- Botón de registro -->
+            <Button Text="Registrarse"
+                    Command="{Binding RegistrarCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    CornerRadius="10"
+                    Margin="0,20,0,10"
+                    IsEnabled="{Binding PuedeRegistrar}"/>
+
+            <!-- Indicador de carga -->
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                             IsVisible="{Binding EstaCargando}"
+                             Color="{StaticResource Primary}"
+                             HeightRequest="40"/>
+
+            <!-- Link para iniciar sesión -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+                <Label Text="¿Ya tienes cuenta?"
+                       VerticalOptions="Center"/>
+                <Label Text="Inicia sesión"
+                       TextColor="{StaticResource Primary}"
+                       TextDecorations="Underline"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding IrALoginCommand}"/>
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
