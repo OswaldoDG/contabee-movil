@@ -6,6 +6,11 @@
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="15">
 
+            <Image Source="logo512.png"
+                WidthRequest="200"
+            HeightRequest="200"
+           Aspect="AspectFit" />
+
             <!-- Título -->
             <Label Text="Crear Cuenta"
                    FontSize="32"
@@ -13,58 +18,30 @@
                    HorizontalOptions="Center"
                    Margin="0,20,0,30"/>
 
-            <!-- Nombre -->
-            <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                    StrokeShape="RoundRectangle 10"
-                    BackgroundColor="Transparent">
+ 
                 <Entry Placeholder="Nombre completo"
                        Text="{Binding Nombre}"
-                       Margin="10,5"/>
-            </Border>
+                       Margin="10,0"  ClearButtonVisibility="WhileEditing"/>
 
-            <!-- Email -->
-            <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                    StrokeShape="RoundRectangle 10"
-                    BackgroundColor="Transparent">
+
                 <Entry Placeholder="Correo electrónico"
                        Text="{Binding Email}"
                        Keyboard="Email"
-                       Margin="10,5"/>
-            </Border>
+                       Margin="10,0"/>
 
-            <!-- Contraseña -->
-            <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                    StrokeShape="RoundRectangle 10"
-                    BackgroundColor="Transparent">
                 <Entry Placeholder="Contraseña (mínimo 6 caracteres)"
                        Text="{Binding Password}"
                        IsPassword="True"
-                       Margin="10,5"/>
-            </Border>
+                       Margin="10,0"/>
 
-            <!-- Confirmar Contraseña -->
-            <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                    StrokeShape="RoundRectangle 10"
-                    BackgroundColor="Transparent">
                 <Entry Placeholder="Confirmar contraseña"
                        Text="{Binding ConfirmarPassword}"
                        IsPassword="True"
-                       Margin="10,5"/>
-            </Border>
+                       Margin="10,0"/>
 
-            <!-- Cupón (Opcional) -->
-            <Border StrokeThickness="1"
-                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
-                    StrokeShape="RoundRectangle 10"
-                    BackgroundColor="Transparent">
                 <Entry Placeholder="Cupón de registro (opcional)"
                        Text="{Binding CuponRegistro}"
-                       Margin="10,5"/>
-            </Border>
+                       Margin="10,0"/>
 
             <!-- Mensaje de error -->
             <Label Text="{Binding MensajeError}"

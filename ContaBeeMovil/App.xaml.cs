@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using ContaBeeMovil.Pages.Registro;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ContaBeeMovil
 {
@@ -11,7 +12,7 @@ namespace ContaBeeMovil
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            return new Window(new PaginaRegistro());
         }
     }
 }
