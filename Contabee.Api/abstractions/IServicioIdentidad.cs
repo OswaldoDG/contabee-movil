@@ -5,4 +5,5 @@ namespace Contabee.Api.abstractions;
 public interface IServicioIdentidad
 {
     Task<Respuesta> Registrar(RegisterViewModel request);
+    Task<RespuestaPayload<RespuestaToken>> IniciarSesion(string email, string password, string dispositivoId);
 }

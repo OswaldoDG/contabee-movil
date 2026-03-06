@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
+             x:Class="ContaBeeMovil.Pages.Login.PaginaLogin"
+             Shell.NavBarIsVisible="False"
+             Title="Login">
+
+    <Grid>
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="{StaticResource LayoutPadding}">
+
+            <!-- ======================================= -->
+            <!-- HEADER: Logo + Welcome                  -->
+            <!-- ======================================= -->
+            <VerticalStackLayout Grid.Row="0"
+                                 Spacing="4"
+                                 HorizontalOptions="Center"
+                                 Padding="0,24,0,16">
+
+                <Image x:Name="LogoImage"
+                       Source="logo512.png"
+                       WidthRequest="88"
+                       HeightRequest="88"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"
+                       SemanticProperties.Description="ContaBee logo" />
+
+                <Label Text="CONTABEE"
+                       Style="{StaticResource Title1}"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}" />
+
+                <Label Text="Bienvenido de nuevo"
+                       Style="{StaticResource Body1}"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+            </VerticalStackLayout>
+
+            <!-- ======================================= -->
+            <!-- BODY: Form inside card + Links          -->
+            <!-- ======================================= -->
+            <VerticalStackLayout x:Name="FormContainer"
+                                 Grid.Row="1"
+                                 Spacing="12"
+                                 VerticalOptions="Center"
+                                 Padding="4,0"
+                                 IsEnabled="{Binding FormHabilitado}">
+
+                <!-- Correo Electronico -->
+                <sf:SfTextInputLayout Hint="Correo electr&#243;nico"
+                                      HasError="{Binding EmailRequerido}"
+                                      ErrorText="El correo es requerido"
+                                      LeadingViewPosition="Inside"
+                                      ShowLeadingView="True">
+                    <sf:SfTextInputLayout.LeadingView>
+                        <Label Text="{x:Static f:FluentUI.mail_20_regular}"
+                               Style="{StaticResource InputLeadingIcon}"/>
+                    </sf:SfTextInputLayout.LeadingView>
+                    <Entry x:Name="EntryEmail"
+                           Text="{Binding Email}"
+                           Keyboard="Email"
+                           ReturnType="Next"
+                           ClearButtonVisibility="WhileEditing"
+                           SemanticProperties.Description="Correo electr&#243;nico" />
+                </sf:SfTextInputLayout>
+
+                <!-- Contrase&#241;a -->
+                <sf:SfTextInputLayout Hint="Contrase&#241;a"
+                                      EnablePasswordVisibilityToggle="True"
+                                      HasError="{Binding PasswordRequerido}"
+                                      ErrorText="La contrase&#241;a es requerida"
+                                      LeadingViewPosition="Inside"
+                                      ShowLeadingView="True">
+                    <sf:SfTextInputLayout.LeadingView>
+                        <Label Text="{x:Static f:FluentUI.lock_closed_20_regular}"
+                               Style="{StaticResource InputLeadingIcon}"/>
+                    </sf:SfTextInputLayout.LeadingView>
+                    <Entry x:Name="EntryPassword"
+                           Text="{Binding Password}"
+                           IsPassword="True"
+                           ReturnType="Done"
+                           SemanticProperties.Description="Contrase&#241;a" />
+                </sf:SfTextInputLayout>
+
+                <!-- Recordarme -->
+                <HorizontalStackLayout HorizontalOptions="End"
+                                       Spacing="4"
+                                       Margin="0,-4,0,0">
+                    <CheckBox IsChecked="{Binding Recordarme}"
+                              SemanticProperties.Description="Recordarme" />
+                    <Label Text="Recordarme"
+                           VerticalOptions="Center"
+                           Style="{StaticResource Caption1}"
+                           TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                </HorizontalStackLayout>
+
+                <!-- Buttons -->
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12"
+                      Margin="0,4,0,0">
+
+                    <!-- Vincularme -->
+                    <Button Grid.Column="0"
+                            Text="Vincularme"
+                            Command="{Binding VincularmeCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            SemanticProperties.Description="Vincularme">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="{x:Static f:FluentUI.people_community_24_regular}"
+                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                             Color="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"
+                                             Size="18" />
+                        </Button.ImageSource>
+                    </Button>
+
+                    <!-- Ingresar -->
+                    <Button Grid.Column="1"
+                            Text="Ingresar"
+                            Command="{Binding IngresarCommand}"
+                            Style="{StaticResource PrimaryButton}"
+                            SemanticProperties.Description="Ingresar">
+                        <Button.ImageSource>
+                            <FontImageSource Glyph="{x:Static f:FluentUI.arrow_enter_20_regular}"
+                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                             Color="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"
+                                             Size="18" />
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+
+                <!-- Links -->
+                <VerticalStackLayout Spacing="8"
+                                     HorizontalOptions="Center"
+                                     Margin="0,8,0,0">
+
+                    <HorizontalStackLayout HorizontalOptions="Center"
+                                           Spacing="4">
+                        <Label Text="&#191;No tienes cuenta?"
+                               VerticalOptions="Center"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                        <Label Text="Reg&#237;strate"
+                               Style="{StaticResource LinkLabel}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding IrARegistroCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+
+                    <HorizontalStackLayout HorizontalOptions="Center"
+                                           Spacing="4">
+                        <Label Text="&#191;Olvidaste tu contrase&#241;a?"
+                               VerticalOptions="Center"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                        <Label Text="Recup&#233;rala"
+                               Style="{StaticResource LinkLabel}"
+                               VerticalOptions="Center">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RecuperarContrasenaCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Loading overlay -->
+            <ActivityIndicator Grid.Row="1"
+                               IsRunning="{Binding EstaCargando}"
+                               Opacity="{Binding EstaCargando, Converter={StaticResource BoolToOpacityConverter}}"
+                               InputTransparent="True"
+                               HeightRequest="40"
+                               WidthRequest="40"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               ZIndex="10"
+                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+
+            <!-- ======================================= -->
+            <!-- FOOTER: Bottom Icons                    -->
+            <!-- ======================================= -->
+            <HorizontalStackLayout Grid.Row="2"
+                                   HorizontalOptions="Center"
+                                   Spacing="24"
+                                   Padding="0,12,0,20">
+
+                <Border Style="{StaticResource CircleIconButton}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding MostrarInfoAppCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{x:Static f:FluentUI.people_community_24_regular}"
+                           Style="{StaticResource CircleIconLabel}"
+                           SemanticProperties.Description="Acerca de ContaBee"/>
+                </Border>
+
+                <Border Style="{StaticResource CircleIconButton}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding MostrarInfoCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Text="{x:Static f:FluentUI.info_24_regular}"
+                           Style="{StaticResource CircleIconLabel}"
+                           SemanticProperties.Description="Informaci&#243;n"/>
+                </Border>
+            </HorizontalStackLayout>
+
+        </Grid>
+    </ScrollView>
+    </Grid>
+</ContentPage>

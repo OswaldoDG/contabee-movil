@@ -12,20 +12,20 @@
     <ContentPage.Behaviors>
         <toolkit:EventToCommandBehavior
                 BindingContext="{Binding Path=BindingContext, Source={x:Reference MetaPage}, x:DataType=ContentPage}"
-                EventName="Appearing"                
+                EventName="Appearing"
                 Command="{Binding AppearingCommand}" />
     </ContentPage.Behaviors>
     <ContentPage.Resources>
         <Style x:Key="InvalidEntryStyle" TargetType="Entry">
-            <Setter Property="TextColor" Value="Red" />
+            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}" />
         </Style>
 
         <Style TargetType="Entry">
             <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}" />
             <Setter Property="BackgroundColor" Value="Transparent" />
             <Setter Property="FontFamily" Value="OpenSansRegular"/>
-            <Setter Property="FontSize" Value="{OnIdiom 16,Desktop=24}" />
-            <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
+            <Setter Property="FontSize" Value="{OnIdiom 15,Desktop=20}" />
+            <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray500}}" />
             <Setter Property="MinimumHeightRequest" Value="44"/>
             <Setter Property="MinimumWidthRequest" Value="44"/>
             <Setter Property="VisualStateManager.VisualStateGroups">
@@ -48,91 +48,153 @@
     </ContentPage.ToolbarItems>
 
     <ScrollView>
-        <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}" Padding="{StaticResource LayoutPadding}">
-            <Label Text="Categories" Style="{StaticResource Title2}"/>
-            <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}"
+        <VerticalStackLayout Spacing="12" Padding="{StaticResource LayoutPadding}">
+
+            <!-- Categories Section -->
+            <Label Text="CATEGORIES" Style="{StaticResource SectionHeader}"/>
+
+            <VerticalStackLayout Spacing="8"
                 BindableLayout.ItemsSource="{Binding Categories}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="models:Category">
-                        <Grid ColumnSpacing="{StaticResource LayoutSpacing}" ColumnDefinitions="4*,3*,30,Auto">
-                           <Entry Text="{Binding Title}" SemanticProperties.Description="{Binding Title}" Grid.Column="0" />
-                            <Entry Text="{Binding Color}" Grid.Column="1" x:Name="ColorEntry"
-                                SemanticProperties.Description="{Binding Title, StringFormat='{}{0} Color'}"
-                                SemanticProperties.Hint="Category color in HEX format">
-                                <Entry.Behaviors>
-                                    <toolkit:TextValidationBehavior 
-                                        InvalidStyle="{StaticResource InvalidEntryStyle}"
-                                        Flags="ValidateOnUnfocused"
-                                        RegexPattern="^#(?:[0-9a-fA-F]{3}){1,2}$" />
-                                </Entry.Behaviors>
-                            </Entry>
+                        <Border Style="{StaticResource FormCard}" Padding="12,10">
+                            <Grid ColumnSpacing="10" ColumnDefinitions="*,Auto,36,Auto"
+                                  VerticalOptions="Center">
+                                <Entry Text="{Binding Title}"
+                                       Placeholder="Category name"
+                                       SemanticProperties.Description="{Binding Title}"
+                                       Grid.Column="0"
+                                       VerticalOptions="Center" />
+                                <Entry Text="{Binding Color}"
+                                       Placeholder="#HEX"
+                                       Grid.Column="1"
+                                       WidthRequest="90"
+                                       x:Name="ColorEntry"
+                                       VerticalOptions="Center"
+                                       SemanticProperties.Description="{Binding Title, StringFormat='{}{0} Color'}"
+                                       SemanticProperties.Hint="Category color in HEX format">
+                                    <Entry.Behaviors>
+                                        <toolkit:TextValidationBehavior
+                                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                            Flags="ValidateOnUnfocused"
+                                            RegexPattern="^#(?:[0-9a-fA-F]{3}){1,2}$" />
+                                    </Entry.Behaviors>
+                                </Entry>
 
-                            <BoxView HeightRequest="30" WidthRequest="30" VerticalOptions="Center" 
-                                Color="{Binding Text, Source={x:Reference ColorEntry}, x:DataType=Entry}" Grid.Column="2"
-                                SemanticProperties.HeadingLevel="None" />
+                                <Border Grid.Column="2"
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        HeightRequest="32"
+                                        WidthRequest="32"
+                                        VerticalOptions="Center"
+                                        BackgroundColor="{Binding Text, Source={x:Reference ColorEntry}, x:DataType=Entry}"
+                                        SemanticProperties.HeadingLevel="None" />
 
-                            <Button 
-                                ImageSource="{StaticResource IconDelete}"
-                                Background="Transparent"
-                                Command="{Binding DeleteCategoryCommand, Source={RelativeSource AncestorType={x:Type pageModels:ManageMetaPageModel}}, x:DataType=pageModels:ManageMetaPageModel}" CommandParameter="{Binding .}"
-                                Grid.Column="3"
-                                SemanticProperties.Description="{Binding Title, StringFormat='Delete {0} Category'}" />
-                        </Grid>
+                                <ImageButton Grid.Column="3"
+                                             Source="{StaticResource IconDelete}"
+                                             Background="Transparent"
+                                             HeightRequest="40"
+                                             WidthRequest="40"
+                                             VerticalOptions="Center"
+                                             Command="{Binding DeleteCategoryCommand, Source={RelativeSource AncestorType={x:Type pageModels:ManageMetaPageModel}}, x:DataType=pageModels:ManageMetaPageModel}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Title, StringFormat='Delete {0} Category'}" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
-            <Grid ColumnSpacing="{StaticResource LayoutSpacing}" ColumnDefinitions="*,Auto" Margin="0,10">
-                <Button Text="Save" Command="{Binding SaveCategoriesCommand}"
-                    SemanticProperties.Description="Save Categories"
-                    MinimumHeightRequest="{OnIdiom 44,Desktop=60}" Grid.Column="0" />
+            <Grid ColumnSpacing="10" ColumnDefinitions="*,Auto" Margin="0,4">
+                <Button Text="Save Categories"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveCategoriesCommand}"
+                        SemanticProperties.Description="Save Categories"
+                        Grid.Column="0" />
 
                 <Button ImageSource="{StaticResource IconAdd}"
-                    Command="{Binding AddCategoryCommand}" Grid.Column="1"
-                    SemanticProperties.Description="Add Categories" />
+                        Style="{StaticResource SecondaryButton}"
+                        HeightRequest="52"
+                        WidthRequest="52"
+                        Padding="0"
+                        Command="{Binding AddCategoryCommand}"
+                        Grid.Column="1"
+                        SemanticProperties.Description="Add Categories" />
             </Grid>
 
-            <Label Text="Tags" Style="{StaticResource Title2}" />
-            <VerticalStackLayout Spacing="{StaticResource LayoutSpacing}"
+            <!-- Divider between sections -->
+            <BoxView Style="{StaticResource Divider}" Margin="0,8"/>
+
+            <!-- Tags Section -->
+            <Label Text="TAGS" Style="{StaticResource SectionHeader}"/>
+
+            <VerticalStackLayout Spacing="8"
                 BindableLayout.ItemsSource="{Binding Tags}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate x:DataType="models:Tag">
-                        <Grid ColumnSpacing="{StaticResource LayoutSpacing}" ColumnDefinitions="4*,3*,30,Auto">
-                            <Entry Text="{Binding Title}" Grid.Column="0" SemanticProperties.Description="{Binding Title}" />
-                            <Entry Text="{Binding Color}" Grid.Column="1" x:Name="ColorEntry"
-                                SemanticProperties.Description="{Binding Title, StringFormat='{}{0} Color'}"
-                                SemanticProperties.Hint="Tag color in HEX format">
-                                <Entry.Behaviors>
-                                    <toolkit:TextValidationBehavior 
-                                        InvalidStyle="{StaticResource InvalidEntryStyle}"
-                                        Flags="ValidateOnUnfocused"
-                                        RegexPattern="^#(?:[0-9a-fA-F]{3}){1,2}$" />
-                                </Entry.Behaviors>
-                            </Entry>
+                        <Border Style="{StaticResource FormCard}" Padding="12,10">
+                            <Grid ColumnSpacing="10" ColumnDefinitions="*,Auto,36,Auto"
+                                  VerticalOptions="Center">
+                                <Entry Text="{Binding Title}"
+                                       Placeholder="Tag name"
+                                       Grid.Column="0"
+                                       VerticalOptions="Center"
+                                       SemanticProperties.Description="{Binding Title}" />
+                                <Entry Text="{Binding Color}"
+                                       Placeholder="#HEX"
+                                       Grid.Column="1"
+                                       WidthRequest="90"
+                                       x:Name="ColorEntry"
+                                       VerticalOptions="Center"
+                                       SemanticProperties.Description="{Binding Title, StringFormat='{}{0} Color'}"
+                                       SemanticProperties.Hint="Tag color in HEX format">
+                                    <Entry.Behaviors>
+                                        <toolkit:TextValidationBehavior
+                                            InvalidStyle="{StaticResource InvalidEntryStyle}"
+                                            Flags="ValidateOnUnfocused"
+                                            RegexPattern="^#(?:[0-9a-fA-F]{3}){1,2}$" />
+                                    </Entry.Behaviors>
+                                </Entry>
 
-                            <BoxView HeightRequest="30" WidthRequest="30" VerticalOptions="Center" 
-                                Color="{Binding Text, Source={x:Reference ColorEntry}, x:DataType=Entry}" Grid.Column="2"
-                                SemanticProperties.HeadingLevel="None" />
-        
-                            <Button 
-                                ImageSource="{StaticResource IconDelete}"
-                                SemanticProperties.Description="{Binding Title, StringFormat='Delete {0} Tag'}"
-                                Background="Transparent"
-                                Command="{Binding DeleteTagCommand, Source={RelativeSource AncestorType={x:Type pageModels:ManageMetaPageModel}}, x:DataType=pageModels:ManageMetaPageModel}" CommandParameter="{Binding .}"
-                                Grid.Column="3"/>
-                        </Grid>
+                                <Border Grid.Column="2"
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        HeightRequest="32"
+                                        WidthRequest="32"
+                                        VerticalOptions="Center"
+                                        BackgroundColor="{Binding Text, Source={x:Reference ColorEntry}, x:DataType=Entry}"
+                                        SemanticProperties.HeadingLevel="None" />
+
+                                <ImageButton Grid.Column="3"
+                                             Source="{StaticResource IconDelete}"
+                                             Background="Transparent"
+                                             HeightRequest="40"
+                                             WidthRequest="40"
+                                             VerticalOptions="Center"
+                                             Command="{Binding DeleteTagCommand, Source={RelativeSource AncestorType={x:Type pageModels:ManageMetaPageModel}}, x:DataType=pageModels:ManageMetaPageModel}"
+                                             CommandParameter="{Binding .}"
+                                             SemanticProperties.Description="{Binding Title, StringFormat='Delete {0} Tag'}" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </VerticalStackLayout>
 
-            <Grid ColumnSpacing="{StaticResource LayoutSpacing}" ColumnDefinitions="*,Auto" Margin="0,10">
-                <Button Text="Save" Command="{Binding SaveTagsCommand}"
-                    SemanticProperties.Description="Save Tags"
-                    MinimumHeightRequest="{OnIdiom 44,Desktop=60}" Grid.Column="0" />
+            <Grid ColumnSpacing="10" ColumnDefinitions="*,Auto" Margin="0,4,0,20">
+                <Button Text="Save Tags"
+                        Style="{StaticResource PrimaryButton}"
+                        Command="{Binding SaveTagsCommand}"
+                        SemanticProperties.Description="Save Tags"
+                        Grid.Column="0" />
 
                 <Button ImageSource="{StaticResource IconAdd}"
-                    Command="{Binding AddTagCommand}" Grid.Column="1"
-                    SemanticProperties.Description="Add Tags" />
+                        Style="{StaticResource SecondaryButton}"
+                        HeightRequest="52"
+                        WidthRequest="52"
+                        Padding="0"
+                        Command="{Binding AddTagCommand}"
+                        Grid.Column="1"
+                        SemanticProperties.Description="Add Tags" />
             </Grid>
         </VerticalStackLayout>
     </ScrollView>

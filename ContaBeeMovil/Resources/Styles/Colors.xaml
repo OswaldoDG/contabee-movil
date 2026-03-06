@@ -1,31 +1,96 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
-<ResourceDictionary 
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- Note: For Android please see also Platforms\Android\Resources\values\colors.xml -->
 
-    <Color x:Key="Primary">#512BD4</Color>
-    <Color x:Key="PrimaryDark">#ac99ea</Color>
-    <Color x:Key="PrimaryDarkText">#242424</Color>
-    <Color x:Key="Secondary">#DFD8F7</Color>
-    <Color x:Key="SecondaryDarkText">#9880e5</Color>
-    <Color x:Key="Tertiary">#2B0B98</Color>
+    <!-- ========================================= -->
+    <!-- BRAND COLORS                              -->
+    <!-- ========================================= -->
+    <Color x:Key="Primary">#f4c611</Color>
+    <Color x:Key="PrimaryDark">#ce8509</Color>
+    <Color x:Key="Secondary">#ce8509</Color>
+    <Color x:Key="SecondaryDark">#ce8509</Color>
+    <Color x:Key="Tertiary">#d9a441</Color>
+    <Color x:Key="TertiaryDark">#d9a441</Color>
+    <Color x:Key="Alternate">#f2f1f0</Color>
+    <Color x:Key="AlternateDark">#3a3a3a</Color>
 
-    <Color x:Key="DarkBackground">#17171a</Color>
-    <Color x:Key="LightOnDarkBackground">#C3C3C3</Color>
-    <Color x:Key="LightBackground">#F2F2F2</Color>
-    <Color x:Key="DarkOnLightBackground">#0D0D0D</Color>
+    <!-- ========================================= -->
+    <!-- UTILITY COLORS - TEXT                     -->
+    <!-- ========================================= -->
+    <Color x:Key="PrimaryText">#1e1e1e</Color>
+    <Color x:Key="PrimaryTextDark">#fefdfc</Color>
+    <Color x:Key="SecondaryText">#6e6e6e</Color>
+    <Color x:Key="SecondaryTextDark">#b0b0b0</Color>
 
-    <Color x:Key="LightSecondaryBackground">#E0E0E0</Color>
-    <Color x:Key="DarkSecondaryBackground">#222228</Color>
+    <!-- Backward-compatible aliases -->
+    <Color x:Key="DarkOnLightBackground">#1e1e1e</Color>
+    <Color x:Key="LightOnDarkBackground">#fefdfc</Color>
+    <Color x:Key="PrimaryDarkText">#1e1e1e</Color>
+    <Color x:Key="SecondaryDarkText">#b0b0b0</Color>
 
+    <!-- ========================================= -->
+    <!-- UTILITY COLORS - BACKGROUNDS              -->
+    <!-- ========================================= -->
+    <Color x:Key="LightBackground">#fefdfc</Color>
+    <Color x:Key="DarkBackground">#141414</Color>
+    <Color x:Key="LightSecondaryBackground">#fafafa</Color>
+    <Color x:Key="DarkSecondaryBackground">#505050</Color>
+
+    <!-- ========================================= -->
+    <!-- ACCENT COLORS                             -->
+    <!-- ========================================= -->
+    <Color x:Key="Accent1">#d8d9db</Color>
+    <Color x:Key="Accent1Dark">#7a7a7a</Color>
+    <Color x:Key="Accent2">#1e1e1e</Color>
+    <Color x:Key="Accent2Dark">#ffffff</Color>
+    <Color x:Key="Accent3">#fefdfc</Color>
+    <Color x:Key="Accent3Dark">#d8d9db</Color>
+    <Color x:Key="Accent4">#c5902b</Color>
+    <Color x:Key="Accent4Dark">#c5902b</Color>
+
+    <!-- ========================================= -->
+    <!-- SEMANTIC COLORS                           -->
+    <!-- ========================================= -->
+    <Color x:Key="Success">#3c8c7b</Color>
+    <Color x:Key="SuccessDark">#59b6a3</Color>
+    <Color x:Key="Error">#d65c5c</Color>
+    <Color x:Key="ErrorDark">#e57373</Color>
+    <Color x:Key="Warning">#e5c93d</Color>
+    <Color x:Key="WarningDark">#f1d859</Color>
+    <Color x:Key="Info">#ffffff</Color>
+    <Color x:Key="InfoDark">#ffffff</Color>
+
+    <!-- ========================================= -->
+    <!-- CUSTOM COLORS                             -->
+    <!-- ========================================= -->
+    <Color x:Key="ShadowPrimary">#5e000000</Color>
+    <Color x:Key="ShadowPrimaryDark">#000000</Color>
+    <Color x:Key="ShadowSecondary">#10000000</Color>
+    <Color x:Key="ShadowSecondaryDark">#232323</Color>
+    <Color x:Key="Icon">#000000</Color>
+    <Color x:Key="IconDark">#f2f1f0</Color>
+    <Color x:Key="Disabled">#e3e3e5</Color>
+    <Color x:Key="DisabledDark">#3a3a3a</Color>
+    <Color x:Key="Camera">#8f8f8f</Color>
+    <Color x:Key="CameraDark">#8f8f8f</Color>
+    <Color x:Key="AppBarPrimary">#fefdfc</Color>
+    <Color x:Key="AppBarPrimaryDark">#3a3a3a</Color>
+    <Color x:Key="AppBarSecondary">#f4c611</Color>
+    <Color x:Key="AppBarSecondaryDark">#ce8509</Color>
+
+    <!-- ========================================= -->
+    <!-- BASE COLORS                               -->
+    <!-- ========================================= -->
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
-    <Color x:Key="Magenta">#D600AA</Color>
-    <Color x:Key="MidnightBlue">#190649</Color>
-    <Color x:Key="OffBlack">#1f1f1f</Color>
+    <Color x:Key="OffBlack">#141414</Color>
 
+    <!-- ========================================= -->
+    <!-- GRAY SCALE                                -->
+    <!-- ========================================= -->
     <Color x:Key="Gray100">#E1E1E1</Color>
     <Color x:Key="Gray200">#C8C8C8</Color>
     <Color x:Key="Gray300">#ACACAC</Color>
@@ -35,11 +100,23 @@
     <Color x:Key="Gray900">#212121</Color>
     <Color x:Key="Gray950">#141414</Color>
 
+    <!-- ========================================= -->
+    <!-- BRUSHES                                   -->
+    <!-- ========================================= -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="TertiaryBrush" Color="{StaticResource Tertiary}"/>
     <SolidColorBrush x:Key="WhiteBrush" Color="{StaticResource White}"/>
     <SolidColorBrush x:Key="BlackBrush" Color="{StaticResource Black}"/>
+
+    <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDark}"/>
+    <SolidColorBrush x:Key="SecondaryDarkBrush" Color="{StaticResource SecondaryDark}"/>
+    <SolidColorBrush x:Key="TertiaryDarkBrush" Color="{StaticResource TertiaryDark}"/>
+
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource Success}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource Error}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource Warning}"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource Info}"/>
 
     <SolidColorBrush x:Key="Gray100Brush" Color="{StaticResource Gray100}"/>
     <SolidColorBrush x:Key="Gray200Brush" Color="{StaticResource Gray200}"/>

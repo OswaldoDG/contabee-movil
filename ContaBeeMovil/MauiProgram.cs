@@ -8,6 +8,8 @@ namespace ContaBeeMovil
 {
     public static class MauiProgram
     {
+        public static IServiceProvider Services { get; private set; } = null!;
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -55,17 +57,20 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<ProjectListPageModel>();
             builder.Services.AddSingleton<ManageMetaPageModel>();
             builder.Services.AddSingleton<IServicioSesion, ServicioSesion>();
+            builder.Services.AddSingleton<IServicioNotificacion, ServicioNotificacion>();
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
-                client.BaseAddress = new Uri("https://your-api-endpoint/");
+                client.BaseAddress = new Uri("https://api.contabee.mx/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
             builder.Services.AddTransientWithShellRoute<ProjectDetailPage, ProjectDetailPageModel>("project");
             builder.Services.AddTransientWithShellRoute<TaskDetailPage, TaskDetailPageModel>("task");
 
-            return builder.Build();
+            var app = builder.Build();
+            Services = app.Services;
+            return app;
         }
     }
 }

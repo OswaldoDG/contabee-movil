@@ -43,6 +43,24 @@ namespace ContaBeeMovil
             await toast.Show(cts.Token);
         }
 
+        private async void OnCerrarSesionClicked(object? sender, EventArgs e)
+        {
+            bool confirmar = await DisplayAlertAsync(
+                "Cerrar sesión",
+                "¿Estás seguro que deseas cerrar sesión?",
+                "Sí", "No");
+
+            if (!confirmar)
+                return;
+
+            // Clear tokens only — keep saved email for autocomplete
+            var servicioSesion = MauiProgram.Services.GetRequiredService<IServicioSesion>();
+            await servicioSesion.LimpiaTokensAsync();
+
+            // Navigate back to login page
+            Application.Current!.Windows[0].Page = new Pages.Login.PaginaLogin();
+        }
+
         private void SfSegmentedControl_SelectionChanged(object? sender, Syncfusion.Maui.Toolkit.SegmentedControl.SelectionChangedEventArgs e)
         {
             Application.Current!.UserAppTheme = e.NewIndex == 0 ? AppTheme.Light : AppTheme.Dark;
