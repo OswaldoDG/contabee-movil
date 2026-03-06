@@ -1,77 +1,172 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
              x:Class="ContaBeeMovil.Pages.Registro.PaginaRegistro"
+             Shell.NavBarIsVisible="False"
              Title="PaginaRegistro">
+
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <VerticalStackLayout Padding="{StaticResource LayoutPadding}"
+                             Spacing="12">
 
-            <Image Source="logo512.png"
-                WidthRequest="200"
-            HeightRequest="200"
-           Aspect="AspectFit" />
+            <!-- Header -->
+            <VerticalStackLayout Spacing="4"
+                                 HorizontalOptions="Center"
+                                 Padding="0,24,0,8">
 
-            <!-- Título -->
-            <Label Text="Crear Cuenta"
-                   FontSize="32"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   Margin="0,20,0,30"/>
+                <Image Source="logo512.png"
+                       WidthRequest="80"
+                       HeightRequest="80"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"
+                       SemanticProperties.Description="ContaBee logo" />
 
- 
-                <Entry Placeholder="Nombre completo"
-                       Text="{Binding Nombre}"
-                       Margin="10,0"  ClearButtonVisibility="WhileEditing"/>
+                <Label Text="Crear Cuenta"
+                       Style="{StaticResource Title1}"
+                       HorizontalOptions="Center" />
 
+                <Label Text="Completa tus datos para registrarte"
+                       Style="{StaticResource Body2}"
+                       HorizontalOptions="Center"
+                       TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+            </VerticalStackLayout>
 
-                <Entry Placeholder="Correo electrónico"
-                       Text="{Binding Email}"
-                       Keyboard="Email"
-                       Margin="10,0"/>
+            <!-- Form Card -->
+            <Border Style="{StaticResource FormCard}">
+                <VerticalStackLayout Spacing="6">
 
-                <Entry Placeholder="Contraseña (mínimo 6 caracteres)"
-                       Text="{Binding Password}"
-                       IsPassword="True"
-                       Margin="10,0"/>
+                    <!-- Nombre completo -->
+                    <sf:SfTextInputLayout Hint="Nombre completo"
+                                          LeadingViewPosition="Inside"
+                                          ShowLeadingView="True">
+                        <sf:SfTextInputLayout.LeadingView>
+                            <Label Text="{x:Static f:FluentUI.person_20_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="20"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                                   VerticalOptions="Center"/>
+                        </sf:SfTextInputLayout.LeadingView>
+                        <Entry Text="{Binding Nombre}"
+                               ClearButtonVisibility="WhileEditing"
+                               ReturnType="Next"
+                               SemanticProperties.Description="Nombre completo" />
+                    </sf:SfTextInputLayout>
 
-                <Entry Placeholder="Confirmar contraseña"
-                       Text="{Binding ConfirmarPassword}"
-                       IsPassword="True"
-                       Margin="10,0"/>
+                    <!-- Correo electr&#243;nico -->
+                    <sf:SfTextInputLayout Hint="Correo electr&#243;nico"
+                                          LeadingViewPosition="Inside"
+                                          ShowLeadingView="True">
+                        <sf:SfTextInputLayout.LeadingView>
+                            <Label Text="{x:Static f:FluentUI.mail_20_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="20"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                                   VerticalOptions="Center"/>
+                        </sf:SfTextInputLayout.LeadingView>
+                        <Entry Text="{Binding Email}"
+                               Keyboard="Email"
+                               ReturnType="Next"
+                               SemanticProperties.Description="Correo electr&#243;nico" />
+                    </sf:SfTextInputLayout>
 
-                <Entry Placeholder="Cupón de registro (opcional)"
-                       Text="{Binding CuponRegistro}"
-                       Margin="10,0"/>
+                    <!-- Divider -->
+                    <BoxView Style="{StaticResource Divider}" Margin="0,4"/>
 
-            <!-- Mensaje de error -->
-            <Label Text="{Binding MensajeError}"
-                   TextColor="Red"
-                   IsVisible="{Binding TieneError}"
-                   Margin="0,5"/>
+                    <!-- Contrase&#241;a -->
+                    <sf:SfTextInputLayout Hint="Contrase&#241;a (m&#237;nimo 6 caracteres)"
+                                          EnablePasswordVisibilityToggle="True"
+                                          LeadingViewPosition="Inside"
+                                          ShowLeadingView="True">
+                        <sf:SfTextInputLayout.LeadingView>
+                            <Label Text="{x:Static f:FluentUI.lock_closed_20_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="20"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                                   VerticalOptions="Center"/>
+                        </sf:SfTextInputLayout.LeadingView>
+                        <Entry Text="{Binding Password}"
+                               IsPassword="True"
+                               ReturnType="Next"
+                               SemanticProperties.Description="Contrase&#241;a" />
+                    </sf:SfTextInputLayout>
 
-            <!-- Botón de registro -->
+                    <!-- Confirmar contrase&#241;a -->
+                    <sf:SfTextInputLayout Hint="Confirmar contrase&#241;a"
+                                          EnablePasswordVisibilityToggle="True"
+                                          LeadingViewPosition="Inside"
+                                          ShowLeadingView="True">
+                        <sf:SfTextInputLayout.LeadingView>
+                            <Label Text="{x:Static f:FluentUI.shield_checkmark_20_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="20"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                                   VerticalOptions="Center"/>
+                        </sf:SfTextInputLayout.LeadingView>
+                        <Entry Text="{Binding ConfirmarPassword}"
+                               IsPassword="True"
+                               ReturnType="Next"
+                               SemanticProperties.Description="Confirmar contrase&#241;a" />
+                    </sf:SfTextInputLayout>
+
+                    <!-- Divider -->
+                    <BoxView Style="{StaticResource Divider}" Margin="0,4"/>
+
+                    <!-- Cup&#243;n de registro -->
+                    <sf:SfTextInputLayout Hint="Cup&#243;n de registro (opcional)"
+                                          HelperText="Si tienes un cup&#243;n, ingr&#233;salo aqu&#237;">
+                        <Entry Text="{Binding CuponRegistro}"
+                               ReturnType="Done"
+                               SemanticProperties.Description="Cup&#243;n de registro" />
+                    </sf:SfTextInputLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Error message -->
+            <Border IsVisible="{Binding TieneError}"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="{AppThemeBinding Light=#FFF0F0, Dark=#3D2020}"
+                    StrokeThickness="0"
+                    Padding="14,10">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="{x:Static f:FluentUI.error_circle_20_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="18"
+                           TextColor="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding MensajeError}"
+                           TextColor="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"
+                           Style="{StaticResource Caption1}"
+                           VerticalOptions="Center"
+                           LineBreakMode="WordWrap"
+                           HorizontalOptions="FillAndExpand"/>
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Register button -->
             <Button Text="Registrarse"
                     Command="{Binding RegistrarCommand}"
-                    BackgroundColor="{StaticResource Primary}"
-                    TextColor="White"
-                    HeightRequest="50"
-                    CornerRadius="10"
-                    Margin="0,20,0,10"
-                    IsEnabled="{Binding PuedeRegistrar}"/>
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="{Binding PuedeRegistrar}"
+                    Margin="0,4,0,0"
+                    SemanticProperties.Description="Registrarse"/>
 
-            <!-- Indicador de carga -->
+            <!-- Loading indicator -->
             <ActivityIndicator IsRunning="{Binding EstaCargando}"
-                             IsVisible="{Binding EstaCargando}"
-                             Color="{StaticResource Primary}"
-                             HeightRequest="40"/>
+                               IsVisible="{Binding EstaCargando}"
+                               HeightRequest="30"/>
 
-            <!-- Link para iniciar sesión -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
-                <Label Text="¿Ya tienes cuenta?"
-                       VerticalOptions="Center"/>
-                <Label Text="Inicia sesión"
-                       TextColor="{StaticResource Primary}"
-                       TextDecorations="Underline"
+            <!-- Link to login -->
+            <HorizontalStackLayout HorizontalOptions="Center"
+                                   Spacing="4"
+                                   Margin="0,4,0,24">
+                <Label Text="&#191;Ya tienes cuenta?"
+                       VerticalOptions="Center"
+                       Style="{StaticResource Caption1}"
+                       TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                <Label Text="Inicia sesi&#243;n"
+                       Style="{StaticResource LinkLabel}"
                        VerticalOptions="Center">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding IrALoginCommand}"/>

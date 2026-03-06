@@ -95,6 +95,7 @@
 	  <MauiXaml Update="Pages\Registro\PaginaRegistro.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
 	</ItemGroup>
 
 	<ItemGroup>

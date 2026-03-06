@@ -189,8 +189,7 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     private async Task IrALogin()
     {
-        // Ajustar según tu configuración de navegación
-        await Shell.Current.GoToAsync("//Login");
+        Application.Current!.Windows[0].Page = new ContaBeeMovil.Pages.Login.PaginaLogin();
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

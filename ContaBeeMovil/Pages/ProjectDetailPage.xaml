@@ -23,100 +23,106 @@
 
     <Grid>
         <ScrollView>
-            <VerticalStackLayout Padding="{StaticResource LayoutPadding}" Spacing="{StaticResource LayoutSpacing}">
-                <sf:SfTextInputLayout 
-                    Hint="Name" >
-                    <Entry
-                        Text="{Binding Name}" SemanticProperties.Description="Name" />
-                </sf:SfTextInputLayout>
+            <VerticalStackLayout Padding="{StaticResource LayoutPadding}" Spacing="12">
 
-                <sf:SfTextInputLayout 
-                    Hint="Description">
-                    <Entry
-                        Text="{Binding Description}" SemanticProperties.Description="Description" />
-                </sf:SfTextInputLayout>
+                <!-- Project Info Card -->
+                <Label Text="PROJECT INFO" Style="{StaticResource SectionHeader}"/>
+                <Border Style="{StaticResource FormCard}">
+                    <VerticalStackLayout Spacing="6">
+                        <sf:SfTextInputLayout Hint="Name">
+                            <Entry Text="{Binding Name}" SemanticProperties.Description="Name" />
+                        </sf:SfTextInputLayout>
 
-               <sf:SfTextInputLayout
-                    Hint="Category"
-                    SemanticProperties.Description="ComboBox to Select Category"
-                    SemanticProperties.Hint="State Collapsed">
-                    <Picker SemanticProperties.Hint="Select the category for the project"
-                            ItemsSource="{Binding Categories}"
-                            SelectedItem="{Binding Category}"
-                            SelectedIndex="{Binding CategoryIndex}"
-                            SemanticProperties.Description="Category State Expanded"/>
-                </sf:SfTextInputLayout>
+                        <sf:SfTextInputLayout Hint="Description">
+                            <Entry Text="{Binding Description}" SemanticProperties.Description="Description" />
+                        </sf:SfTextInputLayout>
 
-                <Label 
-                    Text="Icon" 
-                    Style="{StaticResource Title2}"/>
-                <CollectionView 
-                    HeightRequest="44" Margin="0,0,0,15"
-                    SelectionMode="Single" 
-                    SelectedItem="{Binding Icon}"
-                    SelectionChangedCommand="{Binding IconSelectedCommand}"
-                    SelectionChangedCommandParameter="{Binding Icon}"
-                    ItemsSource="{Binding Icons}">
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:IconData">
-                            <Grid RowDefinitions="Auto,4" RowSpacing="{StaticResource size60}"
-                                 SemanticProperties.Description="{Binding Description}">
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="Transparent"/>
-                                                <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="False"/>
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState x:Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="Transparent"/>
-                                                <Setter Property="Background" Value="Transparent"/>
-                                                <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="True"/>
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-                                
-                                <Label 
-                                    Text="{Binding Icon}"
-                                    x:Name="IconImage"
-                                    FontFamily="{x:Static fonts:FluentUI.FontFamily}" 
-                                    FontSize="24" 
-                                    VerticalOptions="Center"
-                                    HorizontalOptions="Center"
-                                    TextColor="{AppThemeBinding Light={StaticResource DarkOnLightBackground},Dark={StaticResource LightOnDarkBackground}}"/>
-                                <BoxView x:Name="SelectedIndicator" Color="{StaticResource Primary}" HeightRequest="4" HorizontalOptions="Fill" Grid.Row="1"/>
-                            </Grid>                            
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource LayoutSpacing}"/>
-                    </CollectionView.ItemsLayout>
-                </CollectionView>
-                
+                        <sf:SfTextInputLayout
+                            Hint="Category"
+                            SemanticProperties.Description="ComboBox to Select Category"
+                            SemanticProperties.Hint="State Collapsed">
+                            <Picker SemanticProperties.Hint="Select the category for the project"
+                                    ItemsSource="{Binding Categories}"
+                                    SelectedItem="{Binding Category}"
+                                    SelectedIndex="{Binding CategoryIndex}"
+                                    SemanticProperties.Description="Category State Expanded"/>
+                        </sf:SfTextInputLayout>
+                    </VerticalStackLayout>
+                </Border>
 
-                <Label 
-                    Text="Tags" 
-                    Style="{StaticResource Title2}"/>
+                <!-- Icon Selection -->
+                <Label Text="ICON" Style="{StaticResource SectionHeader}"/>
+                <Border Style="{StaticResource FormCard}" Padding="12">
+                    <CollectionView
+                        HeightRequest="48"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding Icon}"
+                        SelectionChangedCommand="{Binding IconSelectedCommand}"
+                        SelectionChangedCommandParameter="{Binding Icon}"
+                        ItemsSource="{Binding Icons}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:IconData">
+                                <Grid RowDefinitions="Auto,4" RowSpacing="{StaticResource size60}"
+                                     SemanticProperties.Description="{Binding Description}">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                    <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="False"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Selected">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="Transparent"/>
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter TargetName="SelectedIndicator" Property="BoxView.IsVisible" Value="True"/>
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
 
+                                    <Label
+                                        Text="{Binding Icon}"
+                                        x:Name="IconImage"
+                                        FontFamily="{x:Static fonts:FluentUI.FontFamily}"
+                                        FontSize="24"
+                                        VerticalOptions="Center"
+                                        HorizontalOptions="Center"
+                                        TextColor="{AppThemeBinding Light={StaticResource DarkOnLightBackground},Dark={StaticResource LightOnDarkBackground}}"/>
+                                    <BoxView x:Name="SelectedIndicator"
+                                             Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                             HeightRequest="3"
+                                             CornerRadius="2"
+                                             HorizontalOptions="Fill"
+                                             Grid.Row="1"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource LayoutSpacing}"/>
+                        </CollectionView.ItemsLayout>
+                    </CollectionView>
+                </Border>
+
+                <!-- Tags Selection -->
+                <Label Text="TAGS" Style="{StaticResource SectionHeader}"/>
                 <CollectionView
                     ItemsSource="{Binding AllTags}"
                     SelectionMode="Multiple"
-                    HeightRequest="44"
-                    Margin="0,0,0,15"
+                    HeightRequest="48"
+                    Margin="0,0,0,8"
                     SelectedItems="{Binding SelectedTags, Mode=TwoWay}"
                     SelectionChangedCommand="{Binding SelectionChangedCommand}"
                     SelectionChangedCommandParameter="{Binding SelectedTags}"
                     SemanticProperties.Description="Tags Collection">
                     <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource LayoutSpacing}" />
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Tag">
-                            <Border StrokeShape="RoundRectangle 22" 
-                                HeightRequest="44" 
+                            <Border StrokeShape="RoundRectangle 24"
+                                HeightRequest="44"
                                 VerticalOptions="Center"
                                 Padding="{OnPlatform '18,0,18,8',Android='18,0,18,0'}"
                                 SemanticProperties.Description="{Binding Title}">
@@ -125,12 +131,15 @@
                                         <VisualState x:Name="Normal">
                                             <VisualState.Setters>
                                                 <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightSecondaryBackground},Dark={StaticResource DarkSecondaryBackground}}"/>
+                                                <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray100},Dark={StaticResource Gray600}}"/>
+                                                <Setter Property="StrokeThickness" Value="1"/>
                                                 <Setter TargetName="TagLabel" Property="Label.TextColor" Value="{AppThemeBinding Light={StaticResource DarkOnLightBackground},Dark={StaticResource LightOnDarkBackground}}"/>
                                             </VisualState.Setters>
                                         </VisualState>
                                         <VisualState x:Name="Selected">
                                             <VisualState.Setters>
                                                 <Setter Property="BackgroundColor" Value="{Binding DisplayColor}"/>
+                                                <Setter Property="StrokeThickness" Value="0"/>
                                                 <Setter TargetName="TagLabel" Property="Label.TextColor" Value="{AppThemeBinding Light={StaticResource LightBackground},Dark={StaticResource DarkBackground}}"/>
                                             </VisualState.Setters>
                                         </VisualState>
@@ -138,27 +147,23 @@
                                 </VisualStateManager.VisualStateGroups>
                                 <Label x:Name="TagLabel"
                                     Text="{Binding Title}"
-                                    TextColor="{AppThemeBinding Light={StaticResource LightBackground},Dark={StaticResource DarkBackground}}" 
-                                    FontSize="{OnIdiom 16,Desktop=18}" 
+                                    FontSize="{OnIdiom 15,Desktop=17}"
                                     VerticalOptions="Center"
-                                    VerticalTextAlignment="Center">
-                                </Label>
+                                    VerticalTextAlignment="Center"/>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-                
 
-                <Button Text="Save" 
-                    MinimumHeightRequest="{OnIdiom 44, Desktop=60}"
+                <!-- Save Button -->
+                <Button Text="Save"
+                    Style="{StaticResource PrimaryButton}"
                     Command="{Binding SaveCommand}" />
 
-                <Grid HeightRequest="44">
-                    <Label 
-                        Text="Tasks" 
-                        Style="{StaticResource Title2}" 
-                        VerticalOptions="Center"/>
-                    <ImageButton 
+                <!-- Tasks Section -->
+                <Grid HeightRequest="44" Margin="0,8,0,0">
+                    <Label Text="TASKS" Style="{StaticResource SectionHeader}" VerticalOptions="Center"/>
+                    <ImageButton
                         Source="{StaticResource IconClean}"
                         HorizontalOptions="End"
                         VerticalOptions="Center"
@@ -167,11 +172,10 @@
                         WidthRequest="44"
                         IsVisible="{Binding HasCompletedTasks}"
                         Command="{Binding CleanTasksCommand}"
-                        SemanticProperties.Description="Clean up"
-                        />
+                        SemanticProperties.Description="Clean up" />
                 </Grid>
-                <VerticalStackLayout 
-                    Spacing="{StaticResource LayoutSpacing}"
+                <VerticalStackLayout
+                    Spacing="10"
                     BindableLayout.ItemsSource="{Binding Tasks}">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate>
@@ -182,9 +186,9 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <controls:AddButton Command="{Binding AddTaskCommand}" 
-                            SemanticProperties.Description="Add task" 
+        <controls:AddButton Command="{Binding AddTaskCommand}"
+                            SemanticProperties.Description="Add task"
                             ToolTipProperties.Text="Add task" />
     </Grid>
-    
+
 </ContentPage>

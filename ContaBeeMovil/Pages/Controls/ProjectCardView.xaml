@@ -8,46 +8,69 @@
         xmlns:shimmer="clr-namespace:Syncfusion.Maui.Toolkit.Shimmer;assembly=Syncfusion.Maui.Toolkit"
         x:Class="ContaBeeMovil.Pages.Controls.ProjectCardView"
         SemanticProperties.Description="{Binding AccessibilityDescription}"
-        Style="{StaticResource CardStyle}"
+        StrokeShape="RoundRectangle 16"
+        Background="{AppThemeBinding Light={StaticResource LightSecondaryBackground},Dark={StaticResource DarkSecondaryBackground}}"
+        StrokeThickness="0"
+        Padding="{OnIdiom 16, Desktop=20}"
         MinimumHeightRequest="250"
         x:DataType="models:Project">
+    <Border.Shadow>
+        <Shadow Brush="{AppThemeBinding Light={StaticResource ShadowSecondary}, Dark={StaticResource ShadowSecondaryDark}}"
+                Offset="0,2"
+                Radius="8"
+                Opacity="1"/>
+    </Border.Shadow>
     <shimmer:SfShimmer
         BackgroundColor="Transparent"
         IsActive="{Binding IsBusy, Source={RelativeSource AncestorType={x:Type pageModels:MainPageModel}}, x:DataType=pageModels:IProjectTaskPageModel}">
         <shimmer:SfShimmer.CustomView>
-            <VerticalStackLayout Spacing="15">
-                <BoxView 
-                    CornerRadius="48"
-                    WidthRequest="24"
-                    HeightRequest="24"
+            <VerticalStackLayout Spacing="12">
+                <BoxView
+                    CornerRadius="12"
+                    WidthRequest="40"
+                    HeightRequest="40"
                     HorizontalOptions="Start"
                     VerticalOptions="Start"
                     Style="{StaticResource ShimmerCustomViewStyle}"/>
-                <BoxView 
-                    HeightRequest="24"
+                <BoxView
+                    HeightRequest="20"
                     Style="{StaticResource ShimmerCustomViewStyle}"/>
-                <BoxView 
+                <BoxView
                     HeightRequest="48"
                     Style="{StaticResource ShimmerCustomViewStyle}"/>
-                <BoxView 
+                <BoxView
                     HeightRequest="24"
-                    Margin="0, 12"
+                    Margin="0, 8"
                     Style="{StaticResource ShimmerCustomViewStyle}"/>
             </VerticalStackLayout>
         </shimmer:SfShimmer.CustomView>
         <shimmer:SfShimmer.Content>
-            <VerticalStackLayout Spacing="15">
-                <Image HorizontalOptions="Start" Aspect="Center">
-                    <Image.Source>
-                        <FontImageSource 
-                    Glyph="{Binding Icon}" 
-                    FontFamily="{x:Static fonts:FluentUI.FontFamily}" 
-                    Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
-                    Size="{StaticResource IconSize}"/>
-                    </Image.Source>
-                </Image>
-                <Label Text="{Binding Name}" TextColor="{AppThemeBinding Light={StaticResource Gray600}, Dark={StaticResource Gray400}}" FontSize="14" TextTransform="Uppercase"/>
-                <Label Text="{Binding Description}" LineBreakMode="WordWrap"/>
+            <VerticalStackLayout Spacing="10">
+                <!-- Icon in a colored circle -->
+                <Border StrokeShape="RoundRectangle 12"
+                        HeightRequest="40"
+                        WidthRequest="40"
+                        StrokeThickness="0"
+                        Padding="0"
+                        HorizontalOptions="Start"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}">
+                    <Label Text="{Binding Icon}"
+                           FontFamily="{x:Static fonts:FluentUI.FontFamily}"
+                           FontSize="18"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"/>
+                </Border>
+
+                <Label Text="{Binding Name}"
+                       TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}"
+                       FontSize="12"
+                       TextTransform="Uppercase"
+                       CharacterSpacing="1"/>
+                <Label Text="{Binding Description}"
+                       LineBreakMode="WordWrap"
+                       Style="{StaticResource Body2}"
+                       MaxLines="3"/>
                 <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start" JustifyContent="Start" BindableLayout.ItemsSource="{Binding Tags}">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="models:Tag">

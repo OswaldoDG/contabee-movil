@@ -1,5 +1,4 @@
-﻿using ContaBeeMovil.Pages.Registro;
-using Microsoft.Extensions.DependencyInjection;
+using ContaBeeMovil.Pages.Login;
 
 namespace ContaBeeMovil
 {
@@ -12,7 +11,14 @@ namespace ContaBeeMovil
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new PaginaRegistro());
+            var tieneSesion = Preferences.Get("TieneSesion", false);
+
+            if (tieneSesion)
+            {
+                return new Window(new AppShell());
+            }
+
+            return new Window(new PaginaLogin());
         }
     }
 }
