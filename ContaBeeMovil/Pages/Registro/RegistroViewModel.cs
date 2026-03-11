@@ -1,5 +1,10 @@
 ﻿using Contabee.Api;
+using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
+using ContaBeeMovil;
+using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -15,17 +20,18 @@ public class RegistroViewModel : INotifyPropertyChanged
     private string _cuponRegistro;
     private string _mensajeError;
     private bool _estaCargando;
-    private readonly ServicioIdentidadClient _servicioIdentidad;
+    private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IToastService _toast;
+    private readonly DeviceService _deviceService;
 
-    public RegistroViewModel()
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IToastService ToastService,DeviceService deviceService)
     {
-        // Inicializar el servicio (ajustar según tu configuración de DI)
-        // _servicioIdentidad = ...; 
-
+        _servicioIdentidad = servicioIdentidad;
+        _toast = ToastService;
+        _deviceService = deviceService;
         RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
         IrALoginCommand = new Command(async () => await IrALogin());
     }
-
     public string Nombre
     {
         get => _nombre;
@@ -114,6 +120,10 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     public ICommand RegistrarCommand { get; }
     public ICommand IrALoginCommand { get; }
+    public bool EsMinimo6 { get;  set; }
+    public bool TieneMayuscula { get;  set; }
+    public bool TieneNumero { get;  set; }
+    public bool TieneCaracterEspecial { get;  set; }
 
     private async Task Registrar()
     {
@@ -135,35 +145,38 @@ public class RegistroViewModel : INotifyPropertyChanged
             };
 
             // Llamar al servicio de registro
-            await _servicioIdentidad.RegistroAsync(detalle: true, body: model);
+           var respuesta =  await _servicioIdentidad.Registrar(model);
+
+           if(!respuesta.Ok)
+            {
+                throw new Exception(respuesta.HttpCode.ToString());
+            }
 
             // Mostrar mensaje de éxito
-            await Application.Current.MainPage.DisplayAlert(
-                "Éxito",
+            await _toast.ShowAsync(
                 "Registro completado. Por favor verifica tu correo electrónico.",
-                "OK");
+                ToastType.Success, position: ToastPosition.Bottom);
 
-            // Navegar a login
-            await IrALogin();
+            //Navegar a login
+           // await IrALogin();
         }
         catch (ApiException ex)
         {
-            if (ex.StatusCode == 409)
+            var mensaje = ex.StatusCode switch
             {
-                MensajeError = "El correo electrónico ya está registrado.";
-            }
-            else if (ex.StatusCode == 500)
-            {
-                MensajeError = "Error del servidor. Por favor intenta más tarde.";
-            }
-            else
-            {
-                MensajeError = "Error al registrar. Por favor verifica tus datos.";
-            }
+                409 => "El correo electrónico ya está registrado.",
+                500 => "Error al registrar. Por favor intenta más tarde.",
+                _ => "Error al registrar. Por favor verifica tus datos."
+            };
+
+            await _toast.ShowAsync(mensaje, ToastType.Error);
+            MensajeError = mensaje;
         }
         catch (Exception ex)
         {
-            MensajeError = $"Error inesperado: {ex.Message}";
+            await _toast.ShowAsync(
+                $"Error inesperado: {ex.Message}",
+                ToastType.Error);
         }
         finally
         {
@@ -173,23 +186,14 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     private async Task<string> ObtenerDispositivoId()
     {
-        // Implementar según tu estrategia de identificación de dispositivo
-        // Opciones: GUID persistente en Preferences, DeviceInfo, etc.
-
-        var deviceId = Preferences.Get("DeviceId", string.Empty);
-
-        if (string.IsNullOrEmpty(deviceId))
-        {
-            deviceId = Guid.NewGuid().ToString();
-            Preferences.Set("DeviceId", deviceId);
-        }
-
-        return deviceId;
+        return await _deviceService.GetDeviceIdAsync();
+       
     }
 
     private async Task IrALogin()
     {
-        Application.Current!.Windows[0].Page = new ContaBeeMovil.Pages.Login.PaginaLogin();
+        var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
+        Application.Current!.Windows[0].Page = paginaLogin;
     }
 
     public event PropertyChangedEventHandler PropertyChanged;

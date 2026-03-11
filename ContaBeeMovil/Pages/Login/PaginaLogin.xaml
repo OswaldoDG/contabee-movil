@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:f="clr-namespace:Fonts"
              xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Login.PaginaLogin"
              Shell.NavBarIsVisible="False"
              Title="Login">
@@ -22,8 +23,8 @@
 
                 <Image x:Name="LogoImage"
                        Source="logo512.png"
-                       WidthRequest="88"
-                       HeightRequest="88"
+                       WidthRequest="100"
+                       HeightRequest="100"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
                        SemanticProperties.Description="ContaBee logo" />
@@ -31,12 +32,12 @@
                 <Label Text="CONTABEE"
                        Style="{StaticResource Title1}"
                        HorizontalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}" />
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
                 <Label Text="Bienvenido de nuevo"
                        Style="{StaticResource Body1}"
                        HorizontalOptions="Center"
-                       TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
             </VerticalStackLayout>
 
             <!-- ======================================= -->
@@ -94,7 +95,7 @@
                     <Label Text="Recordarme"
                            VerticalOptions="Center"
                            Style="{StaticResource Caption1}"
-                           TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                           TextColor="{toolkit:AppThemeResource  SecondaryText}" />
                 </HorizontalStackLayout>
 
                 <!-- Buttons -->
@@ -106,12 +107,12 @@
                     <Button Grid.Column="0"
                             Text="Vincularme"
                             Command="{Binding VincularmeCommand}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{toolkit:AppThemeResource  Primary}"
                             SemanticProperties.Description="Vincularme">
                         <Button.ImageSource>
                             <FontImageSource Glyph="{x:Static f:FluentUI.people_community_24_regular}"
                                              FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                             Color="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"
+                                             Color="{toolkit:AppThemeResource PrimaryText}"
                                              Size="18" />
                         </Button.ImageSource>
                     </Button>
@@ -120,12 +121,12 @@
                     <Button Grid.Column="1"
                             Text="Ingresar"
                             Command="{Binding IngresarCommand}"
-                            Style="{StaticResource PrimaryButton}"
+                            Style="{toolkit:AppThemeResource  Primary}"
                             SemanticProperties.Description="Ingresar">
                         <Button.ImageSource>
                             <FontImageSource Glyph="{x:Static f:FluentUI.arrow_enter_20_regular}"
                                              FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                             Color="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"
+                                             Color="{toolkit:AppThemeResource PrimaryText}"
                                              Size="18" />
                         </Button.ImageSource>
                     </Button>
@@ -141,9 +142,10 @@
                         <Label Text="&#191;No tienes cuenta?"
                                VerticalOptions="Center"
                                Style="{StaticResource Caption1}"
-                               TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
                         <Label Text="Reg&#237;strate"
                                Style="{StaticResource LinkLabel}"
+                               TextColor="{toolkit:AppThemeResource Primary}"
                                VerticalOptions="Center">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding IrARegistroCommand}" />
@@ -156,9 +158,10 @@
                         <Label Text="&#191;Olvidaste tu contrase&#241;a?"
                                VerticalOptions="Center"
                                Style="{StaticResource Caption1}"
-                               TextColor="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}" />
+                               TextColor="{toolkit:AppThemeResource  PrimaryText}" />
                         <Label Text="Recup&#233;rala"
                                Style="{StaticResource LinkLabel}"
+                               TextColor="{toolkit:AppThemeResource Primary}"
                                VerticalOptions="Center">
                             <Label.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding RecuperarContrasenaCommand}" />
@@ -178,7 +181,7 @@
                                HorizontalOptions="Center"
                                VerticalOptions="Center"
                                ZIndex="10"
-                               Color="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+                               Color="{toolkit:AppThemeResource Primary}" />
 
             <!-- ======================================= -->
             <!-- FOOTER: Bottom Icons                    -->

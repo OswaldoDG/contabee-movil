@@ -5,14 +5,13 @@ namespace ContaBeeMovil.Pages.Login;
 
 public partial class PaginaLogin : ContentPage
 {
-    public PaginaLogin()
+    private readonly LoginViewModel _viewModel;
+
+    public PaginaLogin( LoginViewModel viewModel)
     {
         InitializeComponent();
-
-        var servicioIdentidad = MauiProgram.Services.GetRequiredService<IServicioIdentidad>();
-        var servicioSesion = MauiProgram.Services.GetRequiredService<IServicioSesion>();
-        var notificacion = MauiProgram.Services.GetRequiredService<IServicioNotificacion>();
-        BindingContext = new LoginViewModel(servicioIdentidad, servicioSesion, notificacion);
+        this._viewModel = viewModel;
+        BindingContext = this._viewModel;
     }
 
     protected override void OnAppearing()

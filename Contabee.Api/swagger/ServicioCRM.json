@@ -1,0 +1,3857 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "contabee.api.crm",
+    "version": "1.0"
+  },
+  "paths": {
+    "/crm/resumen": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoResumenCuentaUsuario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoResumenCuentaUsuario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoResumenCuentaUsuario"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/rfc/minima": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/rfc/url": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrl"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrl"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrl"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/rfc": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscalCompleta"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscalCompleta"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscalCompleta"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{CuentaFiscalId}/miembro/{usuarioId}": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "primario",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{CuentaFiscalId}": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "direcciones",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{CuentaFiscalId}/miembros/{UsuarioId}": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "UsuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{CuentaFiscalId}/tipocaptura/{tipo}": {
+      "put": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/contabee.model.crm.TipoProcesoCaptura"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.AsociacionCuentaFiscal"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/crm/rfc/{CuentaFiscalId}/config": {
+      "patch": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.ActualizacionCuentaFiscal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.ActualizacionCuentaFiscal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.ActualizacionCuentaFiscal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/cuentaprimaria/{id}": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/asociacionfiscal": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.SolicitudAsociacionFiscal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.SolicitudAsociacionFiscal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.SolicitudAsociacionFiscal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/asociacionfiscal/{cuentafiscalId}/usuario/{usuarioVinculadoId}": {
+      "delete": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "usuarioVinculadoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/asociacionfiscal/{id}": {
+      "delete": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/rfc/ids": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.busqueda.ParIdTexto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.busqueda.ParIdTexto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.busqueda.ParIdTexto"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/crm/email/{email}": {
+      "get": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/CuentaFiscal/emailreenvio/{CuentaFiscalId}": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.MailForwarderCuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.MailForwarderCuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.MailForwarderCuentaFiscal"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/crm/CuentaFiscalId/emailreenvio/{id}": {
+      "delete": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "CuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/feedback": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.feedback.DtoCreaRetroalimentacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.feedback.DtoCreaRetroalimentacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.feedback.DtoCreaRetroalimentacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/porusuario/{usuarioId}": {
+      "delete": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/licenciamiento/demo/{dispostivoId}/factible/{rfc}": {
+      "get": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "rfc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dispostivoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/demo/{dispostivoId}/solicitar/{rfc}": {
+      "post": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "rfc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dispostivoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.RespuestaSolicitudLicenciamientoDemo"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.RespuestaSolicitudLicenciamientoDemo"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.RespuestaSolicitudLicenciamientoDemo"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/demo/{dispostivoId}/activar/{token}": {
+      "post": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dispostivoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoCuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoCuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoCuentaFiscal"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/acreditapago/{cuentafiscalId}": {
+      "post": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.servicios.crm.DTOPagoAcreditado"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.servicios.crm.DTOPagoAcreditado"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.servicios.crm.DTOPagoAcreditado"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/{cuentafiscalId}": {
+      "get": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "d",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/{cuentafiscalId}/incrementar/{cantidad}": {
+      "patch": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cantidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/{cuentafiscalId}/reduceconsumo/{cantidad}": {
+      "patch": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cantidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/actualizar/{cuentafiscalId}": {
+      "put": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/marketing/promociones": {
+      "get": {
+        "tags": [
+          "Marketing"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/marketing/promociones/aplicar": {
+      "post": {
+        "tags": [
+          "Marketing"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/marketing/promociones/obtener/{cuentafiscalId}": {
+      "get": {
+        "tags": [
+          "Marketing"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/marketing/promociones/obtenerEmail/{Email}": {
+      "get": {
+        "tags": [
+          "Marketing"
+        ],
+        "parameters": [
+          {
+            "name": "Email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[contabee.model.crm.CuentaFiscal, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[contabee.model.crm.CuentaFiscal, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[contabee.model.crm.CuentaFiscal, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/marketing/ObtienePromocionesExistentes/{idsPromocion}/{isListPromo}": {
+      "get": {
+        "tags": [
+          "Marketing"
+        ],
+        "parameters": [
+          {
+            "name": "idsPromocion",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isListPromo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[System.Collections.Generic.List`1[[contabee.model.crm.promociones.ElementoPromocion, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[System.Collections.Generic.List`1[[contabee.model.crm.promociones.ElementoPromocion, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.RespuestaPayload`1[[System.Collections.Generic.List`1[[contabee.model.crm.promociones.ElementoPromocion, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/organizacion": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCreaOrganizacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCreaOrganizacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCreaOrganizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Organizacion"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}": {
+      "get": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoOrganizacion"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaOrganizacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaOrganizacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaOrganizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}/centrocostos": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCrearCentroCostos"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCrearCentroCostos"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCrearCentroCostos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/centrocostos/{centroCostosId}": {
+      "get": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaCentroCostos"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaCentroCostos"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoActualizaCentroCostos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}/usuarios": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioOrganizacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioOrganizacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioOrganizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}/usuarios/{usuarioIdParam}": {
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "usuarioIdParam",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/centrocostos/{centroCostosId}/usuarios": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioCentroCostos"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioCentroCostos"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioCentroCostos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/centrocostos/{centroCostosId}/usuarios/{usuarioIdParam}": {
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "usuarioIdParam",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}/cuentasfiscales": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalOrganizacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalOrganizacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalOrganizacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/{organizacionId}/cuentasfiscales/{cuentaFiscalId}": {
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "organizacionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/centrocostos/{centroCostosId}/cuentasfiscales": {
+      "post": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalCentroCostos"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalCentroCostos"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalCentroCostos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "409": {
+            "description": "Conflict"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/organizacion/centrocostos/{centroCostosId}/cuentasfiscales/{cuentaFiscalId}": {
+      "delete": {
+        "tags": [
+          "Organizacion"
+        ],
+        "parameters": [
+          {
+            "name": "centroCostosId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "System.Net.HttpStatusCode": {
+        "enum": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "MovedPermanently",
+          "Found",
+          "SeeOther",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
+        ],
+        "type": "string"
+      },
+      "comunes.busqueda.ParIdTexto": {
+        "required": [
+          "id",
+          "texto"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "texto": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.proxies.ecommerce.DtoCarritoCompra": {
+        "required": [
+          "cuentaFiscalId",
+          "dispositivoId",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "dispositivoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "pasarelarPago": {
+            "$ref": "#/components/schemas/comunes.proxies.ecommerce.PasarelarPago"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "estado": {
+            "$ref": "#/components/schemas/comunes.proxies.ecommerce.EstadoCarrito"
+          },
+          "totalImpuestos": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pasarelaPagoTransaccionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreCuentaBancaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "clabeInterbancaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreInstitucionBancaria": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.proxies.ecommerce.EstadoCarrito": {
+        "enum": [
+          "Activo",
+          "EnProcesoPago",
+          "Pagado",
+          "Cancelado",
+          "Declinado"
+        ],
+        "type": "string"
+      },
+      "comunes.proxies.ecommerce.PasarelarPago": {
+        "enum": [
+          "Interbancario",
+          "MercadoPago"
+        ],
+        "type": "string"
+      },
+      "comunes.proxies.licenciamiento.DtoLicenciamiento": {
+        "type": "object",
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capturaOnPremise": {
+            "type": "boolean"
+          },
+          "creditosCaptura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosCapturaConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasCaptura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasColaboracion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comprobacionesActivas": {
+            "type": "boolean"
+          },
+          "devolucionesActivas": {
+            "type": "boolean"
+          },
+          "vigenciaLicenciasCaptura": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "vigenciaDevoluciones": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "vigenciaComprobaciones": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "vigenciaMembresia": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.respuestas.ErrorProceso": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "propiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.respuestas.Respuesta": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/comunes.respuestas.ErrorProceso"
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.respuestas.RespuestaPayload`1[[System.Collections.Generic.List`1[[contabee.model.crm.promociones.ElementoPromocion, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/comunes.respuestas.ErrorProceso"
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          },
+          "payload": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.promociones.ElementoPromocion"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.respuestas.RespuestaPayload`1[[contabee.model.crm.CuentaFiscal, contabee.model.crm, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/comunes.respuestas.ErrorProceso"
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.servicios.crm.DTOPagoAcreditado": {
+        "required": [
+          "referenciaPagoId"
+        ],
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "timeStampt": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "referenciaPagoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.servicios.crm.PagoProducto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.servicios.crm.PagoProducto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "producto": {
+            "$ref": "#/components/schemas/comunes.servicios.crm.TipoProducto"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unidadesProducto": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "vigencia": {
+            "$ref": "#/components/schemas/comunes.servicios.crm.RangoFechas"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.servicios.crm.RangoFechas": {
+        "type": "object",
+        "properties": {
+          "inicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.servicios.crm.TipoProducto": {
+        "enum": [
+          "Indefinido",
+          "CreditoCaptura",
+          "LicenciaCaptura",
+          "LicenciaComprobacion",
+          "LicenciaDevolucion",
+          "LicenciaColaboracion"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.ActualizacionCuentaFiscal": {
+        "type": "object",
+        "properties": {
+          "compartida": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.AsociacionCuentaFiscal": {
+        "required": [
+          "claveRegimenFiscal",
+          "rfc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rfc": {
+            "maxLength": 15,
+            "type": "string",
+            "nullable": true
+          },
+          "claveRegimenFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoCuenta": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoCuenta"
+          },
+          "fechaAsociacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activa": {
+            "type": "boolean"
+          },
+          "caduca": {
+            "type": "boolean"
+          },
+          "estadoLicenciaDemo": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
+          },
+          "caducidad": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.AsociacionCuentaFiscalCompleta": {
+        "required": [
+          "claveRegimenFiscal",
+          "rfc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rfc": {
+            "maxLength": 15,
+            "type": "string",
+            "nullable": true
+          },
+          "claveRegimenFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoCuenta": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoCuenta"
+          },
+          "fechaAsociacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "activa": {
+            "type": "boolean"
+          },
+          "caduca": {
+            "type": "boolean"
+          },
+          "estadoLicenciaDemo": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
+          },
+          "caducidad": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "direccionesFiscales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.DireccionFiscal"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.CuentaFiscal": {
+        "required": [
+          "rfc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaUsuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rfc": {
+            "type": "string",
+            "nullable": true
+          },
+          "compartida": {
+            "type": "boolean"
+          },
+          "nombre": {
+            "maxLength": 255,
+            "type": "string",
+            "nullable": true
+          },
+          "apellido1": {
+            "type": "string",
+            "nullable": true
+          },
+          "apellido2": {
+            "type": "string",
+            "nullable": true
+          },
+          "nacimiento": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreComercial": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "inicioOperaciones": {
+            "type": "string",
+            "nullable": true
+          },
+          "estado": {
+            "type": "string",
+            "nullable": true
+          },
+          "ultimoCambio": {
+            "type": "string",
+            "nullable": true
+          },
+          "regimen": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaAlta": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoPersonaFiscal"
+          },
+          "claveRegimenFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "distribuidorId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "campanaId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "vendedorId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "regimenIdentificado": {
+            "type": "boolean"
+          },
+          "activa": {
+            "type": "boolean"
+          },
+          "estadoLicenciaDemo": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
+          },
+          "cuentaUsuario": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
+          },
+          "direcciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.DireccionFiscal"
+            },
+            "nullable": true
+          },
+          "mailForwarders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.MailForwarderCuentaFiscal"
+            },
+            "nullable": true
+          },
+          "tipoCaptura": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoProcesoCaptura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.CuentaFiscalMinima": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoPersonaFiscal"
+          },
+          "rfc": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPostal": {
+            "type": "string",
+            "nullable": true
+          },
+          "compartido": {
+            "type": "boolean"
+          },
+          "claveRegimenFiscal": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.CuentaUsuario": {
+        "type": "object",
+        "properties": {
+          "cuentaUsuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoCuenta"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipoCuenta": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoCuenta"
+          },
+          "cuentaPrimariaId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "mesesHistorial": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cuentaPrimaria": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
+          },
+          "cuentasSecundarias": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
+            },
+            "nullable": true
+          },
+          "cuentasFiscales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.DireccionFiscal": {
+        "required": [
+          "al",
+          "codigoPostal",
+          "colonia",
+          "email",
+          "entidadFederativa",
+          "municipio",
+          "nombreVialidad",
+          "numExterior",
+          "numInterior",
+          "tipoVialidad"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "entidadFederativa": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "municipio": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          },
+          "colonia": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          },
+          "tipoVialidad": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "nombreVialidad": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          },
+          "numExterior": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "numInterior": {
+            "maxLength": 50,
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPostal": {
+            "maxLength": 10,
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 250,
+            "type": "string",
+            "nullable": true
+          },
+          "al": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "cuentaFiscal": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.EstadoCentroCostos": {
+        "enum": [
+          "Activo",
+          "Inactivo"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.EstadoCuenta": {
+        "enum": [
+          "Activa",
+          "Inactiva"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.EstadoLicenciaDemo": {
+        "enum": [
+          "SinEvaluar",
+          "Factible",
+          "Otorgada",
+          "NoFactible"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.EstadoOrganizacion": {
+        "enum": [
+          "Activa",
+          "Inactiva"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.MailForwarderCuentaFiscal": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "cuentaFiscal": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.RequestUrl": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "compartido": {
+            "type": "boolean"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoPersonaFiscal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.RolOrganizacion": {
+        "enum": [
+          "Consultor",
+          "Gestor",
+          "Administrador"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.SolicitudAsociacionFiscal": {
+        "type": "object",
+        "properties": {
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipoCuenta": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoCuenta"
+          },
+          "caduca": {
+            "type": "boolean"
+          },
+          "caducidad": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.TipoCuenta": {
+        "enum": [
+          "Primaria",
+          "Secundaria"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.TipoPersonaFiscal": {
+        "enum": [
+          "Fisica",
+          "Moral"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.TipoProcesoCaptura": {
+        "enum": [
+          "Contabee",
+          "InternoDinamico",
+          "Interno"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.feedback.DtoCreaRetroalimentacion": {
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.feedback.ElementoCreaRetroalimentacion"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.feedback.ElementoCreaRetroalimentacion": {
+        "required": [
+          "detalle"
+        ],
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.feedback.TipoSugerencia"
+          },
+          "detalle": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.feedback.TipoSugerencia": {
+        "enum": [
+          "MeGusta",
+          "NoMeGusta",
+          "MeGustaria"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.licenciamiento.DtoLicenciamiento": {
+        "type": "object",
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capturaOnPremise": {
+            "type": "boolean"
+          },
+          "creditosCaptura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosCapturaConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasCaptura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasColaboracion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comprobacionesActivas": {
+            "type": "boolean"
+          },
+          "devolucionesActivas": {
+            "type": "boolean"
+          },
+          "siguienteRev": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.licenciamiento.LicenciamientoCuentaFiscal": {
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capturaOnPremise": {
+            "type": "boolean"
+          },
+          "creditosAdquiridos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosDisponibles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosCapturaConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasCaptura": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "licenciasColaboracion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "comprobacionesActivas": {
+            "type": "boolean"
+          },
+          "devolucionesActivas": {
+            "type": "boolean"
+          },
+          "timeStampt": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "siguienteRev": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.licenciamiento.RespuestaSolicitudLicenciamientoDemo": {
+        "required": [
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoActualizaCentroCostos": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "centroCostosPadreId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "centroCostosPadreIdProvided": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoActualizaOrganizacion": {
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalCentroCostos": {
+        "required": [
+          "cuentaFiscalId"
+        ],
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoAsignaCuentaFiscalOrganizacion": {
+        "required": [
+          "cuentaFiscalId"
+        ],
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioCentroCostos": {
+        "required": [
+          "rol",
+          "usuarioId"
+        ],
+        "type": "object",
+        "properties": {
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "$ref": "#/components/schemas/contabee.model.crm.RolOrganizacion"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoAsignaUsuarioOrganizacion": {
+        "required": [
+          "rol",
+          "usuarioId"
+        ],
+        "type": "object",
+        "properties": {
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rol": {
+            "$ref": "#/components/schemas/contabee.model.crm.RolOrganizacion"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoCentroCostos": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "orgId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "centroCostosPadreId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoCentroCostos"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "centrosCostosHijos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+            },
+            "nullable": true
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "cuentasFiscales": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoCreaOrganizacion": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "clave": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoCrearCentroCostos": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "clave": {
+            "maxLength": 100,
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "maxLength": 500,
+            "type": "string",
+            "nullable": true
+          },
+          "centroCostosPadreId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.organizacion.dtos.DtoOrganizacion": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoOrganizacion"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "centrosCostos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.organizacion.dtos.DtoCentroCostos"
+            },
+            "nullable": true
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          },
+          "cuentasFiscales": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.promociones.DtoCreaPromocionCuentaFiscal": {
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "promoId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "evento": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.promociones.ElementoPromocion": {
+        "required": [
+          "descripcion"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "multiple": {
+            "type": "boolean"
+          },
+          "promocionesCuentaFiscal": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.promociones.PromocionesCuentaFiscal"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.promociones.PromocionesCuentaFiscal": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "elementoPromocionId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "eventoPromocional": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.resumen.DtoCuentaFiscal": {
+        "required": [
+          "id",
+          "rfc"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "esPrimario": {
+            "type": "boolean"
+          },
+          "rfc": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.TipoPersonaFiscal"
+          },
+          "estadoLicenciaDemo": {
+            "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
+          },
+          "licenciamientoActual": {
+            "$ref": "#/components/schemas/comunes.proxies.licenciamiento.DtoLicenciamiento"
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoResumenCuentaUsuario"
+            },
+            "nullable": true
+          },
+          "carritos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.proxies.ecommerce.DtoCarritoCompra"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.resumen.DtoResumenCuentaUsuario": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "userName": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "esLoginLess": {
+            "type": "boolean"
+          },
+          "esCaptura": {
+            "type": "boolean"
+          },
+          "fechaIngreso": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cuentasFiscales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoCuentaFiscal"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

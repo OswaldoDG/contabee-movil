@@ -2,7 +2,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Pages.RecuperarPass;
+using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Login;
 
@@ -11,7 +14,7 @@ public class LoginViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioNotificacion _notificacion;
-
+    private readonly IToastService toastService;
     private string _email = string.Empty;
     private string _password = string.Empty;
     private bool _recordarme;
@@ -24,16 +27,17 @@ public class LoginViewModel : INotifyPropertyChanged
     public LoginViewModel(
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
-        IServicioNotificacion notificacion)
+        IServicioNotificacion notificacion,
+        IToastService toastService)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
         _notificacion = notificacion;
-
+        this.toastService = toastService;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);
         VincularmeCommand = new Command(async () => await Vincularme());
         IrARegistroCommand = new Command(async () => await IrARegistro());
-        RecuperarContrasenaCommand = new Command(async () => await RecuperarContrasena());
+        RecuperarContrasenaCommand = new Command(RecuperarContrasena);
         MostrarInfoAppCommand = new Command(async () => await MostrarInfoApp());
         MostrarInfoCommand = new Command(async () => await MostrarInfo());
 
@@ -156,14 +160,17 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (!resultado.Ok || resultado.Payload == null)
             {
-                _ = _notificacion.MostrarErrorAsync(
-                    resultado.Error?.Mensaje ?? "Error al iniciar sesión");
+                //_ = _notificacion.MostrarErrorAsync(
+                //    resultado.Error?.Mensaje ?? "Error al iniciar sesión");
+                await toastService.ShowAsync("Ha oucrrido un error al iniciar sesión.", type: ToastType.Warning, position: ToastPosition.Bottom);
                 return;
             }
 
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,
                 resultado.Payload.RefreshToken);
+
+            await _servicioSesion.PosLoginAsync();
 
             // Transition animation
             var page = Application.Current?.Windows[0].Page as ContentPage;
@@ -191,8 +198,9 @@ public class LoginViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _ = _notificacion.MostrarErrorAsync($"Error al iniciar sesión: {ex.Message}");
+           // _ = _notificacion.MostrarErrorAsync($"Error al iniciar sesión: {ex.Message}");
 
+            await toastService.ShowAsync("Error al iniciar sesión.", type: ToastType.Warning, position: ToastPosition.Bottom);
             // Reset animation if error
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");
@@ -215,37 +223,32 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Vincularme()
     {
-        await _notificacion.MostrarInfoAsync(
-            "La funcionalidad de vinculación estará disponible próximamente.");
+       //await  _notificacion.ShowAlert("La funcionalidad de vinculación estará disponible próximamente.");
+
+       await toastService.ShowAsync("La funcionalidad de vinculación estará disponible próximamente.",type: ToastType.Warning,position:ToastPosition.Bottom);
     }
 
-    private Task IrARegistro()
+    private async Task IrARegistro()
     {
-        Application.Current!.Windows[0].Page = new ContaBeeMovil.Pages.Registro.PaginaRegistro();
-        return Task.CompletedTask;
+        var paginaRegistro = App.Services.GetRequiredService<PaginaRegistro>();
+        Application.Current!.Windows[0].Page = paginaRegistro;
     }
-
-    private async Task RecuperarContrasena()
+    private void RecuperarContrasena()
     {
-        if (string.IsNullOrWhiteSpace(Email))
-        {
-            _ = _notificacion.MostrarErrorAsync(
-                "Ingresa tu correo electrónico para recuperar tu contraseña.");
-            return;
-        }
-
-        await _notificacion.MostrarInfoAsync(
-            $"Se enviará un enlace de recuperación a {Email}.");
+        var pagina = App.Services.GetRequiredService<RecuperarPassPage>();
+        Application.Current!.Windows[0].Page = pagina;
     }
 
     private async Task MostrarInfoApp()
     {
-        await _notificacion.MostrarInfoAsync("ContaBee - Sistema de contabilidad móvil.");
+       // await _notificacion.MostrarInfoAsync("ContaBee - Sistema de contabilidad móvil.");
+        await toastService.ShowAsync("ContaBee - Sistema de contabilidad móvil.", type: ToastType.Warning, position: ToastPosition.Bottom);
     }
 
     private async Task MostrarInfo()
     {
-        await _notificacion.MostrarInfoAsync("ContaBee v1.0 — Desarrollado por ContaBee.");
+        //await _notificacion.MostrarInfoAsync("ContaBee v1.0 — Desarrollado por ContaBee.");
+        await toastService.ShowAsync("ContaBee v1.0 — Desarrollado por ContaBee.", type: ToastType.Warning, position: ToastPosition.Bottom);
     }
 
     #endregion

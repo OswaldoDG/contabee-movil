@@ -1,0 +1,3089 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "contabee.api.transcript",
+    "version": "1.0"
+  },
+  "paths": {
+    "/captura/instantaneos": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ValorInstantaneoCaptura"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ValorInstantaneoCaptura"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ValorInstantaneoCaptura"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/pagina": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/pagina/completar": {
+      "post": {
+        "tags": [
+          "Captura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/pagina/fallida/{id}": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/captura/pagina/contenido/{id}": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/estadisticas": {
+      "post": {
+        "tags": [
+          "Captura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/estadisticas/mias": {
+      "post": {
+        "tags": [
+          "Captura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.QueryEstadistica"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/comentario": {
+      "post": {
+        "tags": [
+          "Comentario"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.CreaComentario"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.CreaComentario"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.CreaComentario"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/comentario/{id}": {
+      "put": {
+        "tags": [
+          "Comentario"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.ActualizaComentario"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.ActualizaComentario"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comentarios.ActualizaComentario"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Comentario"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/comprobacion": {
+      "post": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/comprobacion/{id}": {
+      "put": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/comprobacion/buscar": {
+      "post": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.comprobaciones.Comprobacion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.comprobaciones.Comprobacion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.comprobaciones.Comprobacion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/comprobacion/{id}/estado/{estado}": {
+      "put": {
+        "tags": [
+          "Comprobacion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/contabee.model.transcript.EstadoComprobacion"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      }
+    },
+    "/devolucion": {
+      "post": {
+        "tags": [
+          "Devolucion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/devolucion/{id}": {
+      "put": {
+        "tags": [
+          "Devolucion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Devolucion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Devolucion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devolucion/{id}/estado/{estado}": {
+      "put": {
+        "tags": [
+          "Devolucion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/contabee.model.transcript.EstadoDevolucion"
+            }
+          }
+        ],
+        "responses": {
+          "403": {
+            "description": "Forbidden"
+          },
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/devolucion/buscar": {
+      "post": {
+        "tags": [
+          "Devolucion"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.devoluciones.Devolucion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.devoluciones.Devolucion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.devoluciones.Devolucion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/diagnostico": {
+      "get": {
+        "tags": [
+          "Diagnostico"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.diagnostico.HealthEndpointCheck"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.diagnostico.HealthEndpointCheck"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/comunes.diagnostico.HealthEndpointCheck"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/estadistica/resumen/cuentafiscal/{cuentafiscalId}": {
+      "get": {
+        "tags": [
+          "Estadistica"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ano",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "mes",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResumenCapturaCuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResumenCapturaCuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResumenCapturaCuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Files/download-xml": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Files/download-pdf": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Files/download-zip": {
+      "get": {
+        "tags": [
+          "Files"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/lote": {
+      "post": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.CreaLoteCaptura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.CreaLoteCaptura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.CreaLoteCaptura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/{loteId}/completar": {
+      "post": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "loteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
+    "/lote/{loteId}/precarga": {
+      "get": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "loteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoLoteCapturaCreado"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoLoteCapturaCreado"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoLoteCapturaCreado"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
+    "/lote/{loteId}": {
+      "get": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "loteId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/porcuentafiscal/{cuentaFiscalId}": {
+      "get": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "i",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            }
+          },
+          {
+            "name": "c",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/{idlote}/pagina/{idpagina}": {
+      "get": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "idlote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "idpagina",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "idlote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "idpagina",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/{idlote}/pagina": {
+      "get": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "idlote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/{idlote}/pagina/{idpagina}/estado/{estado}": {
+      "patch": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "parameters": [
+          {
+            "name": "idlote",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "idpagina",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "estado",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/contabee.model.transcript.EstadoCaptura"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
+    "/lote/buscar": {
+      "post": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/buscar/trabajos": {
+      "post": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/lote/exportar/trabajos": {
+      "post": {
+        "tags": [
+          "LoteCaptura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.paginas.BusquedaCaptura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "System.Net.HttpStatusCode": {
+        "enum": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "MovedPermanently",
+          "Found",
+          "SeeOther",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
+        ],
+        "type": "string"
+      },
+      "comunes.busqueda.Busqueda": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+          },
+          "contar": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.Filtro": {
+        "required": [
+          "propiedad"
+        ],
+        "type": "object",
+        "properties": {
+          "propiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "operador": {
+            "$ref": "#/components/schemas/comunes.busqueda.Operador"
+          },
+          "negacion": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "valores": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.Operador": {
+        "enum": [
+          "None",
+          "Igual",
+          "MayorIgual",
+          "Mayor",
+          "MenorIgual",
+          "Menor",
+          "Entre",
+          "Contiene",
+          "Comienza",
+          "Termina",
+          "Verdadero",
+          "Falso"
+        ],
+        "type": "string"
+      },
+      "comunes.busqueda.Paginado": {
+        "type": "object",
+        "properties": {
+          "pagina": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tamanoPagina": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.comprobaciones.Comprobacion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+          },
+          "contar": {
+            "type": "boolean"
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.devoluciones.Devolucion, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+          },
+          "contar": {
+            "type": "boolean"
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+          },
+          "contar": {
+            "type": "boolean"
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.diagnostico.HealthEndpointCheck": {
+        "required": [
+          "nombreServicio"
+        ],
+        "type": "object",
+        "properties": {
+          "nombreServicio": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoRetornado": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          },
+          "saludable": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.extensiones.FileType": {
+        "enum": [
+          "Unknown",
+          "Jpeg",
+          "Bmp",
+          "Gif",
+          "Png",
+          "Pdf",
+          "Webp",
+          "XML"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.EstadoCaptura": {
+        "enum": [
+          "Nuevo",
+          "CargaCompleta",
+          "EnProceso",
+          "Reprogramado",
+          "EnReset",
+          "Finalizado",
+          "FinalizadoError"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.EstadoComprobacion": {
+        "enum": [
+          "Abierta",
+          "Cerrada",
+          "Cancelada"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.EstadoDevolucion": {
+        "enum": [
+          "Creada",
+          "Admitida",
+          "Aceptada",
+          "Declinada"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.FuenteCaptura": {
+        "enum": [
+          "Camara",
+          "Email"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.MotivoEstado": {
+        "enum": [
+          "Ninguno",
+          "ImagenDeficiente",
+          "ImagenErronea",
+          "Abuso",
+          "MaximoIntentosSuperado",
+          "ReprogramacionFueraRango",
+          "PortalPrivado",
+          "Extemporaneo",
+          "OtroError"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.OrigenComentario": {
+        "enum": [
+          "Comprobacion",
+          "Devolucion",
+          "LoteCaptura",
+          "PaginaLoteCaptura"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.TipoContenidoPagina": {
+        "enum": [
+          "ImagenCruda",
+          "OCR",
+          "Barcodes",
+          "CfdiPDF",
+          "CfdiXML",
+          "EvidenciaErrorCaptura"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.TipoFuenteProcesamiento": {
+        "enum": [
+          "Ninguno",
+          "Web",
+          "Email",
+          "WhatsApp",
+          "Telefono"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.TipoProcesoCaptura": {
+        "enum": [
+          "FacturaIndividual",
+          "Comprobacion",
+          "Devolucion"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.VisibilidadComentario": {
+        "enum": [
+          "Privado",
+          "Jerarquia",
+          "Public"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.comentarios.ActualizaComentario": {
+        "required": [
+          "contenido"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "visibilidad": {
+            "$ref": "#/components/schemas/contabee.model.transcript.VisibilidadComentario"
+          },
+          "contenido": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.comentarios.Comentario": {
+        "required": [
+          "contenido",
+          "origenId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "origenId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipoOrigen": {
+            "$ref": "#/components/schemas/contabee.model.transcript.OrigenComentario"
+          },
+          "creadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "visibilidad": {
+            "$ref": "#/components/schemas/contabee.model.transcript.VisibilidadComentario"
+          },
+          "contenido": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.comentarios.CreaComentario": {
+        "required": [
+          "contenido",
+          "origenId"
+        ],
+        "type": "object",
+        "properties": {
+          "origenId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipoOrigen": {
+            "$ref": "#/components/schemas/contabee.model.transcript.OrigenComentario"
+          },
+          "visibilidad": {
+            "$ref": "#/components/schemas/contabee.model.transcript.VisibilidadComentario"
+          },
+          "contenido": {
+            "type": "string",
+            "nullable": true
+          },
+          "creadorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.comprobaciones.ActualizaComprobacion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "monto": {
+            "type": "number",
+            "format": "double"
+          },
+          "cierre": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "porcentajeCompropbar": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioRceptorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.comprobaciones.Comprobacion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "creacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "monto": {
+            "type": "number",
+            "format": "double"
+          },
+          "cierre": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "porcentajeCompropbar": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioCreadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioReceptorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "montoComprobado": {
+            "type": "number",
+            "format": "double"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoComprobacion"
+          },
+          "lotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+            },
+            "nullable": true
+          },
+          "comentarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.comprobaciones.CreaComprobacion": {
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "monto": {
+            "type": "number",
+            "format": "double"
+          },
+          "cierre": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "porcentajeCompropbar": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "usuarioReceptorId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.devoluciones.ActualizaDevolucion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.devoluciones.CreaDevolucion": {
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.devoluciones.Devolucion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "creacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "monto": {
+            "type": "number",
+            "format": "double"
+          },
+          "usuarioCreadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioValidadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoDevolucion"
+          },
+          "cierre": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "lotes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+            },
+            "nullable": true
+          },
+          "comentarios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.comentarios.Comentario"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.estadisticas.EstadisticaCaptura": {
+        "type": "object",
+        "properties": {
+          "nuevos": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cargaCompleta": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enProceso": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reprogramado": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "enReset": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "finalizado": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "finalizadoError": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "ano": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.estadisticas.PeriodoEstadistico": {
+        "enum": [
+          "SinPeriodo",
+          "Mensual"
+        ],
+        "type": "string"
+      },
+      "contabee.model.transcript.estadisticas.QueryEstadistica": {
+        "type": "object",
+        "properties": {
+          "meses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "periodo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.PeriodoEstadistico"
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.estadisticas.ResultadoEstadistica": {
+        "type": "object",
+        "properties": {
+          "meses": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "periodo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.PeriodoEstadistico"
+          },
+          "estadisticas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.EstadisticaCaptura"
+            },
+            "nullable": true
+          },
+          "usuarios": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.estadisticas.ResumenCapturaCuentaFiscal": {
+        "type": "object",
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "solicitudes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "emitidas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendientes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "declinadas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "solicitadasDia": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "emitidasDia": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "nullable": true
+          },
+          "creditosAdquiridos": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "creditosRestantes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalFacturado": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.estadisticas.ValorInstantaneoCaptura": {
+        "type": "object",
+        "properties": {
+          "pendientes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "enProceso": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.lotes.CreaLoteCaptura": {
+        "required": [
+          "claveFormaPago",
+          "claveUsoCfdi"
+        ],
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoProcesoCaptura"
+          },
+          "claveUsoCfdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveFormaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminacionMedioPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "procesoAsociadoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          },
+          "centroCostosId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "desglosarIEPS": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.lotes.DtoLoteCapturaCreado": {
+        "required": [
+          "claveFormaPago",
+          "claveUsoCfdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaConclusion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoProcesoCaptura"
+          },
+          "procesoAsociadoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claveUsoCfdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveFormaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminacionMedioPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "diasCaducidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoCaptura"
+          },
+          "usuarioProcesoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "centroCostosId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fuenteCaptura": {
+            "$ref": "#/components/schemas/contabee.model.transcript.FuenteCaptura"
+          },
+          "desglosarIEPS": {
+            "type": "boolean"
+          },
+          "creditosDisponibles": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sasToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.lotes.LoteCaptura": {
+        "required": [
+          "claveFormaPago",
+          "claveUsoCfdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaConclusion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoProcesoCaptura"
+          },
+          "procesoAsociadoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "claveUsoCfdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveFormaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminacionMedioPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "diasCaducidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoCaptura"
+          },
+          "usuarioProcesoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "centroCostosId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fuenteCaptura": {
+            "$ref": "#/components/schemas/contabee.model.transcript.FuenteCaptura"
+          },
+          "desglosarIEPS": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.paginas.BusquedaCaptura": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+          },
+          "contar": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.paginas.CompletarCapturaPagina": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "reprogramar": {
+            "type": "boolean"
+          },
+          "motivo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.MotivoEstado"
+          },
+          "tipoFuente": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoFuenteProcesamiento"
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          },
+          "sinXml": {
+            "type": "boolean"
+          },
+          "sinPdf": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          },
+          "tieneCaptcha": {
+            "type": "boolean"
+          },
+          "cfdiId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCfdi": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.paginas.PaginaDocumento": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "loteCapturaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuarioCreacionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "indice": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoCaptura"
+          },
+          "motivoEstado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.MotivoEstado"
+          },
+          "capturaProgramada": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "ruta": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cfdiId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reintentos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipoContenido": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoContenidoPagina"
+          },
+          "tipoArchivo": {
+            "$ref": "#/components/schemas/comunes.extensiones.FileType"
+          },
+          "idAlmacenamiento": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFinalizacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "fechaCfdi": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "rfcEmisor": {
+            "type": "string",
+            "nullable": true
+          },
+          "pdfCfdi": {
+            "type": "boolean"
+          },
+          "xmlCfdi": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -8,6 +8,8 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 {
     private readonly ServicioIdentidadClient servicioIdentidad = new (httpClient.BaseAddress!.ToString(), httpClient);
 
+
+
     public async Task<Respuesta> Registrar(RegisterViewModel request )
     {
         Respuesta r = new ();
@@ -41,8 +43,10 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                 ["dispositivoid"] = dispositivoId
             };
 
+
             var content = new FormUrlEncodedContent(formData);
-            var httpResponse = await httpClient.PostAsync("api/identity/connect/token", content);
+            
+            var httpResponse = await httpClient.PostAsync("/connect/token", content);
 
             var json = await httpResponse.Content.ReadAsStringAsync();
 
@@ -69,5 +73,67 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         }
 
         return respuesta;
+    }
+    public async Task<Respuesta> ConfirmarCuenta(string token)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.ConfirmarPOSTAsync(token);
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Confirmar Cuenta");
+        }
+
+        return r;
+    }
+
+    public async Task<Respuesta> RecuperarPassword(string email)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.RecuperarAsync(email);
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Rescuperar Password");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<PerfilUsuario>> GetPerfil()
+    {
+        RespuestaPayload<PerfilUsuario> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.MiGETAsync();
+            if(res != null)
+            {
+                r.Payload = new PerfilUsuario
+                {
+                    DisplayName = res.DisplayName,
+                    EsInterno = res.EsInterno,
+                    Iniciales = res.Iniciales,
+                    Roles = res.Roles,
+                    CuentaFiscalId = res.CuentaFiscalId
+                };
+            }
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Get Perfil");
+        }
+
+        return r;
+        
     }
 }
