@@ -1,3 +1,7 @@
+using Contabee.Api.abstractions;
+using ContaBeeMovil.Services.Device;
+using Microsoft.Maui.Storage;
+
 namespace ContaBeeMovil.Services;
 
 public class ServicioSesion : IServicioSesion
@@ -6,6 +10,18 @@ public class ServicioSesion : IServicioSesion
     private const string CLAVE_ACCESS_TOKEN = "AccessToken";
     private const string CLAVE_REFRESH_TOKEN = "RefreshToken";
     private const string CLAVE_EMAIL = "CredencialEmail";
+    private const string CLAVE_Perfil = "Perfil";
+    private const string CLAVE_Asocianes = "CuentasFiscales";
+    private readonly AppState _appState;
+    private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioIdentidad _servicioIdentidad;
+
+    public ServicioSesion(AppState appState,IServicioCrm servicioCrm,IServicioIdentidad servicioIdentidad)
+    {
+        _appState = appState;
+        _servicioCrm = servicioCrm;
+        _servicioIdentidad = servicioIdentidad;
+    }
 
     public async Task<string> LeeIdDeDispositivo()
     {
@@ -15,7 +31,6 @@ public class ServicioSesion : IServicioSesion
             idDispositivo = Guid.NewGuid().ToString();
             await GuardaContenidoClave(CLAVE_ID_DISPOSITIVO, idDispositivo);
         }
-
         return idDispositivo;
     }
 
@@ -67,5 +82,30 @@ public class ServicioSesion : IServicioSesion
             return null;
         }
         return texto;
+    }
+
+    public async Task GetPerfilAsync()
+    {
+        var respuesta = await _servicioIdentidad.GetPerfil();
+        if (respuesta.Ok) { 
+        _appState.Perfil = respuesta.Payload; 
+        }
+
+    }
+
+    public async Task GetAsociacionesFiscalesAsync()
+    {
+        var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+        if (respuesta.Ok)
+        {
+            _appState.CuentasFiscales = respuesta.Payload;
+        }
+    }
+
+
+    public async Task PosLoginAsync()
+    {
+        await GetPerfilAsync();
+        //await GetAsociacionesFiscalesAsync();
     }
 }

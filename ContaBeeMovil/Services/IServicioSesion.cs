@@ -1,3 +1,5 @@
+
+
 namespace ContaBeeMovil.Services;
 
 public interface IServicioSesion
@@ -10,4 +12,9 @@ public interface IServicioSesion
     Task GuardaEmailAsync(string email);
     Task<string?> LeeEmailAsync();
     Task LimpiaEmailAsync();
+    Task GetPerfilAsync();
+
+    Task GetAsociacionesFiscalesAsync();
+
+    Task PosLoginAsync();
 }

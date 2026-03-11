@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<?xaml-comp compile="true" ?>
 <ResourceDictionary 
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:f="clr-namespace:Fonts"
     xmlns:pullToRefresh="clr-namespace:Syncfusion.Maui.Toolkit.PullToRefresh;assembly=Syncfusion.Maui.Toolkit"
     xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
 
     <x:Double x:Key="sizeNone">0</x:Double>
     <x:Double x:Key="size20">2</x:Double>
@@ -53,59 +53,59 @@
     <FontImageSource x:Key="IconDashboard"
                      Glyph="{x:Static f:FluentUI.diagram_24_regular}"
                      FontFamily="{x:Static f:FluentUI.FontFamily}"
-                     Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                     Color="{toolkit:AppThemeResource Icon}"
                      Size="{StaticResource IconSize}" />
 
     <FontImageSource x:Key="IconProjects"
                      Glyph="{x:Static f:FluentUI.list_24_regular}"
                      FontFamily="{x:Static f:FluentUI.FontFamily}"
-                     Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                     Color="{toolkit:AppThemeResource Icon}"
                      Size="{StaticResource IconSize}" />
 
     <FontImageSource x:Key="IconMeta"
                      Glyph="{x:Static f:FluentUI.info_24_regular}"
                      FontFamily="{x:Static f:FluentUI.FontFamily}"
-                     Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                     Color="{toolkit:AppThemeResource Icon}"
                      Size="{StaticResource IconSize}" />
 
     <FontImageSource x:Key="IconRibbon"
                      Glyph="{x:Static f:FluentUI.ribbon_20_regular}"
                      FontFamily="{x:Static f:FluentUI.FontFamily}"
-                     Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                     Color="{toolkit:AppThemeResource Icon}"
                      Size="{StaticResource IconSize}" />
 
     <FontImageSource x:Key="IconAdd"
                 Glyph="{x:Static f:FluentUI.add_32_regular}"
                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                Color="{AppThemeBinding Light={StaticResource Icon}, Dark={StaticResource IconDark}}"
+                Color="{toolkit:AppThemeResource Icon}"
                 Size="{StaticResource IconSize}" />
 
     <FontImageSource x:Key="IconDelete"
                 Glyph="{x:Static f:FluentUI.delete_32_regular}"
                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                Color="{toolkit:AppThemeResource Icon}"
                 Size="{StaticResource IconSize}" />
 
         <FontImageSource x:Key="IconClean"
                 Glyph="{x:Static f:FluentUI.broom_32_regular}"
                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                Color="{toolkit:AppThemeResource Icon}"
                 Size="{StaticResource size240}" />
 
         <FontImageSource x:Key="IconLight"
                 Glyph="{x:Static f:FluentUI.weather_sunny_28_regular}"
                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                Color="{toolkit:AppThemeResource Icon}"
                 Size="{StaticResource size240}" />
         <FontImageSource x:Key="IconDark"
                 Glyph="{x:Static f:FluentUI.weather_moon_28_regular}"
                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                Color="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}"
+                Color="{toolkit:AppThemeResource Icon}"
                 Size="{StaticResource size240}" />
 
     <Style TargetType="Label">
         <Setter Property="TextColor"
-                Value="{AppThemeBinding Light={StaticResource DarkOnLightBackground}, Dark={StaticResource LightOnDarkBackground}}" />
+                Value="{toolkit:AppThemeResource PrimaryText}" />
         <Setter Property="BackgroundColor"
                 Value="Transparent" />
         <Setter Property="FontSize"
@@ -120,7 +120,7 @@
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="TextColor"
-                                    Value="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                                    Value="{toolkit:AppThemeResource PrimaryText}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>
@@ -258,7 +258,7 @@
 
     <Style TargetType="Border" x:Key="CardStyle">
         <Setter Property="StrokeShape" Value="RoundRectangle 20"/>
-        <Setter Property="Background" Value="{AppThemeBinding Light={StaticResource LightSecondaryBackground},Dark={StaticResource DarkSecondaryBackground}}"/>
+        <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="{OnIdiom 15, Desktop=20}"/>
     </Style>
@@ -266,35 +266,35 @@
     <!-- ========================================= -->
     <!-- TEXT INPUT LAYOUT                         -->
     <!-- ========================================= -->
-    <sf:LabelStyle x:Key="lightThemeLabelStyle" TextColor="{StaticResource SecondaryText}" FontSize="{OnIdiom 13, Desktop=16}"/>
-    <sf:LabelStyle x:Key="darkThemeLabelStyle" TextColor="{StaticResource SecondaryTextDark}" FontSize="{OnIdiom 13, Desktop=16}"/>
-    <sf:LabelStyle x:Key="errorLabelStyleLight" TextColor="{StaticResource Error}" FontSize="12"/>
-    <sf:LabelStyle x:Key="errorLabelStyleDark" TextColor="{StaticResource ErrorDark}" FontSize="12"/>
+    <sf:LabelStyle x:Key="lightThemeLabelStyle" TextColor="{toolkit:AppThemeResource SecondaryText}" FontSize="{OnIdiom 13, Desktop=16}"/>
+    <sf:LabelStyle x:Key="darkThemeLabelStyle" TextColor="{toolkit:AppThemeResource SecondaryText}" FontSize="{OnIdiom 13, Desktop=16}"/>
+    <sf:LabelStyle x:Key="errorLabelStyleLight" TextColor="{toolkit:AppThemeResource Error}" FontSize="12"/>
+    <sf:LabelStyle x:Key="errorLabelStyleDark" TextColor="{toolkit:AppThemeResource Error}" FontSize="12"/>
 
     <Style TargetType="sf:SfTextInputLayout">
         <Setter Property="ContainerType" Value="Outlined"/>
         <Setter Property="ContainerBackground" Value="Transparent"/>
         <Setter Property="OutlineCornerRadius" Value="12"/>
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+        <Setter Property="Stroke" Value="{toolkit:AppThemeResource  Accent1}"/>
         <Setter Property="FocusedStrokeThickness" Value="2"/>
         <Setter Property="UnfocusedStrokeThickness" Value="1"/>
         <Setter Property="ReserveSpaceForAssistiveLabels" Value="False"/>
-        <Setter Property="HintLabelStyle" Value="{AppThemeBinding Light={StaticResource lightThemeLabelStyle}, Dark={StaticResource darkThemeLabelStyle}}"/>
-        <Setter Property="ErrorLabelStyle" Value="{AppThemeBinding Light={StaticResource errorLabelStyleLight}, Dark={StaticResource errorLabelStyleDark}}"/>
+        <Setter Property="HintLabelStyle" Value="{toolkit:AppThemeResource PrimaryText}"/>
+        <Setter Property="ErrorLabelStyle" Value="{toolkit:AppThemeResource PrimaryText}"/>
     </Style>
 
     <!-- Leading icon inside SfTextInputLayout -->
     <Style x:Key="InputLeadingIcon" TargetType="Label">
         <Setter Property="FontFamily" Value="{x:Static f:FluentUI.FontFamily}"/>
         <Setter Property="FontSize" Value="20"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
 
     <!-- Error banner container -->
     <Style x:Key="ErrorBanner" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FFF0F0, Dark=#3D2020}"/>
+        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="14,10"/>
     </Style>
@@ -304,13 +304,13 @@
         <Setter Property="Text" Value="{x:Static f:FluentUI.error_circle_20_regular}"/>
         <Setter Property="FontFamily" Value="{x:Static f:FluentUI.FontFamily}"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
 
     <!-- Error banner text -->
     <Style x:Key="ErrorBannerText" TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="LineHeight" Value="1.38"/>
         <Setter Property="VerticalOptions" Value="Center"/>
@@ -324,7 +324,7 @@
         <Setter Property="HeightRequest" Value="44"/>
         <Setter Property="WidthRequest" Value="44"/>
         <Setter Property="StrokeThickness" Value="1"/>
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}"/>
+        <Setter Property="Stroke" Value="{toolkit:AppThemeResource Accent1}"/>
         <Setter Property="BackgroundColor" Value="Transparent"/>
         <Setter Property="Padding" Value="0"/>
     </Style>
@@ -333,7 +333,7 @@
     <Style x:Key="CircleIconLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="{x:Static f:FluentUI.FontFamily}"/>
         <Setter Property="FontSize" Value="20"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
         <Setter Property="HorizontalOptions" Value="Center"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
@@ -344,8 +344,8 @@
 
     <!-- Primary Button: Filled, rounded pill shape -->
     <Style x:Key="PrimaryButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"/>
+        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="FontSize" Value="16"/>
@@ -359,8 +359,8 @@
                     <VisualState x:Name="Normal"/>
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Disabled}, Dark={StaticResource DisabledDark}}"/>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}"/>
+                            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}"/>
+                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
                         </VisualState.Setters>
                     </VisualState>
                     <VisualState x:Name="PointerOver"/>
@@ -372,23 +372,23 @@
     <!-- Secondary Button: Outlined, transparent background -->
     <Style x:Key="SecondaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource PrimaryText}, Dark={StaticResource PrimaryTextDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="FontSize" Value="16"/>
-        <Setter Property="CornerRadius" Value="26"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="HeightRequest" Value="52"/>
         <Setter Property="Padding" Value="24,0"/>
         <Setter Property="BorderWidth" Value="1.5"/>
-        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"/>
+        <Setter Property="BorderColor" Value="{toolkit:AppThemeResource Accent1}"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
                     <VisualState x:Name="Normal"/>
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray600}}"/>
-                            <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Disabled}, Dark={StaticResource DisabledDark}}"/>
+                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
+                            <Setter Property="BorderColor" Value="{toolkit:AppThemeResource Disabled}"/>
                         </VisualState.Setters>
                     </VisualState>
                     <VisualState x:Name="PointerOver"/>
@@ -400,19 +400,19 @@
     <!-- Danger Button: For destructive actions -->
     <Style x:Key="DangerButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="CornerRadius" Value="26"/>
         <Setter Property="HeightRequest" Value="48"/>
         <Setter Property="Padding" Value="20,0"/>
         <Setter Property="BorderWidth" Value="1.5"/>
-        <Setter Property="BorderColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"/>
+        <Setter Property="BorderColor" Value="{toolkit:AppThemeResource Error}"/>
     </Style>
 
     <!-- Ghost/Text Button: No background, no border -->
     <Style x:Key="GhostButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="FontSize" Value="15"/>
         <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="Padding" Value="12,8"/>
@@ -422,7 +422,7 @@
     <!-- ERROR MESSAGE                             -->
     <!-- ========================================= -->
     <Style x:Key="ErrorMessage" TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Error}, Dark={StaticResource ErrorDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="LineHeight" Value="1.38"/>
         <Setter Property="HorizontalTextAlignment" Value="Start"/>
@@ -433,7 +433,7 @@
     <!-- LINK LABEL (tappable text)                -->
     <!-- ========================================= -->
     <Style x:Key="LinkLabel" TargetType="Label">
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
@@ -446,7 +446,7 @@
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="TextTransform" Value="Uppercase"/>
         <Setter Property="CharacterSpacing" Value="1.5"/>
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource SecondaryText}, Dark={StaticResource SecondaryTextDark}}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="Margin" Value="0,8,0,4"/>
@@ -457,11 +457,11 @@
     <!-- ========================================= -->
     <Style x:Key="ElevatedCard" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 16"/>
-        <Setter Property="Background" Value="{AppThemeBinding Light={StaticResource LightSecondaryBackground},Dark={StaticResource DarkSecondaryBackground}}"/>
+        <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="20"/>
         <Setter Property="Shadow">
-            <Shadow Brush="{StaticResource ShadowSecondary}"
+            <Shadow Brush="{toolkit:AppThemeResource ShadowSecondary}"
                     Offset="0,2"
                     Radius="8"
                     Opacity="1"/>
@@ -473,7 +473,7 @@
     <!-- ========================================= -->
     <Style x:Key="FormCard" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 20"/>
-        <Setter Property="Background" Value="{AppThemeBinding Light={StaticResource LightSecondaryBackground},Dark={StaticResource DarkSecondaryBackground}}"/>
+        <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="20,16"/>
     </Style>
@@ -483,7 +483,7 @@
     <!-- ========================================= -->
     <Style x:Key="Divider" TargetType="BoxView">
         <Setter Property="HeightRequest" Value="1"/>
-        <Setter Property="Color" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}"/>
+        <Setter Property="Color" Value="{toolkit:AppThemeResource Accent1}"/>
         <Setter Property="HorizontalOptions" Value="Fill"/>
         <Setter Property="Margin" Value="0,4"/>
     </Style>
@@ -500,7 +500,7 @@
     <Style TargetType="pullToRefresh:SfPullToRefresh">
         <Setter Property="TransitionMode" Value="SlideOnTop"/>
         <Setter Property="PullingThreshold" Value="100"/>
-        <Setter Property="ProgressColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+        <Setter Property="ProgressColor" Value="{toolkit:AppThemeResource Primary}"/>
     </Style>
 
 </ResourceDictionary>

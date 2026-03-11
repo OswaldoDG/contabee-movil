@@ -5,4 +5,5 @@ public interface IServicioNotificacion
     Task MostrarErrorAsync(string mensaje);
     Task MostrarExitoAsync(string mensaje);
     Task MostrarInfoAsync(string mensaje);
+    Task ShowAlert(string mensaje);
 }

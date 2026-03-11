@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.RecuperarPass.RecuperarPassPage"
+             Shell.NavBarIsVisible="False"
+             Title="Recuperar Contraseña">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── Barra superior amarilla ── -->
+        <Grid Grid.Row="0"
+              BackgroundColor="{toolkit:AppThemeResource Primary}"
+              Padding="12,48,12,12">
+            <Label Text="{x:Static f:FluentUI.arrow_left_24_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="24"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Start">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+        <!-- ── Contenido ── -->
+        <ScrollView Grid.Row="1"
+                    BackgroundColor="{toolkit:AppThemeResource Background}">
+            <VerticalStackLayout x:Name="FormContainer"
+                                 Padding="{StaticResource LayoutPadding}"
+                                 Spacing="16">
+
+                <!-- Logo -->
+                <Image Source="logo512.png"
+                       WidthRequest="140"
+                       HeightRequest="140"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center"
+                       Margin="0,24,0,8" />
+
+                <!-- Título -->
+                <Label Text="Restaurar Contraseña"
+                       Style="{StaticResource Title1}"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                <!-- Subtítulo -->
+                <Label Text="Recibirás un enlace a tu correo para restablecer tu contraseña."
+                       Style="{StaticResource Body1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       Margin="0,-8,0,8" />
+
+                <!-- Campo email -->
+                <sf:SfTextInputLayout x:Name="EmailLayout"
+                                      Hint="Correo Electronico"
+                                      ErrorText="Ingresa un correo válido"
+                                      LeadingViewPosition="Inside"
+                                      ShowLeadingView="True">
+                    <sf:SfTextInputLayout.LeadingView>
+                        <Label Text="{x:Static f:FluentUI.mail_20_regular}"
+                               Style="{StaticResource InputLeadingIcon}" />
+                    </sf:SfTextInputLayout.LeadingView>
+                    <Entry x:Name="EntryEmail"
+                           Keyboard="Email"
+                           ReturnType="Done"
+                           ClearButtonVisibility="WhileEditing"
+                           TextChanged="OnEmailTextChanged"
+                           SemanticProperties.Description="Correo electrónico" />
+                </sf:SfTextInputLayout>
+
+                <!-- Botón Restablecer -->
+                <Button x:Name="BtnRestablecer"
+                        Text="Restablecer"
+                        Style="{StaticResource PrimaryButton}"
+                        HorizontalOptions="Center"
+                        WidthRequest="200"
+                        IsEnabled="False"
+                        Clicked="OnRestablecerClicked"
+                        Margin="0,8,0,0" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── Indicador de carga ── -->
+        <ActivityIndicator x:Name="LoadingIndicator"
+                           Grid.Row="1"
+                           IsRunning="False"
+                           HeightRequest="40"
+                           WidthRequest="40"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           InputTransparent="True"
+                           Color="{toolkit:AppThemeResource Primary}" />
+
+    </Grid>
+
+</ContentPage>

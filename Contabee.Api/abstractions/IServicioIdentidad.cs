@@ -6,4 +6,9 @@ public interface IServicioIdentidad
 {
     Task<Respuesta> Registrar(RegisterViewModel request);
     Task<RespuestaPayload<RespuestaToken>> IniciarSesion(string email, string password, string dispositivoId);
+    Task<Respuesta> ConfirmarCuenta(String token);
+    Task<Respuesta> RecuperarPassword(string email);
+    Task<RespuestaPayload<PerfilUsuario>> GetPerfil();
 }
+
+

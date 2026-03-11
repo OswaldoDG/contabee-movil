@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <OpenApiReference Include="swagger\ServicioIdentidad.json" >
+    <OpenApiReference Include="swagger\ServicioCRM.json" ClassName="ServicioCrmClient" />
+    <OpenApiReference Include="swagger\ServicioTranscript.json" ClassName="ServicioTranscriptClient" />
+    <OpenApiReference Include="swagger\ServicioIdentidad.json">
       <Namespace>Contabee.Api.Identidad</Namespace>
       <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>
       <Options>/GenerateExceptionClasses:false</Options>
@@ -28,6 +30,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="crm\" />
   </ItemGroup>
 
 </Project>
