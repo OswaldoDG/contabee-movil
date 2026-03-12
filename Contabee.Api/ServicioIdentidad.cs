@@ -53,7 +53,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             if (httpResponse.IsSuccessStatusCode)
             {
                 respuesta.Payload = JsonSerializer.Deserialize<RespuestaToken>(json);
-                respuesta.HttpCode = HttpStatusCode.OK;
+                respuesta.HttpCode = System.Net.HttpStatusCode.OK;
             }
             else
             {
@@ -63,7 +63,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     Codigo = errorToken?.Error ?? "login_error",
                     Mensaje = errorToken?.ErrorDescription ?? "Error al iniciar sesión",
                     Origen = "ServicioIdentidad-IniciarSesion",
-                    HttpCode = (HttpStatusCode)httpResponse.StatusCode
+                    HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
             }
         }
