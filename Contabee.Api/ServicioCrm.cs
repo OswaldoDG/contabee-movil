@@ -6,7 +6,7 @@ namespace Contabee.Api;
 
 public class ServicioCrm(HttpClient httpClient) : IServicioCrm
 {
-    private readonly    ServicioCRMClient servicioCrm = new (httpClient.BaseAddress!.ToString(), httpClient);
+    private readonly    ServicioCrmClient servicioCrm = new (httpClient.BaseAddress!.ToString(), httpClient);
 
     public async Task<RespuestaPayload<List<AsociacionCuentaFiscalCompleta>>> GetAsociacionesFiscales()
     {

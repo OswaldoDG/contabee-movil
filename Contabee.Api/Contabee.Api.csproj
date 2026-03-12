@@ -11,8 +11,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <OpenApiReference Include="swagger\ServicioCRM.json" ClassName="ServicioCrmClient" />
-    <OpenApiReference Include="swagger\ServicioTranscript.json" ClassName="ServicioTranscriptClient" />
+	  <OpenApiReference Include="swagger\ServicioCRM.json" ClassName="ServicioCrmClient">
+		  <Namespace>Contabee.Api.Crm</Namespace>
+		  <Options>/AdditionalNamespaceUsages:Contabee.Api /GenerateExceptionClasses:false</Options>
+	  </OpenApiReference>
+
+	  <OpenApiReference Include="swagger\ServicioTranscript.json" ClassName="ServicioTranscriptClient">
+		  <Namespace>Contabee.Api.Transcript</Namespace>
+		  <Options>/AdditionalNamespaceUsages:Contabee.Api /GenerateExceptionClasses:false</Options>
+	  </OpenApiReference>
     <OpenApiReference Include="swagger\ServicioIdentidad.json">
       <Namespace>Contabee.Api.Identidad</Namespace>
       <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>

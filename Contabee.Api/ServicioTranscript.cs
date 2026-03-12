@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using Contabee.Api.abstractions;
-using Contabee.Api.Transcript;
+
 
 namespace Contabee.Api;
 
