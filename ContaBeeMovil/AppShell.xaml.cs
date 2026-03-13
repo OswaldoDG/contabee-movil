@@ -4,19 +4,28 @@ using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
 
 namespace ContaBeeMovil
 {
     public partial class AppShell : Shell
     {
-        public AppShell()
+        public AppShell(IServicioSesion servicioSesion)
         {
             InitializeComponent();
+            _servicioSesion = servicioSesion;
             var currentTheme = Application.Current!.RequestedTheme;
             ThemeSwitch.IsToggled = currentTheme == AppTheme.Dark;
             RegisterRoutes();
-            _ = CargarEmailUsuarioAsync();
+            _ = CargarNombreUsuarioAsync();
+
+            AppState.Instance.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(AppState.Perfil))
+                    MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
+            };
+
         }
 
         // ── Snackbar / Toast helpers ──────────────────────────────────────
@@ -49,14 +58,29 @@ namespace ContaBeeMovil
             await toast.Show(cts.Token);
         }
 
-        // ── Header: cargar email del usuario ─────────────────────────────
+        // ── Header: nombre de usuario ─────────────────────────────────────
 
-        private async Task CargarEmailUsuarioAsync()
+        private async Task CargarNombreUsuarioAsync()
         {
-            var svc = MauiProgram.Services.GetRequiredService<IServicioSesion>();
-            var email = await svc.LeeEmailAsync();
-            if (!string.IsNullOrEmpty(email))
-                LabelNombreUsuario.Text = email;
+            //var email = await _servicioSesion.LeeEmailAsync();
+            _emailUsuario = AppState.Instance.Perfil.DisplayName;
+            ActualizarNombreLabel();
+        }
+
+        private string? _emailUsuario;
+        private readonly IServicioSesion _servicioSesion;
+
+        private void ActualizarNombreLabel()
+        {
+            var nombre = AppState.Instance.Perfil?.DisplayName;
+            if (string.IsNullOrWhiteSpace(nombre))
+                nombre = _emailUsuario;
+
+            if (!string.IsNullOrEmpty(nombre) && nombre.Contains('@'))
+                nombre = nombre[..nombre.IndexOf('@')];
+
+            if (!string.IsNullOrEmpty(nombre))
+                LabelNombreUsuario.Text=nombre;
         }
 
         // ── Toggle de tema ────────────────────────────────────────────────

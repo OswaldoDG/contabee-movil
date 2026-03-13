@@ -2,12 +2,22 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.EquipoPage"
              Title="Equipo"
              BackgroundColor="{toolkit:AppThemeResource Background}">
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="Equipo" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-        <Label Text="Próximamente" Style="{StaticResource Body1}"
-               TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
-    </VerticalStackLayout>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <VerticalStackLayout Grid.Row="0"
+                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
+            <Label Text="Equipo" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
+            <Label Text="Próximamente" Style="{StaticResource Body1}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+
+        <views:RfcCpBarView Grid.Row="1" />
+
+    </Grid>
+
 </ContentPage>

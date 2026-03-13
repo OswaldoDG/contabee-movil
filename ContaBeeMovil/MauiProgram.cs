@@ -6,6 +6,8 @@ using Contabee.Api.Identidad;
 using Contabee.Pages.Registro;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Pages.Perfil;
+using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
@@ -59,8 +61,15 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<DeviceService>();
             builder.Services.AddSingleton<IServicioSesion, ServicioSesion>();
             builder.Services.AddSingleton<IServicioNotificacion, ServicioNotificacion>();
-            builder.Services.AddSingleton<AppState>();
+            builder.Services.AddSingleton(AppState.Instance);
             builder.Services.AddTransient<AuthHandler>();
+
+            // Cliente sin AuthHandler para el endpoint de refresh token
+            builder.Services.AddHttpClient("IdentityToken", client =>
+            {
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            });
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
@@ -69,7 +78,7 @@ namespace ContaBeeMovil
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm");
+                client.BaseAddress = new Uri("https://api.contabee.mx");
                 client.DefaultRequestHeaders.Add("Accet", "application/json");
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
@@ -89,9 +98,9 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<TagRepository>();
             builder.Services.AddSingleton<SeedDataService>();
             builder.Services.AddSingleton<ModalErrorHandler>();
-            builder.Services.AddTransient<Pages.DashboardPage>();
-            builder.Services.AddTransient<Pages.FacturacionPage>();
-            builder.Services.AddTransient<Pages.EquipoPage>();
+            builder.Services.AddTransient<DashboardPage>();
+            builder.Services.AddTransient<FacturacionPage>();
+            builder.Services.AddTransient<EquipoPage>();
 
 
             builder.Services.AddTransient<RegistroViewModel>();
@@ -100,11 +109,11 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<PaginaLogin>();
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<AppShell>();
-            builder.Services.AddTransient<Pages.RecuperarPass.RecuperarPassPage>();
-            builder.Services.AddTransient<Pages.Perfil.VincularCuentaPage>();
-            builder.Services.AddTransient<Pages.Perfil.TarjetasPage>();
-            builder.Services.AddTransient<Pages.Perfil.RFCsPage>();
-            builder.Services.AddTransient<Pages.Perfil.CambiarContrasenaPage>();
+            builder.Services.AddTransient<RecuperarPassPage>();
+            builder.Services.AddTransient<VincularCuentaPage>();
+            builder.Services.AddTransient<TarjetasPage>();
+            builder.Services.AddTransient<RFCsPage>();
+            builder.Services.AddTransient<CambiarContrasenaPage>();
 
 
 

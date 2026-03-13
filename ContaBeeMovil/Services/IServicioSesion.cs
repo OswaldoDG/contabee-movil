@@ -12,6 +12,8 @@ public interface IServicioSesion
     Task GuardaEmailAsync(string email);
     Task<string?> LeeEmailAsync();
     Task LimpiaEmailAsync();
+    Task GuardaExpiracionAsync(DateTime expiracion);
+    Task<DateTime?> LeeExpiracionAsync();
     Task GetPerfilAsync();
 
     Task GetAsociacionesFiscalesAsync();

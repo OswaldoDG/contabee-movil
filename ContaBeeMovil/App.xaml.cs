@@ -31,6 +31,11 @@ public partial class App : Application
 
         return window;
     }
+    protected override async void OnStart()
+    {
+        // Cargar datos sensibles de SecureStorage al iniciar
+        //await AppState.Instance.LoadSecureDataAsync();
+    }
 
     //protected override Window CreateWindow(IActivationState? activationState)
     //{
