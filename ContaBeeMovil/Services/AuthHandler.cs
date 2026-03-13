@@ -16,7 +16,9 @@ public class AuthHandler : DelegatingHandler
         "/usuario/registro",
         "/usuario/contrasena/recuperar",
         "/usuario/contrasena/restablecer",
-        "/usuario/registro/confirmar"
+        "/usuario/registro/confirmar",
+        "/api/identity/connect/token",
+        "/connect/token"
     ];
 
     private readonly IServiceProvider _serviceProvider;
