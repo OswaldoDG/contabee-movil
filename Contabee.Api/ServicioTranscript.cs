@@ -2,6 +2,7 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 
+
 namespace Contabee.Api;
 
 public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript

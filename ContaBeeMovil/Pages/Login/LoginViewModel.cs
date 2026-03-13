@@ -5,6 +5,7 @@ using Contabee.Api.abstractions;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Login;
@@ -46,14 +47,19 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task CargarCredencialesAsync()
     {
-        var email = await _servicioSesion.LeeEmailAsync();
-        if (!string.IsNullOrEmpty(email))
+        // Restaurar estado del checkbox desde AppState
+        _recordarme = AppState.Instance.Recordarme;
+        OnPropertyChanged(nameof(Recordarme));
+
+        if (_recordarme)
         {
-            _email = email;
-            _recordarme = true;
-            OnPropertyChanged(nameof(Email));
-            OnPropertyChanged(nameof(Recordarme));
-            ((Command)IngresarCommand).ChangeCanExecute();
+            var email = await _servicioSesion.LeeEmailAsync();
+            if (!string.IsNullOrEmpty(email))
+            {
+                _email = email;
+                OnPropertyChanged(nameof(Email));
+                ((Command)IngresarCommand).ChangeCanExecute();
+            }
         }
     }
 
@@ -156,7 +162,7 @@ public class LoginViewModel : INotifyPropertyChanged
             EstaCargando = true;
 
             var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
-            var resultado = await _servicioIdentidad.IniciarSesion(Email, Password, dispositivoId);
+            var resultado = await _servicioIdentidad.IniciarSesion(Email, Password, dispositivoId, Recordarme);
 
             if (!resultado.Ok || resultado.Payload == null)
             {
@@ -169,6 +175,9 @@ public class LoginViewModel : INotifyPropertyChanged
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,
                 resultado.Payload.RefreshToken);
+
+            await _servicioSesion.GuardaExpiracionAsync(
+                DateTime.Now.AddSeconds(resultado.Payload.ExpiresIn));
 
             await _servicioSesion.PosLoginAsync();
 
@@ -184,17 +193,13 @@ public class LoginViewModel : INotifyPropertyChanged
                 var fadeTask = formContainer.FadeToAsync(0, 350, Easing.CubicIn);
                 await Task.WhenAll(logoTask, slideTask, fadeTask);
             }
+            // Guardar estado del checkbox en AppState
+            AppState.Instance.Recordarme = Recordarme;
 
-            if (Recordarme)
-            {
-                await _servicioSesion.GuardaEmailAsync(Email);
-            }
-            else
-            {
-                await _servicioSesion.LimpiaEmailAsync();
-            }
+            await _servicioSesion.GuardaEmailAsync(Email);
 
-            Application.Current!.Windows[0].Page = new AppShell();
+            var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+            Application.Current!.Windows[0].Page =shell;
         }
         catch (Exception ex)
         {

@@ -1,3 +1,4 @@
+using CommunityToolkit.Maui.Core.Extensions;
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Maui.Storage;
@@ -10,8 +11,7 @@ public class ServicioSesion : IServicioSesion
     private const string CLAVE_ACCESS_TOKEN = "AccessToken";
     private const string CLAVE_REFRESH_TOKEN = "RefreshToken";
     private const string CLAVE_EMAIL = "CredencialEmail";
-    private const string CLAVE_Perfil = "Perfil";
-    private const string CLAVE_Asocianes = "CuentasFiscales";
+    private const string CLAVE_EXPIRACION = "TokenExpiracion";
     private readonly AppState _appState;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioIdentidad _servicioIdentidad;
@@ -39,6 +39,18 @@ public class ServicioSesion : IServicioSesion
         await GuardaContenidoClave(CLAVE_ACCESS_TOKEN, accessToken);
         await GuardaContenidoClave(CLAVE_REFRESH_TOKEN, refreshToken);
         Preferences.Set("TieneSesion", true);
+    }
+
+    public async Task GuardaExpiracionAsync(DateTime expiracion)
+    {
+        await GuardaContenidoClave(CLAVE_EXPIRACION, expiracion.ToString("O"));
+    }
+
+    public async Task<DateTime?> LeeExpiracionAsync()
+    {
+        var texto = await LeeContenidoClave(CLAVE_EXPIRACION);
+        if (string.IsNullOrEmpty(texto)) return null;
+        return DateTime.TryParse(texto, null, System.Globalization.DateTimeStyles.RoundtripKind, out var dt) ? dt : null;
     }
 
     public Task<string?> LeeAccessTokenAsync() => LeeContenidoClave(CLAVE_ACCESS_TOKEN);
@@ -106,6 +118,6 @@ public class ServicioSesion : IServicioSesion
     public async Task PosLoginAsync()
     {
         await GetPerfilAsync();
-        //await GetAsociacionesFiscalesAsync();
+        await GetAsociacionesFiscalesAsync();
     }
 }

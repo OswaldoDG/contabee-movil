@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Views.RfcCpBarView">
+
+    <Grid ColumnDefinitions="Auto,*,Auto"
+          BackgroundColor="{toolkit:AppThemeResource Primary}"
+          Padding="16,8">
+
+        <!-- Botón RFC (izquierda) — abre selector -->
+        <Border Grid.Column="0"
+                BackgroundColor="{StaticResource OffBlack}"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 24"
+                Padding="16,6">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
+            </Border.GestureRecognizers>
+            <Label x:Name="LabelRfc"
+                   Text="?"
+                   FontAttributes="Bold"
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource Primary}"
+                   VerticalOptions="Center" />
+        </Border>
+
+        <!-- Botón CP (derecha) — abre selector de dirección -->
+        <Border Grid.Column="2"
+                BackgroundColor="{StaticResource OffBlack}"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 24"
+                Padding="16,6">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCpButtonTapped" />
+            </Border.GestureRecognizers>
+            <Label x:Name="LabelCp"
+                   Text="?"
+                   FontAttributes="Bold"
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource Primary}"
+                   VerticalOptions="Center" />
+        </Border>
+
+    </Grid>
+
+</ContentView>

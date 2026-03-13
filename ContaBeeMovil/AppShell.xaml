@@ -12,7 +12,7 @@
     Shell.TabBarForegroundColor="White"
     Shell.TabBarUnselectedColor="#AAFFFFFF"
     Shell.TabBarTitleColor="White"
-    Title="ContaBeeMovil">
+    Title="ContaBee">
 
     <!-- ══════════════════════════════════════════ -->
     <!--  FLYOUT PERSONALIZADO                      -->
@@ -37,9 +37,6 @@
                     <Label x:Name="LabelNombreUsuario"
                            Text="Usuario"
                            Style="{StaticResource Body1Strong}" />
-                    <Label Text="ContaBee"
-                           Style="{StaticResource Caption1}"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 </VerticalStackLayout>
             </Grid>
             <BoxView Grid.Row="0"
@@ -162,84 +159,87 @@
                     <BoxView Style="{StaticResource Divider}" Margin="0,6" />
 
                     <!-- ─── Items simples ─── -->
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnConfiguracionClicked" />
-                        </Grid.GestureRecognizers>
-                        <Label Grid.Column="0"
-                               Text="{x:Static f:FluentUI.settings_24_regular}"
-                               FontFamily="{x:Static f:FluentUI.FontFamily}"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource Icon}"
-                               VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="Configuración"
-                               Style="{StaticResource Body1}"
-                               VerticalOptions="Center" />
-                    </Grid>
-                    <BoxView Style="{StaticResource Divider}" />
+                    <VerticalStackLayout VerticalOptions="End" Padding="20">
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnDiagnosticoClicked" />
-                        </Grid.GestureRecognizers>
-                        <Label Grid.Column="0"
-                               Text="{x:Static f:FluentUI.heart_pulse_24_regular}"
-                               FontFamily="{x:Static f:FluentUI.FontFamily}"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource Icon}"
-                               VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="Diagnostico"
-                               Style="{StaticResource Body1}"
-                               VerticalOptions="Center" />
-                    </Grid>
-                    <BoxView Style="{StaticResource Divider}" />
+                        <!--<Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnConfiguracionClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="{x:Static f:FluentUI.settings_24_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource Icon}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Configuración"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                        </Grid>-->
+                        <!--<BoxView Style="{StaticResource Divider}" />
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnBuzonClicked" />
-                        </Grid.GestureRecognizers>
-                        <Label Grid.Column="0"
-                               Text="{x:Static f:FluentUI.mail_24_regular}"
-                               FontFamily="{x:Static f:FluentUI.FontFamily}"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource Icon}"
-                               VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="Búzon de sugerencias"
-                               Style="{StaticResource Body1}"
-                               VerticalOptions="Center" />
-                    </Grid>
-                    <BoxView Style="{StaticResource Divider}" />
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDiagnosticoClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="{x:Static f:FluentUI.heart_pulse_24_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource Icon}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Diagnostico"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />-->
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
-                        </Grid.GestureRecognizers>
-                        <Label Grid.Column="0"
-                               Text="{x:Static f:FluentUI.info_24_regular}"
-                               FontFamily="{x:Static f:FluentUI.FontFamily}"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource Icon}"
-                               VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="Acerca de"
-                               Style="{StaticResource Body1}"
-                               VerticalOptions="Center" />
-                    </Grid>
-                    <BoxView Style="{StaticResource Divider}" />
+                        <!--<Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnBuzonClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="{x:Static f:FluentUI.mail_24_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource Icon}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Búzon de sugerencias"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider}" />-->
 
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCompartirClicked" />
-                        </Grid.GestureRecognizers>
-                        <Label Grid.Column="0"
-                               Text="{x:Static f:FluentUI.share_24_regular}"
-                               FontFamily="{x:Static f:FluentUI.FontFamily}"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource Icon}"
-                               VerticalOptions="Center" />
-                        <Label Grid.Column="1" Text="Compartir Contabee"
-                               Style="{StaticResource Body1}"
-                               VerticalOptions="Center" />
-                    </Grid>
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="{x:Static f:FluentUI.info_24_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource Icon}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Acerca de"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+                    
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCompartirClicked" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Column="0"
+                                   Text="{x:Static f:FluentUI.share_24_regular}"
+                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource Icon}"
+                                   VerticalOptions="Center" />
+                            <Label Grid.Column="1" Text="Compartir Contabee"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                    </VerticalStackLayout>
 
                 </VerticalStackLayout>
             </ScrollView>
@@ -251,7 +251,7 @@
                 <!-- Toggle tema oscuro/claro -->
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                     <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.weather_sunny_28_regular}"
+                           Text="{x:Static f:FluentUI.weather_moon_28_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
                            FontSize="22"
                            TextColor="{toolkit:AppThemeResource Icon}"
@@ -263,7 +263,7 @@
                             OnColor="{toolkit:AppThemeResource Alternate}"
                             Toggled="OnThemeSwitchToggled" />
                     <Label Grid.Column="2"
-                           Text="{x:Static f:FluentUI.weather_moon_28_regular}"
+                           Text="{x:Static f:FluentUI.weather_sunny_28_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
                            FontSize="22"
                            TextColor="{toolkit:AppThemeResource Icon}"

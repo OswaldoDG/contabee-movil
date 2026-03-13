@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.CuentaFiscalSelectorPopup"
+               CanBeDismissedByTappingOutsideOfPopup="True"
+               Background="Transparent" >
+               
+    <Border BackgroundColor="White"
+            Stroke="Transparent"
+            StrokeShape="RoundRectangle 20"
+            Padding="20,24"
+            WidthRequest="320">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,2" Radius="10" Opacity="0.1" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="20">
+
+            <!-- Título -->
+            <Label Text="Cuenta fiscal"
+                   HorizontalOptions="Center"
+                   FontSize="20"
+                   TextColor="#9e9e9e" />
+
+            <!-- Toggle RFC / Nombre -->
+            <Border BackgroundColor="#eeeeee"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="5"
+                    HorizontalOptions="Center"
+                    HeightRequest="50">
+                <Grid ColumnDefinitions="*,*">
+
+                    <Border x:Name="BgRfc"
+                            Grid.Column="0"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 20">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleRfc" />
+                        </Border.GestureRecognizers>
+                        <Label x:Name="LblRfc"
+                               Text="RFC"
+                               HorizontalOptions="Center"                               
+                               FontSize="10" />
+                    </Border>
+
+                    <Border x:Name="BgNombre"
+                            Grid.Column="1"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 20">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleNombre" />
+                        </Border.GestureRecognizers>
+                        <Label x:Name="LblNombre"
+                               Text="Nombre"
+                               HorizontalOptions="Center"                               
+                               FontSize="10" />
+                    </Border>
+
+                </Grid>
+            </Border>
+
+            <!-- Lista de cuentas -->
+            <ScrollView MaximumHeightRequest="300">
+                <VerticalStackLayout x:Name="PanelLista" Spacing="10" />
+            </ScrollView>
+
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

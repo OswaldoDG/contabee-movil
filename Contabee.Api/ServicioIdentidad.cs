@@ -27,7 +27,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         return r;
     }
 
-    public async Task<RespuestaPayload<RespuestaToken>> IniciarSesion(string email, string password, string dispositivoId)
+    public async Task<RespuestaPayload<RespuestaToken>> IniciarSesion(string email, string password, string dispositivoId,bool recordarme)
     {
         var respuesta = new RespuestaPayload<RespuestaToken>();
 
@@ -39,7 +39,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                 ["client_id"] = "contabee-password",
                 ["username"] = email,
                 ["password"] = password,
-                ["scope"] = "offline_access",
+                ["scope"] = recordarme?"offline_access":null,
                 ["dispositivoid"] = dispositivoId
             };
 
@@ -66,6 +66,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
             }
+            servicioIdentidad.TokenAsync();
         }
         catch (Exception ex)
         {
