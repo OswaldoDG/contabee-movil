@@ -1,13 +1,16 @@
 ﻿using banditoth.MAUI.DeviceId;
 using CommunityToolkit.Maui;
+using ZXing.Net.Maui.Controls;
 using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using Contabee.Pages.Registro;
+using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Material;
@@ -29,6 +32,7 @@ namespace ContaBeeMovil
                 .UseMauiApp<App>()
                 .UseMaterialMauiIcons()
                 .UseMauiCommunityToolkit()
+                .UseBarcodeReader()
                 .ConfigureSyncfusionToolkit()
                 .ConfigureDeviceIdProvider()
                 .ConfigureMauiHandlers(handlers =>
@@ -53,13 +57,14 @@ namespace ContaBeeMovil
             builder.Services.AddLogging(configure => configure.AddDebug());
 #endif
             //Servicioos
-            
+
             builder.Services.AddSingleton<IToastService, ToastService>();
             builder.Services.AddSingleton<IServicioAlmacenamiento, ServicioAlmacenamiento>();
             builder.Services.AddSingleton<DeviceService>();
             builder.Services.AddSingleton<IServicioSesion, ServicioSesion>();
             builder.Services.AddSingleton<IServicioNotificacion, ServicioNotificacion>();
             builder.Services.AddSingleton<AppState>();
+            builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddTransient<AuthHandler>();
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
@@ -69,9 +74,9 @@ namespace ContaBeeMovil
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm");
-                client.DefaultRequestHeaders.Add("Accet", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>(); 
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm/");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript");
@@ -93,9 +98,10 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<Pages.FacturacionPage>();
             builder.Services.AddTransient<Pages.EquipoPage>();
 
-
             builder.Services.AddTransient<RegistroViewModel>();
             builder.Services.AddTransient<PaginaRegistro>();
+            // Registro pages
+
             builder.Services.AddTransient<ConfirmarCuentaPage>();
             builder.Services.AddTransient<PaginaLogin>();
             builder.Services.AddTransient<LoginViewModel>();
@@ -104,7 +110,13 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<Pages.Perfil.VincularCuentaPage>();
             builder.Services.AddTransient<Pages.Perfil.TarjetasPage>();
             builder.Services.AddTransient<Pages.Perfil.RFCsPage>();
+            builder.Services.AddTransient<Pages.Perfil.ManualRegistroPage>();
             builder.Services.AddTransient<Pages.Perfil.CambiarContrasenaPage>();
+            // Cámara pages and view models
+            builder.Services.AddTransient<PageModels.Camara.TomarFotoPageModel>();
+            builder.Services.AddTransient<Pages.Camara.TomarFotoPage>();
+            builder.Services.AddTransient<PageModels.Camara.QRPageModel>();
+            builder.Services.AddTransient<Pages.Camara.QRPage>();
 
 
 

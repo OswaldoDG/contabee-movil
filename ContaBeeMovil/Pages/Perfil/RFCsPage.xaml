@@ -2,12 +2,57 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Perfil.RFCsPage"
-             Title="RFCs"
+             Title="Registro Cuenta Fiscal"
              BackgroundColor="{toolkit:AppThemeResource Background}">
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="RFCs" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-        <Label Text="Próximamente" Style="{StaticResource Body1}"
-               TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
+
+    <VerticalStackLayout Padding="0" Spacing="0">
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="28">
+            <!-- Registro Manual -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Registro manual" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Text="Sólo necesita ingresar los datos fiscales básicos." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
+                    <mi:MauiIcon x:Name="IconManual" Icon="{mi:Material Icon=Edit}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="IconManual_Tapped" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Registro QR -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Registro QR" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Text="Utilice la cámara del dispositivo para leer el QR de su constancia de situación fiscal." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
+                    <mi:MauiIcon x:Name="IconQr" Icon="{mi:Material Icon=QrCode}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="IconQr_Tapped" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Vincular -->
+            <VerticalStackLayout Spacing="8" Padding="0,8,0,36">
+                <Label Text="Vincularme" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Text="Esta opción permite conectar este dispositivo al grupo de trabajo de un usuario con una cuenta fiscal existente." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
+                    <mi:MauiIcon x:Name="IconVincular" Icon="{mi:Material Icon=PersonAdd}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="IconVincular_Tapped" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Frame>
+            </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
     </VerticalStackLayout>
 </ContentPage>

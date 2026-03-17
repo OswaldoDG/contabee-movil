@@ -52,10 +52,10 @@ namespace ContaBeeMovil
         // ── Header: cargar email del usuario ─────────────────────────────
 
         private async Task CargarEmailUsuarioAsync()
-        {
-            var svc = MauiProgram.Services.GetRequiredService<IServicioSesion>();
-            var email = await svc.LeeEmailAsync();
-            if (!string.IsNullOrEmpty(email))
+            {
+                var svc = MauiProgram.Services.GetRequiredService<IServicioSesion>();
+                var email = await svc.LeeEmailAsync();
+                if (!string.IsNullOrEmpty(email))
                 LabelNombreUsuario.Text = email;
         }
 
