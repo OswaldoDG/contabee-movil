@@ -12,6 +12,7 @@
                 <ResourceDictionary Source="Resources/Styles/AppStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <conv:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
+            <conv:InvertedBoolConverter x:Key="InvertedBoolConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

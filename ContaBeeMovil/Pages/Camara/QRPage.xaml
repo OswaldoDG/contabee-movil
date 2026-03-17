@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
+    x:Class="ContaBeeMovil.Pages.Camara.QRPage"
+    Title="Escanear QR">
+
+    <Grid RowDefinitions="Auto, *, Auto" Padding="16" RowSpacing="12">
+
+        <!-- Tipo de persona y compartido -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="0,4">
+            <Label x:Name="LabelTipoPersona" Text="Tipo de persona" FontAttributes="Bold" />
+            <HorizontalStackLayout Spacing="8">
+                <Picker x:Name="PickerPersona"
+                        WidthRequest="160"
+                        Title="Seleccione..."
+                        ItemsSource="{Binding TiposPersona}"
+                        SelectedItem="{Binding TipoPersona}" />
+                <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
+                    <Label x:Name="LabelCompartido" Text="Compartido" VerticalOptions="Center" />
+                    <Switch IsToggled="{Binding Compartido}" />
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <!-- Scanner en tiempo real -->
+        <Grid Grid.Row="1">
+            <zxing:CameraBarcodeReaderView
+                x:Name="BarcodeReader"
+                BarcodesDetected="OnBarcodesDetected" />
+
+            <!-- Guía visual de encuadre -->
+            <Border StrokeShape="RoundRectangle 8"
+                    Stroke="White"
+                    StrokeThickness="2"
+                    BackgroundColor="Transparent"
+                    WidthRequest="220"
+                    HeightRequest="220"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    InputTransparent="True" />
+        </Grid>
+
+        <!-- Cancelar -->
+        <Button Grid.Row="2"
+                x:Name="BtnCancelar"
+                Text="Cancelar"
+                HeightRequest="52"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                FontSize="16" />
+
+    </Grid>
+</ContentPage>
