@@ -127,10 +127,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<TomarFotoPage>();
             builder.Services.AddTransient<QRPageModel>();
             builder.Services.AddTransient<QRPage>();
-
-
-
-
+            
             var app = builder.Build();
             Services = app.Services;
             return app;
