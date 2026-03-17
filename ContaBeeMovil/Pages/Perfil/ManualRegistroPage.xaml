@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ContaBeeMovil.Pages.Perfil.ManualRegistroPage"
+             Title="Nueva cuenta fiscal"
+             BackgroundColor="#66000000">
+
+    <!-- Contenedor principal: centra una tarjeta (Frame) sobre fondo semitransparente -->
+    <Grid VerticalOptions="Center" HorizontalOptions="Center">
+        <Frame BackgroundColor="White"
+               CornerRadius="12"
+               Padding="18"
+               WidthRequest="360"
+               HasShadow="True">
+            <VerticalStackLayout Spacing="12">
+                <!-- Título de la tarjeta -->
+                <Label Text="Nueva cuenta fiscal" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center" />
+
+                <!-- Nombre / Razón Social -->
+                <Entry x:Name="EntryName" Placeholder="Nombre o Razón Social" HeightRequest="44" />
+
+                <!-- RFC y selector de persona (Física/Moral) -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Entry x:Name="EntryRfc" Placeholder="RFC" MaxLength="13" HeightRequest="44" />
+                    <Picker x:Name="PickerPersona" Title="Persona" HeightRequest="44" Grid.Column="1" />
+                </Grid>
+
+                <!-- Contador de caracteres del RFC -->
+                <Label x:Name="LabelCounter" Text="0/13" HorizontalOptions="End" />
+
+                <!-- Código postal -->
+                <Entry x:Name="EntryCp" Placeholder="Código Postal" Keyboard="Numeric" HeightRequest="44" />
+
+                <!-- Regimen fiscal -->
+                <Picker x:Name="PickerRegimen" Title="Regimen" HeightRequest="44" />
+
+                <!-- Checkbox Compartido -->
+                <HorizontalStackLayout Spacing="8">
+                    <CheckBox x:Name="ChkCompartido" VerticalOptions="Center" />
+                    <Label Text="Compartido" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <!-- Botones cancelar / registrar -->
+                <HorizontalStackLayout Spacing="12" HorizontalOptions="Fill">
+                    <Button x:Name="BtnCancel" Text="Cancelar" BackgroundColor="Transparent" BorderWidth="0.5" CornerRadius="10" HeightRequest="44" />
+                    <Button x:Name="BtnRegistrar" Text="Registrar" CornerRadius="10" HeightRequest="44" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>

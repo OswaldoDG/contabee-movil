@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ContaBeeMovil.Pages.Camara.TomarFotoPage"
+    Title="Tomar Foto">
+
+    <Grid RowDefinitions="*, Auto" Padding="24" RowSpacing="16">
+
+        <Border Grid.Row="0"
+                StrokeShape="RoundRectangle 16"
+                Stroke="#E0E0E0"
+                StrokeThickness="1"
+                BackgroundColor="#F5F5F5">
+            <Grid>
+                <VerticalStackLayout
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}">
+                    <Label Text="📷" FontSize="52" HorizontalOptions="Center" />
+                    <Label x:Name="LabelHint"
+                           Text="Presiona el botón para tomar una foto"
+                           FontSize="14"
+                           HorizontalOptions="Center" Margin="0,8,0,0" />
+                </VerticalStackLayout>
+
+                <Image Source="{Binding PhotoPath}"
+                       Aspect="AspectFill"
+                       IsVisible="{Binding HasPhoto}" />
+            </Grid>
+        </Border>
+
+        <Button Grid.Row="1" Text="Tomar Foto"
+                Command="{Binding TomarFotoCommand}"
+                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                HeightRequest="52"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                FontSize="16" />
+
+    </Grid>
+</ContentPage>
