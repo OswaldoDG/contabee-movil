@@ -1,5 +1,5 @@
 using CommunityToolkit.Maui.Views;
-using Contabee.Api.crm;
+using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Maui.Controls.Shapes;
 
@@ -20,7 +20,7 @@ public partial class DireccionFiscalSelectorPopup : Popup
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private static string GetTextoDisplay(DireccionFiscal dir)
+    private static string GetTextoDisplay(  DireccionFiscal dir)
     {
         var cp = string.IsNullOrWhiteSpace(dir.CodigoPostal) ? "?" : dir.CodigoPostal;
 

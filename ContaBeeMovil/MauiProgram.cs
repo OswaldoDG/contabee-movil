@@ -84,9 +84,9 @@ namespace ContaBeeMovil
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm/");
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>();
+            }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript");

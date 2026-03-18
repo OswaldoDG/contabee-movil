@@ -51,7 +51,7 @@
                 <VerticalStackLayout Padding="16,12" Spacing="8">
 
                     <!-- ─── Cards de perfil ─── -->
-                    <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    <!--<Border Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnVincularmeClicked" />
                         </Border.GestureRecognizers>
@@ -76,7 +76,7 @@
                                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                                    VerticalOptions="Center" />
                         </Grid>
-                    </Border>
+                    </Border>-->
 
                     <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
@@ -196,7 +196,7 @@
                         </Grid>
                         <BoxView Style="{StaticResource Divider}" />-->
 
-                        <!--<Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                             <Grid.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnBuzonClicked" />
                             </Grid.GestureRecognizers>
@@ -210,7 +210,6 @@
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
                         </Grid>
-                        <BoxView Style="{StaticResource Divider}" />-->
 
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                             <Grid.GestureRecognizers>
@@ -298,11 +297,11 @@
             ContentTemplate="{DataTemplate pages:FacturacionPage}"
             Route="facturacion" />
 
-        <ShellContent
+        <!--<ShellContent
             Title="Equipo"
             Icon="{mi:Material Icon=Group}"
             ContentTemplate="{DataTemplate pages:EquipoPage}"
-            Route="equipo" />
+            Route="equipo" />-->
     </TabBar>
 
 </Shell>

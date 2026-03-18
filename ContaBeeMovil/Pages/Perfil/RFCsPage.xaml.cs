@@ -1,9 +1,9 @@
-using System.Windows.Input;
 using Contabee.Api;
 using Contabee.Api.abstractions;
-using Contabee.Api.crm;
+using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services.Device;
+using System.Windows.Input;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
@@ -38,7 +38,7 @@ public partial class RFCsPage : ContentPage
 
     private void CargarCuentas()
     {
-        var cuentas = AppState.Instance.CuentasFiscales ?? new List<CuentaUsuarioResponse>();
+        var cuentas = AppState.Instance.CuentasFiscales ?? new List<AsociacionCuentaFiscalCompleta>();
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
             Rfc = c.Rfc ?? "—",
@@ -66,7 +66,7 @@ public partial class RFCsPage : ContentPage
         await Shell.Current.GoToAsync(nameof(RegistrarRFCsPage));
     }
 
-    private async Task ConfirmarEliminar(CuentaUsuarioResponse cuenta)
+    private async Task ConfirmarEliminar(AsociacionCuentaFiscalCompleta cuenta)
     {
         bool confirmar = await DisplayAlert(
             "Eliminar",
@@ -77,9 +77,9 @@ public partial class RFCsPage : ContentPage
 
         SetLoading(true);
 
-        Respuesta respuesta;
-        if (cuenta.TipoCuenta?.Equals("Primaria", StringComparison.OrdinalIgnoreCase) == true)
-            respuesta = await _servicioCrm.EliminarCuentaFiscal(cuenta.CuentaFiscalId);
+        Contabee.Api.Respuesta respuesta;
+        if (cuenta.TipoCuenta==TipoCuenta.Primaria)
+            respuesta = await _servicioCrm.EliminarCuentaFiscal(cuenta.CuentaFiscalId.ToString());
         else
             respuesta = await _servicioCrm.EliminarAsociacionFiscal(cuenta.Id);
 
