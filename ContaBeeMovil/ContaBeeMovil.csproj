@@ -82,6 +82,9 @@
 		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<PackageReference Include="ZXing.Net" Version="0.16.11" />
+		<PackageReference Include="SkiaSharp" Version="3.116.1" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.7.4" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -103,6 +106,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
+    <MauiXaml Update="Pages\Camara\CamaraPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+    <MauiXaml Update="Pages\Camara\QRPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Pages\Camara\TomarFotoPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Pages\Perfil\ManualRegistroPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Pages\Perfil\RegistrarRFCsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+	  <MauiXaml Update="Pages\Perfil\RFCsPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Confirmar\ConfirmarCuentaPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -80,7 +80,9 @@ public class AuthHandler : DelegatingHandler
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        return await base.SendAsync(request, cancellationToken);
+        var r = await base.SendAsync(request, cancellationToken);
+
+        return r;
     }
 
     private async Task<string?> RefrescarTokenAsync(

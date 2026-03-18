@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="ContaBeeMovil.Pages.Camara.CamaraPage"
+    Title="Cámara"
+    BackgroundColor="{toolkit:AppThemeResource Background}">
+
+    <Grid RowDefinitions="Auto,*, Auto" Padding="24" RowSpacing="16">
+
+        <!-- Picker de tipo de persona y compartido -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="0,4">
+            <Label Text="Tipo de persona"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+            <HorizontalStackLayout Spacing="8">
+                <Picker x:Name="PickerPersona"
+                        WidthRequest="160"
+                        Title="Seleccione..." />
+                <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
+                    <Label Text="Compartido"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                    <Switch x:Name="SwitchCompartido" />
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1"
+                StrokeShape="RoundRectangle 16"
+                Stroke="{toolkit:AppThemeResource Accent1}"
+                StrokeThickness="1"
+                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+            <Grid>
+                <VerticalStackLayout
+                    VerticalOptions="Center"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}">
+                    <Label Text="📷" FontSize="52" HorizontalOptions="Center" />
+                    <Label Text="Presiona el botón para tomar una foto"
+                           FontSize="14"
+                           HorizontalOptions="Center"
+                           Margin="0,8,0,0"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                </VerticalStackLayout>
+
+                <Image Source="{Binding PhotoPath}"
+                       Aspect="AspectFill"
+                       IsVisible="{Binding HasPhoto}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <HorizontalStackLayout Spacing="12">
+                <Button Text="Tomar Foto"
+                        Command="{Binding TomarFotoCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        HeightRequest="52"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                <Button Text="Procesar QR (desde foto)"
+                        HeightRequest="52"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        BackgroundColor="{toolkit:AppThemeResource Secondary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        Clicked="BtnProcesar_Clicked" />
+            </HorizontalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+</ContentPage>
