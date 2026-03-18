@@ -9,6 +9,7 @@ public interface IServicioIdentidad
     Task<Respuesta> ConfirmarCuenta(String token);
     Task<Respuesta> RecuperarPassword(string email);
     Task<RespuestaPayload<PerfilUsuario>> GetPerfil();
+    Task<Respuesta> CambiarContrasena(string actual, string nueva);
 }
 
 

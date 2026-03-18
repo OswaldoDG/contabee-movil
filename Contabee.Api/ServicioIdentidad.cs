@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 
@@ -135,6 +136,60 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         }
 
         return r;
-        
+
+    }
+
+    public async Task<Respuesta> CambiarContrasena(string actual, string nueva)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            var body = new { actual, nueva };
+            var json = JsonSerializer.Serialize(body);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var httpResponse = await httpClient.PostAsync("/api/identity/usuarios/mi/contrasena", content);
+            var responseJson = await httpResponse.Content.ReadAsStringAsync();
+            System.Diagnostics.Debug.WriteLine($"[CambiarContrasena] Status={httpResponse.StatusCode}, Body={responseJson}");
+
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                r.Ok = true;
+                r.HttpCode = System.Net.HttpStatusCode.OK;
+            }
+            else
+            {
+                // La API puede devolver texto plano "CODIGO: Mensaje" o JSON
+                var mensaje = "Error al cambiar la contraseña";
+                var codigo = "cambiar_contrasena_error";
+
+                var textoLimpio = responseJson.Trim().Trim('"');
+                if (textoLimpio.Contains(':'))
+                {
+                    var partes = textoLimpio.Split(':', 2);
+                    codigo = partes[0].Trim();
+                    mensaje = partes[1].Trim();
+                }
+                else if (!string.IsNullOrEmpty(textoLimpio))
+                {
+                    mensaje = textoLimpio;
+                }
+
+                r.Error = new ErrorProceso
+                {
+                    Codigo = codigo,
+                    Mensaje = mensaje,
+                    Origen = "ServicioIdentidad-CambiarContrasena",
+                    HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
+                };
+            }
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-CambiarContrasena");
+        }
+
+        return r;
     }
 }

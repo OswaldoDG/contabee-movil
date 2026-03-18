@@ -1,13 +1,173 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.CambiarContrasenaPage"
-             Title="Cambiar Contraseña"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="Cambiar Contraseña" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-        <Label Text="Próximamente" Style="{StaticResource Body1}"
-               TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
-    </VerticalStackLayout>
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Title="Cambiar Contraseña">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+
+            <!-- Logo ContaBee -->
+            <Image Source="logo512.png"
+                   WidthRequest="80"
+                   HeightRequest="80"
+                   HorizontalOptions="Center"
+                   Margin="0,16,0,0" />
+
+            <!-- Contraseña actual -->
+            <Frame HasShadow="False"
+                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                   CornerRadius="12"
+                   Padding="0"
+                   Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Entry x:Name="ContrasenaActualEntry"
+                           Grid.Column="0"
+                           Placeholder="Contraseña actual"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="16"
+                           TextChanged="OnCampoTextChanged" />
+                    <mi:MauiIcon x:Name="ToggleContrasenaActual"
+                                 Grid.Column="1"
+                                 Icon="{mi:Material Icon=Visibility}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="25"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleContrasenaActualClicked" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+            </Frame>
+
+            <!-- Nueva contraseña -->
+            <Frame HasShadow="False"
+                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                   CornerRadius="12"
+                   Padding="0"
+                   Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Entry x:Name="NuevaContrasenaEntry"
+                           Grid.Column="0"
+                           Placeholder="Nueva contraseña"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="16"
+                           TextChanged="OnNuevaContrasenaTextChanged" />
+                    <mi:MauiIcon x:Name="ToggleNuevaContrasena"
+                                 Grid.Column="1"
+                                 Icon="{mi:Material Icon=Visibility}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="25"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleNuevaContrasenaClicked" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+            </Frame>
+
+            <!-- Confirmar contraseña -->
+            <Frame HasShadow="False"
+                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                   CornerRadius="12"
+                   Padding="0"
+                   Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Entry x:Name="ConfirmarContrasenaEntry"
+                           Grid.Column="0"
+                           Placeholder="Confirmar contraseña"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="16"
+                           TextChanged="OnCampoTextChanged" />
+                    <mi:MauiIcon x:Name="ToggleConfirmarContrasena"
+                                 Grid.Column="1"
+                                 Icon="{mi:Material Icon=Visibility}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="25"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleConfirmarContrasenaClicked" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+            </Frame>
+
+            <!-- Error: contraseñas no coinciden -->
+            <Label x:Name="ErrorCoincidenciaLabel"
+                   Text="Las contraseñas no coinciden"
+                   TextColor="{toolkit:AppThemeResource Error}"
+                   FontSize="13"
+                   Margin="6,0,0,0"
+                   IsVisible="False" />
+
+            <!-- Validaciones de contraseña -->
+            <VerticalStackLayout Spacing="5" Margin="6,5,0,0">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconMin6"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="20" HeightRequest="20" />
+                    <Label Text="Mínimo 6 caracteres"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconMayus"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="20" HeightRequest="20" />
+                    <Label Text="Una letra mayúscula"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconNumero"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="18" HeightRequest="18" />
+                    <Label Text="Un número"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconEspecial"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="18" HeightRequest="18" />
+                    <Label Text="Caracter especial (@ # $ %)"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Botón Actualizar -->
+            <Button x:Name="BtnActualizar"
+                    Text="Actualizar"
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="False"
+                    Clicked="OnActualizarClicked"
+                    HorizontalOptions="Center"
+                    WidthRequest="220"
+                    Margin="0,18,0,24" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
