@@ -2,26 +2,29 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="ContaBeeMovil.Pages.Camara.TomarFotoPage"
-    Title="Tomar Foto">
+    Title="Tomar Foto"
+    BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="*, Auto" Padding="24" RowSpacing="16">
 
         <Border Grid.Row="0"
                 StrokeShape="RoundRectangle 16"
-                Stroke="#E0E0E0"
+                Stroke="{toolkit:AppThemeResource Accent1}"
                 StrokeThickness="1"
-                BackgroundColor="#F5F5F5">
+                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
             <Grid>
                 <VerticalStackLayout
                     VerticalOptions="Center"
                     HorizontalOptions="Center"
                     IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}">
                     <Label Text="📷" FontSize="52" HorizontalOptions="Center" />
-                    <Label x:Name="LabelHint"
-                           Text="Presiona el botón para tomar una foto"
+                    <Label Text="Presiona el botón para tomar una foto"
                            FontSize="14"
-                           HorizontalOptions="Center" Margin="0,8,0,0" />
+                           HorizontalOptions="Center"
+                           Margin="0,8,0,0"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 </VerticalStackLayout>
 
                 <Image Source="{Binding PhotoPath}"
@@ -30,13 +33,16 @@
             </Grid>
         </Border>
 
-        <Button Grid.Row="1" Text="Tomar Foto"
+        <Button Grid.Row="1"
+                Text="Tomar Foto"
                 Command="{Binding TomarFotoCommand}"
                 IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
                 HeightRequest="52"
                 CornerRadius="12"
                 FontAttributes="Bold"
-                FontSize="16" />
+                FontSize="16"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
     </Grid>
 </ContentPage>

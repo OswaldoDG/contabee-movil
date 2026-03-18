@@ -6,6 +6,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using Contabee.Pages.Registro;
 using ContaBeeMovil.PageModels.Camara;
+using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Perfil;
@@ -119,6 +120,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<VincularCuentaPage>();
             builder.Services.AddTransient<TarjetasPage>();
             builder.Services.AddTransient<RFCsPage>();
+            builder.Services.AddTransient<RegistrarRFCsPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();

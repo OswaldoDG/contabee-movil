@@ -1,58 +1,111 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Perfil.RFCsPage"
-             Title="Registro Cuenta Fiscal"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
+             Title="Mis Cuentas Fiscales"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
 
-    <VerticalStackLayout Padding="0" Spacing="0">
-        <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="28">
-            <!-- Registro Manual -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Registro manual" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Sólo necesita ingresar los datos fiscales básicos." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+    <Grid>
+        <CollectionView x:Name="ListaCuentas" Margin="12,8">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView Margin="0,6">
+                        <SwipeView.LeftItems>
+                            <!-- Execute: sigue el dedo, snap-back si no llega al umbral, dispara al llegar -->
+                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
+                                <SwipeItemView Command="{Binding DeleteCommand}">
+                                    <Grid BackgroundColor="{toolkit:AppThemeResource Error}"
+                                          WidthRequest="90"
+                                          HorizontalOptions="Fill"
+                                          VerticalOptions="Fill">
+                                        <Image WidthRequest="28" HeightRequest="28"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center">
+                                            <Image.Source>
+                                                <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
+                                                                 FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                                                 Color="White"
+                                                                 Size="28" />
+                                            </Image.Source>
+                                        </Image>
+                                    </Grid>
+                                </SwipeItemView>
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
 
-                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
-                    <mi:MauiIcon x:Name="IconManual" Icon="{mi:Material Icon=Edit}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconManual_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Frame>
-            </VerticalStackLayout>
+                        <Border Padding="16,14"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding Rfc}"
+                                           FontAttributes="Bold"
+                                           FontSize="18"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                                    <Label Text="{Binding Regimen}"
+                                           FontSize="13"
+                                           LineBreakMode="TailTruncation"
+                                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                                </VerticalStackLayout>
 
-            <!-- Registro QR -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Registro QR" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Utilice la cámara del dispositivo para leer el QR de su constancia de situación fiscal." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                                <Border Grid.Column="1"
+                                        WidthRequest="48"
+                                        HeightRequest="48"
+                                        StrokeShape="RoundRectangle 10"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        VerticalOptions="Center">
+                                    <Image WidthRequest="26" HeightRequest="26"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center">
+                                        <Image.Source>
+                                            <FontImageSource Glyph="{x:Static f:FluentUI.contact_card_24_regular}"
+                                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                                             Color="{toolkit:AppThemeResource PrimaryText}"
+                                                             Size="24" />
+                                        </Image.Source>
+                                    </Image>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
-                    <mi:MauiIcon x:Name="IconQr" Icon="{mi:Material Icon=QrCode}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconQr_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Frame>
-            </VerticalStackLayout>
+        <!-- Overlay de carga -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="False"
+              BackgroundColor="{toolkit:AppThemeResource Shadow}"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
 
-            <!-- Vincular -->
-            <VerticalStackLayout Spacing="8" Padding="0,8,0,36">
-                <Label Text="Vincularme" FontAttributes="Bold" FontSize="18" TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Esta opción permite conectar este dispositivo al grupo de trabajo de un usuario con una cuenta fiscal existente." FontSize="13" TextColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                <Frame BackgroundColor="{toolkit:AppThemeResource Primary}" CornerRadius="10" HeightRequest="72" WidthRequest="72" HorizontalOptions="Center" HasShadow="True">
-                    <mi:MauiIcon x:Name="IconVincular" Icon="{mi:Material Icon=PersonAdd}" IconColor="{toolkit:AppThemeResource PrimaryText}" IconSize="32" HorizontalOptions="Center" VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconVincular_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Frame>
-            </VerticalStackLayout>
-
-            </VerticalStackLayout>
-        </ScrollView>
-    </VerticalStackLayout>
+        <!-- FAB agregar -->
+        <Button x:Name="BtnAgregar"
+                Text="+"
+                FontSize="30"
+                FontAttributes="Bold"
+                WidthRequest="60"
+                HeightRequest="60"
+                CornerRadius="16"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,16,32"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                Clicked="BtnAgregar_Clicked" />
+    </Grid>
 </ContentPage>
