@@ -118,27 +118,26 @@
     <MauiXaml Update="Pages\Perfil\ManualRegistroPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Pages\Perfil\RegistrarRFCsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
 	  <MauiXaml Update="Pages\Perfil\RFCsPage.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-  <!-- Note: do not include a wildcard MauiXaml Include, the SDK already includes XAML files and a duplicate entry
-	   causes resource identifier collisions (CS1508). Keep explicit Update entries only when needed. -->
 	  <MauiXaml Update="Pages\Confirmar\ConfirmarCuentaPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Registro\PaginaRegistro.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-  <!-- AppStyles is included by the wildcard MauiXaml Include; no explicit Update entry to avoid duplicate resource identifiers -->
+	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
 	  <MauiXaml Update="Services\Notifications\CustomToast.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Pages\Debug\" />
 	  <Folder Include="Resources\Images\" />
-	  <Folder Include="Services\Logging\" />
 	</ItemGroup>
 
 	<ItemGroup>

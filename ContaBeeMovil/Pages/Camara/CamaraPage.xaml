@@ -2,19 +2,26 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:pageModels="clr-namespace:ContaBeeMovil.PageModels"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:Class="ContaBeeMovil.Pages.Camara.CamaraPage"
-    Title="Cámara">
+    Title="Cámara"
+    BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="Auto,*, Auto" Padding="24" RowSpacing="16">
 
-        <!-- Picker for Tipo de Persona y Compartido -->
+        <!-- Picker de tipo de persona y compartido -->
         <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="0,4">
-            <Label x:Name="LabelTipoPersona" Text="Tipo de persona" FontAttributes="Bold" />
+            <Label Text="Tipo de persona"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
             <HorizontalStackLayout Spacing="8">
-                <Picker x:Name="PickerPersona" WidthRequest="160" Title="Seleccione..." />
+                <Picker x:Name="PickerPersona"
+                        WidthRequest="160"
+                        Title="Seleccione..." />
                 <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
-                    <Label x:Name="LabelCompartido" Text="Compartido" VerticalOptions="Center" />
+                    <Label Text="Compartido"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
                     <Switch x:Name="SwitchCompartido" />
                 </HorizontalStackLayout>
             </HorizontalStackLayout>
@@ -22,19 +29,20 @@
 
         <Border Grid.Row="1"
                 StrokeShape="RoundRectangle 16"
-                Stroke="#E0E0E0"
+                Stroke="{toolkit:AppThemeResource Accent1}"
                 StrokeThickness="1"
-                BackgroundColor="#F5F5F5">
+                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
             <Grid>
                 <VerticalStackLayout
                     VerticalOptions="Center"
                     HorizontalOptions="Center"
                     IsVisible="{Binding HasPhoto, Converter={StaticResource InvertedBoolConverter}}">
                     <Label Text="📷" FontSize="52" HorizontalOptions="Center" />
-                    <Label x:Name="LabelHint"
-                           Text="Presiona el botón para tomar una foto"
+                    <Label Text="Presiona el botón para tomar una foto"
                            FontSize="14"
-                           HorizontalOptions="Center" Margin="0,8,0,0" />
+                           HorizontalOptions="Center"
+                           Margin="0,8,0,0"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 </VerticalStackLayout>
 
                 <Image Source="{Binding PhotoPath}"
@@ -51,14 +59,23 @@
                         HeightRequest="52"
                         CornerRadius="12"
                         FontAttributes="Bold"
-                        FontSize="16" />
+                        FontSize="16"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
-                <Button x:Name="BtnProcesar" Text="Procesar QR (desde foto)" HeightRequest="52" CornerRadius="12" FontAttributes="Bold" FontSize="16" />
+                <Button Text="Procesar QR (desde foto)"
+                        HeightRequest="52"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        BackgroundColor="{toolkit:AppThemeResource Secondary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        Clicked="BtnProcesar_Clicked" />
             </HorizontalStackLayout>
 
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                IsVisible="{Binding IsBusy}"
-                               Color="White"
+                               Color="{toolkit:AppThemeResource Primary}"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
         </Grid>

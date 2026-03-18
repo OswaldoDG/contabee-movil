@@ -1,86 +1,114 @@
+using System.Windows.Input;
+using Contabee.Api;
+using Contabee.Api.abstractions;
+using Contabee.Api.crm;
 using ContaBeeMovil.Helpers;
-using Microsoft.Maui.Controls;
-// using Contabee.Api.abstractions; // not required in this code-behind after UI separation
-using ContaBeeMovil.PageModels.Camara;
-using ContaBeeMovil.Pages.Camara;
+using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class RFCsPage : ContentPage
 {
-    public RFCsPage()
+    private readonly IServicioCrm _servicioCrm;
+    private bool _autoNavegado;
+
+    public RFCsPage(IServicioCrm servicioCrm)
     {
         InitializeComponent();
+        _servicioCrm = servicioCrm;
+    }
 
-        // Aplicar colores desde Resources usando el helper
-        try
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        // Esperar a que termine la animación de navegación antes de poblar la lista.
+        // Sin esto, Android deja un artifact gris encima del CollectionView.
+        await Task.Delay(250);
+
+        CargarCuentas();
+
+        var cuentas = AppState.Instance.CuentasFiscales;
+        if (!_autoNavegado && (cuentas == null || cuentas.Count == 0))
         {
-            // HeaderFrame and HeaderTitle may not exist in the new layout; attempt safe update
-            if (this.FindByName("HeaderFrame") is Microsoft.Maui.Controls.Frame hf)
-                hf.BackgroundColor = UIHelpers.GetColor("Primary");
-            if (this.FindByName("HeaderTitle") is Microsoft.Maui.Controls.Label ht)
-                ht.TextColor = UIHelpers.GetColor("PrimaryText");
-        }
-        catch
-        {
-            // Ignore if resources not ready
+            _autoNavegado = true;
+            await AbrirRegistrar();
         }
     }
 
-    private async void IconManual_Tapped(object? sender, EventArgs e)
+    private void CargarCuentas()
     {
-        try
+        var cuentas = AppState.Instance.CuentasFiscales ?? new List<CuentaUsuarioResponse>();
+        ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
-            var page = MauiProgram.Services.GetService(typeof(ManualRegistroPage)) as Page;
-            if (page != null)
-                await Navigation.PushModalAsync(page);
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"No se pudo abrir el registro manual: {ex.Message}", "OK");
-        }
+            Rfc = c.Rfc ?? "—",
+            Regimen = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
+            DeleteCommand = new Command(async () => await ConfirmarEliminar(c))
+        }).ToList();
     }
 
-    private async void IconQr_Tapped(object? sender, EventArgs e)
+    private static string ObtenerDescripcionRegimen(string? clave)
     {
-        try
-        {
-            await BtnQr_Clicked(sender, e);
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"No se pudo abrir el escaneo QR: {ex.Message}", "OK");
-        }
+        if (string.IsNullOrEmpty(clave)) return "Sin régimen";
+        var regimen = RegimenFiscalProvider.GetRegimenFiscal(null)
+            .FirstOrDefault(r => r.Codigo == clave);
+        return regimen?.Descripcion ?? clave;
     }
 
-    private async void IconVincular_Tapped(object? sender, EventArgs e)
+    private async void BtnAgregar_Clicked(object? sender, EventArgs e)
     {
-        try
-        {
-            await BtnVincular_Clicked(sender, e);
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"Error: {ex.Message}", "OK");
-        }
+        try { await AbrirRegistrar(); }
+        catch (Exception ex) { await DisplayAlert("Error", ex.Message, "OK"); }
     }
 
-    // Nota: la UI del formulario manual se mueve a "ManualRegistroPage.xaml". La lógica de interacción
-    // se implementa en su code-behind (ManualRegistroPage.xaml.cs). Aquí solo se realiza la navegación.
-
-    // Método eliminado: la navegación desde botones/gestos ahora abre ManualRegistroPage (XAML)
-
-    private async Task BtnQr_Clicked(object? sender, EventArgs e)
+    private async Task AbrirRegistrar()
     {
-        var qrPage = MauiProgram.Services.GetService(typeof(Pages.Camara.QRPage)) as Page;
-        if (qrPage != null)
-            await Navigation.PushModalAsync(qrPage);
+        await Shell.Current.GoToAsync(nameof(RegistrarRFCsPage));
+    }
+
+    private async Task ConfirmarEliminar(CuentaUsuarioResponse cuenta)
+    {
+        bool confirmar = await DisplayAlert(
+            "Eliminar",
+            "Eliminar la cuenta fiscal es un proceso irreversible ¿Desea continuar?",
+            "Si", "Cancelar");
+
+        if (!confirmar) return;
+
+        SetLoading(true);
+
+        Respuesta respuesta;
+        if (cuenta.TipoCuenta?.Equals("Primaria", StringComparison.OrdinalIgnoreCase) == true)
+            respuesta = await _servicioCrm.EliminarCuentaFiscal(cuenta.CuentaFiscalId);
         else
-            await DisplayAlert("Error", "No se pudo abrir el escaneo de QR.", "OK");
+            respuesta = await _servicioCrm.EliminarAsociacionFiscal(cuenta.Id);
+
+        if (respuesta.Ok)
+        {
+            var actualizadas = await _servicioCrm.GetAsociacionesFiscales();
+            if (actualizadas.Ok && actualizadas.Payload != null)
+                AppState.Instance.CuentasFiscales = actualizadas.Payload;
+            SetLoading(false);
+            CargarCuentas();
+        }
+        else
+        {
+            SetLoading(false);
+            var mensaje = respuesta.Error?.Mensaje ?? "Error al eliminar la cuenta fiscal.";
+            await DisplayAlert("Error", mensaje, "OK");
+        }
     }
 
-    private async Task BtnVincular_Clicked(object? sender, EventArgs e)
+    private void SetLoading(bool isLoading)
     {
-        await DisplayAlert("Vincular", "Funcionalidad para vincular próximamente.", "OK");
+        LoadingOverlay.IsVisible = isLoading;
+        BtnAgregar.IsEnabled = !isLoading;
+    }
+
+    private class CuentaItem
+    {
+        public string Rfc { get; init; } = "";
+        public string Regimen { get; init; } = "";
+        public ICommand DeleteCommand { get; init; } = null!;
     }
 }
