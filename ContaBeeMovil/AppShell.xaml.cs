@@ -62,8 +62,7 @@ namespace ContaBeeMovil
 
         private async Task CargarNombreUsuarioAsync()
         {
-            //var email = await _servicioSesion.LeeEmailAsync();
-            _emailUsuario = AppState.Instance.Perfil.DisplayName;
+            _emailUsuario = AppState.Instance.Perfil?.DisplayName;
             ActualizarNombreLabel();
         }
 

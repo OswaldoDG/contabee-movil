@@ -41,7 +41,8 @@ public class ToastService : IToastService
                 page.Content = overlay; // ← solo se asigna UNA vez
             }
 
-            var toast = BuildToast(message, type, position);
+            var cts = new CancellationTokenSource();
+            var toast = BuildToast(message, type, position, cts);
             toast.Opacity = 0;
             toast.TranslationY = position == ToastPosition.Bottom ? 60 : -60;
 
@@ -53,7 +54,8 @@ public class ToastService : IToastService
                 toast.TranslateToAsync(0, 0, 300, Easing.CubicIn)
             );
 
-            await Task.Delay(durationMs);
+            try { await Task.Delay(durationMs, cts.Token); }
+            catch (TaskCanceledException) { }
 
             // Animación salida
             double exitY = position == ToastPosition.Bottom ? 60 : -60;
@@ -62,8 +64,15 @@ public class ToastService : IToastService
                 toast.TranslateToAsync(0, exitY, 300, Easing.CubicOut)
             );
 
-            // Solo removemos el toast, nunca tocamos page.Content de nuevo
-            overlay.Children.Remove(toast);
+            // Remover toast y restaurar contenido original
+            if (overlay.Children.Contains(toast))
+                overlay.Children.Remove(toast);
+            if (overlay.Children.Count == 1)
+            {
+                var original = overlay.Children[0];
+                overlay.Children.Clear();
+                page.Content = (View)original;
+            }
         });
     }
 
@@ -81,7 +90,7 @@ public class ToastService : IToastService
         };
     }
 
-    private Grid BuildToast(string message, ToastType type, ToastPosition position)
+    private Grid BuildToast(string message, ToastType type, ToastPosition position, CancellationTokenSource cts)
     {
         var color = UIHelpers.GetColor("Primary");
 
@@ -137,10 +146,11 @@ public class ToastService : IToastService
             }
         };
         // Mensaje
+        var textColor = (type == ToastType.Success || type == ToastType.Error) ? color : Color.FromArgb("#1A1A1A");
         var label = new Label
         {
             Text = message,
-            TextColor = Color.FromArgb("#1A1A1A"),
+            TextColor = textColor,
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
             VerticalOptions = LayoutOptions.Center,
@@ -201,12 +211,11 @@ public class ToastService : IToastService
         wrapper.Children.Add(accent);
         wrapper.Children.Add(stack);
 
-        // Tap para cerrar
+        // Tap para cerrar (cancela el delay para que ShowAsync termine)
         var tap = new TapGestureRecognizer();
         tap.Tapped += (s, e) =>
         {
-            var parent = wrapper.Parent as Layout;
-            parent?.Children.Remove(wrapper);
+            cts.Cancel();
         };
         wrapper.GestureRecognizers.Add(tap);
 
