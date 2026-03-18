@@ -1,5 +1,4 @@
 using CommunityToolkit.Maui.Views;
-using Contabee.Api.crm;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Maui.Controls.Shapes;
@@ -22,7 +21,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private string GetTextoDisplay(CuentaUsuarioResponse cuenta)
+    private string GetTextoDisplay(AsociacionCuentaFiscalCompleta cuenta)
     {
         if (AppState.Instance.MostrarNombreFiscal)
         {
@@ -49,7 +48,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
         }
     }
 
-    private Border CrearItem(CuentaUsuarioResponse cuenta, bool seleccionado)
+    private Border CrearItem(AsociacionCuentaFiscalCompleta cuenta, bool seleccionado)
     {
         var label = new Label
         {
@@ -78,7 +77,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
 
     // ── Eventos ───────────────────────────────────────────────────────────────
 
-    private void OnSeleccionarCuenta(CuentaUsuarioResponse cuenta)
+    private void OnSeleccionarCuenta(AsociacionCuentaFiscalCompleta cuenta)
     {
         AppState.Instance.CuentaFiscalActual = cuenta;
         _ = CloseAsync();

@@ -1,67 +1,27 @@
 ﻿using Contabee.Api.abstractions;
-using Contabee.Api.crm;
 using Contabee.Api.Crm;
-using Contabee.Api.Identidad;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using System.Net.Http.Json;
-using System.Reflection.Metadata;
-using System.Text.Json;
+
 
 
 namespace Contabee.Api;
 
-public class ServicioCrm : IServicioCrm
+public class ServicioCrm(HttpClient httpClient) : IServicioCrm
 {
-    private readonly HttpClient _httpClient;
+    private readonly ServicioCRMClient servicioCrm = new (httpClient.BaseAddress!.ToString(), httpClient);
 
-    public ServicioCrm(HttpClient httpClient)
+    public async Task<RespuestaPayload<List<AsociacionCuentaFiscalCompleta>>> GetAsociacionesFiscales()
     {
-        _httpClient = httpClient;
-    }
-
-    public async Task<RespuestaPayload<List<CuentaUsuarioResponse>>> GetAsociacionesFiscales()
-    {
-        RespuestaPayload<List<CuentaUsuarioResponse>> r = new();
+        RespuestaPayload<List<AsociacionCuentaFiscalCompleta>> r = new();
 
         try
         {
-            //var res = await servicioCrm.RfcAsync();
-            //if(res!=null)
-            //{
-            //    if(res.Count == 0)
-            //    {
-            //        r.Payload = new List<AsociacionCuentaFiscalCompleta>();
-            //    }
-            //    else
-            //        r.Payload = res.ToList();
-            //}
-
-
-            var httpResponse = await _httpClient.GetAsync("crm/rfc");
-
-            var json = await httpResponse.Content.ReadAsStringAsync();
-
-            if (httpResponse.IsSuccessStatusCode)
+            var res = await servicioCrm.RfcAsync();
+            if (res != null && res.Count>0)
             {
-                var options = new System.Text.Json.JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                var cuentas = System.Text.Json.JsonSerializer.Deserialize<List<CuentaUsuarioResponse>>(json, options);
-                r.Payload = cuentas;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                var errorToken = JsonConvert.DeserializeObject<ErrorToken>(json);
-                r.Error = new ErrorProceso
-                {
-                    Codigo = errorToken?.Error ?? "login_error",
-                    Mensaje = errorToken?.ErrorDescription ?? "Error al iniciar sesión",
-                    Origen = "ServicioIdentidad-IniciarSesion",
-                    HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
-                };
+                r.Payload = res.ToList();
+                return r;
+
             }
         }
         catch (Exception ex)
@@ -77,7 +37,7 @@ public class ServicioCrm : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await _httpClient.PostAsJsonAsync("crm/rfc/minima", modelo);
+            var httpResponse = await httpClient.PostAsJsonAsync("crm/rfc/minima", modelo);
             if (httpResponse.IsSuccessStatusCode)
             {
                 r.Ok = true;
@@ -102,7 +62,7 @@ public class ServicioCrm : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await _httpClient.DeleteAsync($"crm/cuentafiscal/{cuentaFiscalId}");
+            var httpResponse = await httpClient.DeleteAsync($"crm/cuentafiscal/{cuentaFiscalId}");
             if (httpResponse.IsSuccessStatusCode)
             {
                 r.Ok = true;
@@ -121,12 +81,12 @@ public class ServicioCrm : IServicioCrm
         return r;
     }
 
-    public async Task<Respuesta> EliminarAsociacionFiscal(int id)
+    public async Task<Respuesta> EliminarAsociacionFiscal(long id)
     {
         var r = new Respuesta();
         try
         {
-            var httpResponse = await _httpClient.DeleteAsync($"asociacionfiscal/{id}");
+            var httpResponse = await httpClient.DeleteAsync($"asociacionfiscal/{id}");
             if (httpResponse.IsSuccessStatusCode)
             {
                 r.Ok = true;
@@ -150,7 +110,7 @@ public class ServicioCrm : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await _httpClient.PostAsJsonAsync("crm/rfc/url", request);
+            var httpResponse = await httpClient.PostAsJsonAsync("crm/rfc/url", request);
             if (httpResponse.IsSuccessStatusCode)
             {
                 r.Ok = true;
@@ -166,7 +126,6 @@ public class ServicioCrm : IServicioCrm
         {
             r.Error = ex.ErrorGenerico("ServicioCrm-EnviarUrlCuentaFiscal");
         }
-
         return r;
     }
 }

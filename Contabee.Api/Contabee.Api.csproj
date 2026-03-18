@@ -7,16 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="swagger\ServicioCRM.json" />
     <None Remove="swagger\ServicioIdentidad.json" />
   </ItemGroup>
 
   <ItemGroup>
+
 	  <OpenApiReference Include="swagger\ServicioCRM.json">
 		  <Namespace>Contabee.Api.Crm</Namespace>
 		  <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>
 		  <Options>/GenerateExceptionClasses:false</Options>
 	  </OpenApiReference>
-
 	  <OpenApiReference Include="swagger\ServicioTranscript.json">
 		  <Namespace>Contabee.Api.Transcript</Namespace>
 		  <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>

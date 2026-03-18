@@ -1,6 +1,5 @@
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
-using Contabee.Api.crm;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 
@@ -35,7 +34,7 @@ public partial class RfcCpBarView : ContentView
         LabelCp.Text = string.IsNullOrWhiteSpace(dir?.CodigoPostal) ? "?" : dir.CodigoPostal;
     }
 
-    private static string GetTextoIzquierda(CuentaUsuarioResponse? cuenta)
+    private static string GetTextoIzquierda(AsociacionCuentaFiscalCompleta? cuenta)
     {
         if (cuenta == null) return "?";
 

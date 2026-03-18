@@ -2953,7 +2953,8 @@
             "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
           },
           "cuentaUsuario": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",             
+            "nullable": true
           },
           "direcciones": {
             "type": "array",

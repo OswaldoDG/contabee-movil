@@ -1,13 +1,14 @@
-using Contabee.Api.crm;
-using Contabee.Api.Crm;
+﻿using Contabee.Api.Crm;
 
 namespace Contabee.Api.abstractions;
 
 public interface IServicioCrm
 {
-    Task<RespuestaPayload<List<CuentaUsuarioResponse>>> GetAsociacionesFiscales();
+    Task<RespuestaPayload<List<AsociacionCuentaFiscalCompleta>>> GetAsociacionesFiscales();
     Task<Respuesta> RegistrarCuentaFiscalMinima(CuentaFiscalMinima modelo);
     Task<Respuesta> EnviarUrlCuentaFiscal(RequestUrl request);
     Task<Respuesta> EliminarCuentaFiscal(string cuentaFiscalId);
-    Task<Respuesta> EliminarAsociacionFiscal(int id);
+    Task<Respuesta> EliminarAsociacionFiscal(long id);
+
+
 }

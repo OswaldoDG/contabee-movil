@@ -1,5 +1,4 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using Contabee.Api.crm;
 using Contabee.Api.Crm;
 using Contabee.Api.Identidad;
 using Newtonsoft.Json;
@@ -39,9 +38,9 @@ public partial class AppState : ObservableObject
     private void CargarDesdePreferencias()
     {
         _perfil                  = LeerObjeto<PerfilUsuario>(PrefsKeys.Perfil);
-        _cuentasFiscales         = LeerObjeto<List<CuentaUsuarioResponse>>(PrefsKeys.CuentasFiscales);
-        _cuentaFiscalActual      = LeerObjeto<CuentaUsuarioResponse>(PrefsKeys.CuentaFiscalActual);
-        _direccionFiscalActual   = LeerObjeto<Contabee.Api.crm.DireccionFiscal>(PrefsKeys.DireccionFiscalActual);
+        _cuentasFiscales         = LeerObjeto<List<AsociacionCuentaFiscalCompleta>>(PrefsKeys.CuentasFiscales);
+        _cuentaFiscalActual      = LeerObjeto<AsociacionCuentaFiscalCompleta>(PrefsKeys.CuentaFiscalActual);
+        _direccionFiscalActual   = LeerObjeto<DireccionFiscal>(PrefsKeys.DireccionFiscalActual);
         _mostrarNombreFiscal     = Preferences.Get(PrefsKeys.VerUserName, false);
         _recordarme              = Preferences.Get(PrefsKeys.Recordarme, false);
     }
@@ -116,12 +115,12 @@ public partial class AppState : ObservableObject
     }
 
     // ── CuentaFiscalActual ─────────────────────────────────────────────────────
-    private CuentaUsuarioResponse? _cuentaFiscalActual;
+    private AsociacionCuentaFiscalCompleta? _cuentaFiscalActual;
 
     /// <summary>
     /// Cuenta fiscal actualmente seleccionada. Notifica cambios y persiste automáticamente.
     /// </summary>
-    public CuentaUsuarioResponse? CuentaFiscalActual
+    public AsociacionCuentaFiscalCompleta? CuentaFiscalActual
     {
         get => _cuentaFiscalActual;
         set
@@ -135,12 +134,12 @@ public partial class AppState : ObservableObject
     }
 
     // ── DireccionFiscalActual ──────────────────────────────────────────────────
-    private Contabee.Api.crm.DireccionFiscal? _direccionFiscalActual;
+    private DireccionFiscal? _direccionFiscalActual;
 
     /// <summary>
     /// Dirección fiscal actualmente seleccionada. Notifica cambios y persiste automáticamente.
     /// </summary>
-    public Contabee.Api.crm.DireccionFiscal? DireccionFiscalActual
+    public DireccionFiscal? DireccionFiscalActual
     {
         get => _direccionFiscalActual;
         set
@@ -151,12 +150,12 @@ public partial class AppState : ObservableObject
     }
 
     // ── CuentasFiscales ────────────────────────────────────────────────────────
-    private List<CuentaUsuarioResponse>? _cuentasFiscales;
+    private List<AsociacionCuentaFiscalCompleta>? _cuentasFiscales;
 
     /// <summary>
     /// Lista de cuentas fiscales asociadas al usuario. Notifica cambios y persiste automáticamente.
     /// </summary>
-    public List<CuentaUsuarioResponse>? CuentasFiscales
+    public List<AsociacionCuentaFiscalCompleta>? CuentasFiscales
     {
         get => _cuentasFiscales;
         set
