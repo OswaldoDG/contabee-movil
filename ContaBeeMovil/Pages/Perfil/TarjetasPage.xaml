@@ -2,12 +2,139 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Perfil.TarjetasPage"
-             Title="Tarjetas"
+             Title="Mis tarjetas"
              BackgroundColor="{toolkit:AppThemeResource Background}">
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="Tarjetas" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-        <Label Text="Próximamente" Style="{StaticResource Body1}"
-               TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
-    </VerticalStackLayout>
+
+    <Grid>
+
+        <CollectionView x:Name="ListaTarjetas"
+                        SelectionMode="None"
+                        BackgroundColor="{toolkit:AppThemeResource Background}"
+                        Margin="16,16,16,0">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TarjetaModel">
+
+                    <!--
+                        Los gestos van en el Grid (hijo directo del RecyclerView).
+                        Así Android no intercepta el toque antes de que llegue al pan.
+                        El card Border (Children[1]) es el que se traslada.
+                    -->
+                    <Grid Loaded="OnItemGridLoaded">
+                        <Grid.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="OnCardPan"/>
+                        </Grid.GestureRecognizers>
+
+                        <!-- Fondo rojo (se revela al deslizar) — Children[0] -->
+                        <Border BackgroundColor="{toolkit:AppThemeResource Error}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 16"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Fill">
+                            <Label Text="🗑"
+                                   FontSize="36"
+                                   TextColor="White"
+                                   HorizontalOptions="Start"
+                                   VerticalOptions="Center"
+                                   Margin="24,0,0,0"/>
+                        </Border>
+
+                        <!-- Tarjeta virtual (se desliza) — Children[1] -->
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 16"
+                                Padding="20,16,20,20"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Fill"
+                                Loaded="OnCardLoaded">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnEditarTarjeta"
+                                                      CommandParameter="{Binding .}"/>
+                            </Border.GestureRecognizers>
+                            <Border.Shadow>
+                                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                                        Offset="0,6" Radius="14" Opacity="0.55"/>
+                            </Border.Shadow>
+
+                            <!--
+                                Layout de tarjeta real:
+                                  Row 0 (*): espacio con logo top-right
+                                  Row 1 (Auto): ALIAS (nombre, arriba del número)
+                                  Row 2 (Auto): número enmascarado
+                            -->
+                            <Grid RowDefinitions="*,Auto,Auto" RowSpacing="4">
+
+                                <Image Grid.Row="0"
+                                       Source="logo512.png"
+                                       HeightRequest="44"
+                                       WidthRequest="44"
+                                       HorizontalOptions="End"
+                                       VerticalOptions="Start"/>
+
+                                <Label Grid.Row="1"
+                                       Text="{Binding Alias}"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       FontSize="20"
+                                       FontAttributes="Bold"/>
+
+                                <Label Grid.Row="2"
+                                       Text="{Binding NumeroMascarado}"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       FontSize="16"
+                                       Opacity="0.7"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="12"
+                                     Padding="40,60">
+                    <Label Text="Sin tarjetas"
+                           Style="{StaticResource Title2}"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalOptions="Center"/>
+                    <Label Text="Agrega tus tarjetas con el botón +"
+                           Style="{StaticResource Body1}"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.Footer>
+                <BoxView HeightRequest="96"
+                         Color="{toolkit:AppThemeResource Background}"/>
+            </CollectionView.Footer>
+
+        </CollectionView>
+
+        <!-- FAB -->
+        <Button Text="+"
+                FontSize="30"
+                FontAttributes="Bold"
+                WidthRequest="60"
+                HeightRequest="60"
+                CornerRadius="16"
+                BackgroundColor="{toolkit:AppThemeResource Secondary}"
+                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,16,28"
+                Clicked="OnAgregarTarjeta">
+            <Button.Shadow>
+                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                        Offset="0,4" Radius="8" Opacity="0.5"/>
+            </Button.Shadow>
+        </Button>
+
+    </Grid>
 </ContentPage>
