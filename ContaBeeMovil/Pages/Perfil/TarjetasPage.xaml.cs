@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Maui.Extensions;
-using CommunityToolkit.Maui.Views;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
@@ -14,14 +13,11 @@ public partial class TarjetasPage : ContentPage
     private readonly IServicioSesion _sesion;
     private readonly ObservableCollection<TarjetaModel> _tarjetas = new();
 
-    // Tracks the previous TotalX per item Grid to compute deltas between gesture events
-    private readonly Dictionary<Grid, double> _prevTotalX = new();
+    // Evita que OnAppearing pise cambios mientras hay un popup activo
+    private bool _enCRUD = false;
 
-    // Ancho de pantalla en dp (calculado una vez)
     private double ScreenWidth => DeviceDisplay.MainDisplayInfo.Width
                                   / DeviceDisplay.MainDisplayInfo.Density;
-
-    // Ratio ancho:alto de la tarjeta
     private const double CardRatio = 1.9;
 
     public TarjetasPage(IServicioSesion sesion)
@@ -31,47 +27,44 @@ public partial class TarjetasPage : ContentPage
         ListaTarjetas.ItemsSource = _tarjetas;
     }
 
-    protected override async void OnAppearing()
+    // ── Ciclo de vida ─────────────────────────────────────────────────────────
+
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        await CargarTarjetasAsync();
+        // Si hay un CRUD en curso no recargamos: evitamos que el popup
+        // dispare OnAppearing y pise la colección con datos viejos.
+        if (_enCRUD) return;
+        CargarTarjetas();
     }
 
-    // ── Carga desde AppState ──────────────────────────────────────────────────
+    // ── Carga desde AppState (ya fue poblado en PosLoginAsync) ───────────────
 
-    private async Task CargarTarjetasAsync()
+    private void CargarTarjetas()
     {
-        await _sesion.GetTarjetasAsync();
-
         _tarjetas.Clear();
         foreach (var t in AppState.Instance.Tarjetas ?? Enumerable.Empty<TarjetaModel>())
             _tarjetas.Add(t);
     }
 
-    private async Task GuardarTarjetasAsync()
+    // ── Guarda colección actual en SecureStorage y AppState ───────────────────
+
+    private async Task SincronizarAsync()
         => await _sesion.GuardarTarjetasAsync(_tarjetas.ToList());
 
-    // ── Tamaño responsivo del Grid contenedor ────────────────────────────────
-
-    private void OnItemGridLoaded(object sender, EventArgs e)
-    {
-        if (sender is not Grid grid) return;
-
-        var cardWidth  = ScreenWidth - 32;
-        var cardHeight = cardWidth / CardRatio;
-        grid.HeightRequest = cardHeight;
-    }
-
-    // ── Gradiente de la tarjeta via UIHelpers + Colors.xaml ──────────────────
+    // ── Gradiente + altura responsiva (un solo evento Loaded) ────────────────
 
     private void OnCardLoaded(object sender, EventArgs e)
     {
         if (sender is not Border border) return;
-        AplicarGradiente(border);
-    }
 
-    private static void AplicarGradiente(Border border)
-    {
+        // Altura en el padre SwipeView para evitar que aparezca aplastado
+        var cardWidth  = ScreenWidth - 32;
+        var cardHeight = cardWidth / CardRatio;
+        if (border.Parent is SwipeView swipeView)
+            swipeView.HeightRequest = cardHeight;
+
+        // Gradiente con colores del tema
         var inicio = UIHelpers.GetColor("Primary");
         var fin    = UIHelpers.GetColor("Tertiary");
 
@@ -87,108 +80,80 @@ public partial class TarjetasPage : ContentPage
         };
     }
 
-    // ── Pan gesture: deslizar la tarjeta a la derecha ─────────────────────────
-    //
-    // El PanGestureRecognizer está en el Grid externo (hijo directo del RecyclerView)
-    // para evitar que Android intercepte el gesto antes de que llegue aquí.
-    // Solo trasladamos el Border de la tarjeta (Children[1]), no el Grid completo,
-    // para que el fondo rojo quede visible debajo.
-    //
-    // Usamos delta tracking porque en Android el gesture puede reiniciarse
-    // (TotalX vuelve a 0) sin pasar por GestureStatus.Started.
+    // ── Eliminar ─────────────────────────────────────────────────────────────
 
-    private void OnCardPan(object sender, PanUpdatedEventArgs e)
+    private async void OnEliminarTarjeta(object sender, EventArgs e)
     {
-        if (sender is not Grid itemGrid) return;
-        if (itemGrid.Children.Count < 2 || itemGrid.Children[1] is not Border card) return;
+        if (sender is not SwipeItem swipeItem) return;
+        if (swipeItem.BindingContext is not TarjetaModel tarjeta) return;
 
-        switch (e.StatusType)
+        bool confirmar = await DisplayAlert(
+            "Eliminar tarjeta",
+            $"¿Deseas eliminar la tarjeta \"{tarjeta.Alias}\"?",
+            "Eliminar",
+            "Cancelar");
+
+        if (confirmar)
         {
-            case GestureStatus.Started:
-                _prevTotalX[itemGrid] = 0;
-                break;
-
-            case GestureStatus.Running:
-            {
-                // GetValueOrDefault con e.TotalX como fallback: si Started no llegó (común en Android
-                // dentro de CollectionView), el primer delta es 0 y los siguientes son correctos.
-                var prev = _prevTotalX.GetValueOrDefault(itemGrid, e.TotalX);
-                var delta = e.TotalX - prev;
-                _prevTotalX[itemGrid] = e.TotalX;
-
-                // Solo hacia la derecha
-                card.TranslationX = Math.Max(0, card.TranslationX + delta);
-                break;
-            }
-
-            case GestureStatus.Completed:
-            case GestureStatus.Canceled:
-                _prevTotalX.Remove(itemGrid);
-                _ = HandlePanEndAsync(card, itemGrid.BindingContext as TarjetaModel);
-                break;
+            _tarjetas.Remove(tarjeta);
+            await SincronizarAsync();
         }
     }
 
-    private async Task HandlePanEndAsync(Border card, TarjetaModel? tarjeta)
-    {
-        var umbral = ScreenWidth * 0.55;   // 55% del ancho dispara eliminación
-
-        if (card.TranslationX >= umbral)
-        {
-            bool confirmar = await DisplayAlert(
-                "Eliminar tarjeta",
-                $"¿Deseas eliminar la tarjeta \"{tarjeta?.Alias}\"?",
-                "Eliminar",
-                "Cancelar");
-
-            if (confirmar && tarjeta is not null)
-            {
-                _tarjetas.Remove(tarjeta);
-                await GuardarTarjetasAsync();
-            }
-            else
-            {
-                // Regresa suavemente
-                await card.TranslateTo(0, 0, 420, Easing.SpringOut);
-            }
-        }
-        else
-        {
-            // No llegó al umbral → regresa con spring
-            await card.TranslateTo(0, 0, 400, Easing.SpringOut);
-        }
-    }
-
-    // ── CRUD ─────────────────────────────────────────────────────────────────
+    // ── Agregar ───────────────────────────────────────────────────────────────
 
     private async void OnAgregarTarjeta(object sender, EventArgs e)
     {
-        var popup = new TarjetaFormPopup();
-        await this.ShowPopupAsync(popup);
-
-        if (popup.Resultado is TarjetaModel nueva)
+        _enCRUD = true;
+        try
         {
-            _tarjetas.Add(nueva);
-            await GuardarTarjetasAsync();
+            var popup = new TarjetaFormPopup();
+            await this.ShowPopupAsync(popup);
+
+            if (popup.Resultado is TarjetaModel nueva)
+            {
+                _tarjetas.Add(nueva);
+                await SincronizarAsync();
+            }
+        }
+        finally
+        {
+            _enCRUD = false;
         }
     }
+
+    // ── Editar ────────────────────────────────────────────────────────────────
 
     private async void OnEditarTarjeta(object sender, TappedEventArgs e)
     {
         if (e.Parameter is not TarjetaModel tarjeta) return;
 
-        var popup = new TarjetaFormPopup(tarjeta);
-        await this.ShowPopupAsync(popup);
-
-        if (popup.Resultado is TarjetaModel actualizada)
+        _enCRUD = true;
+        try
         {
-            var index = _tarjetas.IndexOf(
-                _tarjetas.FirstOrDefault(t => t.Id == actualizada.Id)!);
+            var popup = new TarjetaFormPopup(tarjeta);
+            await this.ShowPopupAsync(popup);
 
-            if (index >= 0)
-                _tarjetas[index] = actualizada;
+            if (popup.Resultado is TarjetaModel actualizada)
+            {
+                var vieja = _tarjetas.FirstOrDefault(t => t.Id == actualizada.Id);
+                var index = vieja is not null ? _tarjetas.IndexOf(vieja) : -1;
 
-            await GuardarTarjetasAsync();
+                if (index >= 0)
+                {
+                    // Remove + Insert dispara Remove+Add en ObservableCollection,
+                    // que CollectionView maneja de forma confiable en Android
+                    // (Replace a veces no refresca la celda)
+                    _tarjetas.RemoveAt(index);
+                    _tarjetas.Insert(index, actualizada);
+                }
+
+                await SincronizarAsync();
+            }
+        }
+        finally
+        {
+            _enCRUD = false;
         }
     }
 }

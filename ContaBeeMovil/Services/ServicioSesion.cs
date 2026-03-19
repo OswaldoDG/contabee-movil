@@ -149,5 +149,6 @@ public class ServicioSesion : IServicioSesion
     {
         await GetPerfilAsync();
         await GetAsociacionesFiscalesAsync();
+        await GetTarjetasAsync();
     }
 }

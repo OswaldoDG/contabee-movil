@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Perfil.TarjetasPage"
              Title="Mis tarjetas"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
 
     <Grid>
 
@@ -20,31 +24,24 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:TarjetaModel">
 
-                    <!--
-                        Los gestos van en el Grid (hijo directo del RecyclerView).
-                        Así Android no intercepta el toque antes de que llegue al pan.
-                        El card Border (Children[1]) es el que se traslada.
-                    -->
-                    <Grid Loaded="OnItemGridLoaded">
-                        <Grid.GestureRecognizers>
-                            <PanGestureRecognizer PanUpdated="OnCardPan"/>
-                        </Grid.GestureRecognizers>
+                    <SwipeView Margin="0,0">
+                        <SwipeView.LeftItems>
+                            <!-- Mode=Execute: sigue el dedo, spring-back si no llega al umbral,
+                                 dispara Invoked automáticamente al alcanzar el umbral nativo -->
+                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
+                                <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
+                                           Invoked="OnEliminarTarjeta">
+                                    <SwipeItem.IconImageSource>
+                                        <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
+                                                         FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                                         Color="White"
+                                                         Size="28"/>
+                                    </SwipeItem.IconImageSource>
+                                </SwipeItem>
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
 
-                        <!-- Fondo rojo (se revela al deslizar) — Children[0] -->
-                        <Border BackgroundColor="{toolkit:AppThemeResource Error}"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 16"
-                                HorizontalOptions="Fill"
-                                VerticalOptions="Fill">
-                            <Label Text="🗑"
-                                   FontSize="36"
-                                   TextColor="White"
-                                   HorizontalOptions="Start"
-                                   VerticalOptions="Center"
-                                   Margin="24,0,0,0"/>
-                        </Border>
-
-                        <!-- Tarjeta virtual (se desliza) — Children[1] -->
+                        <!-- Tarjeta virtual -->
                         <Border Stroke="Transparent"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="20,16,20,20"
@@ -61,10 +58,9 @@
                             </Border.Shadow>
 
                             <!--
-                                Layout de tarjeta real:
-                                  Row 0 (*): espacio con logo top-right
-                                  Row 1 (Auto): ALIAS (nombre, arriba del número)
-                                  Row 2 (Auto): número enmascarado
+                                Row 0 (*): espacio con logo top-right
+                                Row 1 (Auto): ALIAS (arriba del número)
+                                Row 2 (Auto): número enmascarado
                             -->
                             <Grid RowDefinitions="*,Auto,Auto" RowSpacing="4">
 
@@ -88,7 +84,7 @@
                                        Opacity="0.7"/>
                             </Grid>
                         </Border>
-                    </Grid>
+                    </SwipeView>
 
                 </DataTemplate>
             </CollectionView.ItemTemplate>
