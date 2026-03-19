@@ -1,4 +1,4 @@
-
+using ContaBeeMovil.Models;
 
 namespace ContaBeeMovil.Services;
 
@@ -15,8 +15,8 @@ public interface IServicioSesion
     Task GuardaExpiracionAsync(DateTime expiracion);
     Task<DateTime?> LeeExpiracionAsync();
     Task GetPerfilAsync();
-
     Task GetAsociacionesFiscalesAsync();
-
+    Task GetTarjetasAsync();
+    Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas);
     Task PosLoginAsync();
 }

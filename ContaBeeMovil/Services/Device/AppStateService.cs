@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Contabee.Api.crm;
 using Contabee.Api.Crm;
 using Contabee.Api.Identidad;
+using ContaBeeMovil.Models;
 using Newtonsoft.Json;
 
 namespace ContaBeeMovil.Services.Device;
@@ -164,5 +165,17 @@ public partial class AppState : ObservableObject
             if (SetProperty(ref _cuentasFiscales, value))
                 GuardarObjeto(PrefsKeys.CuentasFiscales, value);
         }
+    }
+
+    // ── Tarjetas ───────────────────────────────────────────────────────────────
+    private List<TarjetaModel>? _tarjetas;
+
+    /// <summary>
+    /// Tarjetas del usuario cargadas desde SecureStorage. No persiste en Preferences.
+    /// </summary>
+    public List<TarjetaModel>? Tarjetas
+    {
+        get => _tarjetas;
+        set => SetProperty(ref _tarjetas, value);
     }
 }

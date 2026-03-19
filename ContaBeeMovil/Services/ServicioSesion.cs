@@ -1,5 +1,7 @@
 using CommunityToolkit.Maui.Core.Extensions;
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Models;
+using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Maui.Storage;
 
@@ -15,12 +17,14 @@ public class ServicioSesion : IServicioSesion
     private readonly AppState _appState;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IServicioAlmacenamiento _almacenamiento;
 
-    public ServicioSesion(AppState appState,IServicioCrm servicioCrm,IServicioIdentidad servicioIdentidad)
+    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento)
     {
         _appState = appState;
         _servicioCrm = servicioCrm;
         _servicioIdentidad = servicioIdentidad;
+        _almacenamiento = almacenamiento;
     }
 
     public async Task<string> LeeIdDeDispositivo()
@@ -114,6 +118,32 @@ public class ServicioSesion : IServicioSesion
         }
     }
 
+
+    public async Task GetTarjetasAsync()
+    {
+        var email = await LeeEmailAsync();
+        if (string.IsNullOrEmpty(email)) return;
+
+        var usuario = email.Split('@')[0];
+        var clave = $"CLAVE_{usuario}";
+
+        var tarjetas = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave)
+                       ?? new List<TarjetaModel>();
+
+        _appState.Tarjetas = tarjetas;
+    }
+
+    public async Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas)
+    {
+        var email = await LeeEmailAsync();
+        if (string.IsNullOrEmpty(email)) return;
+
+        var usuario = email.Split('@')[0];
+        var clave = $"CLAVE_{usuario}";
+
+        await _almacenamiento.GuardarSeguroAsync(clave, tarjetas);
+        _appState.Tarjetas = new List<TarjetaModel>(tarjetas);
+    }
 
     public async Task PosLoginAsync()
     {

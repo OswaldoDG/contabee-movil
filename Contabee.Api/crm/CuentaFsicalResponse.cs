@@ -115,7 +115,7 @@ using System.Text.Json.Serialization;
         public string NombreComercial { get; set; }
 
         [JsonPropertyName("inicioOperaciones")]
-        public DateTime? InicioOperaciones { get; set; }
+        public string? InicioOperaciones { get; set; }
 
         [JsonPropertyName("estado")]
         public string Estado { get; set; }
