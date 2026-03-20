@@ -51,20 +51,68 @@
                 <Label x:Name="LabelCounter"
                        Text="0/13"
                        HorizontalOptions="End"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                       TextColor="{toolkit:AppThemeResource SecondaryText}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="RfcValidation">
+                            <VisualState x:Name="Empty">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Valid">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Invalid">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Label>
 
                 <Entry x:Name="EntryCp"
                        Placeholder="Código Postal"
                        Keyboard="Numeric"
+                       MaxLength="5"
                        HeightRequest="44"
                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                       TextChanged="EntryCp_TextChanged" />
+
+                <Label x:Name="LabelCpCounter"
+                       Text="0/5"
+                       HorizontalOptions="End"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CpValidation">
+                            <VisualState x:Name="Empty">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Valid">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Invalid">
+                                <VisualState.Setters>
+                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                </Label>
 
                 <Picker x:Name="PickerRegimen"
                         Title="Regimen"
                         HeightRequest="44"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        TitleColor="{toolkit:AppThemeResource SecondaryText}" />
+                        TitleColor="{toolkit:AppThemeResource SecondaryText}"
+                        SelectedIndexChanged="PickerRegimen_SelectedIndexChanged" />
 
                 <HorizontalStackLayout Spacing="8">
                     <CheckBox x:Name="ChkCompartido"
@@ -75,7 +123,7 @@
                            TextColor="{toolkit:AppThemeResource PrimaryText}" />
                 </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="12" HorizontalOptions="Fill">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <Button x:Name="BtnCancel"
                             Text="Cancelar"
                             BackgroundColor="Transparent"
@@ -84,17 +132,25 @@
                             TextColor="{toolkit:AppThemeResource PrimaryText}"
                             CornerRadius="10"
                             HeightRequest="44"
-                            HorizontalOptions="FillAndExpand"
                             Clicked="BtnCancel_Clicked" />
                     <Button x:Name="BtnRegistrar"
+                            Grid.Column="1"
                             Text="Registrar"
                             BackgroundColor="{toolkit:AppThemeResource Primary}"
                             TextColor="{toolkit:AppThemeResource PrimaryText}"
                             CornerRadius="10"
                             HeightRequest="44"
-                            HorizontalOptions="FillAndExpand"
-                            Clicked="BtnRegistrar_Clicked" />
-                </HorizontalStackLayout>
+                            IsEnabled="False"
+                            Clicked="BtnRegistrar_Clicked">
+                        <Button.Triggers>
+                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                                <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                                <Setter Property="TextColor"       Value="{toolkit:AppThemeResource SecondaryText}" />
+                                <Setter Property="Opacity"         Value="1" />
+                            </Trigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
 
             </VerticalStackLayout>
         </Border>

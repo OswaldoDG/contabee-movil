@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
@@ -7,7 +8,21 @@ namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class ManualRegistroPage : ContentPage
 {
+    // Física: 4 letras (A-Z + Ñ, sin acentos) + fecha + homoclave = 13 chars
+    private static readonly Regex RfcFisicaRegex = new(
+        @"^[A-ZÑ]{4}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{3}$",
+        RegexOptions.Compiled);
+
+    // Moral: 3 letras (A-Z + Ñ + &) + fecha + homoclave = 12 chars
+    private static readonly Regex RfcMoralRegex = new(
+        @"^[A-ZÑ&]{3}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{3}$",
+        RegexOptions.Compiled);
+
+    private static readonly Regex CpRegex = new(@"^\d{5}$", RegexOptions.Compiled);
+
     private readonly IServicioCrm _servicioCrm;
+
+    private bool EsFisica => PickerPersona.SelectedIndex == 0;
 
     public ManualRegistroPage(IServicioCrm servicioCrm)
     {
@@ -21,16 +36,55 @@ public partial class ManualRegistroPage : ContentPage
         PopulateRegimen();
     }
 
-    private void EntryName_TextChanged(object? sender, TextChangedEventArgs e) { }
+    private void EntryName_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        UpdateRegistrarButton();
+    }
 
     private void EntryRfc_TextChanged(object? sender, TextChangedEventArgs e)
     {
-        LabelCounter.Text = $"{(e?.NewTextValue?.Length ?? 0)}/13";
+        var text = e?.NewTextValue ?? string.Empty;
+
+        // Auto-mayúsculas
+        if (sender is Entry entry && text != text.ToUpperInvariant())
+        {
+            entry.Text = text.ToUpperInvariant();
+            return; // el evento se re-dispara con el texto corregido
+        }
+
+        RefreshRfcCounter(text);
+        UpdateRegistrarButton();
+    }
+
+    private void EntryCp_TextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var text = e?.NewTextValue ?? string.Empty;
+        var len = text.Length;
+        LabelCpCounter.Text = $"{len}/5";
+
+        bool valid = CpRegex.IsMatch(text);
+        string state = valid ? "Valid" : len > 0 ? "Invalid" : "Empty";
+        VisualStateManager.GoToState(LabelCpCounter, state);
+
+        UpdateRegistrarButton();
     }
 
     private void PickerPersona_SelectedIndexChanged(object? sender, EventArgs e)
     {
+        int nuevoMax = EsFisica ? 13 : 12;
+        EntryRfc.MaxLength = nuevoMax;
+
+        // Limpiar RFC al cambiar tipo: el formato cambia completamente (12 vs 13 chars)
+        EntryRfc.Text = string.Empty;
+        RefreshRfcCounter(string.Empty);
+
         PopulateRegimen();
+        UpdateRegistrarButton();
+    }
+
+    private void PickerRegimen_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        UpdateRegistrarButton();
     }
 
     private async void BtnCancel_Clicked(object? sender, EventArgs e)
@@ -46,35 +100,50 @@ public partial class ManualRegistroPage : ContentPage
     private void PopulateRegimen()
     {
         PickerRegimen.Items.Clear();
-        PersonaType sel = PickerPersona.SelectedIndex == 0 ? PersonaType.Fisica : PersonaType.Moral;
+        PersonaType sel = EsFisica ? PersonaType.Fisica : PersonaType.Moral;
         var list = RegimenFiscalProvider.GetRegimenFiscal(sel);
         foreach (var r in list)
             PickerRegimen.Items.Add($"{r.Codigo} - {r.Descripcion}");
     }
 
+    private void RefreshRfcCounter(string text)
+    {
+        int max = EsFisica ? 13 : 12;
+        LabelCounter.Text = $"{text.Length}/{max}";
+
+        bool valid = IsRfcValid(text);
+        string state = valid ? "Valid" : text.Length > 0 ? "Invalid" : "Empty";
+        VisualStateManager.GoToState(LabelCounter, state);
+    }
+
+    private bool IsRfcValid(string rfc)
+    {
+        var regex = EsFisica ? RfcFisicaRegex : RfcMoralRegex;
+        return regex.IsMatch(rfc);
+    }
+
+    private void UpdateRegistrarButton()
+    {
+        bool rfcValido = IsRfcValid(EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty);
+        bool cpValido = CpRegex.IsMatch(EntryCp.Text?.Trim() ?? string.Empty);
+        bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
+        bool regimenValido = PickerRegimen.SelectedIndex >= 0;
+
+        BtnRegistrar.IsEnabled = rfcValido && cpValido && nombreValido && regimenValido;
+    }
+
     private async Task Registrar()
     {
-        var rfc = EntryRfc.Text?.Trim() ?? string.Empty;
-        if (rfc.Length < 12 || rfc.Length > 13)
-        {
-            await DisplayAlert("RFC inválido", "El RFC debe tener 12 o 13 caracteres.", "OK");
-            return;
-        }
-
         SetLoading(true);
         try
         {
-            var regimenSel = string.Empty;
-            if (PickerRegimen.SelectedIndex >= 0)
-            {
-                var selPersona = PickerPersona.SelectedIndex == 0 ? PersonaType.Fisica : PersonaType.Moral;
-                regimenSel = RegimenFiscalProvider.GetRegimenFiscal(selPersona)[PickerRegimen.SelectedIndex].Codigo;
-            }
+            var selPersona = EsFisica ? PersonaType.Fisica : PersonaType.Moral;
+            var regimenSel = RegimenFiscalProvider.GetRegimenFiscal(selPersona)[PickerRegimen.SelectedIndex].Codigo;
 
             var modelo = new CuentaFiscalMinima
             {
                 Nombre = EntryName.Text?.Trim() ?? string.Empty,
-                Rfc = rfc,
+                Rfc = EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty,
                 CodigoPostal = EntryCp.Text?.Trim() ?? string.Empty,
                 ClaveRegimenFiscal = regimenSel,
                 Compartido = ChkCompartido.IsChecked
@@ -93,8 +162,8 @@ public partial class ManualRegistroPage : ContentPage
                 AppState.Instance.CuentasFiscales = cuentas.Payload;
 
             SetLoading(false);
-            await DisplayAlert("Éxito", "Cuenta fiscal registrada.", "OK");
             await Navigation.PopModalAsync();
+            await Shell.Current.GoToAsync("..");
         }
         catch (HttpRequestException ex)
         {

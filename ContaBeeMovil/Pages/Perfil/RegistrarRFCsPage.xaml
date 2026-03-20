@@ -10,93 +10,74 @@
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="28">
+    <Grid RowDefinitions="*,1,*">
 
-            <!-- Registro Manual -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Registro manual"
-                       FontAttributes="Bold"
-                       FontSize="18"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Sólo necesita ingresar los datos fiscales básicos."
-                       FontSize="13"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                <Border WidthRequest="72"
-                        HeightRequest="72"
-                        HorizontalOptions="Center"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="0"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}">
-                    <mi:MauiIcon Icon="{mi:Material Icon=Edit}"
-                                 IconSize="32"
-                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconManual_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Border>
-            </VerticalStackLayout>
-
-            <!-- Registro QR -->
-            <VerticalStackLayout Spacing="8">
-                <Label Text="Registro QR"
-                       FontAttributes="Bold"
-                       FontSize="18"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Utilice la cámara del dispositivo para leer el QR de su constancia de situación fiscal."
-                       FontSize="13"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                <Border WidthRequest="72"
-                        HeightRequest="72"
-                        HorizontalOptions="Center"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="0"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}">
-                    <mi:MauiIcon Icon="{mi:Material Icon=QrCode}"
-                                 IconSize="32"
-                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconQr_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Border>
-            </VerticalStackLayout>
-
-            <!-- Vincular -->
-            <VerticalStackLayout Spacing="8" Padding="0,8,0,36">
-                <Label Text="Vincularme"
-                       FontAttributes="Bold"
-                       FontSize="18"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Label Text="Esta opción permite conectar este dispositivo al grupo de trabajo de un usuario con una cuenta fiscal existente."
-                       FontSize="13"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                <Border WidthRequest="72"
-                        HeightRequest="72"
-                        HorizontalOptions="Center"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="0"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}">
-                    <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
-                                 IconSize="32"
-                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="IconVincular_Tapped" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Border>
-            </VerticalStackLayout>
-
+        <!-- Registro Manual -->
+        <VerticalStackLayout Grid.Row="0"
+                             Padding="24,0"
+                             Spacing="10"
+                             VerticalOptions="Center">
+            <Label Text="Registro manual"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+            <Label Text="Sólo necesita ingresar los datos fiscales básicos."
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            <Border WidthRequest="72"
+                    HeightRequest="72"
+                    Margin="0,6,0,0"
+                    HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}">
+                <mi:MauiIcon Icon="{mi:Material Icon=Edit}"
+                             IconSize="32"
+                             IconColor="{toolkit:AppThemeResource PrimaryText}"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="IconManual_Tapped" />
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
+            </Border>
         </VerticalStackLayout>
-    </ScrollView>
+
+        <!-- Separador -->
+        <BoxView Grid.Row="1"
+                 Margin="24,0"
+                 Color="{toolkit:AppThemeResource Accent1}" />
+
+        <!-- Registro QR -->
+        <VerticalStackLayout Grid.Row="2"
+                             Padding="24,0"
+                             Spacing="10"
+                             VerticalOptions="Center">
+            <Label Text="Registro QR"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+            <Label Text="Utilice la cámara del dispositivo para leer el QR de su constancia de situación fiscal."
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            <Border WidthRequest="72"
+                    HeightRequest="72"
+                    Margin="0,6,0,0"
+                    HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}">
+                <mi:MauiIcon Icon="{mi:Material Icon=QrCode}"
+                             IconSize="32"
+                             IconColor="{toolkit:AppThemeResource PrimaryText}"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="IconQr_Tapped" />
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
+            </Border>
+        </VerticalStackLayout>
+
+    </Grid>
 </ContentPage>

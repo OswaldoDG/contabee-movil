@@ -145,8 +145,8 @@ public partial class QRPage : ContentPage
                 AppState.Instance.CuentasFiscales = cuentas.Payload;
 
             LoadingOverlay.IsVisible = false;
-            await DisplayAlert("Éxito", "Cuenta fiscal registrada correctamente.", "OK");
             await Navigation.PopModalAsync();
+            await Shell.Current.GoToAsync("..");
         }
         else
         {
