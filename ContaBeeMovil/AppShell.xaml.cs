@@ -2,6 +2,7 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Device;
@@ -179,6 +180,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
+            Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
         }
     }
 }

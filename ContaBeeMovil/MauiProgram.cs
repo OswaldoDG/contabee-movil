@@ -9,6 +9,7 @@ using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
@@ -73,13 +74,13 @@ namespace ContaBeeMovil
             // Cliente sin AuthHandler para el endpoint de refresh token
             builder.Services.AddHttpClient("IdentityToken", client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity");
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity");
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
@@ -89,7 +90,7 @@ namespace ContaBeeMovil
             }).AddHttpMessageHandler<AuthHandler>(); 
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript");
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>(); 
 
@@ -124,6 +125,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
+            builder.Services.AddTransient<PaginaCaptura>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();
             builder.Services.AddTransient<TomarFotoPage>();

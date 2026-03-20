@@ -38,4 +38,19 @@ public static class Extensiones
             Origen = origen
         };
     }
+
+    public static TDestino MapearA<TDestino>(object origen) where TDestino : new()
+    {
+        var destino = new TDestino();
+        var propsOrigen = origen.GetType().GetProperties();
+        var propsDestino = typeof(TDestino).GetProperties();
+
+        foreach (var po in propsOrigen)
+        {
+            var pd = propsDestino.FirstOrDefault(p => p.Name == po.Name && p.PropertyType == po.PropertyType);
+            if (pd != null && pd.CanWrite)
+                pd.SetValue(destino, po.GetValue(origen));
+        }
+        return destino;
+    }
 }

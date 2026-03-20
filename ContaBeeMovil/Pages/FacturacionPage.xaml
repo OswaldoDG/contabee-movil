@@ -3,20 +3,59 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
              Title="Facturación"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
 
-        <VerticalStackLayout Grid.Row="0"
-                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-            <Label Text="Facturación" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-            <Label Text="Próximamente" Style="{StaticResource Body1}"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
+        <!-- Controles de consulta -->
+        <VerticalStackLayout Grid.Row="0">
+            <views:FiltrosFacturasView x:Name="PanelFiltros"
+                                       BuscarCommand="{Binding BuscarFacturasCommand}" />
         </VerticalStackLayout>
 
-        <views:RfcCpBarView Grid.Row="1" />
+        <!-- Lista de resultados + FAB -->
+        <Grid Grid.Row="1">
+        <views:ResultadosListaView
+                                   EstaCargando="{Binding EstaCargando}"
+                                   Elementos="{Binding Elementos}"
+                                   TotalEncontrados="{Binding TotalEncontrados}"
+                                   PaginaActual="{Binding PaginaActual}"
+                                   TotalPaginas="{Binding TotalPaginas}"
+                                   ConsultaEjecutada="{Binding ConsultaEjecutada}"
+                                   AnteriorCommand="{Binding PaginaAnteriorCommand}"
+                                   SiguienteCommand="{Binding PaginaSiguienteCommand}">
+            <views:ResultadosListaView.PlantillaItem>
+                <DataTemplate>
+                    <views:LoteCapturaCardView />
+                </DataTemplate>
+            </views:ResultadosListaView.PlantillaItem>
+        </views:ResultadosListaView>
+
+            <!-- FAB Captura -->
+            <Border WidthRequest="60" HeightRequest="60"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    HorizontalOptions="End" VerticalOptions="End"
+                    Margin="0,0,16,5">
+                <Border.Shadow>
+                    <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.5" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAbrirCaptura" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUI.camera_28_regular}"
+                       FontFamily="FluentUI" FontSize="28" 
+                       HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+        </Grid>
+
+        <!-- Barra RFC/CP -->
+        <views:RfcCpBarView Grid.Row="2" />
 
     </Grid>
 
