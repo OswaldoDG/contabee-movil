@@ -66,7 +66,7 @@
     <!-- ========================================= -->
     <!-- CUSTOM COLORS                             -->
     <!-- ========================================= -->
-    <toolkit:AppThemeColor x:Key="Shadow"          Light="#5e000000" Dark="#000000"  />
+    <toolkit:AppThemeColor x:Key="Shadow"          Light="#5e000000" Dark="#b3000000"  />
     <toolkit:AppThemeColor x:Key="ShadowSecondary" Light="#10000000" Dark="#232323"  />
     <toolkit:AppThemeColor x:Key="Icon"            Light="#000000"   Dark="#f2f1f0"  />
     <toolkit:AppThemeColor x:Key="Disabled"        Light="#e3e3e5"   Dark="#3a3a3a"  />

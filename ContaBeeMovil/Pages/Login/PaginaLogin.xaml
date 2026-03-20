@@ -99,38 +99,18 @@
                 </HorizontalStackLayout>
 
                 <!-- Buttons -->
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="12"
-                      Margin="0,4,0,0">
-
-                    <!-- Vincularme -->
-                    <Button Grid.Column="0"
-                            Text="Vincularme"
-                            Command="{Binding VincularmeCommand}"
-                            Style="{toolkit:AppThemeResource  Primary}"
-                            SemanticProperties.Description="Vincularme">
-                        <Button.ImageSource>
-                            <FontImageSource Glyph="{x:Static f:FluentUI.people_community_24_regular}"
-                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                             Color="{toolkit:AppThemeResource PrimaryText}"
-                                             Size="18" />
-                        </Button.ImageSource>
-                    </Button>
-
-                    <!-- Ingresar -->
-                    <Button Grid.Column="1"
-                            Text="Ingresar"
-                            Command="{Binding IngresarCommand}"
-                            Style="{toolkit:AppThemeResource  Primary}"
-                            SemanticProperties.Description="Ingresar">
-                        <Button.ImageSource>
-                            <FontImageSource Glyph="{x:Static f:FluentUI.arrow_enter_20_regular}"
-                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                             Color="{toolkit:AppThemeResource PrimaryText}"
-                                             Size="18" />
-                        </Button.ImageSource>
-                    </Button>
-                </Grid>
+                <Button Text="Ingresar"
+                        Margin="0,4,0,0"
+                        Command="{Binding IngresarCommand}"
+                        Style="{toolkit:AppThemeResource  Primary}"
+                        SemanticProperties.Description="Ingresar">
+                    <Button.ImageSource>
+                        <FontImageSource Glyph="{x:Static f:FluentUI.arrow_enter_20_regular}"
+                                         FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                         Color="{toolkit:AppThemeResource PrimaryText}"
+                                         Size="18" />
+                    </Button.ImageSource>
+                </Button>
 
                 <!-- Links -->
                 <VerticalStackLayout Spacing="8"

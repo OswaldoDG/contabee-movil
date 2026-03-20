@@ -16,25 +16,16 @@
                 <DataTemplate>
                     <SwipeView Margin="0,6">
                         <SwipeView.LeftItems>
-                            <!-- Execute: sigue el dedo, snap-back si no llega al umbral, dispara al llegar -->
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
-                                <SwipeItemView Command="{Binding DeleteCommand}">
-                                    <Grid BackgroundColor="{toolkit:AppThemeResource Error}"
-                                          WidthRequest="90"
-                                          HorizontalOptions="Fill"
-                                          VerticalOptions="Fill">
-                                        <Image WidthRequest="28" HeightRequest="28"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center">
-                                            <Image.Source>
-                                                <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
-                                                                 FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                                                 Color="White"
-                                                                 Size="28" />
-                                            </Image.Source>
-                                        </Image>
-                                    </Grid>
-                                </SwipeItemView>
+                                <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
+                                           Command="{Binding DeleteCommand}">
+                                    <SwipeItem.IconImageSource>
+                                        <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
+                                                         FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                                         Color="White"
+                                                         Size="28" />
+                                    </SwipeItem.IconImageSource>
+                                </SwipeItem>
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
@@ -103,9 +94,15 @@
                 CornerRadius="16"
                 HorizontalOptions="End"
                 VerticalOptions="End"
-                Margin="0,0,16,32"
+                Margin="0,0,16,28"
                 BackgroundColor="{toolkit:AppThemeResource Primary}"
                 TextColor="{toolkit:AppThemeResource PrimaryText}"
-                Clicked="BtnAgregar_Clicked" />
+                Clicked="BtnAgregar_Clicked">
+            <Button.Shadow>
+                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                        Offset="0,4" Radius="8" Opacity="0.5" />
+            </Button.Shadow>
+        </Button>
+
     </Grid>
 </ContentPage>
