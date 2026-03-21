@@ -267,12 +267,6 @@ public partial class FiltrosFacturasView : ContentView
         PickerEnvio.SelectedIndex   = 0;
         PickerTipo.SelectedIndex    = 0;
         EntryRfc.Text               = string.Empty;
-        PickerOrden.SelectedIndex   = 0;
-        if (_ordenAscendente)
-        {
-            _ordenAscendente = false;
-            IconOrden.Text = FluentUI.arrow_sort_down_lines_20_regular;
-        }
 
         var busqueda = new Busqueda { Filtros = filtros, Paginado = new Paginado { Pagina = 1, TamanoPagina = 10 }, Contar = true };
         EjecutarBusqueda(busqueda);

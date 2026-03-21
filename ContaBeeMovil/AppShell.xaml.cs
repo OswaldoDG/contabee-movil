@@ -5,6 +5,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
 
@@ -12,10 +13,11 @@ namespace ContaBeeMovil
 {
     public partial class AppShell : Shell
     {
-        public AppShell(IServicioSesion servicioSesion)
+        public AppShell(IServicioSesion servicioSesion, IServicioAlerta servicioAlerta)
         {
             InitializeComponent();
             _servicioSesion = servicioSesion;
+            _servicioAlerta = servicioAlerta;
             var currentTheme = Application.Current!.RequestedTheme;
             ThemeSwitch.IsToggled = currentTheme == AppTheme.Dark;
             RegisterRoutes();
@@ -69,6 +71,7 @@ namespace ContaBeeMovil
 
         private string? _emailUsuario;
         private readonly IServicioSesion _servicioSesion;
+        private readonly IServicioAlerta _servicioAlerta;
 
         private void ActualizarNombreLabel()
         {
@@ -92,10 +95,11 @@ namespace ContaBeeMovil
 
         private async void OnCerrarSesionClicked(object? sender, EventArgs e)
         {
-            bool confirmar = await DisplayAlert(
-                "Cerrar sesión",
-                "¿Estás seguro que deseas cerrar sesión?",
-                "Sí", "No");
+            bool confirmar = await _servicioAlerta.MostrarAsync(
+                titulo: "Cerrar sesión",
+                mensaje: "¿Estás seguro que deseas cerrar sesión?",
+                cancelarText: "No",
+                confirmarText: "Sí");
 
             if (!confirmar)
                 return;
@@ -138,25 +142,25 @@ namespace ContaBeeMovil
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await DisplayAlert("Configuración", "Próximamente", "OK");
+            await _servicioAlerta.MostrarAsync("Configuración", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnDiagnosticoClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await DisplayAlert("Diagnostico", "Próximamente", "OK");
+            await _servicioAlerta.MostrarAsync("Diagnostico", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnBuzonClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await DisplayAlert("Búzon de sugerencias", "Próximamente", "OK");
+            await _servicioAlerta.MostrarAsync("Búzon de sugerencias", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await DisplayAlert("Acerca de", "ContaBee — Versión 1.0", "OK");
+            await _servicioAlerta.MostrarAsync("Acerca de", "ContaBee — Versión 1.0", verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)

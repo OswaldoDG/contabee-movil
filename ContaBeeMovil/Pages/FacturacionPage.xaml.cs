@@ -3,6 +3,7 @@ using Contabee.Api.Transcript;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ContaBeeMovil.Config;
 using ContaBeeMovil.Pages.Captura;
+using ContaBeeMovil.Services;
 using System.Windows.Input;
 
 namespace ContaBeeMovil.Pages;
@@ -10,6 +11,7 @@ namespace ContaBeeMovil.Pages;
 public partial class FacturacionPage : ContentPage
 {
     private readonly IServicioTranscript _servicioTranscript;
+    private readonly IServicioAlerta _servicioAlerta;
     private Busqueda? _ultimaBusqueda;
 
     // ── Propiedades observables ──────────────────────────────────────────────────
@@ -66,9 +68,10 @@ public partial class FacturacionPage : ContentPage
 
     // ── Constructor ──────────────────────────────────────────────────────────────
 
-    public FacturacionPage(IServicioTranscript servicioTranscript)
+    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta)
     {
         _servicioTranscript = servicioTranscript;
+        _servicioAlerta = servicioAlerta;
         BuscarFacturasCommand = new Command<Busqueda>(async b => await OnBuscarFacturas(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
         PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
@@ -123,7 +126,7 @@ public partial class FacturacionPage : ContentPage
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Error", ex.Message, "OK");
+            await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {

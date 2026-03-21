@@ -2,6 +2,7 @@ using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using System.Windows.Input;
 
@@ -10,12 +11,14 @@ namespace ContaBeeMovil.Pages.Perfil;
 public partial class RFCsPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioAlerta _servicioAlerta;
     private bool _autoNavegado;
 
-    public RFCsPage(IServicioCrm servicioCrm)
+    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
+        _servicioAlerta = servicioAlerta;
     }
 
     protected override async void OnAppearing()
@@ -58,7 +61,7 @@ public partial class RFCsPage : ContentPage
     private async void BtnAgregar_Clicked(object? sender, EventArgs e)
     {
         try { await AbrirRegistrar(); }
-        catch (Exception ex) { await DisplayAlert("Error", ex.Message, "OK"); }
+        catch (Exception ex) { await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK"); }
     }
 
     private async Task AbrirRegistrar()
@@ -68,10 +71,10 @@ public partial class RFCsPage : ContentPage
 
     private async Task ConfirmarEliminar(AsociacionCuentaFiscalCompleta cuenta)
     {
-        bool confirmar = await DisplayAlert(
+        bool confirmar = await _servicioAlerta.MostrarAsync(
             "Eliminar",
             "Eliminar la cuenta fiscal es un proceso irreversible ¿Desea continuar?",
-            "Si", "Cancelar");
+            confirmarText: "Si", cancelarText: "Cancelar");
 
         if (!confirmar) return;
 
@@ -95,7 +98,7 @@ public partial class RFCsPage : ContentPage
         {
             SetLoading(false);
             var mensaje = respuesta.Error?.Mensaje ?? "Error al eliminar la cuenta fiscal.";
-            await DisplayAlert("Error", mensaje, "OK");
+            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
         }
     }
 
