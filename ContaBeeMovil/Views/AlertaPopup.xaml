@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.AlertaPopup"
+               CanBeDismissedByTappingOutsideOfPopup="False"
+               Background="Transparent">
+
+    <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            Stroke="Transparent"
+            StrokeShape="RoundRectangle 20"
+            Padding="24,20"
+            WidthRequest="320">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,4" Radius="16" Opacity="0.35"/>
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="12">
+
+            <!-- Título -->
+            <Label x:Name="LblTitulo"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   HorizontalOptions="Center"/>
+
+            <!-- Mensaje -->
+            <Label x:Name="LblMensaje"
+                   FontSize="15"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <!-- Botones -->
+            <Grid x:Name="GridBotones"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="12"
+                  Margin="0,8,0,0">
+                <Button x:Name="BtnCancelar"
+                        Grid.Column="0"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        Clicked="OnCancelar"/>
+                <Button x:Name="BtnConfirmar"
+                        Grid.Column="1"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="#1e1e1e"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        FontAttributes="Bold"
+                        Clicked="OnConfirmar"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

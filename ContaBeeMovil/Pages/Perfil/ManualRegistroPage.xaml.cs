@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Pages.Perfil;
@@ -21,13 +22,15 @@ public partial class ManualRegistroPage : ContentPage
     private static readonly Regex CpRegex = new(@"^\d{5}$", RegexOptions.Compiled);
 
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioAlerta _servicioAlerta;
 
     private bool EsFisica => PickerPersona.SelectedIndex == 0;
 
-    public ManualRegistroPage(IServicioCrm servicioCrm)
+    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
+        _servicioAlerta = servicioAlerta;
 
         PickerPersona.Items.Add("Física");
         PickerPersona.Items.Add("Moral");
@@ -153,7 +156,7 @@ public partial class ManualRegistroPage : ContentPage
             if (!resp.Ok)
             {
                 SetLoading(false);
-                await DisplayAlert("Error", resp.Error?.Mensaje ?? "Error al registrar.", "OK");
+                await _servicioAlerta.MostrarAsync("Error", resp.Error?.Mensaje ?? "Error al registrar.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
 
@@ -168,17 +171,17 @@ public partial class ManualRegistroPage : ContentPage
         catch (HttpRequestException ex)
         {
             SetLoading(false);
-            await DisplayAlert("Error de conexión", $"No se pudo conectar al servidor: {ex.Message}", "OK");
+            await _servicioAlerta.MostrarAsync("Error de conexión", $"No se pudo conectar al servidor: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (TaskCanceledException ex)
         {
             SetLoading(false);
-            await DisplayAlert("Error de tiempo", $"La solicitud tardó demasiado: {ex.Message}", "OK");
+            await _servicioAlerta.MostrarAsync("Error de tiempo", $"La solicitud tardó demasiado: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {
             SetLoading(false);
-            await DisplayAlert("Error inesperado", $"Ocurrió un error: {ex.Message}", "OK");
+            await _servicioAlerta.MostrarAsync("Error inesperado", $"Ocurrió un error: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
         }
     }
 

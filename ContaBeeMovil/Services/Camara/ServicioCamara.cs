@@ -5,7 +5,13 @@ namespace ContaBeeMovil.Services.Camara;
 
 public class ServicioCamara : IServicioCamara
 {
+    private readonly IServicioAlerta _servicioAlerta;
     private TaskCompletionSource<string>? _scanTcs;
+
+    public ServicioCamara(IServicioAlerta servicioAlerta)
+    {
+        _servicioAlerta = servicioAlerta;
+    }
 
     // ============ MÉTODOS PARA TOMAR FOTO ============
 
@@ -36,7 +42,7 @@ public class ServicioCamara : IServicioCamara
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Error cámara", ex.Message, "OK");
+            await _servicioAlerta.MostrarAsync("Error cámara", ex.Message, verBotonCancelar: false, confirmarText: "OK");
             return string.Empty;
         }
     }

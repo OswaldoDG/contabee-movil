@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
+             xmlns:transcript="clr-namespace:Contabee.Api.Transcript;assembly=Contabee.Api"
+             x:Class="ContaBeeMovil.Views.LoteCapturaCardView"
+             Padding="2">
+
+    <ContentView.Resources>
+        <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
+        <converters:EstadoCapturaEtiquetaConverter x:Key="EstadoEtiqueta" />
+        <converters:EstadoChipConverter x:Key="EstadoChip" />
+        <converters:TipoProcesoCapturaIconConverter x:Key="TipoIcon" />
+        <converters:ClaveFormaPagoIconConverter x:Key="FormaPagoIcon" />
+        <converters:ClaveFormaPagoEsTarjetaConverter x:Key="EsTarjeta" />
+    </ContentView.Resources>
+
+    <Border Style="{StaticResource ElevatedCard}"
+            Margin="12,4">
+
+        <VerticalStackLayout Spacing="10">
+
+            <!-- ── Fila 0: Consecutivo · Tipo · Editar | Fecha ─────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+
+                <HorizontalStackLayout Grid.Column="0"
+                                       Spacing="6"
+                                       VerticalOptions="Center">
+
+                    <Label Text="{Binding Consecutivo}"
+                           Style="{StaticResource Body2Strong}" />
+
+                    <Label Text="{Binding Datos, Converter={StaticResource EstadoEtiqueta}}"
+                           Style="{StaticResource Caption1}"
+                           VerticalOptions="Center" />
+
+                    <!--<Label Text="{x:Static f:FluentUI.edit_20_regular}"
+                           FontFamily="FluentUI"
+                           FontSize="18"
+                           VerticalOptions="Center" />-->
+
+                </HorizontalStackLayout>
+
+                <Label Grid.Column="1"
+                       Text="{Binding Datos.FechaCreacion, StringFormat='{0:dd/MM/yyyy  h:mm tt}'}"
+                       Style="{StaticResource Caption1}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End" />
+
+            </Grid>
+
+            <!-- ── Fila 1: Nombre Creador | RFC Emisor ──────────────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+
+                <Label Grid.Column="0"
+                       Text="{Binding Datos.NombreCreador}"
+                       Style="{StaticResource Body2}"
+                       LineBreakMode="TailTruncation" 
+                       VerticalOptions="Center" />
+
+                <Label Grid.Column="1"
+                       Text="{Binding Datos.RfcReceptor}"
+                       Style="{StaticResource Caption1Strong}"
+                       VerticalOptions="Center"
+                       HorizontalOptions="End"
+                       Margin="8,0,0,0" />
+
+            </Grid>
+
+            <!-- ── Fila 2: Monto | Cámara · PDF · XML ───────────────────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+
+                <Border Grid.Column="0"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,6"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center">
+                    <Label Text="{Binding Datos.Total, StringFormat='$ {0:N2}'}"
+                           Style="{StaticResource Body2Strong}" />
+                </Border>
+
+                <HorizontalStackLayout Grid.Column="1"
+                                       Spacing="4"
+                                       VerticalOptions="Center">
+
+                    <!-- Cámara: siempre activo -->
+                    <Grid>
+                        <Border x:Name="BtnCamara" Style="{StaticResource CircleIconButton}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDescargarImagen" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.camera_20_regular}"
+                                   Style="{StaticResource CircleIconLabel}" />
+                        </Border>
+                        <ActivityIndicator x:Name="SpinnerCamara"
+                                           IsVisible="False" IsRunning="False"
+                                           Color="{toolkit:AppThemeResource Primary}"
+                                           WidthRequest="20" HeightRequest="20"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- PDF: activo si TienePdf -->
+                    <Grid>
+                        <Border x:Name="BtnPdf" Style="{StaticResource CircleIconButton}"
+                                Opacity="{Binding Datos.TienePdf, Converter={StaticResource BoolToOpacity}}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDescargarPdf" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.document_pdf_20_regular}"
+                                   Style="{StaticResource CircleIconLabel}" />
+                        </Border>
+                        <ActivityIndicator x:Name="SpinnerPdf"
+                                           IsVisible="False" IsRunning="False"
+                                           Color="{toolkit:AppThemeResource Primary}"
+                                           WidthRequest="20" HeightRequest="20"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+
+                    <!-- XML: activo si TieneXml -->
+                    <Grid>
+                        <Border x:Name="BtnXml" Style="{StaticResource CircleIconButton}"
+                                Opacity="{Binding Datos.TieneXml, Converter={StaticResource BoolToOpacity}}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDescargarXml" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.document_20_regular}"
+                                   Style="{StaticResource CircleIconLabel}" />
+                        </Border>
+                        <ActivityIndicator x:Name="SpinnerXml"
+                                           IsVisible="False" IsRunning="False"
+                                           Color="{toolkit:AppThemeResource Primary}"
+                                           WidthRequest="20" HeightRequest="20"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+
+                </HorizontalStackLayout>
+
+            </Grid>
+
+            <!-- ── Fila 3: Estado | IEPS · FormaPago · Terminación ──────────────────── -->
+            <Grid ColumnDefinitions="*,Auto">
+
+                <Border Grid.Column="0"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="12,6"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center">
+                    <Label Text="{Binding Datos, Converter={StaticResource EstadoChip}}"
+                           Style="{StaticResource Caption1Strong}" />
+                </Border>
+
+                <HorizontalStackLayout Grid.Column="1"
+                                       Spacing="8"
+                                       VerticalOptions="Center">
+
+                    <!-- Slot 1: Tipo de factura -->
+                    <Label Text="{Binding Datos.Tipo, Converter={StaticResource TipoIcon}}"
+                           FontFamily="FluentUI"
+                           FontSize="20"
+                           VerticalOptions="Center" />
+
+                    <!-- Slot 2: IEPS (visible solo si EsIeps = true) -->
+                    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 6"
+                            Padding="6,3"
+                            VerticalOptions="Center"
+                            IsVisible="{Binding Datos.EsIeps}">
+                        <Label Text="IEPS"
+                               Style="{StaticResource Caption2}" />
+                    </Border>
+
+                    <!-- Slot 3: Forma de pago + terminación (solo tarjeta) -->
+                    <VerticalStackLayout Spacing="1"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                        <Label Text="{Binding Datos.ClaveFormaPago, Converter={StaticResource FormaPagoIcon}}"
+                               FontFamily="FluentUI"
+                               FontSize="20"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding Datos.TerminacionMedioPago}"
+                               Style="{StaticResource Caption2}"
+                               HorizontalOptions="Center"
+                               IsVisible="{Binding Datos.ClaveFormaPago, Converter={StaticResource EsTarjeta}}" />
+                    </VerticalStackLayout>
+
+                </HorizontalStackLayout>
+
+            </Grid>
+
+            <!-- ── Fila 4: Etiqueta + Link (Comprobacion / Devolucion) ──────────────── -->
+            <!-- TODO: IsVisible converter Tipo != FacturaIndividual -->
+            <Grid ColumnDefinitions="*,Auto"
+                  IsVisible="False">
+
+                <Label Grid.Column="0"
+                       Text="{Binding Datos.Etiqueta}"
+                       Style="{StaticResource Body2}"
+                       LineBreakMode="TailTruncation"
+                       VerticalOptions="Center" />
+
+                <Border Grid.Column="1"
+                        Style="{StaticResource CircleIconButton}"
+                        VerticalOptions="Center">
+                    <Label Text="{x:Static f:FluentUI.arrow_up_right_20_regular}"
+                           Style="{StaticResource CircleIconLabel}" />
+                </Border>
+
+            </Grid>
+
+        </VerticalStackLayout>
+
+    </Border>
+
+</ContentView>

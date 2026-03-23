@@ -1,4 +1,5 @@
 using ContaBeeMovil.PageModels.Camara;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
 using CommunityToolkit.Mvvm.Input;
 
@@ -6,6 +7,9 @@ namespace ContaBeeMovil.Pages.Camara;
 
 public partial class CamaraPage : ContentPage
 {
+    private readonly IServicioAlerta _servicioAlerta =
+        MauiProgram.Services.GetRequiredService<IServicioAlerta>();
+
     public CamaraPage(CamaraPageModel pageModel)
     {
         InitializeComponent();
@@ -24,7 +28,7 @@ public partial class CamaraPage : ContentPage
         var servicio = MauiProgram.Services.GetService(typeof(IServicioCamara)) as IServicioCamara;
         if (servicio == null)
         {
-            await DisplayAlert("Error", "Servicio cámara no disponible.", "OK");
+            await _servicioAlerta.MostrarAsync("Error", "Servicio cámara no disponible.", verBotonCancelar: false, confirmarText: "OK");
             return;
         }
 
@@ -39,11 +43,11 @@ public partial class CamaraPage : ContentPage
         var qr = await servicio.ProcesarImagenAsync(vm.PhotoPath);
         if (string.IsNullOrEmpty(qr))
         {
-            await DisplayAlert("QR", "No se detectó QR en la imagen.", "OK");
+            await _servicioAlerta.MostrarAsync("QR", "No se detectó QR en la imagen.", verBotonCancelar: false, confirmarText: "OK");
             return;
         }
 
-        await DisplayAlert("QR detectado", qr, "OK");
+        await _servicioAlerta.MostrarAsync("QR detectado", qr, verBotonCancelar: false, confirmarText: "OK");
         await Navigation.PopModalAsync();
     }
 }

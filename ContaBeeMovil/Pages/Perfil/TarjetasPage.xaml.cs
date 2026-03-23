@@ -11,6 +11,7 @@ namespace ContaBeeMovil.Pages.Perfil;
 public partial class TarjetasPage : ContentPage
 {
     private readonly IServicioSesion _sesion;
+    private readonly IServicioAlerta _servicioAlerta;
     private readonly ObservableCollection<TarjetaModel> _tarjetas = new();
 
     // Evita que OnAppearing pise cambios mientras hay un popup activo
@@ -20,10 +21,11 @@ public partial class TarjetasPage : ContentPage
                                   / DeviceDisplay.MainDisplayInfo.Density;
     private const double CardRatio = 1.9;
 
-    public TarjetasPage(IServicioSesion sesion)
+    public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta)
     {
         InitializeComponent();
         _sesion = sesion;
+        _servicioAlerta = servicioAlerta;
         ListaTarjetas.ItemsSource = _tarjetas;
     }
 
@@ -87,11 +89,10 @@ public partial class TarjetasPage : ContentPage
         if (sender is not SwipeItem swipeItem) return;
         if (swipeItem.BindingContext is not TarjetaModel tarjeta) return;
 
-        bool confirmar = await DisplayAlert(
+        bool confirmar = await _servicioAlerta.MostrarAsync(
             "Eliminar tarjeta",
             $"¿Deseas eliminar la tarjeta \"{tarjeta.Alias}\"?",
-            "Eliminar",
-            "Cancelar");
+            confirmarText: "Eliminar", cancelarText: "Cancelar");
 
         if (confirmar)
         {
