@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             x:Class="ContaBeeMovil.Pages.Sugerencias.SugerenciasPage"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Title="Buzón de sugerencias">
+    <Grid>
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+
+            <!-- Logo ContaBee -->
+            <Image Source="logo512.png"
+                   WidthRequest="80"
+                   HeightRequest="80"
+                   HorizontalOptions="Center"
+                   Margin="0,16,0,0" />
+
+            <!-- Qué me gusta -->
+            <Label Text="Qué me gusta:"
+                   Style="{StaticResource Body1Strong}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   Margin="0,8,0,0" />
+
+            <Border Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="Transparent"
+                    Padding="14">
+                <Editor x:Name="MeGustaEditor"
+                        Placeholder="Escribe tu sugerencia"
+                        PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                        BackgroundColor="Transparent"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontSize="16"
+                        MaxLength="500"
+                        HeightRequest="100"
+                        AutoSize="TextChanges"
+                        TextChanged="OnEditorTextChanged" />
+            </Border>
+            <Label x:Name="MeGustaCounter"
+                   Text="0/500"
+                   Style="{StaticResource Caption1}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="End"
+                   Margin="0,-8,4,0" />
+
+            <!-- Qué no me gusta -->
+            <Label Text="Qué no me gusta:"
+                   Style="{StaticResource Body1Strong}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   Margin="0,8,0,0" />
+
+            <Border Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="Transparent"
+                    Padding="14">
+                <Editor x:Name="NoMeGustaEditor"
+                        Placeholder="Escribe tu sugerencia"
+                        PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                        BackgroundColor="Transparent"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontSize="16"
+                        MaxLength="500"
+                        HeightRequest="100"
+                        AutoSize="TextChanges"
+                        TextChanged="OnEditorTextChanged" />
+            </Border>
+            <Label x:Name="NoMeGustaCounter"
+                   Text="0/500"
+                   Style="{StaticResource Caption1}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="End"
+                   Margin="0,-8,4,0" />
+
+            <!-- Qué me gustaría -->
+            <Label Text="Qué me gustaría:"
+                   Style="{StaticResource Body1Strong}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   Margin="0,8,0,0" />
+
+            <Border Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 12"
+                    BackgroundColor="Transparent"
+                    Padding="14">
+                <Editor x:Name="MeGustariaEditor"
+                        Placeholder="Escribe tu sugerencia"
+                        PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                        BackgroundColor="Transparent"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontSize="16"
+                        MaxLength="500"
+                        HeightRequest="100"
+                        AutoSize="TextChanges"
+                        TextChanged="OnEditorTextChanged" />
+            </Border>
+            <Label x:Name="MeGustariaCounter"
+                   Text="0/500"
+                   Style="{StaticResource Caption1}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="End"
+                   Margin="0,-8,4,0" />
+
+            <!-- Botón Enviar -->
+            <Button x:Name="BtnEnviar"
+                    Text="  Enviar"
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="False"
+                    Clicked="OnEnviarClicked"
+                    HorizontalOptions="Center"
+                    WidthRequest="220"
+                    Margin="0,18,0,24">
+                <Button.ImageSource>
+                    <FontImageSource Glyph="{x:Static f:FluentUI.send_24_regular}"
+                                     FontFamily="{x:Static f:FluentUI.FontFamily}"
+                                     Size="20"
+                                     Color="White" />
+                </Button.ImageSource>
+            </Button>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Loading overlay -->
+    <ActivityIndicator x:Name="Loader"
+                       IsRunning="False"
+                       Opacity="0"
+                       InputTransparent="True"
+                       HeightRequest="40"
+                       WidthRequest="40"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       ZIndex="10"
+                       Color="{toolkit:AppThemeResource Primary}" />
+    </Grid>
+</ContentPage>

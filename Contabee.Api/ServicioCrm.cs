@@ -129,7 +129,20 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         }
         return r;
     }
+
+    public async Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request)
+    {
+        var r = new Respuesta();
+        try
+        {
+            await servicioCrm.FeedbackAsync(request);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-EnviarFeedback");
+        }
+        return r;
+    }
 }
-
-
-

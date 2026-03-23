@@ -12,6 +12,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
+using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Camara;
@@ -84,20 +85,20 @@ namespace ContaBeeMovil
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/identity/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>(); 
+            }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/crm/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>(); 
+            }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>(); 
+            }).AddHttpMessageHandler<AuthHandler>();
 
-            
-                
+
+
 
 
             //paginas
@@ -126,6 +127,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<RegistrarRFCsPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
+            builder.Services.AddTransient<SugerenciasPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
             // Cámara pages and view models

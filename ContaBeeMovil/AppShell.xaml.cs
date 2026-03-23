@@ -5,6 +5,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
@@ -83,7 +84,7 @@ namespace ContaBeeMovil
                 nombre = nombre[..nombre.IndexOf('@')];
 
             if (!string.IsNullOrEmpty(nombre))
-                LabelNombreUsuario.Text=nombre;
+                LabelNombreUsuario.Text = nombre;
         }
 
         // ── Toggle de tema ────────────────────────────────────────────────
@@ -154,7 +155,7 @@ namespace ContaBeeMovil
         private async void OnBuzonClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await _servicioAlerta.MostrarAsync("Búzon de sugerencias", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
+            await Shell.Current.GoToAsync(nameof(SugerenciasPage));
         }
 
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
@@ -184,6 +185,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
+            Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
         }
     }
