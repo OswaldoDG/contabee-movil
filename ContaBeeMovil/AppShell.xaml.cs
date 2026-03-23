@@ -4,6 +4,7 @@ using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
 
@@ -149,7 +150,7 @@ namespace ContaBeeMovil
         private async void OnBuzonClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await DisplayAlert("Búzon de sugerencias", "Próximamente", "OK");
+            await Shell.Current.GoToAsync(nameof(SugerenciasPage));
         }
 
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
@@ -179,6 +180,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
+            Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
         }
     }
 }

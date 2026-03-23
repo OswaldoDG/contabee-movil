@@ -9,6 +9,5 @@ public interface IServicioCrm
     Task<Respuesta> EnviarUrlCuentaFiscal(RequestUrl request);
     Task<Respuesta> EliminarCuentaFiscal(string cuentaFiscalId);
     Task<Respuesta> EliminarAsociacionFiscal(long id);
-
-
+    Task<Respuesta> EnviarFeedback(FeedbackRequest request);
 }
