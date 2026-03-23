@@ -1,5 +1,5 @@
-using Contabee.Api;
 using Contabee.Api.abstractions;
+using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -43,24 +43,20 @@ public partial class SugerenciasPage : ContentPage
 
         try
         {
-            var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId.ToString() ?? string.Empty;
+            var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId ?? System.Guid.Empty;
 
-            System.Diagnostics.Debug.WriteLine($"[Sugerencias] CuentaFiscalId: '{cuentaFiscalId}'");
-
-            var request = new FeedbackRequest
+            var request = new DtoCreaRetroalimentacion
             {
                 CuentaFiscalId = cuentaFiscalId,
-                Elementos = new List<FeedbackElemento>
+                Elementos = new List<ElementoCreaRetroalimentacion>
                 {
-                    new() { Tipo = "MeGusta",    Detalle = MeGustaEditor.Text?.Trim() ?? string.Empty },
-                    new() { Tipo = "NoMeGusta",  Detalle = NoMeGustaEditor.Text?.Trim() ?? string.Empty },
-                    new() { Tipo = "MeGustaria", Detalle = MeGustariaEditor.Text?.Trim() ?? string.Empty }
+                    new() { Tipo = TipoSugerencia.MeGusta,    Detalle = MeGustaEditor.Text?.Trim() ?? string.Empty },
+                    new() { Tipo = TipoSugerencia.NoMeGusta,  Detalle = NoMeGustaEditor.Text?.Trim() ?? string.Empty },
+                    new() { Tipo = TipoSugerencia.MeGustaria, Detalle = MeGustariaEditor.Text?.Trim() ?? string.Empty }
                 }
             };
 
-            System.Diagnostics.Debug.WriteLine($"[Sugerencias] Enviando feedback...");
             var resultado = await _servicioCrm.EnviarFeedback(request);
-            System.Diagnostics.Debug.WriteLine($"[Sugerencias] Resultado: Ok={resultado.Ok}, HttpCode={resultado.HttpCode}, Error={resultado.Error?.Mensaje}, Origen={resultado.Error?.Origen}");
 
             MostrarLoader(false);
 

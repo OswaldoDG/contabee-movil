@@ -130,26 +130,14 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         return r;
     }
 
-    public async Task<Respuesta> EnviarFeedback(FeedbackRequest request)
+    public async Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request)
     {
         var r = new Respuesta();
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[EnviarFeedback] URL: {httpClient.BaseAddress}crm/feedback");
-            System.Diagnostics.Debug.WriteLine($"[EnviarFeedback] Request: CuentaFiscalId={request.CuentaFiscalId}, Elementos={request.Elementos?.Count}");
-            var httpResponse = await httpClient.PostAsJsonAsync("/api/crm/crm/feedback", request);
-            System.Diagnostics.Debug.WriteLine($"[EnviarFeedback] Status: {(int)httpResponse.StatusCode}");
-            var content = await httpResponse.Content.ReadAsStringAsync();
-            System.Diagnostics.Debug.WriteLine($"[EnviarFeedback] Body: {content}");
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                r.Ok = true;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                r.Error = new ErrorProceso { Mensaje = content, HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode, Origen = "ServicioCrm-EnviarFeedback" };
-            }
+            await servicioCrm.FeedbackAsync(request);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
         }
         catch (Exception ex)
         {
