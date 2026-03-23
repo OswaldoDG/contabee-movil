@@ -1,6 +1,7 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.PageModels.Camara;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
@@ -10,14 +11,16 @@ namespace ContaBeeMovil.Pages.Camara;
 public partial class QRPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioAlerta _servicioAlerta;
     private bool _isProcessing;
     private CancellationTokenSource? _cleanupCts;
 
-    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm)
+    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
     {
         InitializeComponent();
         BindingContext = pageModel;
         _servicioCrm = servicioCrm;
+        _servicioAlerta = servicioAlerta;
 
         BarcodeReader.Options = new BarcodeReaderOptions
         {
@@ -45,7 +48,7 @@ public partial class QRPage : ContentPage
         if (status == PermissionStatus.Granted)
             BarcodeReader.IsDetecting = true;
         else
-            await DisplayAlert("Permiso requerido", "Se necesita acceso a la cámara para escanear QR.", "OK");
+            await _servicioAlerta.MostrarAsync("Permiso requerido", "Se necesita acceso a la cámara para escanear QR.", verBotonCancelar: false, confirmarText: "OK");
     }
 
     protected override void OnDisappearing()
@@ -87,7 +90,7 @@ public partial class QRPage : ContentPage
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", ex.Message, "OK");
+                await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
                 _isProcessing = false;
                 BarcodeReader.IsDetecting = true;
             }
@@ -105,16 +108,16 @@ public partial class QRPage : ContentPage
 
         if (string.IsNullOrEmpty(model.TipoPersona))
         {
-            await DisplayAlert("Atención", "Seleccione el tipo de persona.", "OK");
+            await _servicioAlerta.MostrarAsync("Atención", "Seleccione el tipo de persona.", verBotonCancelar: false, confirmarText: "OK");
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;
             return;
         }
 
-        bool confirmar = await DisplayAlert(
+        bool confirmar = await _servicioAlerta.MostrarAsync(
             "QR detectado",
             $"URL: {url}\n\nTipo: {model.TipoPersona}\nCompartido: {(model.Compartido ? "Sí" : "No")}\n\n¿Desea continuar?",
-            "Confirmar", "Cancelar");
+            confirmarText: "Confirmar", cancelarText: "Cancelar");
 
         if (!confirmar)
         {
@@ -152,7 +155,7 @@ public partial class QRPage : ContentPage
         {
             LoadingOverlay.IsVisible = false;
             var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta fiscal.";
-            await DisplayAlert("Error", mensaje, "OK");
+            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;
         }

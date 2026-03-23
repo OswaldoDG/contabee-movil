@@ -5,7 +5,13 @@ namespace ContaBeeMovil.Services
     /// </summary>
     public class ModalErrorHandler : IErrorHandler
     {
-        SemaphoreSlim _semaphore = new(1, 1);
+        private readonly IServicioAlerta _servicioAlerta;
+        private readonly SemaphoreSlim _semaphore = new(1, 1);
+
+        public ModalErrorHandler(IServicioAlerta servicioAlerta)
+        {
+            _servicioAlerta = servicioAlerta;
+        }
 
         /// <summary>
         /// Handle error in UI.
@@ -21,8 +27,7 @@ namespace ContaBeeMovil.Services
             try
             {
                 await _semaphore.WaitAsync();
-                if (Shell.Current is Shell shell)
-                    await shell.DisplayAlertAsync("Error", ex.Message, "OK");
+                await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
             }
             finally
             {

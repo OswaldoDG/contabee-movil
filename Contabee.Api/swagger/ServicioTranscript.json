@@ -1771,17 +1771,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.lotes.LoteCaptura, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
+                  "$ref": "#/components/schemas/comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]"
                 }
               }
             }
@@ -1942,7 +1942,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2026,7 +2027,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2063,7 +2065,9 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
+
           },
           "contar": {
             "type": "boolean"
@@ -2100,7 +2104,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2109,6 +2114,44 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/contabee.model.transcript.lotes.LoteCaptura"
+            },
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.busqueda.ResultadoPaginado`1[[contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue, contabee.model.transcript, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]": {
+        "type": "object",
+        "properties": {
+          "filtros": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.busqueda.Filtro"
+            },
+            "nullable": true
+          },
+          "ordernarDesc": {
+            "type": "boolean"
+          },
+          "ordenarPropiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "paginado": {
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
+          },
+          "contar": {
+            "type": "boolean"
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue"
             },
             "nullable": true
           },
@@ -2996,6 +3039,102 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.paginas.ElementoPaginaCapturaDespliegue": {
+        "required": [
+          "claveFormaPago",
+          "claveUsoCfdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.TipoProcesoCaptura"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/contabee.model.transcript.EstadoCaptura"
+          },
+          "motivo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.MotivoEstado"
+          },
+          "claveUsoCfdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "claveFormaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminacionMedioPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cfdiId": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFinalizacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "procesoAsociadoId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creadorId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rfcEmisor": {
+            "type": "string",
+            "nullable": true
+          },
+          "rfcReceptor": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCfdi": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "nombreCreador": {
+            "type": "string",
+            "nullable": true
+          },
+          "etiqueta": {
+            "type": "string",
+            "nullable": true
+          },
+          "esIeps": {
+            "type": "boolean"
+          },
+          "tienePdf": {
+            "type": "boolean"
+          },
+          "tieneXml": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
