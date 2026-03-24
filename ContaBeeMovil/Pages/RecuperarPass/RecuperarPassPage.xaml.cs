@@ -47,7 +47,7 @@ public partial class RecuperarPassPage : ContentPage
 
             if (resultado.Ok)
             {
-                _ = _toastService.ShowAsync(
+                await _toastService.ShowAsync(
                     "Se ha enviado un enlace a el email para recuperar su contraseña",
                     type: ToastType.Success,
                     position: ToastPosition.Bottom);

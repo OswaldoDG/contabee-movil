@@ -10,6 +10,7 @@ public interface IServicioIdentidad
     Task<Respuesta> RecuperarPassword(string email);
     Task<RespuestaPayload<PerfilUsuario>> GetPerfil();
     Task<Respuesta> CambiarContrasena(string actual, string nueva);
+    Task<Respuesta> RestablecerContrasena(string password, string token);
 }
 
 

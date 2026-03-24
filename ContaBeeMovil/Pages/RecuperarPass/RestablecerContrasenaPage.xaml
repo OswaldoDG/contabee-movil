@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.RecuperarPass.RestablecerContrasenaPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             xmlns:f="clr-namespace:Fonts"
+             Title="Restablecer Contraseña">
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── Barra superior ── -->
+        <Grid Grid.Row="0"
+              BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+              Padding="12,12,12,12">
+            <Label Text="{x:Static f:FluentUI.arrow_left_24_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="24"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center"
+                   HorizontalOptions="Start">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackClicked" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+
+    <Grid Grid.Row="1">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+
+            <!-- Logo ContaBee -->
+            <Image Source="logo512.png"
+                   WidthRequest="100"
+                   HeightRequest="100"
+                   HorizontalOptions="Center"
+                   Margin="0,24,0,0" />
+
+            <!-- Título -->
+            <Label Text="Ingresa la nueva contraseña"
+                   Style="{StaticResource Title1}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,8,0,16" />
+
+            <!-- Nueva contraseña -->
+            <Frame HasShadow="False"
+                   BackgroundColor="Transparent"
+                   CornerRadius="12"
+                   Padding="0"
+                   Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Entry x:Name="NuevaContrasenaEntry"
+                           Grid.Column="0"
+                           Placeholder="Nueva contraseña"
+                           IsPassword="True"
+                           ReturnType="Next"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="16"
+                           TextChanged="OnNuevaContrasenaTextChanged" />
+                    <mi:MauiIcon x:Name="ToggleNuevaContrasena"
+                                 Grid.Column="1"
+                                 Icon="{mi:Material Icon=Visibility}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="25"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleNuevaContrasenaClicked" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+            </Frame>
+
+            <!-- Confirmar contraseña -->
+            <Frame HasShadow="False"
+                   BackgroundColor="Transparent"
+                   CornerRadius="12"
+                   Padding="0"
+                   Margin="0,6,0,0">
+                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Entry x:Name="ConfirmarContrasenaEntry"
+                           Grid.Column="0"
+                           Placeholder="Confirmar contraseña"
+                           IsPassword="True"
+                           ReturnType="Done"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="16"
+                           TextChanged="OnCampoTextChanged" />
+                    <mi:MauiIcon x:Name="ToggleConfirmarContrasena"
+                                 Grid.Column="1"
+                                 Icon="{mi:Material Icon=Visibility}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="25"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleConfirmarContrasenaClicked" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+            </Frame>
+
+            <!-- Error: contraseñas no coinciden -->
+            <Label x:Name="ErrorCoincidenciaLabel"
+                   Text="Las contraseñas no coinciden"
+                   TextColor="{toolkit:AppThemeResource Error}"
+                   FontSize="13"
+                   Margin="6,0,0,0"
+                   IsVisible="False" />
+
+            <!-- Validaciones de contraseña -->
+            <VerticalStackLayout Spacing="5" Margin="6,5,0,0">
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconMin6"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="20" HeightRequest="20" />
+                    <Label Text="Mínimo 6 caracteres"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconMayus"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="20" HeightRequest="20" />
+                    <Label Text="Una letra mayúscula"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconNumero"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="18" HeightRequest="18" />
+                    <Label Text="Un número"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                    <mi:MauiIcon x:Name="IconEspecial"
+                                 Icon="{mi:Material Icon=Check}"
+                                 IconColor="{toolkit:AppThemeResource Disabled}"
+                                 IconSize="20"
+                                 WidthRequest="18" HeightRequest="18" />
+                    <Label Text="Caracter especial (@ # $ %)"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           FontSize="14" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <!-- Botón Restablecer -->
+            <Button x:Name="BtnRestablecer"
+                    Text="Restablecer contraseña"
+                    Style="{StaticResource PrimaryButton}"
+                    IsEnabled="False"
+                    Clicked="OnRestablecerClicked"
+                    HorizontalOptions="Center"
+                    WidthRequest="250"
+                    Margin="0,18,0,24" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Loading overlay -->
+    <ActivityIndicator x:Name="Loader"
+                       IsRunning="False"
+                       Opacity="0"
+                       InputTransparent="True"
+                       HeightRequest="40"
+                       WidthRequest="40"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       ZIndex="10"
+                       Color="{toolkit:AppThemeResource Primary}" />
+    </Grid>
+    </Grid>
+</ContentPage>
