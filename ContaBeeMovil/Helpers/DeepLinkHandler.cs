@@ -1,7 +1,5 @@
 ﻿using ContaBeeMovil.Pages.Confirmar;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ContaBeeMovil.Pages.RecuperarPass;
 
 namespace ContaBeeMovil.Helpers;
 
@@ -23,8 +21,7 @@ public static class DeepLinkHandler
         PendingLink? link = segments switch
         {
             ["cuenta", "confirmar", var token] => new PendingLink(TipoLink.ConfirmarCuenta, token),
-            // Agrega más rutas aquí:
-            // ["recuperar", "password", var token] => new PendingLink(TipoLink.RecuperarPassword, token),
+            ["contrasena", "recuperar", var token] => new PendingLink(TipoLink.RecuperarContrasena, token),
             _ => null
         };
 
@@ -68,6 +65,8 @@ public static class DeepLinkHandler
                 {
                     TipoLink.ConfirmarCuenta => CrearPagina<ConfirmarCuentaPage>(
                         $"cuenta/confirmar?token={link.Token}"),
+                    TipoLink.RecuperarContrasena => CrearPagina<RestablecerContrasenaPage>(
+                        $"contrasena/recuperar?token={link.Token}"),
                     _ => null
                 };
 
@@ -95,6 +94,13 @@ public static class DeepLinkHandler
             confirmar.Token = Uri.UnescapeDataString(token);
         }
 
+        if (page is RestablecerContrasenaPage restablecer &&
+            parametros.Contains("token="))
+        {
+            var token = parametros.Split("token=")[1];
+            restablecer.Token = Uri.UnescapeDataString(token);
+        }
+
         return page;
     }
 
@@ -104,7 +110,7 @@ public static class DeepLinkHandler
     private enum TipoLink
     {
         ConfirmarCuenta,
-        // RecuperarPassword,
+        RecuperarContrasena,
     }
 }
 

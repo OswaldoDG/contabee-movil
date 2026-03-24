@@ -126,6 +126,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<LoginViewModel>();
             builder.Services.AddTransient<AppShell>();
             builder.Services.AddTransient<RecuperarPassPage>();
+            builder.Services.AddTransient<RestablecerContrasenaPage>();
             builder.Services.AddTransient<VincularCuentaPage>();
             builder.Services.AddTransient<TarjetasPage>();
             builder.Services.AddTransient<RFCsPage>();

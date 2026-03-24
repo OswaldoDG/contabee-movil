@@ -139,6 +139,29 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
     }
 
+    public async Task<Respuesta> RestablecerContrasena(string password, string token)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            var body = new RecuperacionContrasena
+            {
+                Password = password,
+                Token = token
+            };
+            await servicioIdentidad.RestablecerAsync(body);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-RestablecerContrasena");
+        }
+
+        return r;
+    }
+
     public async Task<Respuesta> CambiarContrasena(string actual, string nueva)
     {
         Respuesta r = new();
