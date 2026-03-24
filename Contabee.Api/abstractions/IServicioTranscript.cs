@@ -11,4 +11,6 @@ public interface IServicioTranscript
 
     Task<(byte[] Contenido, string TipoContenido)?> DescargarArchivoAsync(
         long id, string? tipo, CancellationToken ct = default);
+
+    Task<RespuestaPayload<ResumenCapturaCuentaFiscal>> GetEstadisticas(Guid cfid, int? anio, int? mes);
 }

@@ -1,6 +1,21 @@
+using ContaBeeMovil.Pages.Dashboard;
+
 namespace ContaBeeMovil.Pages;
 
 public partial class DashboardPage : ContentPage
 {
-    public DashboardPage() => InitializeComponent();
+    private readonly DashboardViewModel _viewModel;
+
+    public DashboardPage(DashboardViewModel viewModel)
+    {
+        InitializeComponent();
+        _viewModel = viewModel;
+        BindingContext = viewModel;
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await _viewModel.LoadDataAsync();
+    }
 }

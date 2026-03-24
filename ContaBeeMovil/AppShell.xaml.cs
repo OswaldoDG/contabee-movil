@@ -6,6 +6,7 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Sugerencias;
+using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
@@ -120,6 +121,12 @@ namespace ContaBeeMovil
             await Shell.Current.GoToAsync(nameof(VincularCuentaPage));
         }
 
+        private async void OnTiendaClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            await Shell.Current.GoToAsync(nameof(TiendaPage));
+        }
+
         private async void OnTarjetasClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
@@ -180,6 +187,7 @@ namespace ContaBeeMovil
         {
             Routing.RegisterRoute("cuenta/confirmar", typeof(ConfirmarCuentaPage));
             Routing.RegisterRoute(nameof(PaginaRegistro), typeof(PaginaRegistro));
+            Routing.RegisterRoute(nameof(TiendaPage), typeof(TiendaPage));
             Routing.RegisterRoute(nameof(VincularCuentaPage), typeof(VincularCuentaPage));
             Routing.RegisterRoute(nameof(TarjetasPage), typeof(TarjetasPage));
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));

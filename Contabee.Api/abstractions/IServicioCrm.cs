@@ -10,4 +10,5 @@ public interface IServicioCrm
     Task<Respuesta> EliminarCuentaFiscal(string cuentaFiscalId);
     Task<Respuesta> EliminarAsociacionFiscal(long id);
     Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request);
+    Task<RespuestaPayload<DtoLicenciamiento2>> GetLicenciamiento(Guid cfid);
 }

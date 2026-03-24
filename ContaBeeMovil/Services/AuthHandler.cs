@@ -14,9 +14,13 @@ public class AuthHandler : DelegatingHandler
     private static readonly string[] _rutasPublicas =
     [
         "/usuario/registro",
+        "/api/identity/usuario/registro",
         "/usuario/contrasena/recuperar",
+        "/api/identity/usuario/contrasena/recuperar",
         "/usuario/contrasena/restablecer",
+        "/api/identity/usuario/contrasena/restablecer",
         "/usuario/registro/confirmar",
+        "/api/identity/usuario/registro/confirmar",
         "/api/identity/connect/token",
         "/connect/token"
     ];
@@ -43,10 +47,7 @@ public class AuthHandler : DelegatingHandler
         var token = await sesion.LeeAccessTokenAsync();
 
         if (string.IsNullOrEmpty(token))
-        {
-            await CerrarSesionAsync(sesion, appState);
             return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
-        }
 
         var expiracion = await sesion.LeeExpiracionAsync();
         bool tokenExpirado = expiracion.HasValue && DateTime.Now >= expiracion.Value;

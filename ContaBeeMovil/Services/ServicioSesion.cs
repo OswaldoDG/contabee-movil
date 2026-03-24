@@ -108,6 +108,15 @@ public class ServicioSesion : IServicioSesion
         }
 
     }
+    public async Task GetLicenciaAsync()
+    {
+        //var respuesta = await _servicioCrm.GetLicenciamiento(AppState.Instance.DireccionFiscalActual.CuentaFiscalId);
+        //if (respuesta.Ok)
+        //{
+        //    _appState.Licenciamiento = respuesta.Payload;
+        //}
+
+    }
 
     public async Task GetAsociacionesFiscalesAsync()
     {
@@ -145,10 +154,13 @@ public class ServicioSesion : IServicioSesion
         _appState.Tarjetas = new List<TarjetaModel>(tarjetas);
     }
 
+
+
     public async Task PosLoginAsync()
     {
         await GetPerfilAsync();
         await GetAsociacionesFiscalesAsync();
         await GetTarjetasAsync();
+        await GetLicenciaAsync();
     }
 }

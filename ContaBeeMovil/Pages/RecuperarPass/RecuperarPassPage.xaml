@@ -13,7 +13,7 @@
         <!-- ── Barra superior amarilla ── -->
         <Grid Grid.Row="0"
               BackgroundColor="{toolkit:AppThemeResource Primary}"
-              Padding="12,48,12,12">
+              Padding="12,12,12,12">
             <Label Text="{x:Static f:FluentUI.arrow_left_24_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                    FontSize="24"

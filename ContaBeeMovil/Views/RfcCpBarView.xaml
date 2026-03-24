@@ -6,7 +6,7 @@
 
     <Grid ColumnDefinitions="Auto,*,Auto"
           BackgroundColor="{toolkit:AppThemeResource Primary}"
-          Padding="16,8">
+          Padding="16,5,16,0">
 
         <!-- Botón RFC (izquierda) — abre selector -->
         <Border Grid.Column="0"

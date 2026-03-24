@@ -47,12 +47,11 @@ public partial class RecuperarPassPage : ContentPage
 
             if (resultado.Ok)
             {
-                await _toastService.ShowAsync(
+                _ = _toastService.ShowAsync(
                     "Se ha enviado un enlace a el email para recuperar su contraseña",
                     type: ToastType.Success,
                     position: ToastPosition.Bottom);
 
-                // Regresar al login tras éxito
                 var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
                 Application.Current!.Windows[0].Page = paginaLogin;
             }
