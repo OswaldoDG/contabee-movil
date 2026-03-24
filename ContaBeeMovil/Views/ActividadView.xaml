@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
+             xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
+             x:Class="ContaBeeMovil.Views.ActividadView"
+             x:DataType="vm:DashboardViewModel">
+
+    <ScrollView>
+        <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                Stroke="Transparent"
+                StrokeShape="RoundRectangle 20"
+                Margin="12,12,12,12"
+                MinimumHeightRequest="420"
+                Padding="14">
+            <Border.Triggers>
+                <DataTrigger TargetType="Border"
+                             Binding="{Binding EstaCargando}"
+                             Value="True">
+                    <Setter Property="BackgroundColor"
+                            Value="{toolkit:AppThemeResource Background}" />
+                </DataTrigger>
+                <DataTrigger TargetType="Border"
+                             Binding="{Binding MostrarError}"
+                             Value="True">
+                    <Setter Property="BackgroundColor"
+                            Value="{toolkit:AppThemeResource Background}" />
+                </DataTrigger>
+            </Border.Triggers>
+
+            <Grid>
+
+            <!-- Contenido: visible solo cuando hay datos y no hay error -->
+            <VerticalStackLayout Spacing="10"
+                                 IsVisible="{Binding MostrarContenido}">
+
+                <!-- Header: navegación de mes -->
+                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                    <mi:MauiIcon Grid.Column="0"
+                                 Icon="{mi:Material Icon=ChevronLeft}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="30"
+                                 BackgroundColor="Transparent"
+                                 VerticalOptions="Center"
+                                 IconSuffixFontSize="20"
+                                 Padding="2,2">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+
+                    <!-- Mes + Refresh -->
+                    <HorizontalStackLayout Grid.Column="1"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           Spacing="6">
+                        <mi:MauiIcon Icon="{mi:Material Icon=Refresh}"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconSize="20"
+                                     BackgroundColor="Transparent"
+                                     VerticalOptions="Center"
+                                     Padding="0">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RefreshCommand}" />
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                        <Label Text="{Binding MesAnioTexto}"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <mi:MauiIcon Grid.Column="2"
+                                 Icon="{mi:Material Icon=ChevronRight}"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconSize="30"
+                                 BackgroundColor="Transparent"
+                                 VerticalOptions="Center"
+                                 Padding="2,2">
+                        <mi:MauiIcon.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
+                        </mi:MauiIcon.GestureRecognizers>
+                    </mi:MauiIcon>
+                </Grid>
+
+                <!-- Total Facturado -->
+                <Border BackgroundColor="White"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,8">
+                    <Label HorizontalOptions="Center"
+                           VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="$ "
+                                      FontSize="28"
+                                      FontAttributes="Bold"
+                                      TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                                <Span Text="{Binding TotalFacturado, StringFormat='{0:N2}'}"
+                                      FontSize="28"
+                                      FontAttributes="Bold"
+                                      TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Border>
+
+                <!-- Créditos Restantes -->
+                <Border BackgroundColor="White"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,8"
+                        HorizontalOptions="Center">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label Text="Restantes"
+                               FontSize="13"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               HorizontalOptions="Center" />
+                        <Label Text="{Binding CreditosRestantes}"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Emitidas / Declinadas / Pendientes -->
+                <Border BackgroundColor="White"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="16,8">
+                    <Grid ColumnDefinitions="*,*,*">
+                        <!-- Emitidas -->
+                        <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="Emitidas"
+                                   FontSize="12"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Emitidas}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <!-- Separador vertical -->
+                        <BoxView Grid.Column="0"
+                                 WidthRequest="1"
+                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                 HorizontalOptions="End"
+                                 VerticalOptions="Fill"
+                                 Margin="0,4" />
+
+                        <!-- Declinadas -->
+                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="Fallidas"
+                                   FontSize="12"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Declinadas}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <!-- Separador vertical -->
+                        <BoxView Grid.Column="1"
+                                 WidthRequest="1"
+                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                 HorizontalOptions="End"
+                                 VerticalOptions="Fill"
+                                 Margin="0,4" />
+
+                        <!-- Pendientes -->
+                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                            <Label Text="Pendientes"
+                                   FontSize="12"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Pendientes}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- Gráfica de actividad -->
+                <Border BackgroundColor="White"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="2,2,2,2">
+                    <VerticalStackLayout Spacing="8">
+
+                        <!-- Título -->
+                        <Label HorizontalOptions="Center"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Actividad " />
+                                    <Span Text="{Binding MesNombreTexto}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <!-- Leyenda -->
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="16">
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Ellipse Fill="#FFC107" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Text="Emitidos" FontSize="12" VerticalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </HorizontalStackLayout>
+                            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Ellipse Fill="#E65100" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
+                                <Label Text="Solicitados" FontSize="12" VerticalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </HorizontalStackLayout>
+                        </HorizontalStackLayout>
+
+                        <!-- Gráfica -->
+                        <chart:SfCartesianChart HeightRequest="200"
+                                                Margin="15"
+                                                BackgroundColor="Transparent"
+                                                >
+                            <chart:SfCartesianChart.XAxes>
+                                <chart:NumericalAxis Minimum="1"
+                                                     Maximum="{Binding MaximoEjeX}"
+                                                     Interval="5"
+                                                     ShowMajorGridLines="False"
+                                                     EdgeLabelsDrawingMode="Center"
+                                                     >
+                                    <chart:NumericalAxis.LabelStyle>
+                                        <chart:ChartAxisLabelStyle FontSize="10" />
+                                    </chart:NumericalAxis.LabelStyle>
+                                </chart:NumericalAxis>
+                            </chart:SfCartesianChart.XAxes>
+                            <chart:SfCartesianChart.YAxes>
+                                <chart:NumericalAxis Minimum="0"
+                                                     Maximum="{Binding MaximoEjeY}"
+                                                     ShowMajorGridLines="True">
+                                    <chart:NumericalAxis.LabelStyle>
+                                        <chart:ChartAxisLabelStyle FontSize="10" />
+                                    </chart:NumericalAxis.LabelStyle>
+                                </chart:NumericalAxis>
+                            </chart:SfCartesianChart.YAxes>
+
+                            <!-- Serie Emitidas -->
+                            <chart:ColumnSeries ItemsSource="{Binding DatosGrafica}"
+                                                XBindingPath="Dia"
+                                                YBindingPath="Emitidas"
+                                                Fill="#FFC107"
+                                                Width="0.4"
+                                                Spacing="0.1" />
+
+                            <!-- Serie Solicitadas -->
+                            <chart:ColumnSeries ItemsSource="{Binding DatosGrafica}"
+                                                XBindingPath="Dia"
+                                                YBindingPath="Solicitadas"
+                                                Fill="#E65100"
+                                                Width="0.4"
+                                                Spacing="0.1" />
+                        </chart:SfCartesianChart>
+
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+
+            <!-- Panel de error -->
+            <VerticalStackLayout IsVisible="{Binding MostrarError}"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="12">
+                <mi:MauiIcon Icon="{mi:Material Icon=CloudOff}"
+                             IconColor="{toolkit:AppThemeResource Primary}"
+                             IconSize="48"
+                             HorizontalOptions="Center" />
+                <Label Text="{Binding MensajeError}"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center" />
+                <Button Text="Reintentar"
+                        Command="{Binding RefreshCommand}"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="White"
+                        CornerRadius="20"
+                        Padding="24,8"
+                        HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Spinner: solo visible mientras carga -->
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                               IsVisible="{Binding EstaCargando}"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               />
+
+            </Grid>
+        </Border>
+    </ScrollView>
+
+</ContentView>

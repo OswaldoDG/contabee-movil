@@ -1,5 +1,6 @@
 ﻿using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
+using Contabee.Api.Identidad;
 using System.Net.Http.Json;
 
 
@@ -144,5 +145,27 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
             r.Error = ex.ErrorGenerico("ServicioCrm-EnviarFeedback");
         }
         return r;
+    }
+    public async Task<RespuestaPayload<DtoLicenciamiento2>> GetLicenciamiento(Guid cfid)
+    {
+        RespuestaPayload<DtoLicenciamiento2> r = new();
+
+        try
+        {
+
+            var res = await servicioCrm.LicenciamientoAsync(cfid,null);
+            if (res != null)
+            {
+                r.Payload = res;
+            }
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Get Licenciamiento");
+        }
+
+        return r;
+
     }
 }

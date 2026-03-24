@@ -11,9 +11,11 @@ using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
+using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
@@ -101,6 +103,9 @@ namespace ContaBeeMovil
 
 
 
+            // ViewModels
+            builder.Services.AddTransient<DashboardViewModel>();
+
             //paginas
             builder.Services.AddSingleton<ProjectRepository>();
             builder.Services.AddSingleton<TaskRepository>();
@@ -130,6 +135,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<SugerenciasPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
+            builder.Services.AddTransient<TiendaPage>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();
             builder.Services.AddTransient<TomarFotoPage>();

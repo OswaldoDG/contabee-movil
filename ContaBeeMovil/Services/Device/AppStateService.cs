@@ -44,6 +44,7 @@ public partial class AppState : ObservableObject
         _direccionFiscalActual   = LeerObjeto<DireccionFiscal>(PrefsKeys.DireccionFiscalActual);
         _mostrarNombreFiscal     = Preferences.Get(PrefsKeys.VerUserName, false);
         _recordarme              = Preferences.Get(PrefsKeys.Recordarme, false);
+        _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
@@ -55,6 +56,7 @@ public partial class AppState : ObservableObject
         public const string DireccionFiscalActual  = "AppState_DireccionFiscalActual";
         public const string VerUserName            = "AppState_VerUserName";
         public const string Recordarme             = "AppState_Recordarme";
+        public const string Licenciamiento         = "AppState_Licenciamiento";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -163,6 +165,22 @@ public partial class AppState : ObservableObject
         {
             if (SetProperty(ref _cuentasFiscales, value))
                 GuardarObjeto(PrefsKeys.CuentasFiscales, value);
+        }
+    }
+
+    // ── Licenciamiento ─────────────────────────────────────────────────────────
+    private DtoLicenciamiento2? _licenciamiento;
+
+    /// <summary>
+    /// Información de licenciamiento del usuario. Notifica cambios y persiste automáticamente.
+    /// </summary>
+    public DtoLicenciamiento2? Licenciamiento
+    {
+        get => _licenciamiento;
+        set
+        {
+            if (SetProperty(ref _licenciamiento, value))
+                GuardarObjeto(PrefsKeys.Licenciamiento, value);
         }
     }
 

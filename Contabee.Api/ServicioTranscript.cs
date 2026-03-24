@@ -1,6 +1,6 @@
-﻿using System.Text.Json;
-using Contabee.Api.abstractions;
+﻿using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
+using Busqueda = Contabee.Api.Transcript.Busqueda;
 
 
 namespace Contabee.Api;
@@ -32,6 +32,28 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         var contentType = response.Content.Headers.ContentType?.MediaType
                           ?? "application/octet-stream";
         return (bytes, contentType);
+    }
+
+    public async Task<RespuestaPayload<ResumenCapturaCuentaFiscal>> GetEstadisticas(Guid cfid,int? anio,int? mes)
+    {
+        RespuestaPayload<ResumenCapturaCuentaFiscal> r = new();
+
+        try
+        {
+            var res = await servicioTranscript.CuentafiscalAsync(cfid,anio,mes);
+            if (res != null)
+            {
+                r.Payload = res;
+            }
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Get estadisticas");
+        }
+
+        return r;
+
     }
 }
 

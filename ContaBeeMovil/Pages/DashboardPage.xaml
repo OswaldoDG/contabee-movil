@@ -3,17 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
              x:Class="ContaBeeMovil.Pages.DashboardPage"
+             x:DataType="vm:DashboardViewModel"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="*,Auto">
 
-        <VerticalStackLayout Grid.Row="0"
-                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-            <Label Text="Dashboard" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-            <Label Text="Próximamente" Style="{StaticResource Body1}"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
-        </VerticalStackLayout>
+        <views:ActividadView Grid.Row="0" />
 
         <views:RfcCpBarView Grid.Row="1" />
 

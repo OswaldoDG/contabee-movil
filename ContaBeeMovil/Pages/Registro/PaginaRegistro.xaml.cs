@@ -14,7 +14,6 @@ public partial class PaginaRegistro : ContentPage
 
     public PaginaRegistro(RegistroViewModel viewModel)
     {
-
         InitializeComponent();
 
         // Inicializar iconos FontAwesome en los ImageButton (usa las extensiones del paquete)
@@ -73,7 +72,4 @@ public partial class PaginaRegistro : ContentPage
             IconEspecial.IconColor = vm.TieneCaracterEspecial ? success : disabled;
         }
     }
-
-
-
 }
