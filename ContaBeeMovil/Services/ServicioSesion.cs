@@ -158,6 +158,11 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PosLoginAsync()
     {
+        _appState.Perfil = null;
+        _appState.CuentasFiscales = null;
+        _appState.CuentaFiscalActual = null;
+        _appState.Tarjetas = null;
+
         await GetPerfilAsync();
         await GetAsociacionesFiscalesAsync();
         await GetTarjetasAsync();
