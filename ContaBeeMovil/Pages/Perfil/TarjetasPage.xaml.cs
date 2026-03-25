@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Extensions;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
@@ -14,7 +15,7 @@ public partial class TarjetasPage : ContentPage
     private readonly IServicioAlerta _servicioAlerta;
     private readonly ObservableCollection<TarjetaModel> _tarjetas = new();
 
-    // Evita que OnAppearing pise cambios mientras hay un popup activo
+    // Evita re-entradas mientras hay un popup activo
     private bool _enCRUD = false;
 
     private double ScreenWidth => DeviceDisplay.MainDisplayInfo.Width
@@ -34,41 +35,78 @@ public partial class TarjetasPage : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Si hay un CRUD en curso no recargamos: evitamos que el popup
-        // dispare OnAppearing y pise la colección con datos viejos.
+
+        var bg = AppBackground();
+        BackgroundColor        = bg;
+        RootGrid.BackgroundColor = bg;
+
         if (_enCRUD) return;
         CargarTarjetas();
     }
 
-    // ── Carga desde AppState (ya fue poblado en PosLoginAsync) ───────────────
+    // ── Helpers de color ──────────────────────────────────────────────────────
+
+    // Evita devolver Transparent si UIHelpers no encuentra la clave
+    private static Color AppBackground()
+    {
+        var c = UIHelpers.GetColor("Background");
+        if (c == Colors.Transparent)
+            c = Application.Current?.RequestedTheme == AppTheme.Dark
+                ? Color.FromArgb("#141414")
+                : Color.FromArgb("#fefdfc");
+        return c;
+    }
+
+    // ── Carga desde AppState ──────────────────────────────────────────────────
 
     private void CargarTarjetas()
     {
         _tarjetas.Clear();
         foreach (var t in AppState.Instance.Tarjetas ?? Enumerable.Empty<TarjetaModel>())
             _tarjetas.Add(t);
+
+        ActualizarVisibilidad();
     }
 
-    // ── Guarda colección actual en SecureStorage y AppState ───────────────────
+    // ── Muestra lista o placeholder según haya tarjetas ───────────────────────
+
+    private void ActualizarVisibilidad()
+    {
+        var hayTarjetas = _tarjetas.Count > 0;
+
+        if (hayTarjetas)
+        {
+            // Fijar el fondo antes de hacer visible el CollectionView
+            // para que Android nunca muestre el gris del RecyclerView.
+            ListaTarjetas.BackgroundColor = AppBackground();
+            ListaTarjetas.IsVisible = true;
+            EmptyLayout.IsVisible   = false;
+        }
+        else
+        {
+            ListaTarjetas.IsVisible = false;
+            EmptyLayout.IsVisible   = true;
+        }
+    }
+
+    // ── Guarda en SecureStorage y AppState ───────────────────────────────────
 
     private async Task SincronizarAsync()
         => await _sesion.GuardarTarjetasAsync(_tarjetas.ToList());
 
-    // ── Gradiente + altura responsiva (un solo evento Loaded) ────────────────
+    // ── Gradiente + altura responsiva ─────────────────────────────────────────
 
     private void OnCardLoaded(object sender, EventArgs e)
     {
         if (sender is not Border border) return;
 
-        // Altura en el padre SwipeView para evitar que aparezca aplastado
         var cardWidth  = ScreenWidth - 32;
         var cardHeight = cardWidth / CardRatio;
         if (border.Parent is SwipeView swipeView)
-            swipeView.HeightRequest = cardHeight;
-
-        // Gradiente con colores del tema
-        var inicio = UIHelpers.GetColor("Primary");
-        var fin    = UIHelpers.GetColor("Tertiary");
+        {
+            swipeView.HeightRequest   = cardHeight;
+            swipeView.BackgroundColor = AppBackground();
+        }
 
         border.Background = new LinearGradientBrush
         {
@@ -76,8 +114,8 @@ public partial class TarjetasPage : ContentPage
             EndPoint   = new Point(1, 1),
             GradientStops =
             [
-                new GradientStop(inicio, 0f),
-                new GradientStop(fin,    1f),
+                new GradientStop(UIHelpers.GetColor("Primary"),  0f),
+                new GradientStop(UIHelpers.GetColor("Tertiary"), 1f),
             ]
         };
     }
@@ -97,7 +135,10 @@ public partial class TarjetasPage : ContentPage
         if (confirmar)
         {
             _tarjetas.Remove(tarjeta);
-            await SincronizarAsync();
+            ActualizarVisibilidad();
+            LoadingOverlay.IsVisible = true;
+            try   { await SincronizarAsync(); }
+            finally { LoadingOverlay.IsVisible = false; }
         }
     }
 
@@ -105,15 +146,20 @@ public partial class TarjetasPage : ContentPage
 
     private async void OnAgregarTarjeta(object sender, EventArgs e)
     {
+        if (_enCRUD) return;
         _enCRUD = true;
         try
         {
-            var popup = new TarjetaFormPopup();
-            await this.ShowPopupAsync(popup);
+            TarjetaModel? nueva = null;
+            await this.ShowPopupAsync(
+                new TarjetaFormPopup(result => nueva = result),
+                _popupOpts,
+                CancellationToken.None);
 
-            if (popup.Resultado is TarjetaModel nueva)
+            if (nueva is not null)
             {
                 _tarjetas.Add(nueva);
+                ActualizarVisibilidad();
                 await SincronizarAsync();
             }
         }
@@ -128,28 +174,27 @@ public partial class TarjetasPage : ContentPage
     private async void OnEditarTarjeta(object sender, TappedEventArgs e)
     {
         if (e.Parameter is not TarjetaModel tarjeta) return;
-
+        if (_enCRUD) return;
         _enCRUD = true;
         try
         {
-            var popup = new TarjetaFormPopup(tarjeta);
-            await this.ShowPopupAsync(popup);
+            TarjetaModel? actualizada = null;
+            await this.ShowPopupAsync(
+                new TarjetaFormPopup(result => actualizada = result, tarjeta),
+                _popupOpts,
+                CancellationToken.None);
 
-            if (popup.Resultado is TarjetaModel actualizada)
+            if (actualizada is not null)
             {
-                var vieja = _tarjetas.FirstOrDefault(t => t.Id == actualizada.Id);
-                var index = vieja is not null ? _tarjetas.IndexOf(vieja) : -1;
-
-                if (index >= 0)
+                var existente = _tarjetas.FirstOrDefault(t => t.Id == actualizada.Id);
+                if (existente != null)
                 {
-                    // Remove + Insert dispara Remove+Add en ObservableCollection,
-                    // que CollectionView maneja de forma confiable en Android
-                    // (Replace a veces no refresca la celda)
+                    var index = _tarjetas.IndexOf(existente);
                     _tarjetas.RemoveAt(index);
                     _tarjetas.Insert(index, actualizada);
                 }
-
                 await SincronizarAsync();
+                CargarTarjetas();
             }
         }
         finally

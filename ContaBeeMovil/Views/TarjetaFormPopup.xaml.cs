@@ -5,22 +5,22 @@ namespace ContaBeeMovil.Views;
 
 public partial class TarjetaFormPopup : Popup
 {
-    private readonly TarjetaModel? _tarjetaEditando;
+    private readonly Action<TarjetaModel?> _onResult;
+    private readonly TarjetaModel?         _tarjetaEditando;
 
-    public TarjetaModel? Resultado { get; private set; }
-
-    public TarjetaFormPopup(TarjetaModel? tarjeta = null)
+    public TarjetaFormPopup(Action<TarjetaModel?> onResult, TarjetaModel? tarjeta = null)
     {
         InitializeComponent();
+        _onResult        = onResult;
         _tarjetaEditando = tarjeta;
 
         if (tarjeta != null)
         {
-            LblTitulo.Text = "Editar Tarjeta";
-            BtnAccion.Text = "Guardar";
-            EntryAlias.Text = tarjeta.Alias;
-            EntryDigitos.Text = tarjeta.UltimosDigitos;
-            LblContador.Text = $"{tarjeta.UltimosDigitos.Length}/4";
+            LblTitulo.Text      = "Editar Tarjeta";
+            BtnAccion.Text      = "Guardar";
+            EntryAlias.Text     = tarjeta.Alias;
+            EntryDigitos.Text   = tarjeta.UltimosDigitos;
+            LblContador.Text    = $"{tarjeta.UltimosDigitos.Length}/4";
         }
     }
 
@@ -28,17 +28,20 @@ public partial class TarjetaFormPopup : Popup
     {
         var len = e.NewTextValue?.Length ?? 0;
         LblContador.Text = $"{len}/4";
+
+        var state = len == 0 ? "Empty" : len == 4 ? "Valid" : "Invalid";
+        VisualStateManager.GoToState(LblContador, state);
     }
 
-    private void OnCancelar(object sender, EventArgs e)
+    private async void OnCancelar(object sender, EventArgs e)
     {
-        Resultado = null;
-        _ = CloseAsync();
+        _onResult(null);
+        await CloseAsync(CancellationToken.None);
     }
 
-    private void OnAceptar(object sender, EventArgs e)
+    private async void OnAceptar(object sender, EventArgs e)
     {
-        var alias = EntryAlias.Text?.Trim() ?? string.Empty;
+        var alias   = EntryAlias.Text?.Trim()  ?? string.Empty;
         var digitos = EntryDigitos.Text?.Trim() ?? string.Empty;
 
         if (string.IsNullOrWhiteSpace(alias))
@@ -53,19 +56,19 @@ public partial class TarjetaFormPopup : Popup
             return;
         }
 
-        Resultado = new TarjetaModel
+        _onResult(new TarjetaModel
         {
-            Id = _tarjetaEditando?.Id ?? Guid.NewGuid().ToString(),
-            Alias = alias,
+            Id             = _tarjetaEditando?.Id ?? Guid.NewGuid().ToString(),
+            Alias          = alias,
             UltimosDigitos = digitos,
-        };
+        });
 
-        _ = CloseAsync();
+        await CloseAsync(CancellationToken.None);
     }
 
     private void MostrarError(string mensaje)
     {
-        LblError.Text = mensaje;
+        LblError.Text      = mensaje;
         LblError.IsVisible = true;
     }
 }
