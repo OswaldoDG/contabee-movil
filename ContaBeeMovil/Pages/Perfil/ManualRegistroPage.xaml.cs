@@ -163,7 +163,14 @@ public partial class ManualRegistroPage : ContentPage
 
             SetLoading(false);
             await Navigation.PopModalAsync();
-            await Shell.Current.GoToAsync("..");
+
+            if (Shell.Current != null)
+                await Shell.Current.GoToAsync("..");
+            else
+            {
+                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                Application.Current!.Windows[0].Page = shell;
+            }
         }
         catch (HttpRequestException ex)
         {

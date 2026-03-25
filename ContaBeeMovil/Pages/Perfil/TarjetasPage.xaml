@@ -11,12 +11,30 @@
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
 
-    <Grid>
+    <Grid x:Name="RootGrid">
+
+        <!-- Vista vacía: capa independiente, sin relación con CollectionView -->
+        <VerticalStackLayout x:Name="EmptyLayout"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12"
+                             Padding="40,60"
+                             IsVisible="True">
+            <Label Text="Sin tarjetas"
+                   Style="{StaticResource Title2}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="Center"/>
+            <Label Text="Agrega tus tarjetas con el botón +"
+                   Style="{StaticResource Body1}"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
 
         <CollectionView x:Name="ListaTarjetas"
                         SelectionMode="None"
-                        BackgroundColor="{toolkit:AppThemeResource Background}"
-                        Margin="16,16,16,0">
+                        Margin="16,16,16,0"
+                        IsVisible="False">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="20"/>
             </CollectionView.ItemsLayout>
@@ -24,10 +42,9 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:TarjetaModel">
 
-                    <SwipeView Margin="0,0">
+                    <SwipeView Margin="0,0"
+                               BackgroundColor="{AppThemeBinding Light=#fefdfc, Dark=#141414}">
                         <SwipeView.LeftItems>
-                            <!-- Mode=Execute: sigue el dedo, spring-back si no llega al umbral,
-                                 dispara Invoked automáticamente al alcanzar el umbral nativo -->
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
                                            Invoked="OnEliminarTarjeta">
@@ -57,11 +74,6 @@
                                         Offset="0,6" Radius="14" Opacity="0.55"/>
                             </Border.Shadow>
 
-                            <!--
-                                Row 0 (*): espacio con logo top-right
-                                Row 1 (Auto): ALIAS (arriba del número)
-                                Row 2 (Auto): número enmascarado
-                            -->
                             <Grid RowDefinitions="*,Auto,Auto" RowSpacing="4">
 
                                 <Image Grid.Row="0"
@@ -89,26 +101,9 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
 
-            <CollectionView.EmptyView>
-                <VerticalStackLayout VerticalOptions="Center"
-                                     HorizontalOptions="Center"
-                                     Spacing="12"
-                                     Padding="40,60">
-                    <Label Text="Sin tarjetas"
-                           Style="{StaticResource Title2}"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}"
-                           HorizontalOptions="Center"/>
-                    <Label Text="Agrega tus tarjetas con el botón +"
-                           Style="{StaticResource Body1}"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"/>
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-
             <CollectionView.Footer>
                 <BoxView HeightRequest="96"
-                         Color="{toolkit:AppThemeResource Background}"/>
+                         Color="{AppThemeBinding Light=#fefdfc, Dark=#141414}"/>
             </CollectionView.Footer>
 
         </CollectionView>
@@ -120,7 +115,7 @@
                 WidthRequest="60"
                 HeightRequest="60"
                 CornerRadius="16"
-                BackgroundColor="{toolkit:AppThemeResource Secondary}"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
                 TextColor="{toolkit:AppThemeResource PrimaryText}"
                 HorizontalOptions="End"
                 VerticalOptions="End"
@@ -131,6 +126,19 @@
                         Offset="0,4" Radius="8" Opacity="0.5"/>
             </Button.Shadow>
         </Button>
+
+        <!-- Overlay de carga -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="False"
+              BackgroundColor="{toolkit:AppThemeResource Shadow}"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
 
     </Grid>
 </ContentPage>

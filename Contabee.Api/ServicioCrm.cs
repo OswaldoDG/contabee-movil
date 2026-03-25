@@ -1,6 +1,5 @@
-﻿using Contabee.Api.abstractions;
+using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
-using System.Net.Http.Json;
 
 
 
@@ -17,12 +16,11 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         try
         {
             var res = await servicioCrm.RfcAsync();
-            if (res != null && res.Count>0)
-            {
-                r.Payload = res.ToList();
-                return r;
-
-            }
+            r.Payload = res?.ToList() ?? new List<AsociacionCuentaFiscalCompleta>();
+        }
+        catch (ApiException ex) when (ex.StatusCode == 404)
+        {
+            r.Payload = new List<AsociacionCuentaFiscalCompleta>();
         }
         catch (Exception ex)
         {
@@ -37,17 +35,13 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await httpClient.PostAsJsonAsync("crm/rfc/minima", modelo);
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                r.Ok = true;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                var content = await httpResponse.Content.ReadAsStringAsync();
-                r.Error = new ErrorProceso { Mensaje = content, HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode, Origen = "ServicioCrm-RegistrarCuentaFiscalMinima" };
-            }
+            await servicioCrm.MinimaAsync(modelo);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-RegistrarCuentaFiscalMinima" };
         }
         catch (Exception ex)
         {
@@ -62,17 +56,13 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await httpClient.DeleteAsync($"crm/cuentafiscal/{cuentaFiscalId}");
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                r.Ok = true;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                var content = await httpResponse.Content.ReadAsStringAsync();
-                r.Error = new ErrorProceso { Mensaje = content, HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode, Origen = "ServicioCrm-EliminarCuentaFiscal" };
-            }
+            await servicioCrm.CuentafiscalDELETEAsync(Guid.Parse(cuentaFiscalId));
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-EliminarCuentaFiscal" };
         }
         catch (Exception ex)
         {
@@ -86,17 +76,13 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await httpClient.DeleteAsync($"asociacionfiscal/{id}");
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                r.Ok = true;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                var content = await httpResponse.Content.ReadAsStringAsync();
-                r.Error = new ErrorProceso { Mensaje = content, HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode, Origen = "ServicioCrm-EliminarAsociacionFiscal" };
-            }
+            await servicioCrm.AsociacionfiscalDELETEAsync(id);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-EliminarAsociacionFiscal" };
         }
         catch (Exception ex)
         {
@@ -110,17 +96,13 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         var r = new Respuesta();
         try
         {
-            var httpResponse = await httpClient.PostAsJsonAsync("crm/rfc/url", request);
-            if (httpResponse.IsSuccessStatusCode)
-            {
-                r.Ok = true;
-                r.HttpCode = System.Net.HttpStatusCode.OK;
-            }
-            else
-            {
-                var content = await httpResponse.Content.ReadAsStringAsync();
-                r.Error = new ErrorProceso { Mensaje = content, HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode, Origen = "ServicioCrm-EnviarUrlCuentaFiscal" };
-            }
+            await servicioCrm.UrlAsync(request);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-EnviarUrlCuentaFiscal" };
         }
         catch (Exception ex)
         {
@@ -129,6 +111,7 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         return r;
     }
 }
+
 
 
 

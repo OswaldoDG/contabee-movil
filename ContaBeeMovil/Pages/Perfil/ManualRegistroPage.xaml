@@ -154,7 +154,6 @@
 
             </VerticalStackLayout>
         </Border>
-
         <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"
               IsVisible="False"
