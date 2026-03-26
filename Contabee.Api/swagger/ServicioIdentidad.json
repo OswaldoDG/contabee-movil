@@ -2022,7 +2022,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AsociacionCuentaFiscal"
+                    "$ref": "#/components/schemas/CuentaUsuario"
                   }
                 }
               },
@@ -2030,7 +2030,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AsociacionCuentaFiscal"
+                    "$ref": "#/components/schemas/CuentaUsuario"
                   }
                 }
               },
@@ -2038,7 +2038,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/AsociacionCuentaFiscal"
+                    "$ref": "#/components/schemas/CuentaUsuario"
                   }
                 }
               }
@@ -2128,57 +2128,6 @@
           },
           "telefono": {
             "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "AsociacionCuentaFiscal": {
-        "required": [
-          "rfc"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "usuarioId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "cuentaFiscalId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "rfc": {
-            "maxLength": 15,
-            "type": "string",
-            "nullable": true
-          },
-          "tipoCuenta": {
-            "$ref": "#/components/schemas/TipoCuenta"
-          },
-          "fechaAsociacion": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "activa": {
-            "type": "boolean"
-          },
-          "caduca": {
-            "type": "boolean"
-          },
-          "caducidad": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
             "nullable": true
           }
         },
@@ -2278,7 +2227,7 @@
             "nullable": true
           },
           "tipoCuenta": {
-            "$ref": "#/components/schemas/TipoCuentaUsuario"
+            "$ref": "#/components/schemas/TipoCuenta"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -2503,7 +2452,7 @@
             "nullable": true
           },
           "tipoCuenta": {
-            "$ref": "#/components/schemas/TipoCuentaUsuario"
+            "$ref": "#/components/schemas/TipoCuenta"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -3035,13 +2984,6 @@
         "type": "string"
       },
       "TipoCuenta": {
-        "enum": [
-          "Primaria",
-          "Secundaria"
-        ],
-        "type": "string"
-      },
-      "TipoCuentaUsuario": {
         "enum": [
           "None",
           "Cliente",

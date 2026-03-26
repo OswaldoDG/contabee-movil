@@ -8,6 +8,7 @@ using Contabee.Pages.Registro;
 using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Pages.Confirmar;
+using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
@@ -137,6 +138,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
             builder.Services.AddTransient<TiendaPage>();
+            builder.Services.AddTransient<ReclamarDemoPage>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();
             builder.Services.AddTransient<TomarFotoPage>();

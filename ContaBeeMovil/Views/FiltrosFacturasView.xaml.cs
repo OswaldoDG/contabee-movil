@@ -69,6 +69,19 @@ public partial class FiltrosFacturasView : ContentView
         set => SetValue(CreadoresProperty, value);
     }
 
+    public static readonly BindableProperty CreadoresIdsProperty =
+        BindableProperty.Create(
+            nameof(CreadoresIds),
+            typeof(IList<string>),
+            typeof(FiltrosFacturasView),
+            defaultValue: null);
+
+    public IList<string>? CreadoresIds
+    {
+        get => (IList<string>?)GetValue(CreadoresIdsProperty);
+        set => SetValue(CreadoresIdsProperty, value);
+    }
+
     public static readonly BindableProperty BuscarCommandProperty =
         BindableProperty.Create(
             nameof(BuscarCommand),
@@ -215,9 +228,11 @@ public partial class FiltrosFacturasView : ContentView
                 && _estadoEnum.TryGetValue(estado, out string? estadoVal))
                 filtros.Add(new Filtro { Propiedad = "Estado", Operador = Operador.Igual, Valores = [estadoVal] });
 
-            // Creador
-            if (PickerCreador.SelectedItem is string creador)
-                filtros.Add(new Filtro { Propiedad = "creador", Operador = Operador.Igual, Valores = [creador] });
+            // Creador (índice 0 = "Creador" / sin filtro)
+            if (PickerCreador.SelectedIndex > 0
+                && CreadoresIds is not null
+                && PickerCreador.SelectedIndex < CreadoresIds.Count)
+                filtros.Add(new Filtro { Propiedad = "creador", Operador = Operador.Igual, Valores = [CreadoresIds[PickerCreador.SelectedIndex]] });
 
             // Envío (índice 0 = "sin filtro")
             if (PickerEnvio.SelectedIndex > 0 && PickerEnvio.SelectedItem is string envio)

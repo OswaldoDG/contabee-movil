@@ -14,6 +14,30 @@
         <VerticalStackLayout Grid.Row="0">
             <views:FiltrosFacturasView x:Name="PanelFiltros"
                                        BuscarCommand="{Binding BuscarFacturasCommand}" />
+
+            <!-- Banner: sin créditos de captura -->
+            <Border IsVisible="{Binding SinCreditos}"
+                    StrokeShape="RoundRectangle 10"
+                    Stroke="{toolkit:AppThemeResource Primary}"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    Padding="12,8"
+                    Margin="12,0,12,4">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" >
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUI.warning_20_regular}"
+                           FontFamily="FluentUI"
+                           FontSize="18"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           Text="No tienes créditos de captura disponibles."
+                           FontSize="13"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           LineBreakMode="WordWrap"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
         </VerticalStackLayout>
 
         <!-- Lista de resultados + FAB -->
@@ -40,7 +64,8 @@
                     StrokeThickness="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
                     HorizontalOptions="End" VerticalOptions="End"
-                    Margin="0,0,16,5">
+                    Margin="0,0,16,5"
+                    IsVisible="{Binding TieneCreditos}">
                 <Border.Shadow>
                     <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.5" />
                 </Border.Shadow>

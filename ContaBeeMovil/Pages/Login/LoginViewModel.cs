@@ -166,9 +166,10 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (!resultado.Ok || resultado.Payload == null)
             {
-                //_ = _notificacion.MostrarErrorAsync(
-                //    resultado.Error?.Mensaje ?? "Error al iniciar sesión");
-                await toastService.ShowAsync("Ha oucrrido un error al iniciar sesión.", type: ToastType.Warning, position: ToastPosition.Bottom);
+                var mensaje = resultado.Error?.Codigo == "invalid_grant"
+                    ? "El correo o la contraseña son incorrectos."
+                    : "Ha ocurrido un error al iniciar sesión.";
+                await toastService.ShowAsync(mensaje, type: ToastType.Warning, position: ToastPosition.Bottom);
                 return;
             }
 

@@ -215,4 +215,22 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         return r;
     }
+
+    public async Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid)
+    {
+        RespuestaPayload<List<CuentaUsuario>> r = new();
+
+        try
+        {   var res= await servicioIdentidad.ObtieneUsuariosCuentaFiscalAsync(cfid);
+            r.Payload = res.ToList();
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Obtener Usuarios");
+        }
+
+        return r;
+    }
 }

@@ -3,7 +3,9 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
+using Contabee.Api.Crm;
 using Contabee.Api.Transcript;
+using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services.Device;
 using Newtonsoft.Json;
@@ -35,11 +37,18 @@ public class DashboardViewModel : INotifyPropertyChanged
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
 
-        MesAnteriorCommand = new Command(async () => await NavegaMesAsync(-1));
+        MesAnteriorCommand  = new Command(async () => await NavegaMesAsync(-1));
         MesSiguienteCommand = new Command(
             async () => await NavegaMesAsync(1),
             () => new DateTime(_anio, _mes, 1) < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
-        RefreshCommand = new Command(async () => await ReiniciarAlMesActualAsync());
+        RefreshCommand      = new Command(async () => await ReiniciarAlMesActualAsync());
+        ReclamarDemoCommand = new Command(async () => await OnReclamarDemoAsync());
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
+                OnPropertyChanged(nameof(PuedeReclamarDemo));
+        };
     }
 
     #region Properties
@@ -137,11 +146,16 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     #endregion
 
+    public bool PuedeReclamarDemo =>
+        AppState.Instance.CuentaFiscalActual?.EstadoLicenciaDemo
+            is EstadoLicenciaDemo.SinEvaluar or EstadoLicenciaDemo.Factible;
+
     #region Commands
 
     public ICommand MesAnteriorCommand { get; }
     public ICommand MesSiguienteCommand { get; }
     public ICommand RefreshCommand { get; }
+    public ICommand ReclamarDemoCommand { get; }
 
     #endregion
 
@@ -155,6 +169,12 @@ public class DashboardViewModel : INotifyPropertyChanged
     #endregion
 
     #region Private Methods
+
+    private async Task OnReclamarDemoAsync()
+    {
+        if (AppState.Instance.CuentaFiscalActual is null) return;
+        await Shell.Current.GoToAsync(nameof(ReclamarDemoPage));
+    }
 
     private async Task ReiniciarAlMesActualAsync()
     {

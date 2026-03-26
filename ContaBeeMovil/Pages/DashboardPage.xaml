@@ -8,11 +8,49 @@
              x:DataType="vm:DashboardViewModel"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
 
-        <views:ActividadView Grid.Row="0" />
+        <!-- Banner: reclamar créditos demo -->
+        <Border Grid.Row="0"
+                IsVisible="{Binding PuedeReclamarDemo}"
+                StrokeShape="RoundRectangle 24"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                Padding="16,10"
+                Margin="24,8"
+                HorizontalOptions="Center">
+            <Border.Shadow>
+                <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.3" />
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding ReclamarDemoCommand}" />
+            </Border.GestureRecognizers>
+            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
+                <Label Grid.Column="0"
+                       Text="Empieza con créditos gratis"
+                       FontSize="14"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       VerticalOptions="Center" />
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        BackgroundColor="{toolkit:AppThemeResource Secondary}"
+                        Padding="8,4">
+                    <Label Text="15"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+        </Border>
 
-        <views:RfcCpBarView Grid.Row="1" />
+        <views:ActividadView Grid.Row="1" />
+
+        <views:RfcCpBarView Grid.Row="2" />
 
     </Grid>
 

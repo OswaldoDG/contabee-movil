@@ -1,0 +1,1432 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "generic.ecommerce.api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/carrito": {
+      "post": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/carrito/cotizar": {
+      "post": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCreaCarritoCompras"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cotizacion.CotizacionCarrito"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cotizacion.CotizacionCarrito"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cotizacion.CotizacionCarrito"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/carrito/{id}": {
+      "get": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/carrito/acreditar/{id}": {
+      "post": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/carrito/cuentafiscal/{cuentaFiscalId}": {
+      "get": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/validar/{codigo}": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCuentaCupon"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/aplicar/{codigo}/mi": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/aplicar/{codigo}/cuentafiscal": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/aplicar/{codigo}": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCuentaCupon"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/iappurchases/verificar": {
+      "post": {
+        "tags": [
+          "InAppPurchase"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/iappurchases/purchasenotification": {
+      "post": {
+        "tags": [
+          "InAppPurchase"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/MercadoPago/pago/{refId}": {
+      "get": {
+        "tags": [
+          "MercadoPago"
+        ],
+        "parameters": [
+          {
+            "name": "refId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/MercadoPago/pago/exitoso": {
+      "get": {
+        "tags": [
+          "MercadoPago"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/MercadoPago/pago/fallido": {
+      "get": {
+        "tags": [
+          "MercadoPago"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/MercadoPago/pago/pendiente": {
+      "get": {
+        "tags": [
+          "MercadoPago"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/MercadoPago/webhook": {
+      "post": {
+        "tags": [
+          "MercadoPago"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/categorias/full": {
+      "get": {
+        "tags": [
+          "Productos"
+        ],
+        "parameters": [
+          {
+            "name": "todos",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "tipoprecio",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.productos.TipoPrecio"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoCategoriasProducto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoCategoriasProducto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoCategoriasProducto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "System.Net.HttpStatusCode": {
+        "enum": [
+          "Continue",
+          "SwitchingProtocols",
+          "Processing",
+          "EarlyHints",
+          "OK",
+          "Created",
+          "Accepted",
+          "NonAuthoritativeInformation",
+          "NoContent",
+          "ResetContent",
+          "PartialContent",
+          "MultiStatus",
+          "AlreadyReported",
+          "IMUsed",
+          "MultipleChoices",
+          "MovedPermanently",
+          "Found",
+          "SeeOther",
+          "NotModified",
+          "UseProxy",
+          "Unused",
+          "TemporaryRedirect",
+          "PermanentRedirect",
+          "BadRequest",
+          "Unauthorized",
+          "PaymentRequired",
+          "Forbidden",
+          "NotFound",
+          "MethodNotAllowed",
+          "NotAcceptable",
+          "ProxyAuthenticationRequired",
+          "RequestTimeout",
+          "Conflict",
+          "Gone",
+          "LengthRequired",
+          "PreconditionFailed",
+          "RequestEntityTooLarge",
+          "RequestUriTooLong",
+          "UnsupportedMediaType",
+          "RequestedRangeNotSatisfiable",
+          "ExpectationFailed",
+          "MisdirectedRequest",
+          "UnprocessableEntity",
+          "Locked",
+          "FailedDependency",
+          "UpgradeRequired",
+          "PreconditionRequired",
+          "TooManyRequests",
+          "RequestHeaderFieldsTooLarge",
+          "UnavailableForLegalReasons",
+          "InternalServerError",
+          "NotImplemented",
+          "BadGateway",
+          "ServiceUnavailable",
+          "GatewayTimeout",
+          "HttpVersionNotSupported",
+          "VariantAlsoNegotiates",
+          "InsufficientStorage",
+          "LoopDetected",
+          "NotExtended",
+          "NetworkAuthenticationRequired"
+        ],
+        "type": "string"
+      },
+      "comunes.respuestas.ErrorProceso": {
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensaje": {
+            "type": "string",
+            "nullable": true
+          },
+          "propiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.respuestas.Respuesta": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "type": "boolean"
+          },
+          "error": {
+            "$ref": "#/components/schemas/comunes.respuestas.ErrorProceso"
+          },
+          "httpCode": {
+            "$ref": "#/components/schemas/System.Net.HttpStatusCode"
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.carrito.DtoCarritoCompra": {
+        "required": [
+          "cuentaFiscalId",
+          "dispositivoId",
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "dispositivoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "pasarelarPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "estado": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.EstadoCarrito"
+          },
+          "totalImpuestos": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "total": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "pasarelaPagoTransaccionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.carrito.ElementoCompra"
+            },
+            "nullable": true
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.descuentos.DtoDescuento"
+            },
+            "nullable": true
+          },
+          "nombreCuentaBancaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "clabeInterbancaria": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreInstitucionBancaria": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.carrito.DtoCreaCarritoCompras": {
+        "required": [
+          "cuentaFiscalId",
+          "dispositivoId"
+        ],
+        "type": "object",
+        "properties": {
+          "dispositivoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "pasarelarPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          },
+          "pasarelaId": {
+            "type": "string",
+            "nullable": true
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoElementoCompra"
+            },
+            "nullable": true
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.carrito.DtoElementoCompra": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "productoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoPrecio": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.productos.TipoPrecio"
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "periodo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.carrito.ElementoCompra": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precioId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precioBase": {
+            "type": "number",
+            "format": "double"
+          },
+          "precioDescuento": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "periodo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalImpuestos": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "impuestos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.carrito.EstadoCarrito": {
+        "enum": [
+          "Activo",
+          "EnProcesoPago",
+          "Pagado",
+          "Cancelado",
+          "Declinado"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.carrito.PasarelarPago": {
+        "enum": [
+          "Interbancario",
+          "MercadoPago",
+          "Apple",
+          "Google"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.cotizacion.CotizacionCarrito": {
+        "type": "object",
+        "properties": {
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "pasarela": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          },
+          "descuentos": {
+            "type": "number",
+            "format": "double"
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "impuestos": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.cotizacion.LineaCotizacion"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.cotizacion.LineaCotizacion": {
+        "required": [
+          "clave",
+          "productoId"
+        ],
+        "type": "object",
+        "properties": {
+          "productoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "precioBase": {
+            "type": "number",
+            "format": "double"
+          },
+          "precioDescuento": {
+            "type": "number",
+            "format": "double"
+          },
+          "impuestos": {
+            "type": "number",
+            "format": "double"
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.cupones.TipoCuentaCupon": {
+        "enum": [
+          "Todas",
+          "CuentaFiscal",
+          "UsuarioApp"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.cupones.dtos.RespuestaCuponValido": {
+        "required": [
+          "codigo",
+          "descripcion",
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "valido": {
+            "type": "boolean"
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.descuentos.DtoDescuento": {
+        "required": [
+          "clave",
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.descuentos.TipoDescuento"
+          },
+          "umbralVolumenBajo": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "umbralVolumenAlto": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "tipoValor": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.descuentos.TipoValorDescuento"
+          },
+          "valor": {
+            "type": "number",
+            "format": "double"
+          },
+          "acumulable": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.descuentos.TipoDescuento": {
+        "enum": [
+          "Volumen"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.descuentos.TipoValorDescuento": {
+        "enum": [
+          "Procentaje",
+          "Fijo"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.impuestos.DtoImpuesto": {
+        "required": [
+          "id",
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "porcentaje": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra": {
+        "required": [
+          "cuentaFiscalId",
+          "dispositivoId"
+        ],
+        "type": "object",
+        "properties": {
+          "dispositivoId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "pasarelarPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          },
+          "pasarelaId": {
+            "type": "string",
+            "nullable": true
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoElementoCompra"
+            },
+            "nullable": true
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "compraId": {
+            "type": "string",
+            "nullable": true
+          },
+          "productoTiendaId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.productos.DtoCategoriasProducto": {
+        "required": [
+          "clave",
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoProducto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.productos.DtoPrecioProducto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precio": {
+            "type": "number",
+            "format": "double"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.productos.TipoPrecio"
+          },
+          "moneda": {
+            "type": "string",
+            "nullable": true
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "periodoRenta": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.descuentos.DtoDescuento"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.productos.DtoProducto": {
+        "required": [
+          "clave",
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "clave": {
+            "type": "string",
+            "nullable": true
+          },
+          "descripcion": {
+            "type": "string",
+            "nullable": true
+          },
+          "precios": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoPrecioProducto"
+            },
+            "nullable": true
+          },
+          "impuestos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.impuestos.DtoImpuesto"
+            },
+            "nullable": true
+          },
+          "propiedades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.productos.DtoPropiedadProducto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.productos.DtoPropiedadProducto": {
+        "required": [
+          "propiedad",
+          "valor"
+        ],
+        "type": "object",
+        "properties": {
+          "propiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "valor": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.productos.TipoPrecio": {
+        "enum": [
+          "Publico",
+          "Distribuidor",
+          "Promocional"
+        ],
+        "type": "string"
+      }
+    }
+  }
+}
