@@ -71,7 +71,7 @@
                    IsVisible="False"
                    HorizontalOptions="Center" />
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <Button Text="Cancelar"
                         BackgroundColor="Transparent"
                         BorderColor="{toolkit:AppThemeResource Accent1}"
