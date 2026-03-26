@@ -2055,6 +2055,25 @@
         "tags": [
           "Usuarios"
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEliminarUsuario"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEliminarUsuario"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/DTOEliminarUsuario"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -2538,6 +2557,16 @@
             "nullable": true
           },
           "actual": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DTOEliminarUsuario": {
+        "type": "object",
+        "properties": {
+          "contrasena": {
             "type": "string",
             "nullable": true
           }

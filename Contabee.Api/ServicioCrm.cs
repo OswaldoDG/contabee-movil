@@ -19,10 +19,12 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         {
             var res = await servicioCrm.RfcAsync();
             r.Payload = res?.ToList() ?? new List<AsociacionCuentaFiscalCompleta>();
+            r.Ok = true;
         }
         catch (ApiException ex) when (ex.StatusCode == 404)
         {
             r.Payload = new List<AsociacionCuentaFiscalCompleta>();
+            r.Ok = true;
         }
         catch (Exception ex)
         {

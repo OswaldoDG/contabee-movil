@@ -12,6 +12,7 @@ public interface IServicioIdentidad
     Task<Respuesta> CambiarContrasena(string actual, string nueva);
     Task<Respuesta> RestablecerContrasena(string password, string token);
     Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid);
+    Task<Respuesta> EliminarCuenta(string password);
 }
 
 

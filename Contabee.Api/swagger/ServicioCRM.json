@@ -255,24 +255,7 @@
         ],
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
-                }
-              }
-            }
+            "description": "OK"
           }
         }
       }
@@ -2953,7 +2936,7 @@
             "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
           },
           "cuentaUsuario": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",             
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",
             "nullable": true
           },
           "direcciones": {

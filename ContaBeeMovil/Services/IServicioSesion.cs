@@ -22,4 +22,5 @@ public interface IServicioSesion
     Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas);
     Task PosLoginAsync();
     Task CerrarSesionAsync();
+    Task PostEliminarCuentaAsync();
 }

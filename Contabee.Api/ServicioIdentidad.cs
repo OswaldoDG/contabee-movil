@@ -216,6 +216,23 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         return r;
     }
 
+    public async Task<Respuesta> EliminarCuenta(string password)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.MiDELETEAsync(new DTOEliminarUsuario { Contrasena = password});
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-EliminarCuenta");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid)
     {
         RespuestaPayload<List<CuentaUsuario>> r = new();

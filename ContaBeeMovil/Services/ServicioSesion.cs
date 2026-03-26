@@ -217,7 +217,7 @@ public class ServicioSesion : IServicioSesion
 
         if (!estaEnLista)
         {
-            _appState.CuentaFiscalActual = cuentas.First();
+            _appState.CuentaFiscalActual = cuentas.FirstOrDefault();
         }
 
         await GetMisUsuariosAsync();
@@ -268,11 +268,6 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PosLoginAsync()
     {
-        _appState.Perfil = null;
-        _appState.CuentasFiscales = null;
-        _appState.CuentaFiscalActual = null;
-        _appState.Tarjetas = null;
-
         await GetPerfilAsync();
         await GetAsociacionesFiscalesAsync();
         await GetTarjetasAsync();
@@ -292,6 +287,39 @@ public class ServicioSesion : IServicioSesion
         _appState.Tarjetas = [];
 
 
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
+            Application.Current!.Windows[0].Page = paginaLogin;
+        });
+    }
+
+    public async Task PostEliminarCuentaAsync()
+    {
+        // Borrar tarjetas del usuario del SecureStorage
+        var email = await LeeEmailAsync();
+        if (!string.IsNullOrEmpty(email))
+        {
+            var usuario = email.Split('@')[0];
+            _almacenamiento.EliminarSeguro($"CLAVE_{usuario}");
+        }
+
+        // Borrar email del SecureStorage
+        await LimpiaEmailAsync();
+
+        // Borrar tokens y expiración
+        await LimpiaTokensAsync();
+        SecureStorage.Remove(CLAVE_EXPIRACION);
+
+        // Limpiar todo el estado global
+        _appState.Perfil = null;
+        _appState.CuentasFiscales = null;
+        _appState.CuentaFiscalActual = null;
+        _appState.Licenciamiento = null;
+        _appState.MisUsuarios = null;
+        _appState.Tarjetas = [];
+
+        // Navegar al login
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
