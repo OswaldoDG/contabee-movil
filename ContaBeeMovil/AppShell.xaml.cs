@@ -1,7 +1,8 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using StatusBar = CommunityToolkit.Maui.Core.Platform.StatusBar;
 using ContaBeeMovil.Pages.Confirmar;
-using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
@@ -31,6 +32,7 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
             };
 
+            Navigated += (_, _) => ActualizarStatusBar();
         }
 
         // ── Snackbar / Toast helpers ──────────────────────────────────────
@@ -88,10 +90,46 @@ namespace ContaBeeMovil
                 LabelNombreUsuario.Text = nombre;
         }
 
+        // ── Status bar dinámica ───────────────────────────────────────────
+
+        private static void ActualizarStatusBar()
+        {
+#if ANDROID || IOS
+            if (!OperatingSystem.IsAndroidVersionAtLeast(23))
+                return;
+
+            var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
+            var ruta = Current.CurrentState.Location.ToString();
+            var esPaginaPrimaria = ruta.Contains("dashboard") || ruta.Contains("facturacion");
+
+            Color color;
+            StatusBarStyle estilo;
+
+            if (esPaginaPrimaria)
+            {
+                // AppBarPrimary: blanco/crema en claro, gris oscuro en oscuro
+                color = isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
+                estilo = isDark ? StatusBarStyle.LightContent : StatusBarStyle.DarkContent;
+            }
+            else
+            {
+                // AppBarSecondary: amarillo en claro, ámbar en oscuro
+                color = isDark ? Color.FromArgb("#ce8509") : Color.FromArgb("#f4c611");
+                estilo = StatusBarStyle.DarkContent;
+            }
+
+            StatusBar.SetColor(color);
+            StatusBar.SetStyle(estilo);
+#endif
+        }
+
         // ── Toggle de tema ────────────────────────────────────────────────
 
         private void OnThemeSwitchToggled(object? sender, ToggledEventArgs e)
-            => Application.Current!.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
+        {
+            Application.Current!.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
+            ActualizarStatusBar();
+        }
 
         // ── Cerrar sesión ─────────────────────────────────────────────────
 
@@ -106,11 +144,7 @@ namespace ContaBeeMovil
             if (!confirmar)
                 return;
 
-            var servicioSesion = MauiProgram.Services.GetRequiredService<IServicioSesion>();
-            await servicioSesion.LimpiaTokensAsync();
-
-            var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = paginaLogin;
+            await _servicioSesion.CerrarSesionAsync();
         }
 
         // ── Navegación: items card ────────────────────────────────────────
@@ -195,6 +229,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
+            Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
         }
     }
 }

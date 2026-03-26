@@ -195,4 +195,16 @@ public partial class AppState : ObservableObject
         get => _tarjetas;
         set => SetProperty(ref _tarjetas, value);
     }
+
+    // ── MisUsuarios ────────────────────────────────────────────────────────────
+    private List<Contabee.Api.Identidad.CuentaUsuario>? _misUsuarios;
+
+    /// <summary>
+    /// Usuarios vinculados a la cuenta fiscal actual. No persiste en Preferences.
+    /// </summary>
+    public List<Contabee.Api.Identidad.CuentaUsuario>? MisUsuarios
+    {
+        get => _misUsuarios;
+        set => SetProperty(ref _misUsuarios, value);
+    }
 }

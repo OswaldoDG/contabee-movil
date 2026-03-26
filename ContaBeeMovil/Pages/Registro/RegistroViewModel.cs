@@ -152,13 +152,11 @@ public class RegistroViewModel : INotifyPropertyChanged
                 throw new Exception(respuesta.HttpCode.ToString());
             }
 
-            // Mostrar mensaje de éxito
             await _toast.ShowAsync(
                 "Registro completado. Por favor verifica tu correo electrónico.",
                 ToastType.Success, position: ToastPosition.Bottom);
 
-            //Navegar a login
-           // await IrALogin();
+            await IrALogin();
         }
         catch (ApiException ex)
         {

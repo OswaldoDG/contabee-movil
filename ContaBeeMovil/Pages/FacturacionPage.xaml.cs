@@ -1,10 +1,14 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
+using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ContaBeeMovil.Config;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Views;
 using System.Windows.Input;
+using CommunityToolkit.Maui.Extensions;
 
 namespace ContaBeeMovil.Pages;
 
@@ -60,6 +64,11 @@ public partial class FacturacionPage : ContentPage
         private set { _consultaEjecutada = value; OnPropertyChanged(); }
     }
 
+    public bool TieneCreditos =>
+        (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) > 0;
+
+    public bool SinCreditos => !TieneCreditos;
+
     // ── Comandos ─────────────────────────────────────────────────────────────────
 
     public ICommand BuscarFacturasCommand { get; }
@@ -77,13 +86,32 @@ public partial class FacturacionPage : ContentPage
         PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
         InitializeComponent();
         BindingContext = this;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.Licenciamiento))
+            {
+                OnPropertyChanged(nameof(TieneCreditos));
+                OnPropertyChanged(nameof(SinCreditos));
+            }
+            if (e.PropertyName is nameof(AppState.MisUsuarios))
+                ActualizarCreadores();
+        };
     }
 
     // ── Ciclo de vida ─────────────────────────────────────────────────────────────
 
+    private void ActualizarCreadores()
+    {
+        var usuarios = AppState.Instance.MisUsuarios ?? [];
+        PanelFiltros.Creadores  = ["Creador",  .. usuarios.Select(u => u.Nombre ?? u.Email ?? u.Id.ToString())];
+        PanelFiltros.CreadoresIds = ["todos", .. usuarios.Select(u => u.Id.ToString())];
+    }
+
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        ActualizarCreadores();
         PanelFiltros.RestaurarEstado();
         // TODO: relanzar última consulta al regresar de PaginaCaptura
         //if (_ultimaBusqueda is null) return;
@@ -98,6 +126,12 @@ public partial class FacturacionPage : ContentPage
 
     private async Task OnBuscarFacturas(Busqueda busqueda)
     {
+        if (AppState.Instance.CuentaFiscalActual is null)
+        {
+            await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
+            return;
+        }
+
         _ultimaBusqueda = busqueda;
         await EjecutarBusqueda(1);
     }

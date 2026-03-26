@@ -6,6 +6,7 @@
              x:Class="ContaBeeMovil.Pages.Registro.PaginaRegistro"
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Title="Registro">
+    <Grid>
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="12">
 
@@ -189,4 +190,17 @@
 
         </VerticalStackLayout>
     </ScrollView>
+
+    <!-- Spinner overlay -->
+    <Grid IsVisible="{Binding EstaCargando}"
+          BackgroundColor="#80000000">
+        <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                           Color="{toolkit:AppThemeResource Primary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           WidthRequest="48"
+                           HeightRequest="48"/>
+    </Grid>
+
+    </Grid>
 </ContentPage>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.Demo.ReclamarDemoPage"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+
+    <Grid>
+        <BoxView BackgroundColor="{toolkit:AppThemeResource Primary}"
+                 HeightRequest="60"
+                 VerticalOptions="Start"/>
+
+        <Frame Margin="24,40,24,24"
+               CornerRadius="16"
+               Padding="32"
+               BackgroundColor="{toolkit:AppThemeResource Alternate}"
+               HasShadow="True"
+               VerticalOptions="Center">
+            <StackLayout Spacing="0">
+
+                <!-- Ícono de estado -->
+                <Grid HorizontalOptions="Center" Margin="0,0,0,32">
+
+                    <!-- Cargando -->
+                    <ActivityIndicator x:Name="LoadingIndicator"
+                                       IsRunning="True"
+                                       IsVisible="True"
+                                       Color="{toolkit:AppThemeResource Primary}"
+                                       WidthRequest="80"
+                                       HeightRequest="80"/>
+
+                    <!-- Éxito -->
+                    <Frame x:Name="SuccessIcon"
+                           IsVisible="False"
+                           WidthRequest="90"
+                           HeightRequest="90"
+                           CornerRadius="45"
+                           BackgroundColor="{toolkit:AppThemeResource Primary}"
+                           Padding="0"
+                           HorizontalOptions="Center"
+                           HasShadow="False">
+                        <Label Text="✓"
+                               FontSize="44"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                    <!-- Error -->
+                    <Frame x:Name="ErrorIcon"
+                           IsVisible="False"
+                           WidthRequest="90"
+                           HeightRequest="90"
+                           CornerRadius="45"
+                           BackgroundColor="#E53935"
+                           Padding="0"
+                           HorizontalOptions="Center"
+                           HasShadow="False">
+                        <Label Text="✕"
+                               FontSize="44"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"/>
+                    </Frame>
+
+                </Grid>
+
+                <!-- Título -->
+                <Label x:Name="TituloLabel"
+                       Text="Activando créditos..."
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,12"/>
+
+                <!-- Subtítulo -->
+                <Label x:Name="MensajeLabel"
+                       Text="Por favor espera un momento."
+                       FontSize="15"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,8"/>
+
+                <!-- RFC (visible solo en éxito) -->
+                <StackLayout x:Name="RfcPanel"
+                             IsVisible="False"
+                             Spacing="2"
+                             Margin="0,16,0,32">
+                    <Label Text="Créditos otorgados a"
+                           FontSize="13"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                    <Label x:Name="RfcLabel"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"/>
+                </StackLayout>
+
+                <!-- Botón Continuar -->
+                <Button x:Name="ContinuarBtn"
+                        Text="Continuar"
+                        IsVisible="False"
+                        BackgroundColor="#EEEEEE"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontSize="16"
+                        CornerRadius="12"
+                        HeightRequest="52"
+                        Clicked="OnContinuarClicked"/>
+
+            </StackLayout>
+        </Frame>
+    </Grid>
+
+</ContentPage>

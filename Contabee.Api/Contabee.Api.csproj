@@ -18,6 +18,11 @@
 		  <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>
 		  <Options>/GenerateExceptionClasses:false</Options>
 	  </OpenApiReference>
+	  <OpenApiReference Include="swagger\ServicioEcommerce.json">
+		  <Namespace>Contabee.Api.Ecommerce</Namespace>
+		  <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>
+		  <Options>/GenerateExceptionClasses:false</Options>
+	  </OpenApiReference>
 	  <OpenApiReference Include="swagger\ServicioTranscript.json">
 		  <Namespace>Contabee.Api.Transcript</Namespace>
 		  <Options>/AdditionalNamespaceUsages:Contabee.Api</Options>

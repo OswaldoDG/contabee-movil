@@ -16,7 +16,10 @@ public interface IServicioSesion
     Task<DateTime?> LeeExpiracionAsync();
     Task GetPerfilAsync();
     Task GetAsociacionesFiscalesAsync();
+    Task GetLicenciaAsync();
+    Task GetMisUsuariosAsync();
     Task GetTarjetasAsync();
     Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas);
     Task PosLoginAsync();
+    Task CerrarSesionAsync();
 }
