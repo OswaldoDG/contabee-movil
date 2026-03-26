@@ -184,7 +184,7 @@ namespace ContaBeeMovil
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await _servicioAlerta.MostrarAsync("Configuración", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
+            await Shell.Current.GoToAsync(nameof(ConfiguracionPage));
         }
 
         private async void OnDiagnosticoClicked(object? sender, EventArgs e)
@@ -227,6 +227,8 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
+            Routing.RegisterRoute(nameof(ConfiguracionPage), typeof(ConfiguracionPage));
+            Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));

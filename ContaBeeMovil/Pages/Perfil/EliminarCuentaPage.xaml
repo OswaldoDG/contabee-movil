@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.Perfil.EliminarCuentaPage"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Title="Eliminar cuenta"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
+
+    <Grid>
+
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="12">
+
+                <!-- Ícono de advertencia -->
+                <Label Text="{x:Static f:FluentUI.warning_24_regular}"
+                       FontFamily="{x:Static f:FluentUI.FontFamily}"
+                       FontSize="56"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       HorizontalOptions="Center"
+                       Margin="0,16,0,0" />
+
+                <!-- Título -->
+                <Label Text="Eliminar cuenta permanentemente"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+
+                <!-- Descripción -->
+                <Label Text="Esta acción es permanente e irreversible. Tu cuenta, datos fiscales y toda la información asociada serán eliminados. No podrás recuperarlos."
+                       FontSize="14"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Margin="0,0,0,8" />
+
+                <!-- Contraseña -->
+                <Frame HasShadow="False"
+                       BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                       CornerRadius="12"
+                       Padding="0"
+                       Margin="0,6,0,0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="14">
+                        <Entry x:Name="ContrasenaEntry"
+                               Grid.Column="0"
+                               Placeholder="Contraseña"
+                               IsPassword="True"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="16"
+                               TextChanged="OnCampoTextChanged" />
+                        <mi:MauiIcon x:Name="ToggleContrasena"
+                                     Grid.Column="1"
+                                     Icon="{mi:Material Icon=Visibility}"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconSize="25"
+                                     VerticalOptions="Center"
+                                     BackgroundColor="Transparent">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnToggleContrasenaClicked" />
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                    </Grid>
+                </Frame>
+
+                <!-- Confirmar contraseña -->
+                <Frame HasShadow="False"
+                       BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                       CornerRadius="12"
+                       Padding="0"
+                       Margin="0,6,0,0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="14">
+                        <Entry x:Name="ConfirmarContrasenaEntry"
+                               Grid.Column="0"
+                               Placeholder="Confirmar contraseña"
+                               IsPassword="True"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="16"
+                               TextChanged="OnCampoTextChanged" />
+                        <mi:MauiIcon x:Name="ToggleConfirmar"
+                                     Grid.Column="1"
+                                     Icon="{mi:Material Icon=Visibility}"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconSize="25"
+                                     VerticalOptions="Center"
+                                     BackgroundColor="Transparent">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnToggleConfirmarClicked" />
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                    </Grid>
+                </Frame>
+
+                <!-- Error inline -->
+                <Label x:Name="ErrorLabel"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       FontSize="13"
+                       Margin="6,0,0,0"
+                       IsVisible="False" />
+
+                <!-- Botón eliminar -->
+                <Button x:Name="BtnEliminar"
+                        Text="Eliminar mi cuenta"
+                        BackgroundColor="{toolkit:AppThemeResource Disabled}"
+                        TextColor="White"
+                        CornerRadius="14"
+                        HeightRequest="52"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        IsEnabled="False"
+                        Clicked="OnEliminarClicked"
+                        HorizontalOptions="Fill"
+                        Margin="0,18,0,24" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Overlay de carga -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="False"
+              BackgroundColor="{toolkit:AppThemeResource Shadow}"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

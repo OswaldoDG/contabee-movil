@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services;
@@ -180,6 +181,8 @@ public class LoginViewModel : INotifyPropertyChanged
             await _servicioSesion.GuardaExpiracionAsync(
                 DateTime.Now.AddSeconds(resultado.Payload.ExpiresIn));
 
+            await _servicioSesion.GuardaEmailAsync(Email);
+
             await _servicioSesion.PosLoginAsync();
 
             // Transition animation
@@ -197,10 +200,20 @@ public class LoginViewModel : INotifyPropertyChanged
             // Guardar estado del checkbox en AppState
             AppState.Instance.Recordarme = Recordarme;
 
-            await _servicioSesion.GuardaEmailAsync(Email);
+            var tieneCuentasFiscales =
+                AppState.Instance.CuentasFiscales != null &&
+                AppState.Instance.CuentasFiscales.Count > 0;
 
-            var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-            Application.Current!.Windows[0].Page =shell;
+            if (tieneCuentasFiscales)
+            {
+                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                Application.Current!.Windows[0].Page = shell;
+            }
+            else
+            {
+                var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
+                Application.Current!.Windows[0].Page = registrarPage;
+            }
         }
         catch (Exception ex)
         {

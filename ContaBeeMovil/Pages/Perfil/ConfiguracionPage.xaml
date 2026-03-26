@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.Perfil.ConfiguracionPage"
+             Title="Configuración"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
+    <Grid RowDefinitions="*,Auto" Padding="16,20">
+
+        <!-- ── Contenido superior (scroll si crece) ── -->
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Spacing="8">
+
+                <Label Text="Cuenta"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   Margin="4,0,0,4" />
+
+                <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCambiarContrasenaClicked" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                        <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                        <Label Grid.Column="1"
+                           Text="{x:Static f:FluentUI.key_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Cambiar contraseña"
+                               Style="{StaticResource Body1}" />
+                            <Label Text="Actualiza tu contraseña de acceso"
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="3"
+                           Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="16"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Agrega más opciones aquí y se mantendrán arriba -->
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ── Zona de peligro (siempre al fondo) ── -->
+        <VerticalStackLayout Grid.Row="1" Spacing="8" Padding="0,12,0,0">
+
+            <BoxView Style="{StaticResource Divider}" />
+
+            <Label Text="Zona de peligro"
+               FontSize="13"
+               FontAttributes="Bold"
+               TextColor="{toolkit:AppThemeResource Error}"
+               Margin="4,0,0,4" />
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnEliminarCuentaClicked" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                    <BoxView Grid.Column="0"
+                         BackgroundColor="{toolkit:AppThemeResource Error}"
+                         WidthRequest="4" CornerRadius="2"
+                         VerticalOptions="Fill" />
+                    <Label Grid.Column="1"
+                       Text="{x:Static f:FluentUI.delete_24_regular}"
+                       FontFamily="{x:Static f:FluentUI.FontFamily}"
+                       FontSize="22"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Eliminar cuenta"
+                           Style="{StaticResource Body1}"
+                           TextColor="{toolkit:AppThemeResource Error}" />
+                        <Label Text="Esta acción es permanente e irreversible"
+                           FontSize="12"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </VerticalStackLayout>
+                    <Label Grid.Column="3"
+                       Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                       FontFamily="{x:Static f:FluentUI.FontFamily}"
+                       FontSize="16"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

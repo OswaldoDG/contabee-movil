@@ -159,7 +159,7 @@
 
                     <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnContrasenaClicked" />
+                            <TapGestureRecognizer Tapped="OnConfiguracionClicked" />
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
                             <BoxView Grid.Column="0"
@@ -167,12 +167,12 @@
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
                             <Label Grid.Column="1"
-                                   Text="{x:Static f:FluentUI.key_24_regular}"
+                                   Text="{x:Static f:FluentUI.settings_24_regular}"
                                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                                    FontSize="22"
                                    TextColor="{toolkit:AppThemeResource Icon}"
                                    VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="Contraseña"
+                            <Label Grid.Column="2" Text="Configuración"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="3"
