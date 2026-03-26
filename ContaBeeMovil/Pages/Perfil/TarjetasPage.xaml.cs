@@ -22,6 +22,12 @@ public partial class TarjetasPage : ContentPage
                                   / DeviceDisplay.MainDisplayInfo.Density;
     private const double CardRatio = 1.9;
 
+    private static readonly PopupOptions _popupOpts = new()
+    {
+        PageOverlayColor = Color.FromArgb("#66000000"),
+        CanBeDismissedByTappingOutsideOfPopup = false,
+    };
+
     public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta)
     {
         InitializeComponent();
