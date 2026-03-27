@@ -17,11 +17,11 @@
                    Margin="0,16,0,0" />
 
             <!-- Contraseña actual -->
-            <Frame HasShadow="False"
-                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                   CornerRadius="12"
-                   Padding="0"
-                   Margin="0,6,0,0">
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                    Padding="0"
+                    Margin="0,6,0,0">
                 <Grid ColumnDefinitions="*,Auto" Padding="14">
                     <Entry x:Name="ContrasenaActualEntry"
                            Grid.Column="0"
@@ -43,14 +43,14 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Nueva contraseña -->
-            <Frame HasShadow="False"
-                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                   CornerRadius="12"
-                   Padding="0"
-                   Margin="0,6,0,0">
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                    Padding="0"
+                    Margin="0,6,0,0">
                 <Grid ColumnDefinitions="*,Auto" Padding="14">
                     <Entry x:Name="NuevaContrasenaEntry"
                            Grid.Column="0"
@@ -72,14 +72,14 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Confirmar contraseña -->
-            <Frame HasShadow="False"
-                   BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                   CornerRadius="12"
-                   Padding="0"
-                   Margin="0,6,0,0">
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                    Padding="0"
+                    Margin="0,6,0,0">
                 <Grid ColumnDefinitions="*,Auto" Padding="14">
                     <Entry x:Name="ConfirmarContrasenaEntry"
                            Grid.Column="0"
@@ -101,7 +101,7 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Error: contraseñas no coinciden -->
             <Label x:Name="ErrorCoincidenciaLabel"

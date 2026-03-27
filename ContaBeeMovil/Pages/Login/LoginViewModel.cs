@@ -52,15 +52,13 @@ public class LoginViewModel : INotifyPropertyChanged
         _recordarme = AppState.Instance.Recordarme;
         OnPropertyChanged(nameof(Recordarme));
 
-        if (_recordarme)
+        // Siempre cargar el email guardado si existe, independientemente del checkbox
+        var email = await _servicioSesion.LeeEmailAsync();
+        if (!string.IsNullOrEmpty(email))
         {
-            var email = await _servicioSesion.LeeEmailAsync();
-            if (!string.IsNullOrEmpty(email))
-            {
-                _email = email;
-                OnPropertyChanged(nameof(Email));
-                ((Command)IngresarCommand).ChangeCanExecute();
-            }
+            _email = email;
+            OnPropertyChanged(nameof(Email));
+            ((Command)IngresarCommand).ChangeCanExecute();
         }
     }
 
@@ -215,7 +213,7 @@ public class LoginViewModel : INotifyPropertyChanged
                 Application.Current!.Windows[0].Page = registrarPage;
             }
         }
-        catch (Exception ex)
+        catch 
         {
            // _ = _notificacion.MostrarErrorAsync($"Error al iniciar sesión: {ex.Message}");
 

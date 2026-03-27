@@ -25,5 +25,26 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         }
         return r;
     }
+
+    public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, string dispositivoId, string productoTiendaId, string transaccionId, PasarelarPago pasarela)
+    {
+        try
+        {
+            var comprobante = new DtoComprobanteCompra
+            {
+                CuentaFiscalId = cuentaFiscalId.ToString(),
+                DispositivoId = dispositivoId,
+                PasarelarPago = pasarela,
+                PasarelaId = transaccionId,
+                ProductoTiendaId = productoTiendaId,
+            };
+            await servicioEcommerce.VerificarAsync(cuentaFiscalId, comprobante);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
 

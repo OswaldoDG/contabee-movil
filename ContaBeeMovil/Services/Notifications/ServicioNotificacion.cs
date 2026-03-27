@@ -56,7 +56,7 @@ public class ServicioNotificacion : IServicioNotificacion
     {
         var popup = new CustomToast(mensaje);
         // PageExtensions.ShowPopup es un método del Toolkit
-        await Application.Current.MainPage.ShowPopupAsync(popup);
+        await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
     }
 
     private static (bool isDark, Application? app) ObtenerTema()

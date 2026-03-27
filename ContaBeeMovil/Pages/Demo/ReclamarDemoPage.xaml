@@ -11,12 +11,15 @@
                  HeightRequest="60"
                  VerticalOptions="Start"/>
 
-        <Frame Margin="24,40,24,24"
-               CornerRadius="16"
-               Padding="32"
-               BackgroundColor="{toolkit:AppThemeResource Alternate}"
-               HasShadow="True"
-               VerticalOptions="Center">
+        <Border Margin="24,40,24,24"
+                StrokeShape="RoundRectangle 16"
+                Stroke="Transparent"
+                Padding="32"
+                BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                VerticalOptions="Center">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.2"/>
+            </Border.Shadow>
             <StackLayout Spacing="0">
 
                 <!-- Ícono de estado -->
@@ -31,38 +34,38 @@
                                        HeightRequest="80"/>
 
                     <!-- Éxito -->
-                    <Frame x:Name="SuccessIcon"
-                           IsVisible="False"
-                           WidthRequest="90"
-                           HeightRequest="90"
-                           CornerRadius="45"
-                           BackgroundColor="{toolkit:AppThemeResource Primary}"
-                           Padding="0"
-                           HorizontalOptions="Center"
-                           HasShadow="False">
+                    <Border x:Name="SuccessIcon"
+                            IsVisible="False"
+                            WidthRequest="90"
+                            HeightRequest="90"
+                            StrokeShape="RoundRectangle 45"
+                            Stroke="Transparent"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            Padding="0"
+                            HorizontalOptions="Center">
                         <Label Text="✓"
                                FontSize="44"
                                TextColor="White"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
-                    </Frame>
+                    </Border>
 
                     <!-- Error -->
-                    <Frame x:Name="ErrorIcon"
-                           IsVisible="False"
-                           WidthRequest="90"
-                           HeightRequest="90"
-                           CornerRadius="45"
-                           BackgroundColor="#E53935"
-                           Padding="0"
-                           HorizontalOptions="Center"
-                           HasShadow="False">
+                    <Border x:Name="ErrorIcon"
+                            IsVisible="False"
+                            WidthRequest="90"
+                            HeightRequest="90"
+                            StrokeShape="RoundRectangle 45"
+                            Stroke="Transparent"
+                            BackgroundColor="#E53935"
+                            Padding="0"
+                            HorizontalOptions="Center">
                         <Label Text="✕"
                                FontSize="44"
                                TextColor="White"
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
-                    </Frame>
+                    </Border>
 
                 </Grid>
 
@@ -115,7 +118,7 @@
                         Clicked="OnContinuarClicked"/>
 
             </StackLayout>
-        </Frame>
+        </Border>
     </Grid>
 
 </ContentPage>

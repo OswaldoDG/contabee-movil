@@ -19,15 +19,15 @@ namespace ContaBeeMovil.Services.Notifications;
             Content.Opacity = 0;
 
             await Task.WhenAll(
-                Content.TranslateTo(0, 0, 400, Easing.CubicOut),
-                Content.FadeTo(1, 400, Easing.Linear)
+                Content.TranslateToAsync(0, 0, 400, Easing.CubicOut),
+                Content.FadeToAsync(1, 400, Easing.Linear)
             );
 
             await Task.Delay(3000);
 
             await Task.WhenAll(
-                Content.TranslateTo(0, 100, 300, Easing.CubicIn),
-                Content.FadeTo(0, 300, Easing.Linear)
+                Content.TranslateToAsync(0, 100, 300, Easing.CubicIn),
+                Content.FadeToAsync(0, 300, Easing.Linear)
             );
 
             await CloseAsync();
@@ -35,7 +35,7 @@ namespace ContaBeeMovil.Services.Notifications;
 
         private async void OnCloseClicked(object? sender, EventArgs e)
         {
-            await Content!.FadeTo(0, 200);
+            await Content!.FadeToAsync(0, 200);
             await CloseAsync();
         }
     }

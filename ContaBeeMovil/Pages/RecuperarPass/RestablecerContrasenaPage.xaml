@@ -45,11 +45,11 @@
                    Margin="0,8,0,16" />
 
             <!-- Nueva contraseña -->
-            <Frame HasShadow="False"
-                   BackgroundColor="Transparent"
-                   CornerRadius="12"
-                   Padding="0"
-                   Margin="0,6,0,0">
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="Transparent"
+                    Padding="0"
+                    Margin="0,6,0,0">
                 <Grid ColumnDefinitions="*,Auto" Padding="14">
                     <Entry x:Name="NuevaContrasenaEntry"
                            Grid.Column="0"
@@ -72,14 +72,14 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Confirmar contraseña -->
-            <Frame HasShadow="False"
-                   BackgroundColor="Transparent"
-                   CornerRadius="12"
-                   Padding="0"
-                   Margin="0,6,0,0">
+            <Border StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    BackgroundColor="Transparent"
+                    Padding="0"
+                    Margin="0,6,0,0">
                 <Grid ColumnDefinitions="*,Auto" Padding="14">
                     <Entry x:Name="ConfirmarContrasenaEntry"
                            Grid.Column="0"
@@ -102,7 +102,7 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- Error: contraseñas no coinciden -->
             <Label x:Name="ErrorCoincidenciaLabel"
