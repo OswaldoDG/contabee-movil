@@ -29,10 +29,10 @@
                        HorizontalOptions="Center"
                        SemanticProperties.Description="ContaBee logo" />
 
-                <Label Text="CONTABEE"
-                       Style="{StaticResource Title1}"
-                       HorizontalOptions="Center"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Image Source="{AppThemeBinding Light=contabeenombreligth.png, Dark=contabeenombredark.png}"
+                       HeightRequest="36"
+                       Aspect="AspectFit"
+                       HorizontalOptions="Center" />
 
                 <Label Text="Bienvenido de nuevo"
                        Style="{StaticResource Body1}"
