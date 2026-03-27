@@ -41,11 +41,11 @@
                        Margin="0,0,0,8" />
 
                 <!-- Contraseña -->
-                <Frame HasShadow="False"
-                       BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                       CornerRadius="12"
-                       Padding="0"
-                       Margin="0,6,0,0">
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="0"
+                        Margin="0,6,0,0">
                     <Grid ColumnDefinitions="*,Auto" Padding="14">
                         <Entry x:Name="ContrasenaEntry"
                                Grid.Column="0"
@@ -67,14 +67,14 @@
                             </mi:MauiIcon.GestureRecognizers>
                         </mi:MauiIcon>
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- Confirmar contraseña -->
-                <Frame HasShadow="False"
-                       BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                       CornerRadius="12"
-                       Padding="0"
-                       Margin="0,6,0,0">
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="0"
+                        Margin="0,6,0,0">
                     <Grid ColumnDefinitions="*,Auto" Padding="14">
                         <Entry x:Name="ConfirmarContrasenaEntry"
                                Grid.Column="0"
@@ -96,7 +96,7 @@
                             </mi:MauiIcon.GestureRecognizers>
                         </mi:MauiIcon>
                     </Grid>
-                </Frame>
+                </Border>
 
                 <!-- Error inline -->
                 <Label x:Name="ErrorLabel"

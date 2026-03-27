@@ -310,11 +310,11 @@ public partial class FiltrosFacturasView : ContentView
         if (_expandido)
         {
             PanelFiltros.IsVisible = true;
-            await PanelFiltros.FadeTo(1, 200);
+            await PanelFiltros.FadeToAsync(1, 200);
         }
         else
         {
-            await PanelFiltros.FadeTo(0, 150);
+            await PanelFiltros.FadeToAsync(0, 150);
             PanelFiltros.IsVisible = false;
         }
     }
@@ -332,7 +332,7 @@ public partial class FiltrosFacturasView : ContentView
     {
         if (bindable is FiltrosFacturasView view)
         {
-            view.PickerCreador.ItemsSource = (System.Collections.IList)(newValue as IList<string>);
+            view.PickerCreador.ItemsSource = (System.Collections.IList?)(newValue as IList<string>);
             if (view.PickerCreador.ItemsSource?.Count > 0)
                 view.PickerCreador.SelectedIndex = -1;
         }

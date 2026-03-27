@@ -2,18 +2,110 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:local="clr-namespace:ContaBeeMovil.Pages.Tienda"
              x:Class="ContaBeeMovil.Pages.Tienda.TiendaPage"
              Title="Tienda"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
 
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="Tienda"
-               Style="{StaticResource Title2}"
-               HorizontalOptions="Center" />
-        <Label Text="Próximamente"
-               Style="{StaticResource Body1}"
-               TextColor="{toolkit:AppThemeResource SecondaryText}"
-               HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Grid>
+
+        <Grid RowDefinitions="Auto,*">
+
+            <!-- Banner: productos aún no disponibles en tienda --><!--
+            <Border x:Name="BannerProximamente"
+                    Grid.Row="0"
+                    IsVisible="False"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    Padding="16,10"
+                    Margin="0">
+                <Label Text="Compras próximamente disponibles en esta tienda. Los precios mostrados son de referencia."
+                       Style="{StaticResource Body1}"
+                       TextColor="#1a1a1a"
+                       HorizontalTextAlignment="Center"/>
+            </Border>-->
+
+            <!-- Lista de créditos -->
+            <CollectionView x:Name="ListaProductos"
+                            Grid.Row="1"
+                            SelectionMode="None"
+                            BackgroundColor="{toolkit:AppThemeResource Accent1}"                            >
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="2"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:ProductoIAPModel">
+                        <Border Stroke="Transparent"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="10,10,10,10"
+                                Margin="10,10"
+                                HorizontalOptions="Fill"
+                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                            <Border.Shadow>
+                                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                                        Offset="0,4" Radius="12" Opacity="0.45"/>
+                            </Border.Shadow>
+
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+
+                                <Label Grid.Row="0" Grid.Column="0"
+                                       Text="{Binding Nombre}"
+                                       Style="{StaticResource Body1Strong}"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       FontAttributes="Bold"/>
+
+                                <Label Grid.Row="1" Grid.Column="0"
+                                       Text="{Binding Unidades, StringFormat='{0} créditos de captura'}"
+                                       Style="{StaticResource Body1}"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"/>
+
+                                <Label Grid.Row="2" Grid.Column="0"
+                                       Text="{Binding PrecioTexto}"
+                                       Style="{StaticResource Body1Strong}"
+                                       TextColor="{toolkit:AppThemeResource Primary}"
+                                       FontSize="18"/>
+
+                                <Button Grid.Row="0" Grid.Column="1"
+                                        Grid.RowSpan="3"
+                                        Text="Comprar"
+                                        IsEnabled="{Binding DisponibleEnTienda}"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        TextColor="#1a1a1a"
+                                        CornerRadius="12"
+                                        Padding="16,10"
+                                        VerticalOptions="Center"
+                                        CommandParameter="{Binding .}"
+                                        Clicked="OnComprarClicked"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="32"
+                             Color="Transparent"/>
+                </CollectionView.Footer>
+
+            </CollectionView>
+
+        </Grid>
+
+        <!-- Overlay de carga — al final para quedar encima del contenido -->
+        <Grid x:Name="LoadingOverlay"
+              IsVisible="True"
+              BackgroundColor="{toolkit:AppThemeResource Background}"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
 
 </ContentPage>

@@ -15,7 +15,7 @@ public class ServicioAlerta : IServicioAlerta
         string confirmarText = "Si")
     {
         var popup = new AlertaPopup(titulo, mensaje, verBotonCancelar, verBotonConfirmar, cancelarText, confirmarText);
-        await Application.Current!.MainPage!.ShowPopupAsync(popup);
+        await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
         return popup.Confirmado;
     }
 }

@@ -48,13 +48,13 @@ public partial class RfcCpBarView : ContentView
 
     private async void OnRfcButtonTapped(object? sender, TappedEventArgs e)
     {
-        var page = Shell.Current as Page ?? Application.Current!.MainPage!;
+        var page = Shell.Current as Page ?? Application.Current!.Windows[0].Page!;
         await page.ShowPopupAsync(new CuentaFiscalSelectorPopup());
     }
 
     private async void OnCpButtonTapped(object? sender, TappedEventArgs e)
     {
-        var page = Shell.Current as Page ?? Application.Current!.MainPage!;
+        var page = Shell.Current as Page ?? Application.Current!.Windows[0].Page!;
         await page.ShowPopupAsync(new DireccionFiscalSelectorPopup());
     }
 }

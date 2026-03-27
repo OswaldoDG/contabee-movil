@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using ContaBeeMovil.Helpers;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
 
 namespace ContaBeeMovil.Services.Notifications;
 
@@ -126,14 +127,14 @@ public class ToastService : IToastService
         };
 
         // Icono de tipo (círculo con símbolo)
-        var iconFrame = new Frame
+        var iconFrame = new Border
         {
             BackgroundColor = Colors.Black,
-            CornerRadius = 14,
+            StrokeShape = new RoundRectangle { CornerRadius = 14 },
+            Stroke = Colors.Transparent,
             WidthRequest = 28,
             HeightRequest = 28,
             Padding = 0,
-            HasShadow = false,
             VerticalOptions = LayoutOptions.Center,
             Content = new Label
             {

@@ -21,6 +21,7 @@ using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.IAP;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Material;
 using Microsoft.Extensions.Logging;
@@ -75,6 +76,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioAlerta, ServicioAlerta>();
             builder.Services.AddSingleton(AppState.Instance);
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
+            builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddTransient<AuthHandler>();
 
             // Cliente sin AuthHandler para el endpoint de refresh token
@@ -97,6 +99,11 @@ namespace ContaBeeMovil
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript/");
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+            }).AddHttpMessageHandler<AuthHandler>();
+            builder.Services.AddHttpClient<IServicioEcommerce, ServicioEcommerce>(client =>
+            {
+                client.BaseAddress = new Uri("https://api.contabee.mx/api/ecommerce/");
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
 
