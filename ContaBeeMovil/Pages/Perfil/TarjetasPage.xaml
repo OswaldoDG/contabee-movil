@@ -9,7 +9,8 @@
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
-             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}">
+             Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
+             Shell.TabBarIsVisible="False">
 
     <Grid x:Name="RootGrid">
 

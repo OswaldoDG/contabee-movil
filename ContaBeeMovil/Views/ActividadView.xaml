@@ -8,12 +8,11 @@
              x:Class="ContaBeeMovil.Views.ActividadView"
              x:DataType="vm:DashboardViewModel">
 
-    <ScrollView>
+    <ScrollView VerticalOptions="Start">
         <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
                 Stroke="Transparent"
                 StrokeShape="RoundRectangle 20"
                 Margin="12,12,12,12"
-                MinimumHeightRequest="420"
                 Padding="14">
             <Border.Triggers>
                 <DataTrigger TargetType="Border"
@@ -85,6 +84,24 @@
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
+
+                <!-- Banner: sin actividad registrada -->
+                <Border IsVisible="{Binding SinActividad}"
+                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12,8">
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <mi:MauiIcon Icon="{mi:Material Icon=InfoOutline}"
+                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                     IconSize="18"
+                                     VerticalOptions="Center" />
+                        <Label Text="Aún no tienes actividad registrada"
+                               FontSize="13"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
 
                 <!-- Total Facturado -->
                 <Border BackgroundColor="White"
@@ -191,7 +208,8 @@
                 </Border>
 
                 <!-- Gráfica de actividad -->
-                <Border BackgroundColor="White"
+                <Border IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
+                        BackgroundColor="White"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="2,2,2,2">

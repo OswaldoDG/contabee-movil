@@ -6,7 +6,8 @@
              xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.Sugerencias.SugerenciasPage"
              BackgroundColor="{toolkit:AppThemeResource Background}"
-             Title="Buzón de sugerencias">
+             Title="Buzón de sugerencias"
+             Shell.TabBarIsVisible="False">
     <Grid>
     <ScrollView>
         <VerticalStackLayout Padding="24" Spacing="12">
