@@ -8,7 +8,7 @@
              x:DataType="vm:DashboardViewModel"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Banner: reclamar créditos demo -->
         <Border Grid.Row="0"
@@ -49,8 +49,6 @@
         </Border>
 
         <views:ActividadView Grid.Row="1" />
-
-        <views:RfcCpBarView Grid.Row="2" />
 
     </Grid>
 

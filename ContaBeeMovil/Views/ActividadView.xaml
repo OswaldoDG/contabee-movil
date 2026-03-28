@@ -104,7 +104,7 @@
                 </Border>
 
                 <!-- Total Facturado -->
-                <Border BackgroundColor="White"
+                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="16,8">
@@ -126,7 +126,7 @@
                 </Border>
 
                 <!-- Créditos Restantes -->
-                <Border BackgroundColor="White"
+                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="16,8"
@@ -145,7 +145,7 @@
                 </Border>
 
                 <!-- Emitidas / Declinadas / Pendientes -->
-                <Border BackgroundColor="White"
+                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="16,8">
@@ -209,7 +209,7 @@
 
                 <!-- Gráfica de actividad -->
                 <Border IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
-                        BackgroundColor="White"
+                        BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="2,2,2,2">

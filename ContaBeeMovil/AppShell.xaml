@@ -6,15 +6,10 @@
     xmlns:f="clr-namespace:Fonts"
     xmlns:pages="clr-namespace:ContaBeeMovil.Pages"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     Shell.FlyoutBehavior="Flyout"
     Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
     Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
     Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
-    Shell.TabBarBackgroundColor="{toolkit:AppThemeResource Primary}"
-    Shell.TabBarForegroundColor="White"
-    Shell.TabBarUnselectedColor="#AAFFFFFF"
-    Shell.TabBarTitleColor="White"
     Title="ContaBee">
 
     <!-- ══════════════════════════════════════════ -->
@@ -308,26 +303,10 @@
     </Shell.FlyoutContent>
 
     <!-- ══════════════════════════════════════════ -->
-    <!--  TABS DE NAVEGACIÓN INFERIOR               -->
+    <!--  CONTENIDO PRINCIPAL — custom TabBar       -->
     <!-- ══════════════════════════════════════════ -->
-    <TabBar>
-        <ShellContent
-            Title="Inicio"
-            Icon="{mi:Material Icon=Home}"
-            ContentTemplate="{DataTemplate pages:DashboardPage}"
-            Route="dashboard" />
-
-        <ShellContent
-            Title="Facturación"
-            Icon="{mi:Material Icon=Receipt}"
-            ContentTemplate="{DataTemplate pages:FacturacionPage}"
-            Route="facturacion" />
-
-        <!--<ShellContent
-            Title="Equipo"
-            Icon="{mi:Material Icon=Group}"
-            ContentTemplate="{DataTemplate pages:EquipoPage}"
-            Route="equipo" />-->
-    </TabBar>
+    <ShellContent
+        Route="main"
+        ContentTemplate="{DataTemplate pages:MainTabbedPage}" />
 
 </Shell>

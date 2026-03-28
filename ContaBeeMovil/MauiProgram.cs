@@ -124,6 +124,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
+            builder.Services.AddTransient<MainTabbedPage>();
 
             builder.Services.AddTransient<RegistroViewModel>();
             builder.Services.AddTransient<PaginaRegistro>();
