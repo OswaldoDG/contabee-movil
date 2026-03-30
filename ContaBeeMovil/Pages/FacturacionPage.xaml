@@ -8,7 +8,7 @@
              Title="Facturación"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Controles de consulta -->
         <VerticalStackLayout Grid.Row="0">
@@ -78,9 +78,6 @@
             </Border>
 
         </Grid>
-
-        <!-- Barra RFC/CP -->
-        <views:RfcCpBarView Grid.Row="2" />
 
     </Grid>
 

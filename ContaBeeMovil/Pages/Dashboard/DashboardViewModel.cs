@@ -16,8 +16,9 @@ public class DashboardViewModel : INotifyPropertyChanged
 {
     private readonly IServicioTranscript _servicioTranscript;
 
-    private const string CacheDataKey      = "Dashboard_Actividad_Data";
-    private const string CacheTimestampKey = "Dashboard_Actividad_Timestamp";
+    private const string CacheDataKey        = "Dashboard_Actividad_Data";
+    private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
+    private const string CacheSinActividadKey = "Dashboard_Actividad_SinDatos";
 
     private int _mes;
     private int _anio;
@@ -28,6 +29,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private int _pendientes;
     private bool _estaCargando;
     private bool _tieneError;
+    private bool _sinActividad;
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
@@ -47,7 +49,10 @@ public class DashboardViewModel : INotifyPropertyChanged
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
+            {
                 OnPropertyChanged(nameof(PuedeReclamarDemo));
+                _ = CargarEstadisticasAsync(forzarActualizacion: true);
+            }
         };
     }
 
@@ -144,6 +149,12 @@ public class DashboardViewModel : INotifyPropertyChanged
         set { _datosGrafica = value; OnPropertyChanged(); }
     }
 
+    public bool SinActividad
+    {
+        get => _sinActividad;
+        set { _sinActividad = value; OnPropertyChanged(); }
+    }
+
     #endregion
 
     public bool PuedeReclamarDemo =>
@@ -218,7 +229,8 @@ public class DashboardViewModel : INotifyPropertyChanged
             var cached = LeerCache();
             if (cached != null)
             {
-                TieneError = false;
+                TieneError   = false;
+                SinActividad = Preferences.Default.Get(CacheSinActividadKey, false);
                 AplicarDatos(cached);
                 return;
             }
@@ -233,16 +245,36 @@ public class DashboardViewModel : INotifyPropertyChanged
             var resultado = await _servicioTranscript.GetEstadisticas(cfid.Value, _anio, _mes);
             if (!resultado.Ok || resultado.Payload == null)
             {
-                TieneError   = true;
-                MensajeError = "No se pudieron cargar los datos.\nVerifica tu conexión e intenta de nuevo.";
+                var errorMsg = resultado.Error?.Mensaje ?? string.Empty;
+                if (errorMsg.Contains("CRM-LIC-INEXISTENTE", StringComparison.OrdinalIgnoreCase))
+                {
+                    var datosVacios = new ResumenCapturaCuentaFiscal { Ano = _anio, Mes = _mes };
+                    SinActividad = true;
+                    TieneError   = false;
+                    AplicarDatos(datosVacios);
+                    if (esMesActual)
+                    {
+                        GuardarCache(datosVacios);
+                        Preferences.Default.Set(CacheSinActividadKey, true);
+                    }
+                }
+                else
+                {
+                    TieneError   = true;
+                    MensajeError = "No se pudieron cargar los datos.\nVerifica tu conexión e intenta de nuevo.";
+                }
                 return;
             }
 
-            TieneError = false;
+            SinActividad = false;
+            TieneError   = false;
             AplicarDatos(resultado.Payload);
 
             if (esMesActual)
+            {
                 GuardarCache(resultado.Payload);
+                Preferences.Default.Remove(CacheSinActividadKey);
+            }
         }
         catch (Exception)
         {
@@ -293,6 +325,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     {
         Preferences.Default.Remove(CacheDataKey);
         Preferences.Default.Remove(CacheTimestampKey);
+        Preferences.Default.Remove(CacheSinActividadKey);
     }
 
     // ── Chart ─────────────────────────────────────────────────────────────────

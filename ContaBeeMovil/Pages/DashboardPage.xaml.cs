@@ -18,4 +18,6 @@ public partial class DashboardPage : ContentPage
         base.OnAppearing();
         await _viewModel.LoadDataAsync();
     }
+
+    public async void OnTabActivated() => await _viewModel.LoadDataAsync();
 }
