@@ -15,9 +15,8 @@ public partial class CamaraPage : ContentPage
         InitializeComponent();
         BindingContext = pageModel;
 
-        PickerPersona.Items.Add("Física");
-        PickerPersona.Items.Add("Moral");
-        PickerPersona.SelectedIndex = 0;
+        SelectorPersona.Elementos = new List<string> { "Física", "Moral" };
+        SelectorPersona.IndiceSeleccionado = 0;
     }
 
     private async void BtnProcesar_Clicked(object? sender, EventArgs e)

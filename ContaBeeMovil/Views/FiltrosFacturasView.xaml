@@ -3,112 +3,42 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Views.FiltrosFacturasView">
 
     <Border Style="{StaticResource CardStyle}" Padding="12">
 
         <VerticalStackLayout Spacing="8">
 
-            <!-- Panel de filtros (colapsable) -->
             <VerticalStackLayout x:Name="PanelFiltros" Spacing="8">
 
-                <!-- Fila 1: Año | Mes -->
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Border Grid.Column="0"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerAnio"
-                                Title="Año"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
-                    <Border Grid.Column="1"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerMes"
-                                Title="Mes"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
+                    <views:SelectorFlotante x:Name="SelectorAnio"
+                                            Grid.Column="0"
+                                            Titulo="Año" />
+                    <views:SelectorFlotante x:Name="SelectorMes"
+                                            Grid.Column="1"
+                                            Titulo="Mes" />
                 </Grid>
 
-                <!-- Fila 2: Estado | Creador -->
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Border Grid.Column="0"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerEstado"
-                                Title="Estado"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
-                    <Border Grid.Column="1"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerCreador"
-                                Title="Creador"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
+                    <views:SelectorFlotante x:Name="SelectorEstado"
+                                            Grid.Column="0"
+                                            Titulo="Estado" />
+                    <views:SelectorFlotante x:Name="SelectorCreador"
+                                            Grid.Column="1"
+                                            Titulo="Creador" />
                 </Grid>
 
-                <!-- Fila 3: Envío | Tipo -->
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Border Grid.Column="0"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerEnvio"
-                                Title="Envío"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
-                    <Border Grid.Column="1"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            StrokeShape="RoundRectangle 12"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            Padding="4,0">
-                        <Picker x:Name="PickerTipo"
-                                Title="Tipo"
-                                FontSize="14"
-                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                BackgroundColor="Transparent"
-                                HeightRequest="44" />
-                    </Border>
+                    <views:SelectorFlotante x:Name="SelectorEnvio"
+                                            Grid.Column="0"
+                                            Titulo="Envío" />
+                    <views:SelectorFlotante x:Name="SelectorTipo"
+                                            Grid.Column="1"
+                                            Titulo="Tipo" />
                 </Grid>
 
-                <!-- Fila 4: RFC contiene (ancho completo) -->
                 <Border BackgroundColor="{toolkit:AppThemeResource Background}"
                         StrokeShape="RoundRectangle 12"
                         StrokeThickness="1"
@@ -126,12 +56,10 @@
 
             </VerticalStackLayout>
 
-            <!-- Barra de acción (siempre visible) -->
             <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto"
                   ColumnSpacing="8"
                   VerticalOptions="Center">
 
-                <!-- Etiqueta período actual -->
                 <Label x:Name="LabelPeriodo"
                        Grid.Column="0"
                        Style="{StaticResource Body2Strong}"
@@ -141,7 +69,6 @@
                     </Label.GestureRecognizers>
                 </Label>
 
-                <!-- Botón dirección de orden -->
                 <Border Grid.Column="1"
                         Style="{StaticResource CircleIconButton}"
                         VerticalOptions="Center">
@@ -153,22 +80,10 @@
                            Text="{x:Static f:FluentUI.arrow_sort_down_lines_20_regular}" />
                 </Border>
 
-                <!-- Picker campo de orden -->
-                <Border Grid.Column="2"
-                        BackgroundColor="{toolkit:AppThemeResource Background}"
-                        StrokeShape="RoundRectangle 12"
-                        StrokeThickness="1"
-                        Stroke="{toolkit:AppThemeResource Accent1}"
-                        Padding="4,0"
-                        VerticalOptions="Center">
-                    <Picker x:Name="PickerOrden"
-                            FontSize="13"
-                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                            BackgroundColor="Transparent"
-                            HeightRequest="40" />
-                </Border>
+                <views:SelectorFlotante x:Name="SelectorOrden"
+                                        Grid.Column="2"
+                                        VerticalOptions="Center" />
 
-                <!-- Botón buscar (círculo amarillo) -->
                 <Border Grid.Column="3"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         StrokeShape="RoundRectangle 22"
@@ -188,7 +103,6 @@
                            VerticalOptions="Center" />
                 </Border>
 
-                <!-- Botón expandir/colapsar -->
                 <Border Grid.Column="4"
                         Style="{StaticResource CircleIconButton}"
                         VerticalOptions="Center">

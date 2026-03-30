@@ -3,7 +3,6 @@ using CommunityToolkit.Maui.Views;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 
-
 namespace ContaBeeMovil.Views;
 
 public partial class RfcCpBarView : ContentView
@@ -28,7 +27,6 @@ public partial class RfcCpBarView : ContentView
 
         LabelRfc.Text = GetTextoIzquierda(cuenta);
 
-        // CP: usa DireccionFiscalActual si está seleccionada, si no la primera disponible
         var dir = AppState.Instance.DireccionFiscalActual
                   ?? cuenta?.DireccionesFiscales?.FirstOrDefault();
         LabelCp.Text = string.IsNullOrWhiteSpace(dir?.CodigoPostal) ? "?" : dir.CodigoPostal;

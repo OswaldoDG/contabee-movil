@@ -6,7 +6,7 @@
                CanBeDismissedByTappingOutsideOfPopup="True"
                Background="Transparent" >
 
-    <Border BackgroundColor="White"
+    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
             Stroke="Transparent"
             StrokeShape="RoundRectangle 20"
             Padding="20,24"
@@ -17,13 +17,11 @@
 
         <VerticalStackLayout Spacing="20">
 
-            <!-- Título -->
             <Label Text="Dirección fiscal"
                    HorizontalOptions="Center"
                    FontSize="14"
-                   TextColor="#9e9e9e" />
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
-            <!-- Lista de direcciones -->
             <ScrollView MaximumHeightRequest="340">
                 <VerticalStackLayout x:Name="PanelLista" Spacing="10" />
             </ScrollView>
