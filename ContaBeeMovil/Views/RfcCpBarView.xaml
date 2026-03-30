@@ -10,10 +10,13 @@
 
         <!-- Botón RFC (izquierda) — abre selector -->
         <Border Grid.Column="0"
-                BackgroundColor="{StaticResource OffBlack}"
+                BackgroundColor="{toolkit:AppThemeResource Tertiary}"
                 Stroke="Transparent"
-                StrokeShape="RoundRectangle 24"
+                StrokeShape="RoundRectangle 10"
                 Padding="16,6">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+            </Border.Shadow>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
             </Border.GestureRecognizers>
@@ -21,16 +24,19 @@
                    Text="?"
                    FontAttributes="Bold"
                    FontSize="13"
-                   TextColor="{toolkit:AppThemeResource Primary}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
                    VerticalOptions="Center" />
         </Border>
 
         <!-- Botón CP (derecha) — abre selector de dirección -->
         <Border Grid.Column="2"
-                BackgroundColor="{StaticResource OffBlack}"
+                BackgroundColor="{toolkit:AppThemeResource Tertiary}"
                 Stroke="Transparent"
-                StrokeShape="RoundRectangle 24"
+                StrokeShape="RoundRectangle 10"
                 Padding="16,6">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.15" />
+            </Border.Shadow>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCpButtonTapped" />
             </Border.GestureRecognizers>
@@ -38,7 +44,7 @@
                    Text="?"
                    FontAttributes="Bold"
                    FontSize="13"
-                   TextColor="{toolkit:AppThemeResource Primary}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
                    VerticalOptions="Center" />
         </Border>
 

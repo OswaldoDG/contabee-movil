@@ -99,10 +99,10 @@ namespace ContaBeeMovil
                 return;
 
             var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
-            var location = Current?.CurrentState?.Location;
-            if (location is null) return;
-            var ruta = location.ToString();
-            var esPaginaPrimaria = ruta.Contains("dashboard") || ruta.Contains("facturacion");
+            var ruta = Current.CurrentState.Location.ToString();
+            var esPaginaPrimaria = ruta.Contains("main")
+                                || ruta.Contains("dashboard")
+                                || ruta.Contains("facturacion");
 
             Color color;
             StatusBarStyle estilo;

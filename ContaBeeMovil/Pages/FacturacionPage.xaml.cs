@@ -119,6 +119,12 @@ public partial class FacturacionPage : ContentPage
         //await EjecutarBusqueda(PaginaActual);
     }
 
+    public void OnTabActivated()
+    {
+        ActualizarCreadores();
+        PanelFiltros.RestaurarEstado();
+    }
+
     // ── Handlers ─────────────────────────────────────────────────────────────────
 
     private async void OnAbrirCaptura(object sender, TappedEventArgs e)
