@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.Perfil.ManualRegistroPage"
              Title="Nueva cuenta fiscal"
              BackgroundColor="#66000000">
@@ -39,13 +40,9 @@
                            TextColor="{toolkit:AppThemeResource PrimaryText}"
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            TextChanged="EntryRfc_TextChanged" />
-                    <Picker x:Name="PickerPersona"
-                            Title="Persona"
-                            HeightRequest="44"
-                            Grid.Column="1"
-                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                            TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                            SelectedIndexChanged="PickerPersona_SelectedIndexChanged" />
+                    <views:SelectorFlotante x:Name="SelectorPersona"
+                                            Titulo="Persona"
+                                            Grid.Column="1" />
                 </Grid>
 
                 <Label x:Name="LabelCounter"
@@ -107,12 +104,8 @@
                     </VisualStateManager.VisualStateGroups>
                 </Label>
 
-                <Picker x:Name="PickerRegimen"
-                        Title="Regimen"
-                        HeightRequest="44"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                        SelectedIndexChanged="PickerRegimen_SelectedIndexChanged" />
+                <views:SelectorFlotante x:Name="SelectorRegimen"
+                                        Titulo="Regimen" />
 
                 <HorizontalStackLayout Spacing="8">
                     <CheckBox x:Name="ChkCompartido"

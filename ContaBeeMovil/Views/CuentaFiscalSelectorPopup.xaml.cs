@@ -1,20 +1,15 @@
 using CommunityToolkit.Maui.Views;
 using Contabee.Api.Crm;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls.Shapes;
 
 namespace ContaBeeMovil.Views;
 
 public partial class CuentaFiscalSelectorPopup : Popup
 {
-    private static readonly Color PrimaryColor  = Color.FromArgb("#f4c611");
-    private static readonly Color ItemBgColor   = Color.FromArgb("#f0f0f0");
-    private static readonly Color TextDark      = Color.FromArgb("#1e1e1e");
-    private static readonly Color TextGray      = Color.FromArgb("#9e9e9e");
-
     public CuentaFiscalSelectorPopup()
     {
         InitializeComponent();
@@ -22,14 +17,11 @@ public partial class CuentaFiscalSelectorPopup : Popup
         ConstruirLista();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private string GetTextoDisplay(AsociacionCuentaFiscalCompleta cuenta)
     {
         if (AppState.Instance.MostrarNombreFiscal)
         {
-            // TODO: usar cuenta.Nombre cuando la API lo incluya en AsociacionCuentaFiscalCompleta
-            var nombre = cuenta.DireccionesFiscales.FirstOrDefault().CuentaFiscal.Nombre; // fallback
+            var nombre = cuenta.DireccionesFiscales.FirstOrDefault().CuentaFiscal.Nombre;
             return string.IsNullOrWhiteSpace(nombre) ? "?" : nombre;
         }
         return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;
@@ -52,7 +44,8 @@ public partial class CuentaFiscalSelectorPopup : Popup
         foreach (var cuenta in cuentas)
         {
             bool esActual = actual != null && cuenta.CuentaFiscalId == actual.CuentaFiscalId;
-            PanelLista.Children.Add(CrearItem(cuenta, esActual));
+            PanelLista.Children.Add(UIHelpers.CrearItemSeleccionable(
+                GetTextoDisplay(cuenta), esActual, () => OnSeleccionarCuenta(cuenta)));
         }
     }
 
@@ -61,7 +54,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
         var label = new Label
         {
             Text              = "Aún no tienes cuentas fiscales registradas.",
-            TextColor         = TextGray,
+            TextColor         = UIHelpers.GetColor("SecondaryText"),
             FontSize          = 14,
             HorizontalOptions = LayoutOptions.Center,
             HorizontalTextAlignment = TextAlignment.Center,
@@ -70,8 +63,8 @@ public partial class CuentaFiscalSelectorPopup : Popup
         var boton = new Button
         {
             Text            = "Registrar cuenta fiscal",
-            BackgroundColor = PrimaryColor,
-            TextColor       = TextDark,
+            BackgroundColor = UIHelpers.GetColor("Primary"),
+            TextColor       = UIHelpers.GetColor("PrimaryText"),
             FontAttributes  = FontAttributes.Bold,
             CornerRadius    = 12,
             HeightRequest   = 48,
@@ -89,35 +82,6 @@ public partial class CuentaFiscalSelectorPopup : Popup
             Children = { label, boton }
         };
     }
-
-    private Border CrearItem(AsociacionCuentaFiscalCompleta cuenta, bool seleccionado)
-    {
-        var label = new Label
-        {
-            Text           = GetTextoDisplay(cuenta),
-            FontAttributes = FontAttributes.Bold,
-            FontSize       = 15,
-            HorizontalOptions = LayoutOptions.Center,
-            TextColor      = seleccionado ? TextDark : TextGray,
-        };
-
-        var borde = new Border
-        {
-            BackgroundColor = seleccionado ? PrimaryColor : ItemBgColor,
-            StrokeThickness = 0,
-            StrokeShape     = new RoundRectangle { CornerRadius = 12 },
-            Padding         = new Thickness(16, 14),
-            Content         = label,
-        };
-
-        var tap = new TapGestureRecognizer();
-        tap.Tapped += (_, _) => OnSeleccionarCuenta(cuenta);
-        borde.GestureRecognizers.Add(tap);
-
-        return borde;
-    }
-
-    // ── Eventos ───────────────────────────────────────────────────────────────
 
     private async void OnSeleccionarCuenta(AsociacionCuentaFiscalCompleta cuenta)
     {
@@ -151,12 +115,12 @@ public partial class CuentaFiscalSelectorPopup : Popup
     {
         bool nombre = AppState.Instance.MostrarNombreFiscal;
 
-        BgRfc.BackgroundColor    = nombre ? Colors.Transparent : PrimaryColor;
-        LblRfc.TextColor         = nombre ? TextGray : TextDark;
+        BgRfc.BackgroundColor    = nombre ? Colors.Transparent : UIHelpers.GetColor("Primary");
+        LblRfc.TextColor         = nombre ? UIHelpers.GetColor("SecondaryText") : UIHelpers.GetColor("PrimaryText");
         LblRfc.FontAttributes    = nombre ? FontAttributes.None : FontAttributes.Bold;
 
-        BgNombre.BackgroundColor = nombre ? PrimaryColor : Colors.Transparent;
-        LblNombre.TextColor      = nombre ? TextDark : TextGray;
+        BgNombre.BackgroundColor = nombre ? UIHelpers.GetColor("Primary") : Colors.Transparent;
+        LblNombre.TextColor      = nombre ? UIHelpers.GetColor("PrimaryText") : UIHelpers.GetColor("SecondaryText");
         LblNombre.FontAttributes = nombre ? FontAttributes.Bold : FontAttributes.None;
     }
 }

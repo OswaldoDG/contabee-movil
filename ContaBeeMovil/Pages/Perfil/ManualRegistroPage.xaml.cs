@@ -9,12 +9,10 @@ namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class ManualRegistroPage : ContentPage
 {
-    // Física: 4 letras (A-Z + Ñ, sin acentos) + fecha + homoclave = 13 chars
     private static readonly Regex RfcFisicaRegex = new(
         @"^[A-ZÑ]{4}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{3}$",
         RegexOptions.Compiled);
 
-    // Moral: 3 letras (A-Z + Ñ + &) + fecha + homoclave = 12 chars
     private static readonly Regex RfcMoralRegex = new(
         @"^[A-ZÑ&]{3}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{3}$",
         RegexOptions.Compiled);
@@ -24,7 +22,7 @@ public partial class ManualRegistroPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
 
-    private bool EsFisica => PickerPersona.SelectedIndex == 0;
+    private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
     public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
     {
@@ -32,9 +30,11 @@ public partial class ManualRegistroPage : ContentPage
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
 
-        PickerPersona.Items.Add("Física");
-        PickerPersona.Items.Add("Moral");
-        PickerPersona.SelectedIndex = 0;
+        SelectorPersona.Elementos = new List<string> { "Física", "Moral" };
+        SelectorPersona.IndiceSeleccionado = 0;
+        SelectorPersona.IndiceCambiado += OnPersonaCambiada;
+
+        SelectorRegimen.IndiceCambiado += (_, _) => UpdateRegistrarButton();
 
         PopulateRegimen();
     }
@@ -48,11 +48,10 @@ public partial class ManualRegistroPage : ContentPage
     {
         var text = e?.NewTextValue ?? string.Empty;
 
-        // Auto-mayúsculas
         if (sender is Entry entry && text != text.ToUpperInvariant())
         {
             entry.Text = text.ToUpperInvariant();
-            return; // el evento se re-dispara con el texto corregido
+            return;
         }
 
         RefreshRfcCounter(text);
@@ -72,21 +71,15 @@ public partial class ManualRegistroPage : ContentPage
         UpdateRegistrarButton();
     }
 
-    private void PickerPersona_SelectedIndexChanged(object? sender, EventArgs e)
+    private void OnPersonaCambiada(object? sender, int indice)
     {
         int nuevoMax = EsFisica ? 13 : 12;
         EntryRfc.MaxLength = nuevoMax;
 
-        // Limpiar RFC al cambiar tipo: el formato cambia completamente (12 vs 13 chars)
         EntryRfc.Text = string.Empty;
         RefreshRfcCounter(string.Empty);
 
         PopulateRegimen();
-        UpdateRegistrarButton();
-    }
-
-    private void PickerRegimen_SelectedIndexChanged(object? sender, EventArgs e)
-    {
         UpdateRegistrarButton();
     }
 
@@ -102,11 +95,9 @@ public partial class ManualRegistroPage : ContentPage
 
     private void PopulateRegimen()
     {
-        PickerRegimen.Items.Clear();
         PersonaType sel = EsFisica ? PersonaType.Fisica : PersonaType.Moral;
         var list = RegimenFiscalProvider.GetRegimenFiscal(sel);
-        foreach (var r in list)
-            PickerRegimen.Items.Add($"{r.Codigo} - {r.Descripcion}");
+        SelectorRegimen.Elementos = list.Select(r => $"{r.Codigo} - {r.Descripcion}").ToList();
     }
 
     private void RefreshRfcCounter(string text)
@@ -130,7 +121,7 @@ public partial class ManualRegistroPage : ContentPage
         bool rfcValido = IsRfcValid(EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty);
         bool cpValido = CpRegex.IsMatch(EntryCp.Text?.Trim() ?? string.Empty);
         bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
-        bool regimenValido = PickerRegimen.SelectedIndex >= 0;
+        bool regimenValido = SelectorRegimen.IndiceSeleccionado >= 0;
 
         BtnRegistrar.IsEnabled = rfcValido && cpValido && nombreValido && regimenValido;
     }
@@ -141,7 +132,7 @@ public partial class ManualRegistroPage : ContentPage
         try
         {
             var selPersona = EsFisica ? PersonaType.Fisica : PersonaType.Moral;
-            var regimenSel = RegimenFiscalProvider.GetRegimenFiscal(selPersona)[PickerRegimen.SelectedIndex].Codigo;
+            var regimenSel = RegimenFiscalProvider.GetRegimenFiscal(selPersona)[SelectorRegimen.IndiceSeleccionado].Codigo;
 
             var modelo = new CuentaFiscalMinima
             {
