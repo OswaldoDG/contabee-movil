@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
-             x:Class="ContaBeeMovil.Views.ResultadosListaView">
+             x:Class="ContaBeeMovil.Views.ResultadosListaView"
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="*,Auto">
 
@@ -16,7 +17,7 @@
         <Grid x:Name="LoadingOverlay"
               Grid.Row="0"
               IsVisible="False"
-              BackgroundColor="{toolkit:AppThemeResource Shadow}"
+              BackgroundColor="Transparent"
               InputTransparent="False">
             <ActivityIndicator IsRunning="True"
                                Color="{toolkit:AppThemeResource Primary}"
@@ -30,7 +31,7 @@
         <Grid x:Name="BarraPaginacion"
               Grid.Row="1"
               IsVisible="False"
-              Padding="16,8">
+              Padding="16,0">
 
             <Label x:Name="LabelEncontrados"
                    Style="{StaticResource Body2}"

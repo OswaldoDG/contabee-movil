@@ -32,7 +32,7 @@
 		<ApplicationTitle>ContaBee</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.mx.contabee</ApplicationId>
+		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -48,6 +48,11 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 			
 	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
+	  <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
+	  <CodesignProvision>VS: mx.contabee.app Development</CodesignProvision>
+	</PropertyGroup>
 	<ItemGroup>
 		<CFBundleURLTypes Include="contabee">
 			<CFBundleURLSchemes>contabee</CFBundleURLSchemes>
@@ -56,7 +61,7 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.66" Color="#fcfcfc"/>
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.66" Color="#fcfcfc" />
 
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.png" Color="#fefdfc" BaseSize="120,120" />

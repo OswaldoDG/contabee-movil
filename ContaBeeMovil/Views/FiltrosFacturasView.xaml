@@ -6,7 +6,7 @@
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Views.FiltrosFacturasView">
 
-    <Border Style="{StaticResource CardStyle}" Padding="12">
+    <Border Style="{StaticResource FiltersStyle}" Padding="8">
 
         <VerticalStackLayout Spacing="8">
 

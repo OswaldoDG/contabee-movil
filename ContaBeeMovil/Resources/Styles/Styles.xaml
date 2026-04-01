@@ -31,8 +31,8 @@
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="BorderWidth" Value="0"/>
-        <Setter Property="CornerRadius" Value="26"/>
-        <Setter Property="Padding" Value="24,0"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="Padding" Value="20,0"/>
         <Setter Property="HeightRequest" Value="52"/>
         <Setter Property="MinimumHeightRequest" Value="48"/>
         <Setter Property="MinimumWidthRequest" Value="48"/>
