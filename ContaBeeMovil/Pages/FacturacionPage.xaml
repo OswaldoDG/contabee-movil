@@ -69,8 +69,7 @@
                     StrokeThickness="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
                     HorizontalOptions="End" VerticalOptions="End"
-                    Margin="0,0,16,5"
-                    IsVisible="{Binding TieneCreditos}">
+                    Margin="0,0,16,5">
                 <Border.Shadow>
                     <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.5" />
                 </Border.Shadow>

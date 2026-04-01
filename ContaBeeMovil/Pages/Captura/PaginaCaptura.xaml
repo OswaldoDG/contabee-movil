@@ -2,13 +2,349 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
              Title="Captura"
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Shell.TabBarIsVisible="False">
 
-    <Label Text="PaginaCaptura"
-           HorizontalOptions="Center"
-           VerticalOptions="Center" />
+    <!-- Grid raíz: contenido + overlay de envío encima -->
+    <Grid>
+
+        <!-- ══════════════════════════════════════════════════════════════════════
+             CONTENIDO PRINCIPAL
+             ══════════════════════════════════════════════════════════════════════ -->
+        <Grid RowDefinitions="Auto,*,Auto">
+
+            <!-- ── Zona de controles (scroll por si el teclado sube) ───────────── -->
+            <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Spacing="0" Padding="12,8,12,4">
+
+                    <!-- 1. Barra RFC / CP -->
+                    <views:RfcCpBarView Margin="-12,0" />
+
+                    <!-- Separador visual -->
+                    <BoxView HeightRequest="1"
+                             Margin="-12,0"
+                             Color="{toolkit:AppThemeResource SecondaryBackground}" />
+
+                    <!-- 2+3. Forma de pago y Tarjeta -->
+                    <Grid ColumnDefinitions="*,*"
+                          Margin="0,8,0,0"
+                          ColumnSpacing="8">
+
+                        <!-- Forma de pago -->
+                        <Border Grid.Column="0"
+                                HorizontalOptions="Fill"
+                                BackgroundColor="{toolkit:AppThemeResource Background}"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                Padding="4,0">
+                            <Picker HorizontalOptions="FillAndExpand"
+                                    Title="Medio Pago"
+                                    ItemsSource="{Binding FormasPago}"
+                                    SelectedItem="{Binding FormaPagoSeleccionada}"
+                                    ItemDisplayBinding="{Binding Descripcion}"
+                                    HeightRequest="44"
+                                    FontSize="14"
+                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                    TitleColor="{toolkit:AppThemeResource SecondaryText}"
+                                    BackgroundColor="Transparent" />
+                        </Border>
+
+                        <!-- Tarjeta / Agregar tarjeta -->
+                        <Grid Grid.Column="1">
+                            <Border IsVisible="{Binding MostrarTarjetas}"
+                                    HorizontalOptions="Fill"
+                                    BackgroundColor="{toolkit:AppThemeResource Background}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    Stroke="{toolkit:AppThemeResource Accent1}"
+                                    Padding="4,0">
+                                <Picker HorizontalOptions="FillAndExpand"
+                                        Title="Tarjeta"
+                                        ItemsSource="{Binding Tarjetas}"
+                                        SelectedItem="{Binding TarjetaSeleccionada}"
+                                        ItemDisplayBinding="{Binding DisplayLabel}"
+                                        HeightRequest="44"
+                                        FontSize="14"
+                                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                        TitleColor="{toolkit:AppThemeResource SecondaryText}"
+                                        BackgroundColor="Transparent" />
+                            </Border>
+                            <Border IsVisible="{Binding MostrarBotonAgregarTarjeta}"
+                                    HorizontalOptions="Fill"
+                                    BackgroundColor="{toolkit:AppThemeResource Background}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    Stroke="{toolkit:AppThemeResource Accent1}"
+                                    Padding="0">
+                                <Button Text="+ Tarjeta"
+                                        HorizontalOptions="FillAndExpand"
+                                        Command="{Binding IrAgregarTarjetaCommand}"
+                                        FontSize="14"
+                                        FontAttributes="Bold"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{toolkit:AppThemeResource Primary}"
+                                        HeightRequest="44" />
+                            </Border>
+                        </Grid>
+                    </Grid>
+
+                    <!-- 4+5. Uso CFDI + Desglosar IEPS -->
+                    <Grid ColumnDefinitions="*,*"
+                          Margin="0,8,0,0"
+                          ColumnSpacing="8">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{toolkit:AppThemeResource Background}"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                Padding="4,0">
+                            <Picker Title="Uso Factura"
+                                    HorizontalOptions="FillAndExpand"
+                                    ItemsSource="{Binding UsoCfdiOpciones}"
+                                    SelectedItem="{Binding UsoCfdiSeleccionado}"
+                                    ItemDisplayBinding="{Binding Descripcion}"
+                                    HeightRequest="44"
+                                    FontSize="14"
+                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                    TitleColor="{toolkit:AppThemeResource SecondaryText}"
+                                    BackgroundColor="Transparent" />
+                        </Border>
+                        <Border Grid.Column="1"
+                                BackgroundColor="{toolkit:AppThemeResource Background}"
+                                StrokeShape="RoundRectangle 12"
+                                StrokeThickness="1"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                Padding="8,0">
+                            <HorizontalStackLayout Spacing="4"
+                                                   VerticalOptions="Center"
+                                                   HorizontalOptions="Center">
+                                <CheckBox IsChecked="{Binding DesglosarIeps}"
+                                          Color="{toolkit:AppThemeResource Primary}"
+                                          VerticalOptions="Center" />
+                                <Label Text="Desglosar IEPS"
+                                       FontSize="13"
+                                       VerticalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- 6. Notas adicionales -->
+                    <Border Margin="0,8,0,0"
+                            BackgroundColor="{toolkit:AppThemeResource Background}"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1"
+                            Stroke="{toolkit:AppThemeResource Accent1}"
+                            Padding="12,0">
+                        <Entry Placeholder="Notas adicionales Opcional"
+                               Text="{Binding NotasAdicionales}"
+                               HeightRequest="44"
+                               FontSize="14"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               BackgroundColor="Transparent" />
+                    </Border>
+
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- ── 7. Zona de capturas ─────────────────────────────────────────── -->
+            <Grid Grid.Row="1">
+
+                <!-- Estado vacío -->
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="8"
+                                     IsVisible="{Binding TieneCapturas, Converter={StaticResource InvertedBoolConverter}}">
+                    <Label Text="{x:Static f:FluentUI.document_multiple_20_regular}"
+                           FontFamily="FluentUI"
+                           FontSize="52"
+                           HorizontalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <Label Text="Sin Capturas"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <Label Text="¡Vaya! Parece que no hay nada aquí"
+                           FontSize="13"
+                           HorizontalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                </VerticalStackLayout>
+
+                <!-- CarouselView de capturas -->
+                <CarouselView x:Name="CapturasCarousel"
+                              ItemsSource="{Binding Capturas}"
+                              IsVisible="{Binding TieneCapturas}"
+                              CurrentItem="{Binding CapturaSeleccionada, Mode=TwoWay}"
+                              CurrentItemChanged="CapturasCarousel_CurrentItemChanged">
+                    <CarouselView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal"
+                                           SnapPointsType="MandatorySingle"
+                                           SnapPointsAlignment="Center" />
+                    </CarouselView.ItemsLayout>
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate x:DataType="models:CapturaLote">
+                            <Grid Margin="12,8">
+                                <Border StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1"
+                                        Stroke="{toolkit:AppThemeResource SecondaryBackground}"
+                                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                                    <Grid RowDefinitions="*,Auto">
+                                        <!-- Imagen -->
+                                        <Image Grid.Row="0"
+                                               Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
+                                               Aspect="AspectFill"
+                                               HeightRequest="250">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
+
+                                        <!-- Botón eliminar -->
+                                        <Button Grid.Row="1"
+                                                Text="{x:Static f:FluentUI.delete_20_regular}"
+                                                FontFamily="FluentUI"
+                                                FontSize="20"
+                                                BackgroundColor="Transparent"
+                                                TextColor="{toolkit:AppThemeResource Error}"
+                                                HeightRequest="44"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                </CarouselView>
+
+                <!-- Contador de posición -->
+                <Label x:Name="CapturaCounterLabel"
+                       Text="0/0"
+                       HorizontalOptions="Center"
+                       VerticalOptions="End"
+                       Margin="0,0,0,12"
+                       FontSize="14"
+                       IsVisible="{Binding TieneCapturas}"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+            </Grid>
+
+            <!-- ── 8/9/10. Barra de acciones ──────────────────────────────────── -->
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,Auto,Auto"
+                  Padding="12,8,12,12"
+                  ColumnSpacing="8"
+                  BackgroundColor="{toolkit:AppThemeResource Background}">
+
+                <!-- 8. Cancelar -->
+                <Button Grid.Column="0"
+                        Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        BorderColor="{toolkit:AppThemeResource SecondaryText}"
+                        BorderWidth="1.5"
+                        CornerRadius="12"
+                        HeightRequest="52"
+                        FontSize="15" />
+
+                <!-- 9. Cámara -->
+                <Button Grid.Column="1"
+                        Text="{x:Static f:FluentUI.camera_28_regular}"
+                        FontFamily="FluentUI"
+                        FontSize="26"
+                        Command="{Binding TomarFotoCommand}"
+                        IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="12"
+                        WidthRequest="60"
+                        HeightRequest="52">
+                    <Button.Shadow>
+                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
+                    </Button.Shadow>
+                </Button>
+
+                <!-- 10. Enviar (visible solo si hay capturas) -->
+                <Button Grid.Column="2"
+                        IsVisible="{Binding TieneCapturas}"
+                        Text="Enviar"
+                        Command="{Binding EnviarCommand}"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="12"
+                        HeightRequest="52"
+                        Padding="14,0"
+                        FontSize="15"
+                        FontAttributes="Bold"
+                        ContentLayout="Left,6">
+                    <Button.Shadow>
+                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
+                    </Button.Shadow>
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FluentUI"
+                                         Glyph="{x:Static f:FluentUI.arrow_upload_20_regular}"
+                                         Size="18"
+                                         Color="{toolkit:AppThemeResource PrimaryText}" />
+                    </Button.ImageSource>
+                </Button>
+
+            </Grid>
+
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════════════════════
+             OVERLAY DE ENVÍO
+             ══════════════════════════════════════════════════════════════════════ -->
+        <Grid IsVisible="{Binding EstaEnviando}"
+              BackgroundColor="{toolkit:AppThemeResource Background}"
+              InputTransparent="False">
+
+            <VerticalStackLayout VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="24"
+                                 Padding="40">
+
+                <Label Text="Enviando Capturas ..."
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                <!-- Círculo de progreso -->
+                <Grid WidthRequest="160" HeightRequest="160"
+                      HorizontalOptions="Center">
+                    <Ellipse WidthRequest="160" HeightRequest="160"
+                             Stroke="{toolkit:AppThemeResource SecondaryBackground}"
+                             StrokeThickness="14"
+                             Fill="Transparent" />
+                    <ActivityIndicator IsRunning="{Binding EstaEnviando}"
+                                       Color="{toolkit:AppThemeResource Primary}"
+                                       WidthRequest="130"
+                                       HeightRequest="130"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                    <Label Text="{Binding EnviandoProgreso, StringFormat='{0:P0}'}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                </Grid>
+
+            </VerticalStackLayout>
+
+        </Grid>
+
+    </Grid>
 
 </ContentPage>

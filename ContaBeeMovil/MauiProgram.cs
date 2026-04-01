@@ -3,7 +3,6 @@ using CommunityToolkit.Maui;
 using ZXing.Net.Maui.Controls;
 using Contabee.Api;
 using Contabee.Api.abstractions;
-using Contabee.Api.Identidad;
 using Contabee.Pages.Registro;
 using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Pages.Camara;
@@ -147,6 +146,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<SugerenciasPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
+            builder.Services.AddTransient<VisorImagenPage>();
             builder.Services.AddTransient<TiendaPage>();
             builder.Services.AddTransient<ReclamarDemoPage>();
             // Cámara pages and view models
