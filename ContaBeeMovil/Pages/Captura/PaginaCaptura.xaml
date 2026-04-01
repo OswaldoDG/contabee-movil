@@ -7,8 +7,8 @@
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
              Title="Captura"
-             BackgroundColor="{toolkit:AppThemeResource Background}"
-             Shell.TabBarIsVisible="False">
+             Shell.NavBarIsVisible="True"
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <!-- Grid raíz: contenido + overlay de envío encima -->
     <Grid>
