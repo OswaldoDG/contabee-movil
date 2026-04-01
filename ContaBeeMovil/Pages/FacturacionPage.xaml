@@ -5,40 +5,45 @@
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
-             Title="Facturación"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
-
-    <Grid RowDefinitions="Auto,*">
+             Title="Facturación">
+    
+    <Border Grid.Row="0"
+            Padding="0"
+            BackgroundColor="{toolkit:AppThemeResource Accent1}"
+            StrokeShape="RoundRectangle 0"
+            StrokeThickness="0">
+        <Grid RowDefinitions="Auto,*">
 
         <!-- Controles de consulta -->
-        <VerticalStackLayout Grid.Row="0">
-            <views:FiltrosFacturasView x:Name="PanelFiltros"
-                                       BuscarCommand="{Binding BuscarFacturasCommand}" />
+            <VerticalStackLayout>
+                <views:FiltrosFacturasView x:Name="PanelFiltros"
+                                   BuscarCommand="{Binding BuscarFacturasCommand}" />
 
-            <!-- Banner: sin créditos de captura -->
-            <Border IsVisible="{Binding SinCreditos}"
-                    StrokeShape="RoundRectangle 10"
-                    Stroke="{toolkit:AppThemeResource Primary}"
-                    StrokeThickness="0"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    Padding="12,8"
-                    Margin="12,0,12,4">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" >
-                    <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.warning_20_regular}"
-                           FontFamily="FluentUI"
-                           FontSize="18"
-                           TextColor="{toolkit:AppThemeResource Icon}"
-                           VerticalOptions="Center" />
-                    <Label Grid.Column="1"
-                           Text="No tienes créditos de captura disponibles."
-                           FontSize="13"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           LineBreakMode="WordWrap"
-                           VerticalOptions="Center" />
-                </Grid>
-            </Border>
-        </VerticalStackLayout>
+                <!-- Banner: sin créditos de captura -->
+                <Border IsVisible="{Binding SinCreditos}"
+                StrokeShape="RoundRectangle 10"
+                Stroke="{toolkit:AppThemeResource Primary}"
+                StrokeThickness="0"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                Padding="12,5"
+                Margin="12,0,12,4">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                       Text="{x:Static f:FluentUI.warning_20_regular}"
+                       FontFamily="FluentUI"
+                       FontSize="18"
+                       TextColor="{toolkit:AppThemeResource Icon}"
+                       VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                       Text="No tienes créditos de captura disponibles."
+                       FontSize="13"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       LineBreakMode="WordWrap"
+                       VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+
 
         <!-- Lista de resultados + FAB -->
         <Grid Grid.Row="1">
@@ -80,5 +85,6 @@
         </Grid>
 
     </Grid>
+    </Border>
 
 </ContentPage>

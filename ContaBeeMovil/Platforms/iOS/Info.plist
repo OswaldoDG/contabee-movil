@@ -29,7 +29,7 @@
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.mx.contabee</string>
+	<string>mx.contabee.app</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>

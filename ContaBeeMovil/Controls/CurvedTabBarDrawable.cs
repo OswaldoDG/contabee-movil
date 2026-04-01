@@ -9,6 +9,9 @@ namespace ContaBeeMovil.Controls;
 /// </summary>
 public class CurvedTabBarDrawable : IDrawable
 {
+    /// <summary>Desplazamiento vertical desde el borde superior donde comienza la barra.</summary>
+    private const float TopOffset = 5f;
+
     /// <summary>
     /// Posición horizontal normalizada (0.0–1.0) del centro de la curva.
     /// Ejemplo: 0.25 = primer tab de 2, 0.75 = segundo tab de 2.
@@ -22,43 +25,42 @@ public class CurvedTabBarDrawable : IDrawable
     public float NotchRadius { get; set; } = 40f;
 
     /// <summary>Profundidad máxima de la curva hacia abajo.</summary>
-    public float NotchDepth { get; set; } = 55f;
+    public float NotchDepth { get; set; } = 45f;
 
     /// <summary>Margen horizontal extra para suavizar la transición de la curva.</summary>
-    public float NotchMargin { get; set; } = 50f;
+    public float NotchMargin { get; set; } = 45f;
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {
-        var w  = dirtyRect.Width;
-        var h  = dirtyRect.Height;
+        var w = dirtyRect.Width;
+        var h = dirtyRect.Height;
         var cx = w * NotchPosition;
 
-        var left  = cx - NotchRadius - NotchMargin;
+        var left = cx - NotchRadius - NotchMargin;
         var right = cx + NotchRadius + NotchMargin;
 
         var path = new PathF();
 
-        path.MoveTo(0, 2);
+        path.MoveTo(0, TopOffset);
 
-        if (left > 2)
-            path.LineTo(left, 2);
+        if (left > TopOffset)
+            path.LineTo(left, TopOffset);
 
         path.CurveTo(
-            left + NotchMargin, 2,
-            cx - NotchRadius,   NotchDepth,
-            cx,                 NotchDepth
+            left + NotchMargin, TopOffset,
+            cx - NotchRadius, NotchDepth,
+            cx, NotchDepth
         );
 
         path.CurveTo(
-            cx + NotchRadius,    NotchDepth,
-            right - NotchMargin, 2,
-            right,               2
+            cx + NotchRadius, NotchDepth,
+            right - NotchMargin, TopOffset,
+            right, TopOffset
         );
 
         if (right < w)
-            path.LineTo(w, 2);
+            path.LineTo(w, TopOffset);
 
-        // Bordes laterales y base
         path.LineTo(w, h);
         path.LineTo(0, h);
         path.Close();

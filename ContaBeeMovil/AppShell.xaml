@@ -222,19 +222,18 @@
             </ScrollView>
 
             <!-- ── FOOTER ── -->
-            <VerticalStackLayout Grid.Row="2" Padding="16,8,16,24" Spacing="12">
-
+            <VerticalStackLayout Grid.Row="2" Padding="16,8,16,24">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
+                        <TapGestureRecognizer Tapped="OnBuzonClicked" />
                     </Grid.GestureRecognizers>
                     <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.info_24_regular}"
+                           Text="{x:Static f:FluentUI.mail_24_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
                            FontSize="22"
                            TextColor="{toolkit:AppThemeResource Icon}"
                            VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="Acerca de"
+                    <Label Grid.Column="1" Text="Buzón de sugerencias"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
                 </Grid>
@@ -253,18 +252,17 @@
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
                 </Grid>
-
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnBuzonClicked" />
+                        <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
                     </Grid.GestureRecognizers>
                     <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.mail_24_regular}"
+                           Text="{x:Static f:FluentUI.info_24_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
                            FontSize="22"
                            TextColor="{toolkit:AppThemeResource Icon}"
                            VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="Buzón de sugerencias"
+                    <Label Grid.Column="1" Text="Acerca de"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
                 </Grid>
@@ -272,13 +270,13 @@
                 <BoxView Style="{StaticResource Divider}" />
 
                 <!-- Toggle tema oscuro/claro -->
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="20" HorizontalOptions="Center">
                     <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.weather_moon_28_regular}"
+                           Text="{x:Static f:FluentUI.weather_sunny_28_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="22"
+                           FontSize="25"
                            TextColor="{toolkit:AppThemeResource Icon}"
-                           VerticalOptions="Center" />
+                           VerticalOptions="Center"/>
                     <Switch Grid.Column="1"
                             x:Name="ThemeSwitch"
                             HorizontalOptions="Center"
@@ -286,11 +284,11 @@
                             OnColor="{toolkit:AppThemeResource Alternate}"
                             Toggled="OnThemeSwitchToggled" />
                     <Label Grid.Column="2"
-                           Text="{x:Static f:FluentUI.weather_sunny_28_regular}"
+                           Text="{x:Static f:FluentUI.weather_moon_28_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="22"
+                           FontSize="25"
                            TextColor="{toolkit:AppThemeResource Icon}"
-                           VerticalOptions="Center" />
+                           VerticalOptions="Center"/>
                 </Grid>
 
                 <!-- Botón Cerrar Sesión -->
