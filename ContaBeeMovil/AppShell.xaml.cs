@@ -98,22 +98,32 @@ namespace ContaBeeMovil
             if (!OperatingSystem.IsAndroidVersionAtLeast(23))
                 return;
 
-            var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
-            var ruta = Current.CurrentState.Location.ToString();
-            var esPaginaPrimaria = ruta.Contains("dashboard") || ruta.Contains("facturacion");
+            var app = Application.Current;
+            if (app == null)
+                return;
+
+            var isDark = app.RequestedTheme == AppTheme.Dark;
+
+            var ruta = Shell.Current?.CurrentState?.Location?.ToString();
+            if (string.IsNullOrEmpty(ruta))
+                return;
+
+            var esPaginaPrimaria =
+                ruta.Contains("dashboard", StringComparison.OrdinalIgnoreCase) ||
+                ruta.Contains("facturacion", StringComparison.OrdinalIgnoreCase);
 
             Color color;
             StatusBarStyle estilo;
 
             if (esPaginaPrimaria)
             {
-                // AppBarPrimary: blanco/crema en claro, gris oscuro en oscuro
+                // AppBarPrimary
                 color = isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
                 estilo = isDark ? StatusBarStyle.LightContent : StatusBarStyle.DarkContent;
             }
             else
             {
-                // AppBarSecondary: amarillo en claro, ámbar en oscuro
+                // AppBarSecondary
                 color = isDark ? Color.FromArgb("#ce8509") : Color.FromArgb("#f4c611");
                 estilo = StatusBarStyle.DarkContent;
             }
@@ -231,6 +241,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
+            Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
         }
     }
