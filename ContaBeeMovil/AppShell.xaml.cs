@@ -109,13 +109,13 @@ namespace ContaBeeMovil
 
             if (esPaginaPrimaria)
             {
-                // AppBarPrimary: blanco/crema en claro, gris oscuro en oscuro
+                // AppBarPrimary
                 color = isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
                 estilo = isDark ? StatusBarStyle.LightContent : StatusBarStyle.DarkContent;
             }
             else
             {
-                // AppBarSecondary: amarillo en claro, ámbar en oscuro
+                // AppBarSecondary
                 color = isDark ? Color.FromArgb("#ce8509") : Color.FromArgb("#f4c611");
                 estilo = StatusBarStyle.DarkContent;
             }
@@ -234,6 +234,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
+            Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
         }
     }

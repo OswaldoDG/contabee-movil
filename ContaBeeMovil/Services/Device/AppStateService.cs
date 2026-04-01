@@ -207,4 +207,16 @@ public partial class AppState : ObservableObject
         get => _misUsuarios;
         set => SetProperty(ref _misUsuarios, value);
     }
+
+    // ── CapturasLote ───────────────────────────────────────────────────────────
+    private List<CapturaLote>? _capturasLote;
+
+    /// <summary>
+    /// Lote de capturas (fotos de tickets) pendiente de envío. Estado de sesión, no persiste.
+    /// </summary>
+    public List<CapturaLote>? CapturasLote
+    {
+        get => _capturasLote;
+        set => SetProperty(ref _capturasLote, value);
+    }
 }
