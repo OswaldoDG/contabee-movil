@@ -4,7 +4,6 @@ namespace ContaBeeMovil.Pages.Captura;
 public partial class VisorImagenPage : ContentPage
 {
     private double _currentScale = 1;
-    private double _startScale = 1;
     private double _xOffset;
     private double _yOffset;
     private double _startX;
@@ -20,35 +19,7 @@ public partial class VisorImagenPage : ContentPage
         set => ImgVisor.Source = ImageSource.FromFile(value);
     }
 
-    private void OnCerrar(object sender, EventArgs e)
-        => Shell.Current.GoToAsync("..");
-
-    // ── Pinch para zoom ───────────────────────────────────────────────────────
-
-    private void OnPinchUpdated(object sender, PinchGestureUpdatedEventArgs e)
-    {
-        switch (e.Status)
-        {
-            case GestureStatus.Started:
-                _startScale = _currentScale;
-                break;
-
-            case GestureStatus.Running:
-                _currentScale = Math.Clamp(_startScale * e.Scale, 1, 5);
-                ImgVisor.Scale = _currentScale;
-                // Recentrar si se reduce a escala 1
-                if (_currentScale == 1)
-                {
-                    ImgVisor.TranslationX = 0;
-                    ImgVisor.TranslationY = 0;
-                    _xOffset = 0;
-                    _yOffset = 0;
-                }
-                break;
-        }
-    }
-
-    // ── Pan para desplazar ────────────────────────────────────────────────────
+    // ── Pan para desplazar cuando hay zoom ───────────────────────────────────
 
     private void OnPanUpdated(object sender, PanUpdatedEventArgs e)
     {
@@ -62,7 +33,7 @@ public partial class VisorImagenPage : ContentPage
                 break;
 
             case GestureStatus.Running:
-                var maxX = ImgVisor.Width * (_currentScale - 1) / 2;
+                var maxX = ImgVisor.Width  * (_currentScale - 1) / 2;
                 var maxY = ImgVisor.Height * (_currentScale - 1) / 2;
                 _xOffset = Math.Clamp(_startX + e.TotalX, -maxX, maxX);
                 _yOffset = Math.Clamp(_startY + e.TotalY, -maxY, maxY);

@@ -98,8 +98,8 @@ namespace ContaBeeMovil
             if (!OperatingSystem.IsAndroidVersionAtLeast(23))
                 return;
 
-            var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
-            var ruta = Current.CurrentState.Location.ToString();
+            var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+            var ruta = Shell.Current?.CurrentState?.Location?.ToString() ?? string.Empty;
             var esPaginaPrimaria = ruta.Contains("main")
                                 || ruta.Contains("dashboard")
                                 || ruta.Contains("facturacion");
