@@ -204,7 +204,8 @@ namespace ContaBeeMovil
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await _servicioAlerta.MostrarAsync("Acerca de", "ContaBee — Versión 1.0", verBotonCancelar: false, confirmarText: "OK");
+            var version = AppInfo.VersionString;
+            await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}", verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)
