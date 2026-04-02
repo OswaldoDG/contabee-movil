@@ -64,7 +64,7 @@ public partial class TiendaPage : ContentPage
                 .ToList();
 
             // 2. Extraer IDs para consultar al store (clave en minúsculas)
-            var iapIds = productosCreditos.Select(p => p.Clave.ToLower()).ToArray();
+            var iapIds = productosCreditos.Select(p => $"contabee.creditos.{p.Clave.ToLower()}").ToArray();
 
             // 3. Consultar a la tienda (Apple/Google)
             var productosStore = (await _servicioIAP.ObtenerProductosAsync(iapIds)).ToList();

@@ -24,7 +24,7 @@
                                  x:Name="TabInicio"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
-                                 Spacing="1">
+                                 Spacing="-1">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
