@@ -17,6 +17,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IToastService _toastService;
 
+    // ── Preferencias recordadas ──────────────────────────────────────────────
+
+    private const string PrefFormaPago = "captura_forma_pago";
+    private const string PrefTarjeta   = "captura_tarjeta_id";
+    private const string PrefUsoCfdi   = "captura_uso_cfdi";
+    private const string PrefDesgIeps  = "captura_desg_ieps";
+    private const string PrefNotas     = "captura_notas";
+
     // ── Constructor ──────────────────────────────────────────────────────────
 
     public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService)
@@ -42,6 +50,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
 
         InitializeComponent();
+
+        SelectorFormaPago.Elementos = FormasPago.Select(f => f.Descripcion).ToList();
+        SelectorFormaPago.IndiceCambiado += OnFormaPagoCambiada;
+        SelectorTarjeta.IndiceCambiado   += OnTarjetaCambiada;
+        SelectorUsoCfdi.Elementos = _usoCfdiOpciones.Select(u => u.Descripcion).ToList();
+        SelectorUsoCfdi.IndiceCambiado   += OnUsoCfdiCambiado;
+
+        RestaurarPreferencias();
+
         BindingContext = this;
     }
 
@@ -57,6 +74,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             _capturas.Add(c);
 
         ActualizarUsoCfdi();
+        var x = TipoCaptura;
     }
 
     protected override void OnAppearing()
@@ -79,47 +97,19 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public List<FormaPago> FormasPago { get; }
 
     private FormaPago? _formaPagoSeleccionada;
-    public FormaPago? FormaPagoSeleccionada
-    {
-        get => _formaPagoSeleccionada;
-        set
-        {
-            _formaPagoSeleccionada = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(MostrarTarjetas));
-            OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
-        }
-    }
 
-    public bool MostrarTarjetas          => FormaPagoSeleccionada?.Codigo is "4" or "24";
+    public bool MostrarTarjetas          => _formaPagoSeleccionada?.Codigo is "4" or "24";
+    public bool MostrarSelectorTarjeta   => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) > 0;
     public bool MostrarBotonAgregarTarjeta => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) == 0;
 
     // ── Tarjetas ─────────────────────────────────────────────────────────────
 
-    public List<TarjetaModel> Tarjetas => AppState.Instance.Tarjetas ?? [];
-
     private TarjetaModel? _tarjetaSeleccionada;
-    public TarjetaModel? TarjetaSeleccionada
-    {
-        get => _tarjetaSeleccionada;
-        set { _tarjetaSeleccionada = value; OnPropertyChanged(); }
-    }
 
     // ── Uso CFDI ─────────────────────────────────────────────────────────────
 
     private List<UsoCfdi> _usoCfdiOpciones = [];
-    public List<UsoCfdi> UsoCfdiOpciones
-    {
-        get => _usoCfdiOpciones;
-        private set { _usoCfdiOpciones = value; OnPropertyChanged(); }
-    }
-
     private UsoCfdi? _usoCfdiSeleccionado;
-    public UsoCfdi? UsoCfdiSeleccionado
-    {
-        get => _usoCfdiSeleccionado;
-        set { _usoCfdiSeleccionado = value; OnPropertyChanged(); }
-    }
 
     // ── Desglosar IEPS ───────────────────────────────────────────────────────
 
@@ -127,7 +117,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public bool DesglosarIeps
     {
         get => _desglosarIeps;
-        set { _desglosarIeps = value; OnPropertyChanged(); }
+        set
+        {
+            _desglosarIeps = value;
+            OnPropertyChanged();
+            Preferences.Default.Set(PrefDesgIeps, value);
+        }
     }
 
     // ── Notas adicionales ────────────────────────────────────────────────────
@@ -136,7 +131,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public string NotasAdicionales
     {
         get => _notasAdicionales;
-        set { _notasAdicionales = value; OnPropertyChanged(); }
+        set
+        {
+            _notasAdicionales = value;
+            OnPropertyChanged();
+            Preferences.Default.Set(PrefNotas, value);
+        }
     }
 
     // ── Capturas ─────────────────────────────────────────────────────────────
@@ -146,6 +146,22 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
+
+    // ── Ancho dinámico de cada card en el carrusel ───────────────────────────
+
+    private double _capturaItemWidth = 300;
+    public double CapturaItemWidth
+    {
+        get => _capturaItemWidth;
+        private set { _capturaItemWidth = value; OnPropertyChanged(); }
+    }
+
+    protected override void OnSizeAllocated(double width, double height)
+    {
+        base.OnSizeAllocated(width, height);
+        if (width > 0)
+            CapturaItemWidth = width - 24; // 12 px de margen a cada lado
+    }
 
     // ── Progreso de envío ────────────────────────────────────────────────────
 
@@ -174,17 +190,161 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
+    private void RestaurarPreferencias()
+    {
+        // DesglosarIeps (directo al campo para no reescribir la preferencia en el setter)
+        _desglosarIeps = Preferences.Default.Get(PrefDesgIeps, false);
+        OnPropertyChanged(nameof(DesglosarIeps));
+
+        // Notas adicionales
+        _notasAdicionales = Preferences.Default.Get(PrefNotas, string.Empty);
+        OnPropertyChanged(nameof(NotasAdicionales));
+
+        // Forma de pago
+        var codigoFP = Preferences.Default.Get(PrefFormaPago, string.Empty);
+        if (!string.IsNullOrEmpty(codigoFP))
+        {
+            var idx = FormasPago.FindIndex(f => f.Codigo == codigoFP);
+            if (idx >= 0)
+            {
+                _formaPagoSeleccionada = FormasPago[idx];
+                SelectorFormaPago.IndiceSeleccionado = idx;
+                var tarjetas = AppState.Instance.Tarjetas ?? [];
+                SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+                OnPropertyChanged(nameof(MostrarTarjetas));
+                OnPropertyChanged(nameof(MostrarSelectorTarjeta));
+                OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
+
+                // Tarjeta (sólo si la forma de pago seleccionada la requiere)
+                if (MostrarTarjetas)
+                {
+                    var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
+                    if (!string.IsNullOrEmpty(tarjetaId))
+                    {
+                        var tIdx = tarjetas.FindIndex(t => t.Id == tarjetaId);
+                        if (tIdx >= 0)
+                        {
+                            _tarjetaSeleccionada = tarjetas[tIdx];
+                            SelectorTarjeta.IndiceSeleccionado = tIdx;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Uso CFDI
+        var codigoUso = Preferences.Default.Get(PrefUsoCfdi, string.Empty);
+        if (!string.IsNullOrEmpty(codigoUso))
+        {
+            var idx = _usoCfdiOpciones.FindIndex(u => u.Codigo == codigoUso);
+            if (idx >= 0)
+            {
+                _usoCfdiSeleccionado = _usoCfdiOpciones[idx];
+                SelectorUsoCfdi.IndiceSeleccionado = idx;
+            }
+        }
+    }
+
     private void RefrescarTarjetas()
     {
-        OnPropertyChanged(nameof(Tarjetas));
+        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+
+        // Intentar mantener la tarjeta guardada en la lista actualizada
+        _tarjetaSeleccionada = null;
+        SelectorTarjeta.IndiceSeleccionado = -1;
+        if (MostrarTarjetas)
+        {
+            var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
+            if (!string.IsNullOrEmpty(tarjetaId))
+            {
+                var idx = tarjetas.FindIndex(t => t.Id == tarjetaId);
+                if (idx >= 0)
+                {
+                    _tarjetaSeleccionada = tarjetas[idx];
+                    SelectorTarjeta.IndiceSeleccionado = idx;
+                }
+            }
+        }
+
+        OnPropertyChanged(nameof(MostrarSelectorTarjeta));
         OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
     }
 
     private void ActualizarUsoCfdi()
     {
         var regimen = AppState.Instance.CuentaFiscalActual?.ClaveRegimenFiscal;
-        UsoCfdiOpciones    = UsoCfdiProvider.GetUsoCfdi(regimen);
-        UsoCfdiSeleccionado = null;
+        _usoCfdiOpciones    = UsoCfdiProvider.GetUsoCfdi(regimen);
+        _usoCfdiSeleccionado = null;
+        if (SelectorUsoCfdi is null) return;
+
+        SelectorUsoCfdi.Elementos = _usoCfdiOpciones.Select(u => u.Descripcion).ToList();
+
+        // Restaurar preferencia si el código guardado sigue siendo válido en el nuevo régimen
+        var codigoUso = Preferences.Default.Get(PrefUsoCfdi, string.Empty);
+        if (!string.IsNullOrEmpty(codigoUso))
+        {
+            var idx = _usoCfdiOpciones.FindIndex(u => u.Codigo == codigoUso);
+            if (idx >= 0)
+            {
+                _usoCfdiSeleccionado = _usoCfdiOpciones[idx];
+                SelectorUsoCfdi.IndiceSeleccionado = idx;
+                return;
+            }
+        }
+        SelectorUsoCfdi.IndiceSeleccionado = -1;
+    }
+
+    // ── Selector events ──────────────────────────────────────────────────────
+
+    private void OnFormaPagoCambiada(object? sender, int indice)
+    {
+        _formaPagoSeleccionada = indice >= 0 && indice < FormasPago.Count ? FormasPago[indice] : null;
+        if (_formaPagoSeleccionada is not null)
+            Preferences.Default.Set(PrefFormaPago, _formaPagoSeleccionada.Codigo);
+
+        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+        _tarjetaSeleccionada = null;
+        SelectorTarjeta.IndiceSeleccionado = -1;
+        OnPropertyChanged(nameof(MostrarTarjetas));
+        OnPropertyChanged(nameof(MostrarSelectorTarjeta));
+        OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
+
+        if (MostrarTarjetas)
+        {
+            // Restaurar la tarjeta guardada si aplica para este tipo de pago
+            var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
+            if (!string.IsNullOrEmpty(tarjetaId))
+            {
+                var tIdx = tarjetas.FindIndex(t => t.Id == tarjetaId);
+                if (tIdx >= 0)
+                {
+                    _tarjetaSeleccionada = tarjetas[tIdx];
+                    SelectorTarjeta.IndiceSeleccionado = tIdx;
+                }
+            }
+        }
+        else
+        {
+            // Forma de pago no requiere tarjeta: borrar la preferencia guardada
+            Preferences.Default.Remove(PrefTarjeta);
+        }
+    }
+
+    private void OnTarjetaCambiada(object? sender, int indice)
+    {
+        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        _tarjetaSeleccionada = indice >= 0 && indice < tarjetas.Count ? tarjetas[indice] : null;
+        if (_tarjetaSeleccionada is not null)
+            Preferences.Default.Set(PrefTarjeta, _tarjetaSeleccionada.Id);
+    }
+
+    private void OnUsoCfdiCambiado(object? sender, int indice)
+    {
+        _usoCfdiSeleccionado = indice >= 0 && indice < _usoCfdiOpciones.Count ? _usoCfdiOpciones[indice] : null;
+        if (_usoCfdiSeleccionado is not null)
+            Preferences.Default.Set(PrefUsoCfdi, _usoCfdiSeleccionado.Codigo);
     }
 
     // ── Handlers ─────────────────────────────────────────────────────────────
@@ -218,17 +378,32 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task EnviarAsync()
     {
-        if (FormaPagoSeleccionada is null)
+        // Leer valores directamente de los controles en el momento del envío
+        var idxFP = SelectorFormaPago.IndiceSeleccionado;
+        var formaPago = idxFP >= 0 && idxFP < FormasPago.Count
+            ? FormasPago[idxFP] : null;
+
+        var requiereTarjeta = formaPago?.Codigo is "4" or "24";
+        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var idxT = SelectorTarjeta.IndiceSeleccionado;
+        var tarjeta = requiereTarjeta && idxT >= 0 && idxT < tarjetas.Count
+            ? tarjetas[idxT] : null;
+
+        var idxUso = SelectorUsoCfdi.IndiceSeleccionado;
+        var usoCfdi = idxUso >= 0 && idxUso < _usoCfdiOpciones.Count
+            ? _usoCfdiOpciones[idxUso] : null;
+
+        if (formaPago is null)
         {
             await _toastService.ShowAsync("Selecciona el medio de pago.", ToastType.Warning);
             return;
         }
-        if (MostrarTarjetas && TarjetaSeleccionada is null)
+        if (requiereTarjeta && tarjeta is null)
         {
             await _toastService.ShowAsync("Selecciona la tarjeta.", ToastType.Warning);
             return;
         }
-        if (UsoCfdiSeleccionado is null)
+        if (usoCfdi is null)
         {
             await _toastService.ShowAsync("Selecciona el uso de CFDI.", ToastType.Warning);
             return;
@@ -263,45 +438,4 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private async Task CancelarAsync()
         => await Shell.Current.GoToAsync("..");
 
-    private void CapturasCarousel_CurrentItemChanged(object sender, CurrentItemChangedEventArgs e)
-    {
-        if (BindingContext is PaginaCaptura vm && vm.Capturas.Count > 0)
-        {
-            int index = vm.Capturas.IndexOf(e.CurrentItem as CapturaLote) + 1;
-            CapturaCounterLabel.Text = $"{index}/{vm.Capturas.Count}";
-        }
-        else
-        {
-            CapturaCounterLabel.Text = "0/0";
-        }
-    }
-
-    private CapturaLote _capturaSeleccionada;
-    public CapturaLote CapturaSeleccionada
-    {
-        get => _capturaSeleccionada;
-        set
-        {
-            if (_capturaSeleccionada != value)
-            {
-                _capturaSeleccionada = value;
-                OnPropertyChanged();
-                CapturaSeleccionadaIndice = Capturas.IndexOf(value) + 1;
-            }
-        }
-    }
-
-    private int _capturaSeleccionadaIndice;
-    public int CapturaSeleccionadaIndice
-    {
-        get => _capturaSeleccionadaIndice;
-        set
-        {
-            if (_capturaSeleccionadaIndice != value)
-            {
-                _capturaSeleccionadaIndice = value;
-                OnPropertyChanged();
-            }
-        }
-    }
 }

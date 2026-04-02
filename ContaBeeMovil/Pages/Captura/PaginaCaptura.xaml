@@ -36,45 +36,15 @@
                           ColumnSpacing="8">
 
                         <!-- Forma de pago -->
-                        <Border Grid.Column="0"
-                                HorizontalOptions="Fill"
-                                BackgroundColor="{toolkit:AppThemeResource Background}"
-                                StrokeShape="RoundRectangle 12"
-                                StrokeThickness="1"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                Padding="4,0">
-                            <Picker HorizontalOptions="FillAndExpand"
-                                    Title="Medio Pago"
-                                    ItemsSource="{Binding FormasPago}"
-                                    SelectedItem="{Binding FormaPagoSeleccionada}"
-                                    ItemDisplayBinding="{Binding Descripcion}"
-                                    HeightRequest="44"
-                                    FontSize="14"
-                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                    TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                    BackgroundColor="Transparent" />
-                        </Border>
+                        <views:SelectorFlotante Grid.Column="0"
+                                               x:Name="SelectorFormaPago"
+                                               Titulo="Medio Pago" />
 
                         <!-- Tarjeta / Agregar tarjeta -->
                         <Grid Grid.Column="1">
-                            <Border IsVisible="{Binding MostrarTarjetas}"
-                                    HorizontalOptions="Fill"
-                                    BackgroundColor="{toolkit:AppThemeResource Background}"
-                                    StrokeShape="RoundRectangle 12"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    Padding="4,0">
-                                <Picker HorizontalOptions="FillAndExpand"
-                                        Title="Tarjeta"
-                                        ItemsSource="{Binding Tarjetas}"
-                                        SelectedItem="{Binding TarjetaSeleccionada}"
-                                        ItemDisplayBinding="{Binding DisplayLabel}"
-                                        HeightRequest="44"
-                                        FontSize="14"
-                                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                        TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                        BackgroundColor="Transparent" />
-                            </Border>
+                            <views:SelectorFlotante x:Name="SelectorTarjeta"
+                                                   IsVisible="{Binding MostrarSelectorTarjeta}"
+                                                   Titulo="Tarjeta" />
                             <Border IsVisible="{Binding MostrarBotonAgregarTarjeta}"
                                     HorizontalOptions="Fill"
                                     BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -98,23 +68,9 @@
                     <Grid ColumnDefinitions="*,*"
                           Margin="0,8,0,0"
                           ColumnSpacing="8">
-                        <Border Grid.Column="0"
-                                BackgroundColor="{toolkit:AppThemeResource Background}"
-                                StrokeShape="RoundRectangle 12"
-                                StrokeThickness="1"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                Padding="4,0">
-                            <Picker Title="Uso Factura"
-                                    HorizontalOptions="FillAndExpand"
-                                    ItemsSource="{Binding UsoCfdiOpciones}"
-                                    SelectedItem="{Binding UsoCfdiSeleccionado}"
-                                    ItemDisplayBinding="{Binding Descripcion}"
-                                    HeightRequest="44"
-                                    FontSize="14"
-                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                    TitleColor="{toolkit:AppThemeResource SecondaryText}"
-                                    BackgroundColor="Transparent" />
-                        </Border>
+                        <views:SelectorFlotante Grid.Column="0"
+                                               x:Name="SelectorUsoCfdi"
+                                               Titulo="Uso Factura" />
                         <Border Grid.Column="1"
                                 BackgroundColor="{toolkit:AppThemeResource Background}"
                                 StrokeShape="RoundRectangle 12"
@@ -178,30 +134,29 @@
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 </VerticalStackLayout>
 
-                <!-- CarouselView de capturas -->
-                <CarouselView x:Name="CapturasCarousel"
-                              ItemsSource="{Binding Capturas}"
-                              IsVisible="{Binding TieneCapturas}"
-                              CurrentItem="{Binding CapturaSeleccionada, Mode=TwoWay}"
-                              CurrentItemChanged="CapturasCarousel_CurrentItemChanged">
-                    <CarouselView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Horizontal"
-                                           SnapPointsType="MandatorySingle"
-                                           SnapPointsAlignment="Center" />
-                    </CarouselView.ItemsLayout>
-                    <CarouselView.ItemTemplate>
+                <!-- Lista horizontal de capturas -->
+                <CollectionView ItemsSource="{Binding Capturas}"
+                                IsVisible="{Binding TieneCapturas}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:CapturaLote">
-                            <Grid Margin="12,8">
+                            <Grid Margin="12,8"
+                                  WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CapturaItemWidth}"
+                                  HeightRequest="420"
+                                  HorizontalOptions="Center"
+                                  VerticalOptions="Center">
                                 <Border StrokeShape="RoundRectangle 12"
                                         StrokeThickness="1"
                                         Stroke="{toolkit:AppThemeResource SecondaryBackground}"
                                         BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                                    <Grid RowDefinitions="*,Auto">
-                                        <!-- Imagen -->
-                                        <Image Grid.Row="0"
-                                               Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
-                                               Aspect="AspectFill"
-                                               HeightRequest="250">
+                                    <!-- Celda única: imagen + botón superpuesto -->
+                                    <Grid>
+                                        <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
+                                               Aspect="AspectFit"
+                                               HorizontalOptions="Fill"
+                                               VerticalOptions="Fill">
                                             <Image.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
@@ -209,43 +164,41 @@
                                             </Image.GestureRecognizers>
                                         </Image>
 
-                                        <!-- Botón eliminar -->
-                                        <Button Grid.Row="1"
+                                        <!-- Botón eliminar superpuesto, centro inferior sobre la imagen -->
+                                        <Button HorizontalOptions="Center"
+                                                VerticalOptions="End"
+                                                Margin="0,0,0,10"
                                                 Text="{x:Static f:FluentUI.delete_20_regular}"
                                                 FontFamily="FluentUI"
-                                                FontSize="20"
+                                                FontSize="22"
                                                 BackgroundColor="Transparent"
                                                 TextColor="{toolkit:AppThemeResource Error}"
+                                                WidthRequest="44"
                                                 HeightRequest="44"
+                                                Padding="0"
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
-                                                CommandParameter="{Binding .}" />
+                                                CommandParameter="{Binding .}">
+                                            <Button.Shadow>
+                                                <Shadow Brush="Black" Offset="0,0" Radius="6" Opacity="0.9" />
+                                            </Button.Shadow>
+                                        </Button>
                                     </Grid>
                                 </Border>
                             </Grid>
                         </DataTemplate>
-                    </CarouselView.ItemTemplate>
-                </CarouselView>
-
-                <!-- Contador de posición -->
-                <Label x:Name="CapturaCounterLabel"
-                       Text="0/0"
-                       HorizontalOptions="Center"
-                       VerticalOptions="End"
-                       Margin="0,0,0,12"
-                       FontSize="14"
-                       IsVisible="{Binding TieneCapturas}"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
 
             </Grid>
 
-            <!-- ── 8/9/10. Barra de acciones ──────────────────────────────────── -->
+            <!-- ── Barra de acciones: sin capturas (Cancelar + Cámara al 50%) ── -->
             <Grid Grid.Row="2"
-                  ColumnDefinitions="*,Auto,Auto"
+                  ColumnDefinitions="*,*"
                   Padding="12,8,12,12"
                   ColumnSpacing="8"
-                  BackgroundColor="{toolkit:AppThemeResource Background}">
+                  BackgroundColor="{toolkit:AppThemeResource Background}"
+                  IsVisible="{Binding TieneCapturas, Converter={StaticResource InvertedBoolConverter}}">
 
-                <!-- 8. Cancelar -->
                 <Button Grid.Column="0"
                         Text="Cancelar"
                         Command="{Binding CancelarCommand}"
@@ -257,7 +210,6 @@
                         HeightRequest="52"
                         FontSize="15" />
 
-                <!-- 9. Cámara -->
                 <Button Grid.Column="1"
                         Text="{x:Static f:FluentUI.camera_28_regular}"
                         FontFamily="FluentUI"
@@ -267,16 +219,49 @@
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="12"
-                        WidthRequest="60"
                         HeightRequest="52">
                     <Button.Shadow>
                         <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
                     </Button.Shadow>
                 </Button>
 
-                <!-- 10. Enviar (visible solo si hay capturas) -->
+            </Grid>
+
+            <!-- ── Barra de acciones: con capturas (Cancelar + Cámara + Enviar al 33%) ── -->
+            <Grid Grid.Row="2"
+                  ColumnDefinitions="*,*,*"
+                  Padding="12,8,12,12"
+                  ColumnSpacing="8"
+                  BackgroundColor="{toolkit:AppThemeResource Background}"
+                  IsVisible="{Binding TieneCapturas}">
+
+                <Button Grid.Column="0"
+                        Text="Cancelar"
+                        Command="{Binding CancelarCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        BorderColor="{toolkit:AppThemeResource SecondaryText}"
+                        BorderWidth="1.5"
+                        CornerRadius="12"
+                        HeightRequest="52"
+                        FontSize="15" />
+
+                <Button Grid.Column="1"
+                        Text="{x:Static f:FluentUI.camera_28_regular}"
+                        FontFamily="FluentUI"
+                        FontSize="26"
+                        Command="{Binding TomarFotoCommand}"
+                        IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="12"
+                        HeightRequest="52">
+                    <Button.Shadow>
+                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
+                    </Button.Shadow>
+                </Button>
+
                 <Button Grid.Column="2"
-                        IsVisible="{Binding TieneCapturas}"
                         Text="Enviar"
                         Command="{Binding EnviarCommand}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
