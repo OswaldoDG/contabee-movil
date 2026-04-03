@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <conv:BoolToOpacityConverter x:Key="BoolToOpacityConverter" />
             <conv:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+            <conv:FilePathToImageConverter x:Key="FilePathToImageConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
