@@ -56,18 +56,19 @@
                                        Text="{Binding Nombre}"
                                        Style="{StaticResource Body1Strong}"
                                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                       FontAttributes="Bold"/>
+                                       FontAttributes="Bold"
+                                       FontSize="22"/>
 
-                                <Label Grid.Row="1" Grid.Column="0"
+                                <!-- <Label Grid.Row="1" Grid.Column="0"
                                        Text="{Binding Unidades, StringFormat='{0} créditos de captura'}"
                                        Style="{StaticResource Body1}"
-                                       TextColor="{toolkit:AppThemeResource SecondaryText}"/>
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"/> -->
 
                                 <Label Grid.Row="2" Grid.Column="0"
                                        Text="{Binding PrecioTexto}"
                                        Style="{StaticResource Body1Strong}"
                                        TextColor="{toolkit:AppThemeResource Primary}"
-                                       FontSize="18"/>
+                                       FontSize="20"/>
 
                                 <Button Grid.Row="0" Grid.Column="1"
                                         Grid.RowSpan="3"
@@ -97,7 +98,7 @@
         <!-- Overlay de carga — al final para quedar encima del contenido -->
         <Grid x:Name="LoadingOverlay"
               IsVisible="True"
-              BackgroundColor="{toolkit:AppThemeResource Background}"
+              BackgroundColor="Transparent"
               InputTransparent="False">
             <ActivityIndicator IsRunning="True"
                                Color="{toolkit:AppThemeResource Primary}"

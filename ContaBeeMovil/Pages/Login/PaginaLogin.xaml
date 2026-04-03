@@ -27,7 +27,11 @@
                        HeightRequest="100"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
-                       SemanticProperties.Description="ContaBee logo" />
+                       SemanticProperties.Description="ContaBee logo">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLogoTapped" />
+                    </Image.GestureRecognizers>
+                </Image>
 
                 <Image Source="{AppThemeBinding Light=contabeenombreligth.png, Dark=contabeenombredark.png}"
                        HeightRequest="36"

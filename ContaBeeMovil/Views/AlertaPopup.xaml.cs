@@ -25,8 +25,18 @@ public partial class AlertaPopup : Popup
         BtnConfirmar.Text = confirmarText;
         BtnConfirmar.IsVisible = verBotonConfirmar;
 
-        if (!verBotonCancelar) Grid.SetColumnSpan(BtnConfirmar, 2);
-        if (!verBotonConfirmar) Grid.SetColumnSpan(BtnCancelar, 2);
+        if (!verBotonCancelar)
+        {
+            Grid.SetColumnSpan(BtnConfirmar, 2);
+            BtnConfirmar.HorizontalOptions = LayoutOptions.Center;
+            BtnConfirmar.WidthRequest = 130;
+        }
+        if (!verBotonConfirmar)
+        {
+            Grid.SetColumnSpan(BtnCancelar, 2);
+            BtnCancelar.HorizontalOptions = LayoutOptions.Center;
+            BtnCancelar.WidthRequest = 130;
+        }
     }
 
     private void OnCancelar(object sender, EventArgs e)
