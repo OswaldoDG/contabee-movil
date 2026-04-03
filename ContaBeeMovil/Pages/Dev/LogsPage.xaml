@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.Dev.LogsPage"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Title="Logs"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Barra superior -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto"
+              Padding="16,12"
+              BackgroundColor="{toolkit:AppThemeResource Background}">
+            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                <Label Text="Logs del desarrollador"
+                       Style="{StaticResource Body1Strong}" />
+                <Label Text="{Binding Logs.Count, StringFormat='{0} entradas'}"
+                       Style="{StaticResource Caption1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="Limpiar"
+                    Style="{StaticResource DangerButton}"
+                    Clicked="OnLimpiarClicked"
+                    VerticalOptions="Center" />
+        </Grid>
+
+        <BoxView Grid.Row="0" VerticalOptions="End" Style="{StaticResource Divider}" />
+
+        <!-- Lista de logs -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Logs}"
+                        Margin="0">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout VerticalOptions="Center"
+                                     HorizontalOptions="Center"
+                                     Spacing="8">
+                    <Label Text="{x:Static f:FluentUI.document_text_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="48"
+                           HorizontalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <Label Text="No hay logs registrados"
+                           Style="{StaticResource Body1}"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Grid Padding="16,6">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnLogTapped" />
+                        </Grid.GestureRecognizers>
+                        <Label Text="{Binding .}"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontFamily="OpenSansRegular"
+                               LineBreakMode="WordWrap" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

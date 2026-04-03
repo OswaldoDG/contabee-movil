@@ -16,7 +16,9 @@ using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
+using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services;
@@ -76,6 +78,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton(AppState.Instance);
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
+            builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
             builder.Services.AddTransient<AuthHandler>();
 
             // Cliente sin AuthHandler para el endpoint de refresh token
@@ -149,6 +152,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<VisorImagenPage>();
             builder.Services.AddTransient<TiendaPage>();
             builder.Services.AddTransient<ReclamarDemoPage>();
+            builder.Services.AddTransient<LogsPage>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();
             builder.Services.AddTransient<TomarFotoPage>();

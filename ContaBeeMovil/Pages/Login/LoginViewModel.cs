@@ -1,11 +1,14 @@
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -17,6 +20,8 @@ public class LoginViewModel : INotifyPropertyChanged
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioNotificacion _notificacion;
     private readonly IToastService toastService;
+    private readonly IServicioAlmacenamiento _almacenamiento;
+    private const string ClaveMododDev = "ModoDeveloper";
     private string _email = string.Empty;
     private string _password = string.Empty;
     private bool _recordarme;
@@ -30,12 +35,14 @@ public class LoginViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioNotificacion notificacion,
-        IToastService toastService)
+        IToastService toastService,
+        IServicioAlmacenamiento almacenamiento)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
         _notificacion = notificacion;
         this.toastService = toastService;
+        _almacenamiento = almacenamiento;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);
         VincularmeCommand = new Command(async () => await Vincularme());
         IrARegistroCommand = new Command(async () => await IrARegistro());
@@ -183,6 +190,8 @@ public class LoginViewModel : INotifyPropertyChanged
 
             await _servicioSesion.PosLoginAsync();
 
+            await VerificarModoDeveloperAsync();
+
             // Transition animation
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");
@@ -269,6 +278,21 @@ public class LoginViewModel : INotifyPropertyChanged
     }
 
     #endregion
+
+    private async Task VerificarModoDeveloperAsync()
+    {
+        var dto = await _almacenamiento.LeerSeguroAsync<ModoDeveloperDto>(ClaveMododDev);
+        if (dto is { EsDev: true } &&
+            DateTime.TryParse(dto.FechaActivacion, null, DateTimeStyles.RoundtripKind, out var fecha) &&
+            (DateTime.UtcNow - fecha).TotalDays <= 30)
+        {
+            AppState.Instance.EsDev = true;
+        }
+        else
+        {
+            AppState.Instance.EsDev = false;
+        }
+    }
 
     #region INotifyPropertyChanged
 

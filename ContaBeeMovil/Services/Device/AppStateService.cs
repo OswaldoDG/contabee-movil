@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Contabee.Api.Crm;
 using Contabee.Api.Identidad;
@@ -45,6 +46,7 @@ public partial class AppState : ObservableObject
         _mostrarNombreFiscal     = Preferences.Get(PrefsKeys.VerUserName, false);
         _recordarme              = Preferences.Get(PrefsKeys.Recordarme, false);
         _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
+        _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
@@ -57,6 +59,7 @@ public partial class AppState : ObservableObject
         public const string VerUserName            = "AppState_VerUserName";
         public const string Recordarme             = "AppState_Recordarme";
         public const string Licenciamiento         = "AppState_Licenciamiento";
+        public const string EsDev                  = "AppState_EsDev";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -218,5 +221,34 @@ public partial class AppState : ObservableObject
     {
         get => _capturasLote;
         set => SetProperty(ref _capturasLote, value);
+    }
+    
+    // ── Logs ───────────────────────────────────────────────────────────────────
+    private ObservableCollection<string> _logs = [];
+
+    /// <summary>
+    /// Registros del modo desarrollador. No persiste entre sesiones.
+    /// </summary>
+    public ObservableCollection<string> Logs
+    {
+        get => _logs;
+        set => SetProperty(ref _logs, value);
+    }
+
+    // ── EsDev ──────────────────────────────────────────────────────────────────
+    private bool _esDev;
+
+    /// <summary>
+    /// Indica si el modo desarrollador está activo para esta sesión.
+    /// Se evalúa en cada login desde SecureStorage. No persiste en Preferences.
+    /// </summary>
+    public bool EsDev
+    {
+        get => _esDev;
+        set
+        {
+            if (SetProperty(ref _esDev, value))
+                Preferences.Set(PrefsKeys.EsDev, value);
+        }
     }
 }
