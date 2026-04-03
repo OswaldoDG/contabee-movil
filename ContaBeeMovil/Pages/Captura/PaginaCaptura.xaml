@@ -142,48 +142,45 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:CapturaLote">
-                            <Grid Margin="12,8"
+                            <Grid Margin="6,4"
                                   WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CapturaItemWidth}"
-                                  HeightRequest="420"
+                                  HeightRequest="460"
                                   HorizontalOptions="Center"
                                   VerticalOptions="Center">
+                                <!-- Imagen sin fondo, recortada con esquinas redondeadas -->
                                 <Border StrokeShape="RoundRectangle 12"
-                                        StrokeThickness="1"
-                                        Stroke="{toolkit:AppThemeResource SecondaryBackground}"
-                                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                                    <!-- Celda única: imagen + botón superpuesto -->
-                                    <Grid>
-                                        <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
-                                               Aspect="AspectFit"
-                                               HorizontalOptions="Fill"
-                                               VerticalOptions="Fill">
-                                            <Image.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                            </Image.GestureRecognizers>
-                                        </Image>
-
-                                        <!-- Botón eliminar superpuesto, centro inferior sobre la imagen -->
-                                        <Button HorizontalOptions="Center"
-                                                VerticalOptions="End"
-                                                Margin="0,0,0,10"
-                                                Text="{x:Static f:FluentUI.delete_20_regular}"
-                                                FontFamily="FluentUI"
-                                                FontSize="22"
-                                                BackgroundColor="Transparent"
-                                                TextColor="{toolkit:AppThemeResource Error}"
-                                                WidthRequest="44"
-                                                HeightRequest="44"
-                                                Padding="0"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
-                                                CommandParameter="{Binding .}">
-                                            <Button.Shadow>
-                                                <Shadow Brush="Black" Offset="0,0" Radius="6" Opacity="0.9" />
-                                            </Button.Shadow>
-                                        </Button>
-                                    </Grid>
+                                        StrokeThickness="0"
+                                        BackgroundColor="Transparent">
+                                    <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
+                                           Aspect="AspectFill"
+                                           HorizontalOptions="Fill"
+                                           VerticalOptions="Fill">
+                                        <Image.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Image.GestureRecognizers>
+                                    </Image>
                                 </Border>
+
+                                <!-- Botón eliminar superpuesto, centro inferior -->
+                                <Button HorizontalOptions="Center"
+                                        VerticalOptions="End"
+                                        Margin="0,0,0,10"
+                                        Text="{x:Static f:FluentUI.delete_20_regular}"
+                                        FontFamily="FluentUI"
+                                        FontSize="22"
+                                        BackgroundColor="Transparent"
+                                        TextColor="{toolkit:AppThemeResource Error}"
+                                        WidthRequest="44"
+                                        HeightRequest="44"
+                                        Padding="0"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
+                                        CommandParameter="{Binding .}">
+                                    <Button.Shadow>
+                                        <Shadow Brush="Black" Offset="0,0" Radius="6" Opacity="0.9" />
+                                    </Button.Shadow>
+                                </Button>
                             </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
@@ -238,6 +235,7 @@
                 <Button Grid.Column="0"
                         Text="Cancelar"
                         Command="{Binding CancelarCommand}"
+                        IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="Transparent"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
                         BorderColor="{toolkit:AppThemeResource SecondaryText}"
@@ -264,6 +262,7 @@
                 <Button Grid.Column="2"
                         Text="Enviar"
                         Command="{Binding EnviarCommand}"
+                        IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="12"
@@ -308,16 +307,11 @@
                 <!-- Círculo de progreso -->
                 <Grid WidthRequest="160" HeightRequest="160"
                       HorizontalOptions="Center">
-                    <Ellipse WidthRequest="160" HeightRequest="160"
-                             Stroke="{toolkit:AppThemeResource SecondaryBackground}"
-                             StrokeThickness="14"
-                             Fill="Transparent" />
-                    <ActivityIndicator IsRunning="{Binding EstaEnviando}"
-                                       Color="{toolkit:AppThemeResource Primary}"
-                                       WidthRequest="130"
-                                       HeightRequest="130"
-                                       HorizontalOptions="Center"
-                                       VerticalOptions="Center" />
+                    <GraphicsView x:Name="CircularProgress"
+                                  WidthRequest="160"
+                                  HeightRequest="160"
+                                  HorizontalOptions="Center"
+                                  VerticalOptions="Center" />
                     <Label Text="{Binding EnviandoProgreso, StringFormat='{0:P0}'}"
                            FontSize="24"
                            FontAttributes="Bold"
