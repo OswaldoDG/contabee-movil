@@ -6,6 +6,7 @@ using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
+using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
@@ -26,10 +27,14 @@ namespace ContaBeeMovil
             RegisterRoutes();
             _ = CargarNombreUsuarioAsync();
 
+            ActualizarVisibilidadLogs();
+
             AppState.Instance.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(AppState.Perfil))
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
+                else if (e.PropertyName == nameof(AppState.EsDev))
+                    MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
             };
 
             Navigated += (_, _) => ActualizarStatusBar();
@@ -77,6 +82,12 @@ namespace ContaBeeMovil
         private readonly IServicioSesion _servicioSesion;
         private readonly IServicioAlerta _servicioAlerta;
 
+        private void ActualizarVisibilidadLogs()
+        {
+            if (this.FindByName<Grid>("LogsMenuItem") is { } item)
+                item.IsVisible = AppState.Instance.EsDev;
+        }
+
         private void ActualizarNombreLabel()
         {
             var nombre = AppState.Instance.Perfil?.DisplayName;
@@ -99,7 +110,7 @@ namespace ContaBeeMovil
                 return;
 
             var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
-            var ruta = Current.CurrentState.Location.ToString();
+            var ruta = Current?.CurrentState?.Location?.ToString() ?? string.Empty;
             var esPaginaPrimaria = ruta.Contains("main")
                                 || ruta.Contains("dashboard")
                                 || ruta.Contains("facturacion");
@@ -181,6 +192,14 @@ namespace ContaBeeMovil
             await Shell.Current.GoToAsync(nameof(CambiarContrasenaPage));
         }
 
+        // ── Modo desarrollador ────────────────────────────────────────────
+
+        private async void OnLogsClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            await GoToAsync(nameof(LogsPage));
+        }
+
         // ── Items simples ─────────────────────────────────────────────────
 
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
@@ -235,6 +254,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
+            Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
         }
     }
 }

@@ -267,6 +267,24 @@
                            VerticalOptions="Center" />
                 </Grid>
 
+                <!-- Logs (solo visible en modo desarrollador) -->
+                <Grid x:Name="LogsMenuItem"
+                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10"
+                      IsVisible="False">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLogsClicked" />
+                    </Grid.GestureRecognizers>
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUI.bug_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="Logs"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                </Grid>
+
                 <BoxView Style="{StaticResource Divider}" />
 
                 <!-- Toggle tema oscuro/claro -->

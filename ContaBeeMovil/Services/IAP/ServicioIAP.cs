@@ -43,4 +43,47 @@ public class ServicioIAP : IServicioIAP
             await billing.DisconnectAsync();
         }
     }
+
+    public async Task<IEnumerable<InAppBillingPurchase>> RestaurarComprasAsync()
+    {
+        var billing = CrossInAppBilling.Current;
+        try
+        {
+            var conectado = await billing.ConnectAsync();
+            if (!conectado)
+                return [];
+
+            var compras = await billing.GetPurchasesAsync(ItemType.InAppPurchase);
+            return compras ?? [];
+        }
+        catch
+        {
+            return [];
+        }
+        finally
+        {
+            await billing.DisconnectAsync();
+        }
+    }
+
+    public async Task ConsumirCompraAsync(string productId, string purchaseToken)
+    {
+        var billing = CrossInAppBilling.Current;
+        try
+        {
+            var conectado = await billing.ConnectAsync();
+            if (!conectado)
+                return;
+
+            await billing.ConsumePurchaseAsync(productId, purchaseToken);
+        }
+        catch
+        {
+            // Si falla el consumo no bloqueamos al usuario — el backend ya acreditó
+        }
+        finally
+        {
+            await billing.DisconnectAsync();
+        }
+    }
 }
