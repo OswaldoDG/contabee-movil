@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
@@ -16,6 +17,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IServicioCamara _servicioCamara;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IToastService _toastService;
+    private readonly IServicioSesion _servicioSesion;
+    private readonly IServicioTranscript _servicioTranscript;
 
     // ── Preferencias recordadas ──────────────────────────────────────────────
 
@@ -27,11 +30,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript)
     {
-        _servicioCamara = servicioCamara;
-        _servicioAlerta = servicioAlerta;
-        _toastService   = toastService;
+        _servicioCamara    = servicioCamara;
+        _servicioAlerta    = servicioAlerta;
+        _toastService      = toastService;
+        _servicioSesion    = servicioSesion;
+        _servicioTranscript = servicioTranscript;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
         _capturas  = new ObservableCollection<CapturaLote>(AppState.Instance.CapturasLote ?? []);
@@ -50,6 +55,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
 
         InitializeComponent();
+
+        CircularProgress.Drawable = _progressDrawable;
 
         SelectorFormaPago.Elementos = FormasPago.Select(f => f.Descripcion).ToList();
         SelectorFormaPago.IndiceCambiado += OnFormaPagoCambiada;
@@ -80,6 +87,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     protected override void OnAppearing()
     {
         base.OnAppearing();
+        _ = CargarTarjetasYRefrescarAsync();
+    }
+
+    private async Task CargarTarjetasYRefrescarAsync()
+    {
+        if (AppState.Instance.Tarjetas is null)
+            await _servicioSesion.GetTarjetasAsync();
         RefrescarTarjetas();
     }
 
@@ -165,6 +179,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Progreso de envío ────────────────────────────────────────────────────
 
+    private readonly CircularProgressDrawable _progressDrawable = new();
+
     private double _enviandoProgreso;
     public double EnviandoProgreso
     {
@@ -176,7 +192,34 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public bool EstaEnviando
     {
         get => _estaEnviando;
-        private set { _estaEnviando = value; OnPropertyChanged(); }
+        private set
+        {
+            _estaEnviando = value;
+            OnPropertyChanged();
+            if (value)
+            {
+                _progressDrawable.Progress = 0f;
+                CircularProgress?.Invalidate();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Anima suavemente el arco desde su valor actual hasta <paramref name="target"/>.
+    /// Se espera con await para garantizar que el dibujo está completo antes de continuar.
+    /// </summary>
+    private Task AnimarProgresoAsync(float target, uint duracionMs = 350)
+    {
+        var tcs  = new TaskCompletionSource();
+        var from = _progressDrawable.Progress;
+        new Animation(v =>
+        {
+            _progressDrawable.Progress = (float)v;
+            CircularProgress?.Invalidate();
+        }, from, target, Easing.CubicOut)
+        .Commit(this, "ProgresoAnim", length: duracionMs,
+                finished: (_, _) => tcs.TrySetResult());
+        return tcs.Task;
     }
 
     // ── Comandos ─────────────────────────────────────────────────────────────
@@ -378,64 +421,205 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task EnviarAsync()
     {
-        // Leer valores directamente de los controles en el momento del envío
+        // ── Punto 1: Validar campos obligatorios ─────────────────────────────
+        var cuentaFiscal = AppState.Instance.CuentaFiscalActual;
+        if (cuentaFiscal is null)
+        {
+            await _toastService.ShowAsync("Selecciona una cuenta fiscal.", ToastType.Warning, position: ToastPosition.Bottom);
+            return;
+        }
+
         var idxFP = SelectorFormaPago.IndiceSeleccionado;
-        var formaPago = idxFP >= 0 && idxFP < FormasPago.Count
-            ? FormasPago[idxFP] : null;
-
-        var requiereTarjeta = formaPago?.Codigo is "4" or "24";
-        var tarjetas = AppState.Instance.Tarjetas ?? [];
-        var idxT = SelectorTarjeta.IndiceSeleccionado;
-        var tarjeta = requiereTarjeta && idxT >= 0 && idxT < tarjetas.Count
-            ? tarjetas[idxT] : null;
-
-        var idxUso = SelectorUsoCfdi.IndiceSeleccionado;
-        var usoCfdi = idxUso >= 0 && idxUso < _usoCfdiOpciones.Count
-            ? _usoCfdiOpciones[idxUso] : null;
-
+        var formaPago = idxFP >= 0 && idxFP < FormasPago.Count ? FormasPago[idxFP] : null;
         if (formaPago is null)
         {
-            await _toastService.ShowAsync("Selecciona el medio de pago.", ToastType.Warning);
+            await _toastService.ShowAsync("Selecciona el método de pago.", ToastType.Warning, position: ToastPosition.Bottom);
             return;
         }
+
+        var requiereTarjeta = formaPago.Codigo is "4" or "28";
+        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var idxT = SelectorTarjeta.IndiceSeleccionado;
+        var tarjeta = requiereTarjeta && idxT >= 0 && idxT < tarjetas.Count ? tarjetas[idxT] : null;
         if (requiereTarjeta && tarjeta is null)
         {
-            await _toastService.ShowAsync("Selecciona la tarjeta.", ToastType.Warning);
+            await _toastService.ShowAsync("Selecciona la tarjeta.", ToastType.Warning, position: ToastPosition.Bottom);
             return;
         }
+
+        var idxUso = SelectorUsoCfdi.IndiceSeleccionado;
+        var usoCfdi = idxUso >= 0 && idxUso < _usoCfdiOpciones.Count ? _usoCfdiOpciones[idxUso] : null;
         if (usoCfdi is null)
         {
-            await _toastService.ShowAsync("Selecciona el uso de CFDI.", ToastType.Warning);
+            await _toastService.ShowAsync("Selecciona el uso de CFDI.", ToastType.Warning, position: ToastPosition.Bottom);
             return;
         }
 
-        EstaEnviando    = true;
+        // ── Punto 2: Validar créditos disponibles en AppState ────────────────
+        var creditosAppState = AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0;
+        if (creditosAppState <= 0)
+        {
+            await _toastService.ShowAsync("No tienes créditos suficientes.", ToastType.Error, position: ToastPosition.Bottom);
+            return;
+        }
+
+        // ── Punto 0: Mostrar overlay ─────────────────────────────────────────
+        EstaEnviando     = true;
         EnviandoProgreso = 0;
+
+        // loteId: se establece en cuanto el servidor crea el lote.
+        // canceladoPorUsuario: true cuando el usuario rechaza el diálogo de créditos insuficientes;
+        //   en ese caso NO se llama a Completar — el proceso termina sin más.
+        long? loteId              = null;
+        bool exitoso              = false;
+        bool canceladoPorUsuario  = false;
+
         try
         {
-            var total = _capturas.Count;
-            for (int i = 0; i < total; i++)
+            // ── Punto 3a: Crear el lote en el servidor ───────────────────────
+            var loteRequest = new CreaLoteCaptura
             {
-                // TODO: conectar con IServicioTranscript.EnviarCapturaAsync(...)
-                await Task.Delay(600);
-                EnviandoProgreso = (double)(i + 1) / total;
-            }
+                CuentaFiscalId = cuentaFiscal.CuentaFiscalId,
+                Tipo = TipoCaptura,
+                ClaveUsoCfdi = usoCfdi.Codigo,
+                ClaveFormaPago = formaPago.Codigo,
+                TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
+                Comentario = NotasAdicionales,
+                DesglosarIEPS = DesglosarIeps
+            };
 
-            AppState.Instance.CapturasLote = null;
-            await _toastService.ShowAsync("Capturas enviadas correctamente.", ToastType.Success);
-            await Shell.Current.GoToAsync("..");
+            var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);
+            if (!loteResult.Ok)
+            {
+                // Sin loteId → no hay lote que completar
+                if (loteResult.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired)
+                {
+                    await _toastService.ShowAsync("No cuentas con créditos suficientes.", ToastType.Error, position: ToastPosition.Bottom);
+                }
+                else
+                {
+                    await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
+                }
+            }
+            else
+            {
+                loteId = loteResult.Payload!.Id;
+                await AnimarProgresoAsync(0.2f);
+
+                // ── Punto 3b: Obtener precarga (SAS token + créditos del lote)
+                var precargaResult = await _servicioTranscript.ObtenerPrecargaAsync(loteId.Value);
+                if (!precargaResult.Ok)
+                {
+                    await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
+                }
+                else
+                {
+                    await AnimarProgresoAsync(0.4f);
+
+                    // ── Punto 4: Validar créditos disponibles vs. capturas ───
+                    var creditosDisponibles = precargaResult.Payload!.CreditosDisponibles;
+                    var totalCapturas = _capturas.Count;
+                    var cantidadAEnviar = totalCapturas;
+                    bool continuar = true;
+
+                    if (creditosDisponibles < totalCapturas)
+                    {
+                        bool aceptar = await _servicioAlerta.MostrarAsync(
+                            $"Solo tienes {creditosDisponibles} créditos disponibles.",
+                            $"¿Quieres procesar {creditosDisponibles} de las {totalCapturas} capturas solicitadas en este momento?",
+                            confirmarText: "Enviar",
+                            cancelarText: "Cancelar");
+
+                        if (!aceptar)
+                        {
+                            canceladoPorUsuario = true;
+                            continuar = false;
+                        }
+                        else
+                            cantidadAEnviar = (int)creditosDisponibles;
+                    }
+
+                    if (continuar)
+                    {
+                        // ── Punto 5: Subir archivos al Blob Storage ──────────
+                        var rutas = _capturas
+                            .Take(cantidadAEnviar)
+                            .Select(c => c.Path)
+                            .ToList();
+
+                        var progresoBlobCallback = new Progress<double>(p =>
+                        {
+                            EnviandoProgreso = 0.4 + 0.6 * p;
+                            _ = AnimarProgresoAsync((float)EnviandoProgreso);
+                        });
+
+                        var subirResult = await _servicioTranscript.SubirArchivosBlobAsync(
+                            precargaResult.Payload.SasToken, rutas, progresoBlobCallback);
+
+                        if (!subirResult.Ok)
+                            await _toastService.ShowAsync("Ha ocurrido un error al intentar enviar su captura.", ToastType.Error, position: ToastPosition.Bottom);
+                        else
+                            exitoso = true;
+                    }
+                }
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            await _toastService.ShowAsync($"Error al enviar: {ex.Message}", ToastType.Error);
+            await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
         }
-        finally
+
+        // ── Punto 6: Completar el lote ───────────────────────────────────────
+        // Se llama sólo si el lote fue creado Y el usuario no canceló en el diálogo de créditos.
+        if (loteId.HasValue && !canceladoPorUsuario)
         {
-            EstaEnviando = false;
+            var completarResult = await _servicioTranscript.CompletarLoteAsync(loteId.Value);
+            if (completarResult.Ok && exitoso)
+            {
+                await Task.Delay(400); // Pausa breve para ver el 100 %
+                AppState.Instance.CapturasLote = null;
+                _capturas.Clear();
+                await _toastService.ShowAsync("¡Envío completado!", ToastType.Success, position: ToastPosition.Bottom);
+                await Shell.Current.GoToAsync("..");
+            }
+            // En cualquier otro caso: terminar proceso sin eliminar capturas
         }
+
+        EstaEnviando = false;
     }
 
     private async Task CancelarAsync()
         => await Shell.Current.GoToAsync("..");
+
+    // ── Drawable: círculo de progreso ─────────────────────────────────────────
+
+    private sealed class CircularProgressDrawable : IDrawable
+    {
+        public float Progress { get; set; }   // 0.0 – 1.0
+
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            var cx = dirtyRect.Width  / 2f;
+            var cy = dirtyRect.Height / 2f;
+            const float strokeWidth = 14f;
+            var radius = Math.Min(cx, cy) - strokeWidth / 2f;
+
+            // Pista (fondo del círculo)
+            canvas.StrokeColor = UIHelpers.GetColor("SecondaryBackground");
+            canvas.StrokeSize  = strokeWidth;
+            canvas.DrawCircle(cx, cy, radius);
+
+            if (Progress <= 0) return;
+
+            // Arco de progreso: arranca en las 12 en punto (270°) y gira a la derecha
+            canvas.StrokeColor   = UIHelpers.GetColor("Primary");
+            canvas.StrokeSize    = strokeWidth;
+            canvas.StrokeLineCap = LineCap.Round;
+
+            var sweep = Progress * 360f;
+            canvas.DrawArc(cx - radius, cy - radius, radius * 2f, radius * 2f,
+                           270f, 270f + sweep, false, false);
+        }
+    }
 
 }
