@@ -21,7 +21,7 @@ public partial class VisorImagenPage : ContentPage
 
     // ── Pan para desplazar cuando hay zoom ───────────────────────────────────
 
-    private void OnPanUpdated(object sender, PanUpdatedEventArgs e)
+    private void OnPanUpdated(object? sender, PanUpdatedEventArgs e)
     {
         if (_currentScale <= 1) return;
 
@@ -50,7 +50,7 @@ public partial class VisorImagenPage : ContentPage
 
     // ── Doble tap: alternar zoom 1x / 2.5x ───────────────────────────────────
 
-    private async void OnDoubleTap(object sender, TappedEventArgs e)
+    private async void OnDoubleTap(object? sender, TappedEventArgs e)
     {
         _currentScale = _currentScale > 1 ? 1 : 2.5;
         await ImgVisor.ScaleToAsync(_currentScale, 250, Easing.CubicInOut);

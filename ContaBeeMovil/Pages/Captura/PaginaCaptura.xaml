@@ -53,7 +53,7 @@
                                     Stroke="{toolkit:AppThemeResource Accent1}"
                                     Padding="0">
                                 <Button Text="+ Tarjeta"
-                                        HorizontalOptions="FillAndExpand"
+                                        HorizontalOptions="Fill"
                                         Command="{Binding IrAgregarTarjetaCommand}"
                                         FontSize="14"
                                         FontAttributes="Bold"
@@ -262,7 +262,7 @@
                 <Button Grid.Column="2"
                         Text="Enviar"
                         Command="{Binding EnviarCommand}"
-                        IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
+                        IsEnabled="{Binding PuedeEnviar}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="12"
@@ -271,6 +271,14 @@
                         FontSize="15"
                         FontAttributes="Bold"
                         ContentLayout="Left,6">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button"
+                                     Binding="{Binding PuedeEnviar}"
+                                     Value="False">
+                            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                            <Setter Property="Shadow" Value="{x:Null}" />
+                        </DataTrigger>
+                    </Button.Triggers>
                     <Button.Shadow>
                         <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
                     </Button.Shadow>

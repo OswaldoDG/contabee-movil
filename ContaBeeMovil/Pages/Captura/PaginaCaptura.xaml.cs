@@ -44,6 +44,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             OnPropertyChanged(nameof(TieneCapturas));
             OnPropertyChanged(nameof(ColumnSpanCamara));
+            OnPropertyChanged(nameof(PuedeEnviar));
         };
         ActualizarUsoCfdi();
 
@@ -112,9 +113,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private FormaPago? _formaPagoSeleccionada;
 
-    public bool MostrarTarjetas          => _formaPagoSeleccionada?.Codigo is "4" or "24";
+    public bool MostrarTarjetas          => _formaPagoSeleccionada?.Codigo is "4" or "28";
     public bool MostrarSelectorTarjeta   => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) > 0;
     public bool MostrarBotonAgregarTarjeta => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) == 0;
+
+    public bool PuedeEnviar =>
+        TieneCapturas &&
+        _formaPagoSeleccionada is not null &&
+        _usoCfdiSeleccionado is not null &&
+        (!MostrarTarjetas || _tarjetaSeleccionada is not null);
 
     // ── Tarjetas ─────────────────────────────────────────────────────────────
 
@@ -312,6 +319,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         OnPropertyChanged(nameof(MostrarSelectorTarjeta));
         OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
+        OnPropertyChanged(nameof(PuedeEnviar));
     }
 
     private void ActualizarUsoCfdi()
@@ -373,6 +381,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             // Forma de pago no requiere tarjeta: borrar la preferencia guardada
             Preferences.Default.Remove(PrefTarjeta);
         }
+
+        OnPropertyChanged(nameof(PuedeEnviar));
     }
 
     private void OnTarjetaCambiada(object? sender, int indice)
@@ -381,6 +391,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _tarjetaSeleccionada = indice >= 0 && indice < tarjetas.Count ? tarjetas[indice] : null;
         if (_tarjetaSeleccionada is not null)
             Preferences.Default.Set(PrefTarjeta, _tarjetaSeleccionada.Id);
+        OnPropertyChanged(nameof(PuedeEnviar));
     }
 
     private void OnUsoCfdiCambiado(object? sender, int indice)
@@ -388,6 +399,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _usoCfdiSeleccionado = indice >= 0 && indice < _usoCfdiOpciones.Count ? _usoCfdiOpciones[indice] : null;
         if (_usoCfdiSeleccionado is not null)
             Preferences.Default.Set(PrefUsoCfdi, _usoCfdiSeleccionado.Codigo);
+        OnPropertyChanged(nameof(PuedeEnviar));
     }
 
     // ── Handlers ─────────────────────────────────────────────────────────────
