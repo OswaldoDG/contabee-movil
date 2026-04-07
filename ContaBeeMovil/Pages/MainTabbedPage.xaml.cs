@@ -36,11 +36,13 @@ public partial class MainTabbedPage : ContentPage
 
     private void OnTabChanged(object? sender, int index) => SwitchToTab(index);
 
-    private void SwitchToTab(int index)
+    private async void SwitchToTab(int index)
     {
         if (_currentIndex == index) return;
         _currentIndex = index;
         TabBar.SelectedIndex = index;
+
+        await PageContainer.FadeTo(0, 120, Easing.CubicIn);
 
         switch (index)
         {
@@ -56,5 +58,7 @@ public partial class MainTabbedPage : ContentPage
                 _facturacionPage.OnTabActivated();
                 break;
         }
+
+        await PageContainer.FadeTo(1, 180, Easing.CubicOut);
     }
 }

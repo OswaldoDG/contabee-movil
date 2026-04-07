@@ -102,8 +102,16 @@ public partial class QRPage : ContentPage
         await Navigation.PopModalAsync();
     }
 
+    private const string DemoQrUrl = "https://siat.sat.gob.mx/app/qr/faces/pages/mobile/validadorqr.jsf?D1=10&D2=1&D3=00000000000_DEMO800101AA1";
+
     private async Task ProcessQrResultAsync(string url)
     {
+        if (url.Equals(DemoQrUrl, StringComparison.OrdinalIgnoreCase))
+        {
+            await RegistrarRfcDemoAsync();
+            return;
+        }
+
         var model = (QRPageModel)BindingContext;
 
         if (string.IsNullOrEmpty(model.TipoPersona))
@@ -155,6 +163,42 @@ public partial class QRPage : ContentPage
         {
             LoadingOverlay.IsVisible = false;
             var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta fiscal.";
+            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+            _isProcessing = false;
+            BarcodeReader.IsDetecting = true;
+        }
+    }
+
+    private async Task RegistrarRfcDemoAsync()
+    {
+        LoadingOverlay.IsVisible = true;
+
+        var modelo = new CuentaFiscalMinima
+        {
+            Tipo               = TipoPersonaFiscal.Fisica,
+            Rfc                = "DEMO800101AA1",
+            Nombre             = "Empresa Demo ContaBee",
+            CodigoPostal       = "01000",
+            Compartido         = false,
+            ClaveRegimenFiscal = "612"
+        };
+
+        var respuesta = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
+
+        if (respuesta.Ok)
+        {
+            var cuentas = await _servicioCrm.GetAsociacionesFiscales();
+            if (cuentas.Ok && cuentas.Payload != null)
+                AppState.Instance.CuentasFiscales = cuentas.Payload;
+
+            LoadingOverlay.IsVisible = false;
+            await Navigation.PopModalAsync();
+            await Shell.Current.GoToAsync("..");
+        }
+        else
+        {
+            LoadingOverlay.IsVisible = false;
+            var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta demo.";
             await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;

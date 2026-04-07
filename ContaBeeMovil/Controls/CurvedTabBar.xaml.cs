@@ -4,6 +4,10 @@ public partial class CurvedTabBar : ContentView
 {
     public event EventHandler<int>? TabChanged;
 
+    private const float RestingNotchDepth = 45f;
+    private const float FlatNotchDepth    = 5f;   // iguala TopOffset del drawable → barra plana
+    private readonly bool _initialized;
+
     // ── BarColor — sincroniza drawable + botón flotante ───────────────────
     public static readonly BindableProperty BarColorProperty =
         BindableProperty.Create(
@@ -48,6 +52,7 @@ public partial class CurvedTabBar : ContentView
         InitializeComponent();
         CurvedBackground.Drawable = _drawable;
         UpdateVisualState(0);
+        _initialized = true;
     }
 
     // ── Posición normalizada de la curva por índice ───────────────────────
@@ -59,7 +64,7 @@ public partial class CurvedTabBar : ContentView
     };
 
     // ── Tap handlers ──────────────────────────────────────────────────────
-    private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)     => SelectTab(0);
+    private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)      => SelectTab(0);
     private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e) => SelectTab(1);
     private void OnFloatingButton_Tapped(object? sender, TappedEventArgs e) { /* tab ya activo */ }
 
@@ -73,22 +78,77 @@ public partial class CurvedTabBar : ContentView
     // ── Estado visual ─────────────────────────────────────────────────────
     private void UpdateVisualState(int index)
     {
-        // Redibujar la curva en la posición del tab activo
-        _drawable.NotchPosition = GetNotchPosition(index);
-        CurvedBackground.Invalidate();
-
         // Ícono del botón flotante
         FloatingIconHome.IsVisible        = index == 0;
         FloatingIconFacturacion.IsVisible = index == 1;
-
-        // Mover el botón al centro del tab activo
-        PositionFloatingButton(index, Width);
 
         // Ocultar el tab interno del tab activo (su ícono está en el botón)
         TabInicio.Opacity           = index == 0 ? 0 : 1;
         TabInicio.InputTransparent  = index == 0;
         TabFacturacion.Opacity          = index == 1 ? 0 : 1;
         TabFacturacion.InputTransparent = index == 1;
+
+        // El botón salta inmediatamente, solo la muesca anima
+        PositionFloatingButton(index, Width);
+        AnimateNotch(index);
+    }
+
+    // ── Animación alternativa: deslizamiento horizontal ───────────────────
+    // Para volver a ella, reemplaza la llamada AnimateNotch(index) en
+    // UpdateVisualState por AnimateNotchSlide(index).
+    //private void AnimateNotchSlide(int newIndex)
+    //{
+    //    float fromPosition = _drawable.NotchPosition;
+    //    float toPosition   = GetNotchPosition(newIndex);
+    //    if (!_initialized) { _drawable.NotchPosition = toPosition; CurvedBackground.Invalidate(); return; }
+    //    this.AbortAnimation("NotchAnim");
+    //    var anim = new Animation(v =>
+    //    {
+    //        _drawable.NotchPosition = (float)v;
+    //        CurvedBackground.Invalidate();
+    //    }, fromPosition, toPosition);
+    //    anim.Commit(this, "NotchAnim", length: 250, easing: Easing.CubicInOut);
+    //}
+
+    // ── Animación en dos fases: retrae → reaparece ────────────────────────
+    private void AnimateNotch(int newIndex)
+    {
+        float toPosition = GetNotchPosition(newIndex);
+
+        // Sin animación en la carga inicial
+        if (!_initialized)
+        {
+            _drawable.NotchPosition = toPosition;
+            CurvedBackground.Invalidate();
+            PositionFloatingButton(newIndex, Width);
+            return;
+        }
+
+        this.AbortAnimation("NotchAnim");
+
+        // Fase 1 — retrae la muesca actual (depth → plano)
+        var retract = new Animation(v =>
+        {
+            _drawable.NotchDepth = (float)v;
+            CurvedBackground.Invalidate();
+        }, _drawable.NotchDepth, FlatNotchDepth, Easing.CubicIn);
+
+        retract.Commit(this, "NotchAnim", length: 150, finished: (_, cancelled) =>
+        {
+            if (cancelled) return;
+
+            // Mueve la muesca al nuevo icono cuando está plana (el botón ya está ahí)
+            _drawable.NotchPosition = toPosition;
+
+            // Fase 2 — reaparece la muesca en el nuevo icono (depth → completo)
+            var expand = new Animation(v =>
+            {
+                _drawable.NotchDepth = (float)v;
+                CurvedBackground.Invalidate();
+            }, FlatNotchDepth, RestingNotchDepth, Easing.CubicOut);
+
+            expand.Commit(this, "NotchAnim", length: 150);
+        });
     }
 
     // ── Posicionamiento horizontal del botón ──────────────────────────────
