@@ -48,7 +48,7 @@
             </Grid>
         </Border>
 
-        <views:ActividadView Grid.Row="1" />
+        <views:ActividadView Grid.Row="1" VerticalOptions="Start" />
 
     </Grid>
 

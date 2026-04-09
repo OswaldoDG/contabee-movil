@@ -31,17 +31,14 @@
         <Grid x:Name="BarraPaginacion"
               Grid.Row="1"
               IsVisible="False"
-              ColumnDefinitions="Auto,*,Auto"
-              ColumnSpacing="10"
               Padding="5">
 
             <Label x:Name="LabelEncontrados"
-                   Grid.Column="0"
                    Style="{StaticResource Body2}"
                    HorizontalOptions="Start"
                    VerticalOptions="Center" />
 
-            <HorizontalStackLayout Grid.Column="1"
+            <HorizontalStackLayout HorizontalOptions="Center"
                                    VerticalOptions="Center"
                                    Spacing="5">
 
