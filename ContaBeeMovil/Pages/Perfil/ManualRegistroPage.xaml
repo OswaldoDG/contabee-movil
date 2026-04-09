@@ -7,16 +7,21 @@
              Title="Nueva cuenta fiscal"
              BackgroundColor="#66000000">
 
-    <Grid>
+    <Grid Padding="10">
         <!-- Tarjeta centrada -->
         <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
                 VerticalOptions="Center"
-                HorizontalOptions="Center"
-                StrokeShape="RoundRectangle 12"
+                HorizontalOptions="Fill"
+                StrokeShape="RoundRectangle 16"
                 Stroke="{toolkit:AppThemeResource Accent1}"
                 StrokeThickness="1"
-                Padding="18"
-                WidthRequest="360">
+                Padding="20">
+            <Border.Shadow>
+                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                        Offset="0,4"
+                        Radius="16"
+                        Opacity="0.4" />
+            </Border.Shadow>
             <VerticalStackLayout Spacing="12">
 
                 <Label Text="Nueva cuenta fiscal"
@@ -24,6 +29,7 @@
                        FontSize="20"
                        HorizontalOptions="Center"
                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <BoxView Style="{StaticResource Divider}" />
 
                 <Entry x:Name="EntryName"
                        Placeholder="Nombre o Razón Social"
@@ -107,14 +113,9 @@
                 <views:SelectorFlotante x:Name="SelectorRegimen"
                                         Titulo="Regimen" />
 
-                <HorizontalStackLayout Spacing="8">
-                    <CheckBox x:Name="ChkCompartido"
-                              VerticalOptions="Center"
-                              Color="{toolkit:AppThemeResource Primary}" />
-                    <Label Text="Compartido"
-                           VerticalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                </HorizontalStackLayout>
+                <CheckBox x:Name="ChkCompartido"
+                          IsChecked="True"
+                          IsVisible="False" />
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <Button x:Name="BtnCancel"

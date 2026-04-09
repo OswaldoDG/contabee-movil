@@ -1,23 +1,37 @@
+using ContaBeeMovil.Services.Dev;
 using Plugin.InAppBilling;
 
 namespace ContaBeeMovil.Services.IAP;
 
 public class ServicioIAP : IServicioIAP
 {
+    private readonly IServicioLogs _logs;
+
+    public ServicioIAP(IServicioLogs logs)
+    {
+        _logs = logs;
+    }
+
     public async Task<IEnumerable<InAppBillingProduct>> ObtenerProductosAsync(IEnumerable<string> productIds)
     {
         var billing = CrossInAppBilling.Current;
         try
         {
+            _logs.Log("IAP: ConnectAsync...");
             var conectado = await billing.ConnectAsync();
+            _logs.Log($"IAP: conectado={conectado}");
             if (!conectado)
                 return [];
 
-            var productos = await billing.GetProductInfoAsync(ItemType.InAppPurchase, productIds.ToArray());
+            var ids = productIds.ToArray();
+            _logs.Log($"IAP: GetProductInfoAsync ids=[{string.Join(", ", ids)}]");
+            var productos = await billing.GetProductInfoAsync(ItemType.InAppPurchase, ids);
+            _logs.Log($"IAP: productos recibidos={productos?.Count() ?? 0}");
             return productos ?? [];
         }
-        catch
+        catch (Exception ex)
         {
+            _logs.Log($"IAP: ObtenerProductos excepción — {ex.GetType().Name}: {ex.Message}");
             return [];
         }
         finally

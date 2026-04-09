@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Views;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
 
 namespace ContaBeeMovil.Views;
@@ -14,23 +15,53 @@ public partial class TarjetaFormPopup : Popup
         _onResult        = onResult;
         _tarjetaEditando = tarjeta;
 
+        var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
+        CardBorder.WidthRequest = screenWidth - 40;
+
         if (tarjeta != null)
         {
-            LblTitulo.Text      = "Editar Tarjeta";
-            BtnAccion.Text      = "Guardar";
-            EntryAlias.Text     = tarjeta.Alias;
-            EntryDigitos.Text   = tarjeta.UltimosDigitos;
-            LblContador.Text    = $"{tarjeta.UltimosDigitos.Length}/4";
+            LblTitulo.Text    = "Editar Tarjeta";
+            BtnAccion.Text    = "Guardar";
+            EntryAlias.Text   = tarjeta.Alias;
+            EntryDigitos.Text = tarjeta.UltimosDigitos;
+            LblContador.Text  = $"{tarjeta.UltimosDigitos.Length}/4";
         }
+
+        ActualizarBoton();
     }
+
+    private void OnAliasChanged(object sender, TextChangedEventArgs e) => ActualizarBoton();
 
     private void OnDigitosChanged(object sender, TextChangedEventArgs e)
     {
-        var len = e.NewTextValue?.Length ?? 0;
-        LblContador.Text = $"{len}/4";
+        // Filtrar solo dígitos y limitar a 4
+        var texto = new string((e.NewTextValue ?? string.Empty).Where(char.IsDigit).Take(4).ToArray());
+        if (EntryDigitos.Text != texto)
+        {
+            EntryDigitos.Text = texto;
+            return;
+        }
 
-        var state = len == 0 ? "Empty" : len == 4 ? "Valid" : "Invalid";
-        VisualStateManager.GoToState(LblContador, state);
+        var len = texto.Length;
+        LblContador.Text = $"{len}/4";
+        VisualStateManager.GoToState(LblContador, len == 0 ? "Empty" : len == 4 ? "Valid" : "Invalid");
+
+        // Al llegar a 4 dígitos cerrar el teclado — impide escribir más
+        if (len == 4)
+            EntryDigitos.Unfocus();
+
+        ActualizarBoton();
+    }
+
+    private void ActualizarBoton()
+    {
+        var aliasOk   = !string.IsNullOrWhiteSpace(EntryAlias.Text);
+        var digitosOk = (EntryDigitos.Text?.Length ?? 0) == 4 && (EntryDigitos.Text?.All(char.IsDigit) ?? false);
+        var habilitado = aliasOk && digitosOk;
+
+        BtnAccion.IsEnabled       = habilitado;
+        BtnAccion.BackgroundColor = habilitado ? UIHelpers.GetColor("Primary") : UIHelpers.GetColor("Disabled");
+        BtnAccion.TextColor       = habilitado ? UIHelpers.GetColor("PrimaryText") : UIHelpers.GetColor("SecondaryText");
     }
 
     private async void OnCancelar(object sender, EventArgs e)

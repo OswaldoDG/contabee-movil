@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/neurofant/Library/Logs/CrashReporter/MobileDevice/**)",
+      "Read(//Users/neurofant/Library/**)",
+      "Bash(chmod +x /Users/neurofant/proyectos/contabee/contabee-movil/build-release.sh)",
+      "Bash(sort find:*)",
+      "Bash(grep -v \"^$\")",
+      "Bash(dotnet list:*)",
+      "Bash(dotnet clean:*)"
+    ]
+  }
+}

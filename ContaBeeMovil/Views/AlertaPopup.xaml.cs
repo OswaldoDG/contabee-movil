@@ -16,6 +16,9 @@ public partial class AlertaPopup : Popup
     {
         InitializeComponent();
 
+        var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
+        ContenedorPopup.WidthRequest = Math.Min(screenWidth - 48, 320);
+
         LblTitulo.Text = titulo;
         LblMensaje.Text = mensaje;
 
@@ -27,6 +30,7 @@ public partial class AlertaPopup : Popup
 
         if (!verBotonCancelar)
         {
+            Grid.SetColumn(BtnConfirmar, 0);
             Grid.SetColumnSpan(BtnConfirmar, 2);
             BtnConfirmar.HorizontalOptions = LayoutOptions.Center;
             BtnConfirmar.WidthRequest = 130;

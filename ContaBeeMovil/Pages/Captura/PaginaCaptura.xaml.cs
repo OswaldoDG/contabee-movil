@@ -9,6 +9,8 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using MauiIcons.Core;
+using MauiIcons.Material;
 
 namespace ContaBeeMovil.Pages.Captura;
 
@@ -56,6 +58,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
 
         InitializeComponent();
+
+        BtnCamaraSin.Icon(MaterialIcons.PhotoCamera).IconSize(28);
+        BtnCamaraCon.Icon(MaterialIcons.PhotoCamera).IconSize(28);
 
         CircularProgress.Drawable = _progressDrawable;
 
@@ -427,6 +432,62 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         AppState.Instance.CapturasLote = [.. _capturas];
     }
 
+    // ── Arrastrar imagen hacia abajo para eliminar ────────────────────────────
+
+    private double _panY = 0;
+
+    private async void OnImagePanUpdated(object sender, PanUpdatedEventArgs e)
+    {
+        if (sender is not View border) return;
+
+        // El contenedor animable es el Grid padre del Border
+        if (border.Parent is not View contenedor) return;
+
+        switch (e.StatusType)
+        {
+            case GestureStatus.Started:
+                _panY = 0;
+                break;
+
+            case GestureStatus.Running:
+                // Solo permitir arrastrar hacia abajo
+                if (e.TotalY > 0)
+                {
+                    _panY = e.TotalY;
+                    contenedor.TranslationY = _panY;
+                    // Reducir opacidad progresivamente
+                    contenedor.Opacity = Math.Max(0.4, 1 - (_panY / 300));
+                }
+                break;
+
+            case GestureStatus.Completed:
+            case GestureStatus.Canceled:
+                const double umbral = 100;
+                if (e.StatusType == GestureStatus.Completed && _panY > umbral)
+                {
+                    // Animar salida hacia abajo
+                    await contenedor.TranslateTo(0, 600, 200, Easing.CubicIn);
+
+                    var captura = border.BindingContext as CapturaLote;
+                    if (captura is not null)
+                        await EliminarCapturaAsync(captura);
+
+                    // Restaurar posición (el item se eliminó o el usuario canceló)
+                    contenedor.TranslationY = 0;
+                    contenedor.Opacity = 1;
+                }
+                else
+                {
+                    // Volver a posición original con rebote
+                    await Task.WhenAll(
+                        contenedor.TranslateTo(0, 0, 250, Easing.SpringOut),
+                        contenedor.FadeTo(1, 200));
+                }
+                _panY = 0;
+                break;
+        }
+    }
+
     private async Task VerImagenAsync(CapturaLote captura)
         => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
                new Dictionary<string, object> { ["path"] = captura.Path });
@@ -592,6 +653,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 AppState.Instance.CapturasLote = null;
                 _capturas.Clear();
                 await _toastService.ShowAsync("¡Envío completado!", ToastType.Success, position: ToastPosition.Bottom);
+                FacturacionPage.PendienteActualizarFacturas = true;
                 await Shell.Current.GoToAsync("..");
             }
             // En cualquier otro caso: terminar proceso sin eliminar capturas

@@ -8,7 +8,7 @@ public partial class QRPageModel : ObservableObject
     private string _tipoPersona = "Física";
 
     [ObservableProperty]
-    private bool _compartido;
+    private bool _compartido = true;
 
     public List<string> TiposPersona => new() { "Física", "Moral" };
 }

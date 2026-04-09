@@ -108,15 +108,17 @@ public partial class FacturacionPage : ContentPage
         PanelFiltros.CreadoresIds = ["todos", .. usuarios.Select(u => u.Id.ToString())];
     }
 
-    protected override void OnAppearing()
+    internal static bool PendienteActualizarFacturas { get; set; }
+
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
         ActualizarCreadores();
         PanelFiltros.RestaurarEstado();
-        // TODO: relanzar última consulta al regresar de PaginaCaptura
-        //if (_ultimaBusqueda is null) return;
-        //await Task.Delay(250);
-        //await EjecutarBusqueda(PaginaActual);
+        if (!PendienteActualizarFacturas) return;
+        PendienteActualizarFacturas = false;
+        await Task.Delay(250);
+        PanelFiltros.IrARecientes();
     }
 
     public void OnTabActivated()

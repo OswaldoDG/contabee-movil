@@ -8,49 +8,51 @@
              x:Class="ContaBeeMovil.Views.ActividadView"
              x:DataType="vm:DashboardViewModel">
 
-    <ScrollView VerticalOptions="Start">
-        <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 20"
-                Margin="12,12,12,12"
-                Padding="14">
-            <Border.Triggers>
-                <DataTrigger TargetType="Border"
-                             Binding="{Binding EstaCargando}"
-                             Value="True">
-                    <Setter Property="BackgroundColor"
-                            Value="{toolkit:AppThemeResource Background}" />
-                </DataTrigger>
-                <DataTrigger TargetType="Border"
-                             Binding="{Binding MostrarError}"
-                             Value="True">
-                    <Setter Property="BackgroundColor"
-                            Value="{toolkit:AppThemeResource Background}" />
-                </DataTrigger>
-            </Border.Triggers>
+    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+            Stroke="Transparent"
+            StrokeShape="RoundRectangle 20"
+            Margin="8,8,8,8"
+            Padding="5">
+        <Border.Triggers>
+            <DataTrigger TargetType="Border"
+                         Binding="{Binding EstaCargando}"
+                         Value="True">
+                <Setter Property="BackgroundColor"
+                        Value="{toolkit:AppThemeResource Background}" />
+            </DataTrigger>
+            <DataTrigger TargetType="Border"
+                         Binding="{Binding MostrarError}"
+                         Value="True">
+                <Setter Property="BackgroundColor"
+                        Value="{toolkit:AppThemeResource Background}" />
+            </DataTrigger>
+        </Border.Triggers>
 
-            <Grid>
+        <!-- Outer grid for overlaying spinner/error on top of content -->
+        <Grid>
 
-            <!-- Contenido: visible solo cuando hay datos y no hay error -->
-            <VerticalStackLayout Spacing="10"
-                                 IsVisible="{Binding MostrarContenido}">
+            <!-- Main content: Grid con filas proporcionales para llenar la pantalla -->
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+                  RowSpacing="8"
+                  IsVisible="{Binding MostrarContenido}"
+                  Padding="0,0,0,0">
 
-                <!-- Header: navegación de mes -->
-                <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                <!-- Row 0: Header navegación de mes -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="Auto,*,Auto"
+                      VerticalOptions="Center">
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=ChevronLeft}"
                                  IconColor="{toolkit:AppThemeResource Icon}"
                                  IconSize="30"
                                  BackgroundColor="Transparent"
                                  VerticalOptions="Center"
-                                 IconSuffixFontSize="20"
                                  Padding="2,2">
                         <mi:MauiIcon.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
 
-                    <!-- Mes + Refresh -->
                     <HorizontalStackLayout Grid.Column="1"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"
@@ -85,12 +87,13 @@
                     </mi:MauiIcon>
                 </Grid>
 
-                <!-- Banner: sin actividad registrada -->
-                <Border IsVisible="{Binding SinActividad}"
+                <!-- Row 1: Banner sin actividad (condicional) -->
+                <Border Grid.Row="1"
+                        IsVisible="{Binding SinActividad}"
                         BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 10"
-                        Padding="12,8">
+                        Padding="12,6">
                     <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
                         <mi:MauiIcon Icon="{mi:Material Icon=InfoOutline}"
                                      IconColor="{toolkit:AppThemeResource SecondaryText}"
@@ -103,21 +106,22 @@
                     </HorizontalStackLayout>
                 </Border>
 
-                <!-- Total Facturado -->
-                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
+                <!-- Row 2: Total Facturado -->
+                <Border Grid.Row="2"
+                        BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
-                        Padding="16,8">
+                        Padding="16,6">
                     <Label HorizontalOptions="Center"
                            VerticalOptions="Center">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span Text="$ "
-                                      FontSize="28"
+                                      FontSize="26"
                                       FontAttributes="Bold"
                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
                                 <Span Text="{Binding TotalFacturado, StringFormat='{0:N2}'}"
-                                      FontSize="28"
+                                      FontSize="26"
                                       FontAttributes="Bold"
                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
                             </FormattedString>
@@ -125,101 +129,105 @@
                     </Label>
                 </Border>
 
-                <!-- Créditos Restantes -->
-                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
-                        Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="16,8"
-                        HorizontalOptions="Center">
-                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
-                        <Label Text="Restantes"
-                               FontSize="13"
-                               TextColor="{toolkit:AppThemeResource SecondaryText}"
-                               HorizontalOptions="Center" />
-                        <Label Text="{Binding CreditosRestantes}"
-                               FontSize="26"
-                               FontAttributes="Bold"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               HorizontalOptions="Center" />
-                    </VerticalStackLayout>
-                </Border>
+                <!-- Row 3: Créditos + Emitidas/Fallidas/Pendientes en la misma fila -->
+                <Grid Grid.Row="3"
+                      ColumnDefinitions="Auto,*"
+                      ColumnSpacing="8">
 
-                <!-- Emitidas / Declinadas / Pendientes -->
-                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
-                        Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="16,8">
-                    <Grid ColumnDefinitions="*,*,*">
-                        <!-- Emitidas -->
-                        <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
-                            <Label Text="Emitidas"
+                    <!-- Créditos Restantes -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="{toolkit:AppThemeResource Background}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="16,6">
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Restantes"
                                    FontSize="12"
                                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                                    HorizontalOptions="Center" />
-                            <Label Text="{Binding Emitidas}"
+                            <Label Text="{Binding CreditosRestantes}"
                                    FontSize="24"
                                    FontAttributes="Bold"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    HorizontalOptions="Center" />
                         </VerticalStackLayout>
+                    </Border>
 
-                        <!-- Separador vertical -->
-                        <BoxView Grid.Column="0"
-                                 WidthRequest="1"
-                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                 HorizontalOptions="End"
-                                 VerticalOptions="Fill"
-                                 Margin="0,4" />
+                    <!-- Emitidas / Fallidas / Pendientes -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="{toolkit:AppThemeResource Background}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 12"
+                            Padding="8,6">
+                        <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
+                                <Label Text="Emitidas"
+                                       FontSize="11"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="{Binding Emitidas}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
 
-                        <!-- Declinadas -->
-                        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
-                            <Label Text="Fallidas"
-                                   FontSize="12"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   HorizontalOptions="Center" />
-                            <Label Text="{Binding Declinadas}"
-                                   FontSize="24"
-                                   FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                   HorizontalOptions="Center" />
-                        </VerticalStackLayout>
+                            <BoxView Grid.Column="0"
+                                     WidthRequest="1"
+                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                     HorizontalOptions="End"
+                                     VerticalOptions="Fill"
+                                     Margin="0,3" />
 
-                        <!-- Separador vertical -->
-                        <BoxView Grid.Column="1"
-                                 WidthRequest="1"
-                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                 HorizontalOptions="End"
-                                 VerticalOptions="Fill"
-                                 Margin="0,4" />
+                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
+                                <Label Text="Fallidas"
+                                       FontSize="11"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="{Binding Declinadas}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
 
-                        <!-- Pendientes -->
-                        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                            <Label Text="Pendientes"
-                                   FontSize="12"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   HorizontalOptions="Center" />
-                            <Label Text="{Binding Pendientes}"
-                                   FontSize="24"
-                                   FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                   HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
+                            <BoxView Grid.Column="1"
+                                     WidthRequest="1"
+                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                     HorizontalOptions="End"
+                                     VerticalOptions="Fill"
+                                     Margin="0,3" />
 
-                <!-- Gráfica de actividad -->
-                <Border IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
+                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
+                                <Label Text="Pendientes"
+                                       FontSize="11"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       HorizontalOptions="Center" />
+                                <Label Text="{Binding Pendientes}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </Grid>
+
+                <!-- Row 4: Gráfica — ocupa el espacio restante (*) -->
+                <Border Grid.Row="4"
+                        IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
-                        Padding="2,2,2,2">
-                    <VerticalStackLayout Spacing="8">
+                        Padding="2">
+                    <Grid RowDefinitions="Auto,Auto,*">
 
-                        <!-- Título -->
-                        <Label HorizontalOptions="Center"
-                               FontSize="15"
+                        <Label Grid.Row="0"
+                               HorizontalOptions="Center"
+                               FontSize="14"
                                FontAttributes="Bold"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}">
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               Margin="0,6,0,0">
                             <Label.FormattedText>
                                 <FormattedString>
                                     <Span Text="Actividad " />
@@ -228,32 +236,31 @@
                             </Label.FormattedText>
                         </Label>
 
-                        <!-- Leyenda -->
-                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="16">
+                        <HorizontalStackLayout Grid.Row="1"
+                                               HorizontalOptions="Center"
+                                               Spacing="16"
+                                               Margin="0,4">
                             <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                                <Ellipse Fill="#FFC107" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
-                                <Label Text="Emitidos" FontSize="12" VerticalOptions="Center"
+                                <Ellipse Fill="#FFC107" WidthRequest="10" HeightRequest="10" VerticalOptions="Center"/>
+                                <Label Text="Emitidos" FontSize="11" VerticalOptions="Center"
                                        TextColor="{toolkit:AppThemeResource SecondaryText}" />
                             </HorizontalStackLayout>
                             <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                                <Ellipse Fill="#E65100" WidthRequest="12" HeightRequest="12" VerticalOptions="Center"/>
-                                <Label Text="Solicitados" FontSize="12" VerticalOptions="Center"
+                                <Ellipse Fill="#E65100" WidthRequest="10" HeightRequest="10" VerticalOptions="Center"/>
+                                <Label Text="Solicitados" FontSize="11" VerticalOptions="Center"
                                        TextColor="{toolkit:AppThemeResource SecondaryText}" />
                             </HorizontalStackLayout>
                         </HorizontalStackLayout>
 
-                        <!-- Gráfica -->
-                        <chart:SfCartesianChart HeightRequest="200"
-                                                Margin="15"
-                                                BackgroundColor="Transparent"
-                                                >
+                        <chart:SfCartesianChart Grid.Row="2"
+                                                Margin="8,0,8,8"
+                                                BackgroundColor="Transparent">
                             <chart:SfCartesianChart.XAxes>
                                 <chart:NumericalAxis Minimum="1"
                                                      Maximum="{Binding MaximoEjeX}"
                                                      Interval="5"
                                                      ShowMajorGridLines="False"
-                                                     EdgeLabelsDrawingMode="Center"
-                                                     >
+                                                     EdgeLabelsDrawingMode="Center">
                                     <chart:NumericalAxis.LabelStyle>
                                         <chart:ChartAxisLabelStyle FontSize="10" />
                                     </chart:NumericalAxis.LabelStyle>
@@ -269,7 +276,6 @@
                                 </chart:NumericalAxis>
                             </chart:SfCartesianChart.YAxes>
 
-                            <!-- Serie Emitidas -->
                             <chart:ColumnSeries ItemsSource="{Binding DatosGrafica}"
                                                 XBindingPath="Dia"
                                                 YBindingPath="Emitidas"
@@ -277,7 +283,6 @@
                                                 Width="0.4"
                                                 Spacing="0.1" />
 
-                            <!-- Serie Solicitadas -->
                             <chart:ColumnSeries ItemsSource="{Binding DatosGrafica}"
                                                 XBindingPath="Dia"
                                                 YBindingPath="Solicitadas"
@@ -286,12 +291,12 @@
                                                 Spacing="0.1" />
                         </chart:SfCartesianChart>
 
-                    </VerticalStackLayout>
+                    </Grid>
                 </Border>
 
-            </VerticalStackLayout>
+            </Grid>
 
-            <!-- Panel de error -->
+            <!-- Panel de error (overlay) -->
             <VerticalStackLayout IsVisible="{Binding MostrarError}"
                                  VerticalOptions="Center"
                                  HorizontalOptions="Center"
@@ -313,16 +318,14 @@
                         HorizontalOptions="Center" />
             </VerticalStackLayout>
 
-            <!-- Spinner: solo visible mientras carga -->
+            <!-- Spinner (overlay) -->
             <ActivityIndicator IsRunning="{Binding EstaCargando}"
                                IsVisible="{Binding EstaCargando}"
                                Color="{toolkit:AppThemeResource Primary}"
                                VerticalOptions="Center"
-                               HorizontalOptions="Center"
-                               />
+                               HorizontalOptions="Center" />
 
-            </Grid>
-        </Border>
-    </ScrollView>
+        </Grid>
+    </Border>
 
 </ContentView>

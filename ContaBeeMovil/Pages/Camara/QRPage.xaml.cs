@@ -13,7 +13,6 @@ public partial class QRPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private bool _isProcessing;
-    private CancellationTokenSource? _cleanupCts;
 
     public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
     {
@@ -34,14 +33,7 @@ public partial class QRPage : ContentPage
     {
         base.OnAppearing();
 
-        // Cancelar cualquier limpieza pendiente si el usuario volvió a abrir la página
-        _cleanupCts?.Cancel();
         _isProcessing = false;
-
-        // Re-añadir al árbol si fue removido en la limpieza anterior
-        if (!CameraGrid.Children.Contains(BarcodeReader))
-            CameraGrid.Children.Insert(0, BarcodeReader);
-
         BarcodeReader.IsVisible = true;
 
         var status = await Permissions.RequestAsync<Permissions.Camera>();
@@ -55,21 +47,7 @@ public partial class QRPage : ContentPage
     {
         base.OnDisappearing();
         BarcodeReader.IsDetecting = false;
-        BarcodeReader.IsVisible = false;
-
-        // Retrasar la limpieza hasta DESPUÉS de que termine la animación de pop (~300ms)
-        // Hacerlo durante la animación congela la navegación
-        _cleanupCts?.Cancel();
-        _cleanupCts = new CancellationTokenSource();
-        var token = _cleanupCts.Token;
-
-        Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(400), () =>
-        {
-            if (token.IsCancellationRequested) return;
-            BarcodeReader.Handler?.DisconnectHandler();
-            if (CameraGrid.Children.Contains(BarcodeReader))
-                CameraGrid.Children.Remove(BarcodeReader);
-        });
+        BarcodeReader.Handler?.DisconnectHandler();
     }
 
     private void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)

@@ -10,8 +10,8 @@
             StrokeShape="RoundRectangle 12"
             StrokeThickness="1"
             Stroke="{toolkit:AppThemeResource Accent1}"
-            Padding="12,0"
-            HeightRequest="44">
+            Padding="5,0"
+            HeightRequest="40">
         <Border.GestureRecognizers>
             <TapGestureRecognizer Tapped="OnTriggerTapped" />
         </Border.GestureRecognizers>
@@ -27,7 +27,7 @@
                    FontSize="16"
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    VerticalOptions="Center"
-                   Margin="8,0,0,0" />
+                   Margin="1,0,0,0" />
         </Grid>
     </Border>
 

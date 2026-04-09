@@ -1,6 +1,5 @@
-﻿using banditoth.MAUI.DeviceId;
+using banditoth.MAUI.DeviceId;
 using CommunityToolkit.Maui;
-using ZXing.Net.Maui.Controls;
 using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Pages.Registro;
@@ -25,6 +24,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Material;
+using ZXing.Net.Maui.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
@@ -39,35 +39,42 @@ namespace ContaBeeMovil
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
-            builder
-                .UseMauiApp<App>()
-                .UseMaterialMauiIcons()
-                .UseMauiCommunityToolkit()
-                .UseBarcodeReader()
-                .ConfigureSyncfusionToolkit()
-                .ConfigureDeviceIdProvider()
-                .ConfigureMauiHandlers(handlers =>
-                {
+
+            builder.UseMauiApp<App>();
+            builder.UseMaterialMauiIcons();
+            builder.UseBarcodeReader();
+            builder.UseMauiCommunityToolkit();
+            builder.ConfigureSyncfusionToolkit();
+            builder.ConfigureDeviceIdProvider();
+
+            builder.ConfigureMauiHandlers(handlers =>
+            {
 #if WINDOWS
                     Microsoft.Maui.Controls.Handlers.Items.CollectionViewHandler.Mapper.AppendToMapping("KeyboardAccessibleCollectionView", (handler, view) =>
                     {
                         handler.PlatformView.SingleSelectionFollowsFocus = false;
                     });
 #endif
-                })
-                .ConfigureFonts(fonts =>
+#if IOS
+                Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("BorderlessEntry", (handler, view) =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("SegoeUI-Semibold.ttf", "SegoeSemibold");
-                    fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
+                    handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
                 });
+#endif
+            });
+
+            builder.ConfigureFonts(fonts =>
+            {
+                fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                fonts.AddFont("SegoeUI-Semibold.ttf", "SegoeSemibold");
+                fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
+            });
 
 #if DEBUG
             builder.Logging.AddDebug();
             builder.Services.AddLogging(configure => configure.AddDebug());
 #endif
-            //Servicioos
 
             builder.Services.AddSingleton<IToastService, ToastService>();
             builder.Services.AddSingleton<IServicioAlmacenamiento, ServicioAlmacenamiento>();
@@ -109,20 +116,10 @@ namespace ContaBeeMovil
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
 
-
-
-
-
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
 
-            //paginas
-            builder.Services.AddSingleton<ProjectRepository>();
-            builder.Services.AddSingleton<TaskRepository>();
-            builder.Services.AddSingleton<CategoryRepository>();
-            builder.Services.AddSingleton<TagRepository>();
-            builder.Services.AddSingleton<SeedDataService>();
-            builder.Services.AddSingleton<ModalErrorHandler>();
+            // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
@@ -130,7 +127,6 @@ namespace ContaBeeMovil
 
             builder.Services.AddTransient<RegistroViewModel>();
             builder.Services.AddTransient<PaginaRegistro>();
-            // Registro pages
 
             builder.Services.AddTransient<ConfirmarCuentaPage>();
             builder.Services.AddTransient<PaginaLogin>();
@@ -159,18 +155,9 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<QRPageModel>();
             builder.Services.AddTransient<QRPage>();
 
-
-
-
             var app = builder.Build();
             Services = app.Services;
             return app;
-
-
-
-
-
-
         }
     }
 }

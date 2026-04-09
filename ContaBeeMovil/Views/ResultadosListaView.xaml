@@ -31,16 +31,19 @@
         <Grid x:Name="BarraPaginacion"
               Grid.Row="1"
               IsVisible="False"
-              Padding="16,0">
+              ColumnDefinitions="Auto,*,Auto"
+              ColumnSpacing="10"
+              Padding="5">
 
             <Label x:Name="LabelEncontrados"
+                   Grid.Column="0"
                    Style="{StaticResource Body2}"
                    HorizontalOptions="Start"
                    VerticalOptions="Center" />
 
-            <HorizontalStackLayout HorizontalOptions="Center"
+            <HorizontalStackLayout Grid.Column="1"
                                    VerticalOptions="Center"
-                                   Spacing="8">
+                                   Spacing="5">
 
                 <!-- Botón página anterior -->
                 <Border x:Name="BtnAnterior"
@@ -56,9 +59,10 @@
                 <!-- Página actual -->
                 <Label x:Name="LabelPagina"
                        Style="{StaticResource Body2Strong}"
+                       FontSize="12"
                        VerticalOptions="Center"
                        HorizontalOptions="Center"
-                       MinimumWidthRequest="24" />
+                       MinimumWidthRequest="20" />
 
                 <!-- Botón página siguiente -->
                 <Border x:Name="BtnSiguiente"

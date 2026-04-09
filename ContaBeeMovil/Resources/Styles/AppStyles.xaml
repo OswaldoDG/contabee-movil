@@ -327,8 +327,8 @@
     <!-- Circular icon button (e.g. footer icons) -->
     <Style x:Key="CircleIconButton" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 22"/>
-        <Setter Property="HeightRequest" Value="44"/>
-        <Setter Property="WidthRequest" Value="44"/>
+        <Setter Property="HeightRequest" Value="38"/>
+        <Setter Property="WidthRequest" Value="38"/>
         <Setter Property="StrokeThickness" Value="1"/>
         <Setter Property="Stroke" Value="{toolkit:AppThemeResource Accent1}"/>
         <Setter Property="BackgroundColor" Value="Transparent"/>
@@ -338,7 +338,7 @@
     <!-- Icon inside CircleIconButton -->
     <Style x:Key="CircleIconLabel" TargetType="Label">
         <Setter Property="FontFamily" Value="{x:Static f:FluentUI.FontFamily}"/>
-        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontSize" Value="15"/>
         <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
         <Setter Property="HorizontalOptions" Value="Center"/>
         <Setter Property="VerticalOptions" Value="Center"/>
@@ -465,7 +465,7 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 16"/>
         <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
         <Setter Property="StrokeThickness" Value="0"/>
-        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Padding" Value="10"/>
         <Setter Property="Shadow">
             <Shadow Brush="{toolkit:AppThemeResource ShadowSecondary}"
                     Offset="0,2"

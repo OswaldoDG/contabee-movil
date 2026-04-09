@@ -6,14 +6,20 @@
                BackgroundColor="Transparent"
                CanBeDismissedByTappingOutsideOfPopup="False">
 
-    <Border BackgroundColor="{AppThemeBinding Light=#fafafa, Dark=#505050}"
+    <Border x:Name="CardBorder"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            StrokeShape="RoundRectangle 12"
-            Stroke="{AppThemeBinding Light=#d8d9db, Dark=#7a7a7a}"
+            StrokeShape="RoundRectangle 16"
+            Stroke="{toolkit:AppThemeResource Accent1}"
             StrokeThickness="1"
-            Padding="18"
-            WidthRequest="360">
+            Padding="20">
+        <Border.Shadow>
+            <Shadow Brush="#5e000000"
+                    Offset="0,4"
+                    Radius="16"
+                    Opacity="0.4" />
+        </Border.Shadow>
 
         <VerticalStackLayout Spacing="12">
 
@@ -28,7 +34,8 @@
                    Placeholder="Alias"
                    HeightRequest="44"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                   PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                   TextChanged="OnAliasChanged" />
 
             <Entry x:Name="EntryDigitos"
                    Placeholder="Últimos 4 Dígitos"
@@ -83,10 +90,11 @@
                 <Button x:Name="BtnAccion"
                         Grid.Column="1"
                         Text="Agregar"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        BackgroundColor="{toolkit:AppThemeResource Disabled}"
+                        TextColor="{toolkit:AppThemeResource SecondaryText}"
                         CornerRadius="10"
                         HeightRequest="44"
+                        IsEnabled="False"
                         Clicked="OnAceptar">
                     <Button.Triggers>
                         <Trigger TargetType="Button" Property="IsEnabled" Value="False">

@@ -10,7 +10,7 @@
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.TabBarIsVisible="False">
-    <Grid RowDefinitions="*,Auto" Padding="16,20">
+    <Grid RowDefinitions="*,Auto" Padding="10">
 
         <!-- ── Contenido superior (scroll si crece) ── -->
         <ScrollView Grid.Row="0">
@@ -22,11 +22,11 @@
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    Margin="4,0,0,4" />
 
-                <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                <Border Style="{StaticResource ElevatedCard}" Padding="10">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCambiarContrasenaClicked" />
                     </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
                         <BoxView Grid.Column="0"
                              BackgroundColor="{toolkit:AppThemeResource Primary}"
                              WidthRequest="4" CornerRadius="2"
@@ -69,11 +69,11 @@
                TextColor="{toolkit:AppThemeResource Error}"
                Margin="4,0,0,4" />
 
-            <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnEliminarCuentaClicked" />
                 </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
                     <BoxView Grid.Column="0"
                          BackgroundColor="{toolkit:AppThemeResource Error}"
                          WidthRequest="4" CornerRadius="2"
@@ -84,12 +84,12 @@
                        FontSize="22"
                        TextColor="{toolkit:AppThemeResource Error}"
                        VerticalOptions="Center" />
-                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="1">
                         <Label Text="Eliminar cuenta"
                            Style="{StaticResource Body1}"
                            TextColor="{toolkit:AppThemeResource Error}" />
                         <Label Text="Esta acción es permanente e irreversible"
-                           FontSize="12"
+                           FontSize="10"
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                     </VerticalStackLayout>
                     <Label Grid.Column="3"

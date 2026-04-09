@@ -239,7 +239,7 @@ public partial class FiltrosFacturasView : ContentView
         }
     }
 
-    private void OnLabelPeriodoTapped(object sender, TappedEventArgs e)
+    public void IrARecientes()
     {
         var filtros = new List<Filtro>();
 
@@ -264,6 +264,8 @@ public partial class FiltrosFacturasView : ContentView
         var busqueda = new Busqueda { Filtros = filtros, Paginado = new Paginado { Pagina = 1, TamanoPagina = 10 }, Contar = true };
         EjecutarBusqueda(busqueda);
     }
+
+    private void OnLabelPeriodoTapped(object sender, TappedEventArgs e) => IrARecientes();
 
     private void OnBuscarTapped(object sender, TappedEventArgs e)
     {
@@ -325,7 +327,7 @@ public partial class FiltrosFacturasView : ContentView
     private void ActualizarLabelPeriodo()
     {
         var hoy = DateTime.Now;
-        LabelPeriodo.Text = $"{_meses[hoy.Month - 1][..3]}/{hoy.Year}";
+        LabelPeriodo.Text = $"{_meses[hoy.Month - 1][..3]} {hoy.Year % 100:D2}";
     }
 
     private record FiltrosPersistidos(

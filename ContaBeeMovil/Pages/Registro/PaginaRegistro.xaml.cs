@@ -23,13 +23,26 @@ public partial class PaginaRegistro : ContentPage
         _viewModel = viewModel;
         BindingContext = _viewModel;
         UpdatePasswordRuleIcons(_viewModel.Password);
+        UpdateButtonColor(_viewModel.PuedeRegistrar);
 
-        // Suscribir cambios del password para actualizar iconos dinámicamente
         _viewModel.PropertyChanged += (_, args) =>
         {
             if (args.PropertyName == nameof(RegistroViewModel.Password))
-                UpdatePasswordRuleIcons(_viewModel.Password); // ✅ sin cast
+                UpdatePasswordRuleIcons(_viewModel.Password);
+            if (args.PropertyName == nameof(RegistroViewModel.PuedeRegistrar) ||
+                args.PropertyName == nameof(RegistroViewModel.Password) ||
+                args.PropertyName == nameof(RegistroViewModel.ConfirmarPassword) ||
+                args.PropertyName == nameof(RegistroViewModel.Nombre) ||
+                args.PropertyName == nameof(RegistroViewModel.Email))
+                UpdateButtonColor(_viewModel.PuedeRegistrar);
         };
+    }
+
+    void OnConfirmarPasswordTextChanged(object? sender, TextChangedEventArgs e)
+    {
+        var confirmar = e.NewTextValue ?? string.Empty;
+        var password = _viewModel.Password ?? string.Empty;
+        ErrorCoincidenciaLabel.IsVisible = !string.IsNullOrEmpty(confirmar) && confirmar != password;
     }
 
     void OnTogglePasswordClicked(object? sender, EventArgs e)
@@ -52,6 +65,13 @@ public partial class PaginaRegistro : ContentPage
 
         ToggleConfirmPasswordButton.Icon(ConfirmPasswordEntry.IsPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
         
+    }
+
+    void UpdateButtonColor(bool puedeRegistrar)
+    {
+        var primary = UIHelpers.GetColor("Primary");
+        var disabled = UIHelpers.GetColor("Disabled");
+        BtnCrearCuenta.BackgroundColor = puedeRegistrar ? primary : disabled;
     }
 
     void UpdatePasswordRuleIcons(string pwd)

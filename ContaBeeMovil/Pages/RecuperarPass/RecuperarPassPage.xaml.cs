@@ -16,6 +16,26 @@ public partial class RecuperarPassPage : ContentPage
         _toastService = toastService;
     }
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        EntryEmail.Focused += OnEntryFocused;
+        EntryEmail.Unfocused += OnEntryUnfocused;
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        EntryEmail.Focused -= OnEntryFocused;
+        EntryEmail.Unfocused -= OnEntryUnfocused;
+    }
+
+    private void OnEntryFocused(object? sender, FocusEventArgs e) =>
+        LogoImage.IsVisible = false;
+
+    private void OnEntryUnfocused(object? sender, FocusEventArgs e) =>
+        LogoImage.IsVisible = true;
+
     private void OnEmailTextChanged(object? sender, TextChangedEventArgs e)
     {
         BtnRestablecer.IsEnabled = !string.IsNullOrWhiteSpace(e.NewTextValue);

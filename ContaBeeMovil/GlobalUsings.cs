@@ -1,4 +1,3 @@
-global using ContaBeeMovil.Data;
 global using ContaBeeMovil.PageModels;
 global using ContaBeeMovil.Pages;
 global using ContaBeeMovil.Services;
