@@ -10,9 +10,9 @@
 
     <Grid RowDefinitions="Auto,*">
 
-        <!-- ── Barra superior amarilla ── -->
+        <!-- ── Barra superior ── -->
         <Grid Grid.Row="0"
-              BackgroundColor="{toolkit:AppThemeResource Primary}"
+              BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
               Padding="12,12,12,12">
             <Label Text="{x:Static f:FluentUI.arrow_left_24_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
@@ -34,12 +34,13 @@
                                  Spacing="16">
 
                 <!-- Logo -->
-                <Image Source="logo512.png"
-                       WidthRequest="140"
-                       HeightRequest="140"
+                <Image x:Name="LogoImage"
+                       Source="logo512.png"
+                       WidthRequest="80"
+                       HeightRequest="80"
                        Aspect="AspectFit"
                        HorizontalOptions="Center"
-                       Margin="0,24,0,8" />
+                       Margin="0,12,0,4" />
 
                 <!-- Título -->
                 <Label Text="Restaurar Contraseña"

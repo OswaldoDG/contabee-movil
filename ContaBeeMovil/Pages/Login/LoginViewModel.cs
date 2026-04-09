@@ -273,8 +273,9 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task MostrarInfo()
     {
-        //await _notificacion.MostrarInfoAsync("ContaBee v1.0 — Desarrollado por ContaBee.");
-        await toastService.ShowAsync("ContaBee v1.0 — Desarrollado por ContaBee.", type: ToastType.Warning, position: ToastPosition.Bottom);
+        var version = AppInfo.Current.VersionString;
+        var build = AppInfo.Current.BuildString;
+        await toastService.ShowAsync($"ContaBee v{version} ({build})", type: ToastType.Success, position: ToastPosition.Bottom);
     }
 
     #endregion

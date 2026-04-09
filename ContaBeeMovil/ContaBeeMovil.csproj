@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.7</ApplicationDisplayVersion>
-		<ApplicationVersion>7</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.19</ApplicationDisplayVersion>
+		<ApplicationVersion>19</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -49,9 +49,18 @@
 			
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios'">
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios' AND '$(Configuration)'=='Debug'">
 	  <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
 	  <CodesignProvision>VS: mx.contabee.app Development</CodesignProvision>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios' AND '$(Configuration)'=='Release'">
+	  <CodesignKey>Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)</CodesignKey>
+	  <CodesignProvision>ContaBee_AppStore</CodesignProvision>
+	  <!-- No linkear paquetes de usuario para evitar AOT module mismatches -->
+	  <MtouchLink>SdkOnly</MtouchLink>
+	  <MtouchUseLlvm>True</MtouchUseLlvm>
+	  <!-- Paquetes con módulos AOT incompatibles con net10.0 — usar intérprete para ellos -->
+	  <MtouchInterpreter>-all,+MauiIcons.Core,+MauiIcons.Material,+MauiIcons.FontAwesome,+Newtonsoft.Json,+zxing,+ZXing.Net.Maui,+ZXing.Net.Maui.Controls</MtouchInterpreter>
 	</PropertyGroup>
 	<ItemGroup>
 		<CFBundleURLTypes Include="contabee">
@@ -80,32 +89,31 @@
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.FontAwesome" Version="6.0.0" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="6.0.0" />
 		<PackageReference Include="banditoth.MAUI.DeviceId" Version="1.0.2" />
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="7.0.2">
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.5">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
+		<PackageReference Include="SkiaSharp" Version="3.119.2" />
 		<PackageReference Include="ZXing.Net" Version="0.16.11" />
-		<PackageReference Include="SkiaSharp" Version="3.116.1" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.7.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Plugin.InAppBilling" Version="7.1.0" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<PackageReference Include="Plugin.InAppBilling" Version="10.0.0" />
 		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
-		<PackageReference Include="Microsoft.Data.Sqlite.Core" Version="8.0.8" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.41" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.51" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="NSwag.ApiDescription.Client" Version="13.18.2">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.10" />
-		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.8" />
+		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.9" />
 	</ItemGroup>
+
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Contabee.Api\Contabee.Api.csproj" />

@@ -6,11 +6,12 @@
                CanBeDismissedByTappingOutsideOfPopup="False"
                Background="Transparent">
 
-    <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+    <Border x:Name="ContenedorPopup"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
             Stroke="Transparent"
             StrokeShape="RoundRectangle 20"
             Padding="24,20"
-            WidthRequest="320">
+            Margin="20">
         <Border.Shadow>
             <Shadow Brush="Black" Offset="0,4" Radius="16" Opacity="0.35"/>
         </Border.Shadow>

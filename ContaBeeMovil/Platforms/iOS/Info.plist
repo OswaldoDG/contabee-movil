@@ -30,15 +30,16 @@
 	<string>Assets.xcassets/appicon.appiconset</string>
 	<key>CFBundleIdentifier</key>
 	<string>mx.contabee.app</string>
-	<key>CFBundleDocumentTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string>Document Type 1</string>
-		</dict>
-	</array>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
 	<key>CFBundleDisplayName</key>
 	<string>Contabee</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ContaBee necesita acceso a la cámara para escanear códigos QR de constancias fiscales y tomar fotos de tickets.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ContaBee necesita acceso a tu galería para adjuntar imágenes de tickets.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ContaBee necesita permiso para guardar imágenes en tu galería.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

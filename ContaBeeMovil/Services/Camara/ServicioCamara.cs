@@ -1,4 +1,4 @@
-﻿using SkiaSharp;
+using SkiaSharp;
 using ZXing;
 
 namespace ContaBeeMovil.Services.Camara;

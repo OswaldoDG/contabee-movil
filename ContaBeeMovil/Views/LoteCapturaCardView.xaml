@@ -6,7 +6,7 @@
              xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
              xmlns:transcript="clr-namespace:Contabee.Api.Transcript;assembly=Contabee.Api"
              x:Class="ContaBeeMovil.Views.LoteCapturaCardView"
-             Padding="2">
+             Padding="0">
 
     <ContentView.Resources>
         <converters:BoolToOpacityConverter x:Key="BoolToOpacity" />
@@ -18,7 +18,7 @@
     </ContentView.Resources>
 
     <Border Style="{StaticResource ElevatedCard}"
-            Margin="12,4">
+            Margin="5,4">
 
         <VerticalStackLayout Spacing="10">
 

@@ -26,6 +26,7 @@ namespace ContaBeeMovil
             ThemeSwitch.IsToggled = currentTheme == AppTheme.Dark;
             RegisterRoutes();
             _ = CargarNombreUsuarioAsync();
+            _ = servicioSesion.GetTarjetasAsync();
 
             ActualizarVisibilidadLogs();
 

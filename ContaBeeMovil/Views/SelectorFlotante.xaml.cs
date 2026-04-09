@@ -149,7 +149,7 @@ public partial class SelectorFlotante : ContentView
             contenido = lista;
         }
 
-        await OverlayFlotante.MostrarEnPagina(Trigger, contenido, Trigger.Width);
+        await OverlayFlotante.MostrarEnPagina(Trigger, contenido, Math.Max(Trigger.Width, 150));
     }
 
     private void SeleccionarIndice(int indice)

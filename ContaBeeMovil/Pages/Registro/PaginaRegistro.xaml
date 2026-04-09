@@ -8,200 +8,210 @@
              Title="Registro"
              Shell.TabBarIsVisible="False">
     <Grid>
-    <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="12">
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="20,0,20,0">
 
             <!-- Header -->
-            <Label Text="Crear una cuenta"
-                   FontSize="34"
-                   FontAttributes="Bold"
-                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   HorizontalOptions="Start"
-                   Margin="0,8,0,0"/>
-            <Label Text="Complete la información."
-                   FontSize="14"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   HorizontalOptions="Start"
-                   Margin="0,0,0,8"/>
-
-            <!-- Nombre -->
-                <Border StrokeShape="RoundRectangle 12"
-                    Stroke="Transparent"
-                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                    Padding="14"
-                    Margin="0,6,0,0">
-                <Entry Placeholder="Nombre"
-                       Text="{Binding Nombre}"
-                       BackgroundColor="Transparent"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText }"
-                       FontSize="16"
-                       ClearButtonVisibility="WhileEditing"/>
-            </Border>
-
-            <!-- Correo -->
-                <Border StrokeShape="RoundRectangle 12"
-                    Stroke="Transparent"
-                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                    Padding="14"
-                    Margin="0,6,0,0">
-                <Entry Placeholder="Correo Electronico"
-                       Text="{Binding Email}"
-                       Keyboard="Email"
-                       BackgroundColor="Transparent"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                       FontSize="16"/>
-            </Border>
-
-            <!-- Contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
-                    Stroke="Transparent"
-                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                    Padding="0"
-                    Margin="0,6,0,0">
-                <Grid ColumnDefinitions="*,Auto" Padding="14">
-                    <Entry x:Name="PasswordEntry"
-                           Grid.Column="0"
-                           Placeholder="Contraseña"
-                           Text="{Binding Password}"
-                           IsPassword="True"
-                           BackgroundColor="Transparent"
-                           PlaceholderColor="{toolkit:AppThemeResource  SecondaryText}"
-                           FontSize="16"
-                            
-                           />
-                    <mi:MauiIcon x:Name="TogglePasswordButton"
-             Grid.Column="1"
-             Icon="{mi:Material Icon=Visibility}"
-             IconColor="{toolkit:AppThemeResource Icon}"
-             IconSize="25"
-             VerticalOptions="Center"
-             BackgroundColor="Transparent">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTogglePasswordClicked"/>
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Grid>
-            </Border>
-
-            <!-- Confirmar Contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
-                    Stroke="Transparent"
-                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                    Padding="0"
-                    Margin="0,6,0,0">
-                <Grid ColumnDefinitions="*,Auto" Padding="14">
-                    <Entry x:Name="ConfirmPasswordEntry"
-                           Grid.Column="0"
-                           Placeholder="Confirmar Contraseña"
-                           Text="{Binding ConfirmarPassword}"
-                           IsPassword="True"
-                           BackgroundColor="Transparent"
-                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                           FontSize="16"/>
-                    <mi:MauiIcon x:Name="ToggleConfirmPasswordButton"
-             Grid.Column="1"
-             Icon="{mi:Material Icon=Visibility}"
-             IconColor="{toolkit:AppThemeResource Icon}"
-             IconSize="25"
-             VerticalOptions="Center"
-             BackgroundColor="Transparent">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnToggleConfirmPasswordClicked"/>
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Grid>
-            </Border>
-
-            <!-- Password requirements (FontAwesome icons) -->
-            <VerticalStackLayout Spacing="5" Margin="6,5,0,0">
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconMin6" 
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="20" HeightRequest="20"/>
-                    <Label Text="Mínimo 6 caracteres"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14"/>
-                </HorizontalStackLayout>
-
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconMayus"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="20" HeightRequest="20"/>
-                    <Label Text="Una letra mayúscula"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14"/>
-                </HorizontalStackLayout>
-
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconNumero"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="18" HeightRequest="18"/>
-                    <Label Text="Un número"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14"/>
-                </HorizontalStackLayout>
-
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconEspecial"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="18" HeightRequest="18"/>
-                    <Label Text="Caracter especial (@ $ % &amp; . _ # )"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14"/>
-                </HorizontalStackLayout>
+            <VerticalStackLayout Grid.Row="0"
+                                 Spacing="2"
+                                 Padding="0,12,0,6">
+                <Label Text="Crear una cuenta"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       HorizontalOptions="Start"/>
+                <Label Text="Complete la información."
+                       FontSize="13"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Start"/>
             </VerticalStackLayout>
 
-            <!-- Crear cuenta button -->
-            <Button Text="Crear cuenta"
-                    Command="{Binding RegistrarCommand}"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                    FontAttributes="Bold"
-                    HeightRequest="52"
-                    CornerRadius="10"
-                    HorizontalOptions="Center"
-                    WidthRequest="220"
-                    Margin="0,18,0,6"
-                    />
+            <!-- Form -->
+            <VerticalStackLayout Grid.Row="1"
+                                 Spacing="8"
+                                 VerticalOptions="Center">
+
+                <!-- Nombre -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="12,10">
+                    <Entry Placeholder="Nombre"
+                           Text="{Binding Nombre}"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="15"
+                           ClearButtonVisibility="WhileEditing"/>
+                </Border>
+
+                <!-- Correo -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="12,10">
+                    <Entry Placeholder="Correo Electrónico"
+                           Text="{Binding Email}"
+                           Keyboard="Email"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="15"/>
+                </Border>
+
+                <!-- Contraseña -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="12,10">
+                        <Entry x:Name="PasswordEntry"
+                               Grid.Column="0"
+                               Placeholder="Contraseña"
+                               Text="{Binding Password}"
+                               IsPassword="True"
+                               BackgroundColor="Transparent"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="15"/>
+                        <mi:MauiIcon x:Name="TogglePasswordButton"
+                                     Grid.Column="1"
+                                     Icon="{mi:Material Icon=Visibility}"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconSize="22"
+                                     VerticalOptions="Center"
+                                     BackgroundColor="Transparent">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTogglePasswordClicked"/>
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                    </Grid>
+                </Border>
+
+                <!-- Confirmar Contraseña -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="12,10">
+                        <Entry x:Name="ConfirmPasswordEntry"
+                               Grid.Column="0"
+                               Placeholder="Confirmar Contraseña"
+                               Text="{Binding ConfirmarPassword}"
+                               IsPassword="True"
+                               BackgroundColor="Transparent"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="15"
+                               TextChanged="OnConfirmarPasswordTextChanged"/>
+                        <mi:MauiIcon x:Name="ToggleConfirmPasswordButton"
+                                     Grid.Column="1"
+                                     Icon="{mi:Material Icon=Visibility}"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconSize="22"
+                                     VerticalOptions="Center"
+                                     BackgroundColor="Transparent">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnToggleConfirmPasswordClicked"/>
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                    </Grid>
+                </Border>
+
+                <!-- Error: contraseñas no coinciden -->
+                <Label x:Name="ErrorCoincidenciaLabel"
+                       Text="Las contraseñas no coinciden"
+                       TextColor="{toolkit:AppThemeResource Error}"
+                       FontSize="12"
+                       Margin="4,0,0,0"
+                       IsVisible="False" />
+
+                <!-- Password requirements -->
+                <VerticalStackLayout Spacing="3" Margin="4,2,0,0">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconMin6"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="16"
+                                     WidthRequest="16" HeightRequest="16"/>
+                        <Label Text="Mínimo 6 caracteres"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconMayus"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="16"
+                                     WidthRequest="16" HeightRequest="16"/>
+                        <Label Text="Una letra mayúscula"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconNumero"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="16"
+                                     WidthRequest="16" HeightRequest="16"/>
+                        <Label Text="Un número"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                    </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconEspecial"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="16"
+                                     WidthRequest="16" HeightRequest="16"/>
+                        <Label Text="Caracter especial (@ $ % &amp; . _ # )"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- Crear cuenta button -->
+                <Button x:Name="BtnCrearCuenta"
+                        Text="Crear cuenta"
+                        Command="{Binding RegistrarCommand}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        CornerRadius="10"
+                        HorizontalOptions="Center"
+                        WidthRequest="220"
+                        Margin="0,6,0,0"/>
+
+            </VerticalStackLayout>
 
             <!-- Link para iniciar sesión -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="6" Margin="0,6,0,24">
+            <HorizontalStackLayout Grid.Row="2"
+                                   HorizontalOptions="Center"
+                                   Spacing="6"
+                                   Padding="0,8,0,16">
                 <Label Text="¿Ya tiene una cuenta?"
                        TextColor="{toolkit:AppThemeResource PrimaryText}"
                        VerticalOptions="Center"
-                       FontSize="14"/>
+                       FontSize="13"/>
                 <Label Text="Iniciar sesión"
                        TextColor="{toolkit:AppThemeResource Primary}"
                        FontAttributes="Bold"
                        VerticalOptions="Center"
-                       FontSize="14">
+                       FontSize="13">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding IrALoginCommand}"/>
                     </Label.GestureRecognizers>
                 </Label>
             </HorizontalStackLayout>
 
-        </VerticalStackLayout>
-    </ScrollView>
+        </Grid>
 
-    <!-- Spinner overlay -->
-    <Grid IsVisible="{Binding EstaCargando}"
-          BackgroundColor="#80000000">
-        <ActivityIndicator IsRunning="{Binding EstaCargando}"
-                           Color="{toolkit:AppThemeResource Primary}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center"
-                           WidthRequest="48"
-                           HeightRequest="48"/>
-    </Grid>
+        <!-- Spinner overlay -->
+        <Grid IsVisible="{Binding EstaCargando}"
+              BackgroundColor="#80000000">
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               WidthRequest="48"
+                               HeightRequest="48"/>
+        </Grid>
 
     </Grid>
 </ContentPage>

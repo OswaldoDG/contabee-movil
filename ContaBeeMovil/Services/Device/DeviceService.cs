@@ -30,10 +30,7 @@ public class DeviceService
                 await _almacenamiento.GuardarSeguroAsync(DEVICE_ID_KEY, deviceId);
             }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[DeviceService] Error en CheckDeviceIdAsync: {ex.Message}");
-        }
+        catch { }
     }
 
     public async Task<string?> GetDeviceIdAsync()
@@ -48,22 +45,4 @@ public class DeviceService
             ? $"cbeeid-{idTemp}"
             : $"cbeeid-{Guid.NewGuid()}";
     }
-
-#if ANDROID
-    private string? GetAndroidId()
-    {
-        try
-        {
-            var context = Android.App.Application.Context;
-            return Android.Provider.Settings.Secure.GetString(
-                context.ContentResolver,
-                Android.Provider.Settings.Secure.AndroidId
-            );
-        }
-        catch
-        {
-            return null;
-        }
-    }
-#endif
 }

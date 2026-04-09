@@ -208,7 +208,16 @@ public partial class TiendaPage : ContentPage
 
 #if IOS || MACCATALYST
         var pasarela = PasarelarPago.Apple;
-        var verificationData = compra.OriginalJson;
+        string? verificationData = null;
+        try
+        {
+            var receiptUrl = Foundation.NSBundle.MainBundle.AppStoreReceiptUrl;
+            var receiptData = receiptUrl != null ? Foundation.NSData.FromUrl(receiptUrl) : null;
+            verificationData = receiptData?.GetBase64EncodedString(Foundation.NSDataBase64EncodingOptions.None);
+        }
+        catch { }
+        verificationData ??= compra.OriginalJson;
+        _logs.Log($"Tienda: receipt length={verificationData?.Length ?? 0}");
 #elif ANDROID
         var pasarela = PasarelarPago.Google;
         var verificationData = compra.PurchaseToken;

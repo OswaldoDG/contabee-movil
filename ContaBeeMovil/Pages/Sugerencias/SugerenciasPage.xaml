@@ -10,34 +10,27 @@
              Shell.TabBarIsVisible="False">
     <Grid>
     <ScrollView>
-        <VerticalStackLayout Padding="24" Spacing="12">
-
-            <!-- Logo ContaBee -->
-            <Image Source="logo512.png"
-                   WidthRequest="80"
-                   HeightRequest="80"
-                   HorizontalOptions="Center"
-                   Margin="0,16,0,0" />
+        <VerticalStackLayout Padding="24,16,24,16" Spacing="4">
 
             <!-- Qué me gusta -->
             <Label Text="Qué me gusta:"
                    Style="{StaticResource Body1Strong}"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   Margin="0,8,0,0" />
+                   Margin="0,4,0,0" />
 
-            <Border Stroke="Transparent"
-                    StrokeThickness="0"
+            <Border Stroke="{toolkit:AppThemeResource Accent1}"
+                    StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
                     BackgroundColor="Transparent"
-                    Padding="14">
+                    Padding="10">
                 <Editor x:Name="MeGustaEditor"
                         Placeholder="Escribe tu sugerencia"
                         PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                         BackgroundColor="Transparent"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        FontSize="16"
+                        FontSize="15"
                         MaxLength="500"
-                        HeightRequest="100"
+                        HeightRequest="75"
                         AutoSize="TextChanges"
                         TextChanged="OnEditorTextChanged" />
             </Border>
@@ -46,27 +39,27 @@
                    Style="{StaticResource Caption1}"
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    HorizontalOptions="End"
-                   Margin="0,-8,4,0" />
+                   Margin="0,-6,4,0" />
 
             <!-- Qué no me gusta -->
             <Label Text="Qué no me gusta:"
                    Style="{StaticResource Body1Strong}"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   Margin="0,8,0,0" />
+                   Margin="0,4,0,0" />
 
-            <Border Stroke="Transparent"
-                    StrokeThickness="0"
+            <Border Stroke="{toolkit:AppThemeResource Accent1}"
+                    StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
                     BackgroundColor="Transparent"
-                    Padding="14">
+                    Padding="10">
                 <Editor x:Name="NoMeGustaEditor"
                         Placeholder="Escribe tu sugerencia"
                         PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                         BackgroundColor="Transparent"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        FontSize="16"
+                        FontSize="15"
                         MaxLength="500"
-                        HeightRequest="100"
+                        HeightRequest="75"
                         AutoSize="TextChanges"
                         TextChanged="OnEditorTextChanged" />
             </Border>
@@ -75,27 +68,27 @@
                    Style="{StaticResource Caption1}"
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    HorizontalOptions="End"
-                   Margin="0,-8,4,0" />
+                   Margin="0,-6,4,0" />
 
             <!-- Qué me gustaría -->
             <Label Text="Qué me gustaría:"
                    Style="{StaticResource Body1Strong}"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   Margin="0,8,0,0" />
+                   Margin="0,4,0,0" />
 
-            <Border Stroke="Transparent"
-                    StrokeThickness="0"
+            <Border Stroke="{toolkit:AppThemeResource Accent1}"
+                    StrokeThickness="1"
                     StrokeShape="RoundRectangle 12"
                     BackgroundColor="Transparent"
-                    Padding="14">
+                    Padding="10">
                 <Editor x:Name="MeGustariaEditor"
                         Placeholder="Escribe tu sugerencia"
                         PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                         BackgroundColor="Transparent"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        FontSize="16"
+                        FontSize="15"
                         MaxLength="500"
-                        HeightRequest="100"
+                        HeightRequest="75"
                         AutoSize="TextChanges"
                         TextChanged="OnEditorTextChanged" />
             </Border>
@@ -104,7 +97,7 @@
                    Style="{StaticResource Caption1}"
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    HorizontalOptions="End"
-                   Margin="0,-8,4,0" />
+                   Margin="0,-6,4,0" />
 
             <!-- Botón Enviar -->
             <Button x:Name="BtnEnviar"
@@ -114,12 +107,12 @@
                     Clicked="OnEnviarClicked"
                     HorizontalOptions="Center"
                     WidthRequest="220"
-                    Margin="0,18,0,24">
+                    Margin="0,12,0,24">
                 <Button.ImageSource>
                     <FontImageSource Glyph="{x:Static f:FluentUI.send_24_regular}"
                                      FontFamily="{x:Static f:FluentUI.FontFamily}"
                                      Size="20"
-                                     Color="White" />
+                                     Color="{toolkit:AppThemeResource Icon}"/>
                 </Button.ImageSource>
             </Button>
 

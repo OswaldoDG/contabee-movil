@@ -44,7 +44,7 @@
                 <DataTemplate x:DataType="models:TarjetaModel">
 
                     <SwipeView Margin="0,0"
-                               BackgroundColor="{AppThemeBinding Light=#fefdfc, Dark=#141414}">
+                               BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
@@ -60,7 +60,7 @@
                         </SwipeView.LeftItems>
 
                         <!-- Tarjeta virtual -->
-                        <Border Stroke="Transparent"
+                        <Border Stroke="transparent"
                                 StrokeShape="RoundRectangle 16"
                                 Padding="20,16,20,20"
                                 HorizontalOptions="Fill"
@@ -70,10 +70,6 @@
                                 <TapGestureRecognizer Tapped="OnEditarTarjeta"
                                                       CommandParameter="{Binding .}"/>
                             </Border.GestureRecognizers>
-                            <Border.Shadow>
-                                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
-                                        Offset="0,6" Radius="14" Opacity="0.55"/>
-                            </Border.Shadow>
 
                             <Grid RowDefinitions="*,Auto,Auto" RowSpacing="4">
 

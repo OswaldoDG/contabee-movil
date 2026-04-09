@@ -27,13 +27,39 @@ public partial class PaginaLogin : ContentPage
     {
         base.OnAppearing();
 
-        // Reset form animation state when page appears
         FormContainer.Opacity = 1;
         FormContainer.TranslationX = 0;
         LogoImage.Opacity = 1;
         LogoImage.Scale = 1;
+        HeaderContainer.IsVisible = true;
+
+        EntryEmail.Focused += OnEntryFocused;
+        EntryPassword.Focused += OnEntryFocused;
+        EntryEmail.Unfocused += OnEntryUnfocused;
+        EntryPassword.Unfocused += OnEntryUnfocused;
 
         _tapCount = 0;
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+
+        EntryEmail.Focused -= OnEntryFocused;
+        EntryPassword.Focused -= OnEntryFocused;
+        EntryEmail.Unfocused -= OnEntryUnfocused;
+        EntryPassword.Unfocused -= OnEntryUnfocused;
+    }
+
+    private void OnEntryFocused(object? sender, FocusEventArgs e)
+    {
+        HeaderContainer.IsVisible = false;
+    }
+
+    private void OnEntryUnfocused(object? sender, FocusEventArgs e)
+    {
+        if (!EntryEmail.IsFocused && !EntryPassword.IsFocused)
+            HeaderContainer.IsVisible = true;
     }
 
     private async void OnLogoTapped(object? sender, TappedEventArgs e)
