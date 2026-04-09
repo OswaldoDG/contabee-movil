@@ -33,9 +33,9 @@
 
             <!-- Main content: Grid con filas proporcionales para llenar la pantalla -->
             <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
-                  RowSpacing="20"
+                  RowSpacing="10"
                   IsVisible="{Binding MostrarContenido}"
-                  Padding="0,10,0,20">
+                  Padding="0,5,0,25">
 
                 <!-- Row 0: Header navegación de mes -->
                 <Grid Grid.Row="0"
@@ -230,7 +230,7 @@
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               Margin="0,6,0,0">
+                               Margin="0,0,0,0">
                             <Label.FormattedText>
                                 <FormattedString>
                                     <Span Text="Actividad " />
