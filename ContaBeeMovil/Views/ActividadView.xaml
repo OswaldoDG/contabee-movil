@@ -32,10 +32,10 @@
         <Grid>
 
             <!-- Main content: Grid con filas proporcionales para llenar la pantalla -->
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-                  RowSpacing="8"
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+                  RowSpacing="20"
                   IsVisible="{Binding MostrarContenido}"
-                  Padding="0,0,0,0">
+                  Padding="0,10,0,20">
 
                 <!-- Row 0: Header navegación de mes -->
                 <Grid Grid.Row="0"
@@ -222,8 +222,7 @@
                         IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="2">
+                        StrokeShape="RoundRectangle 12">
                     <Grid RowDefinitions="Auto,Auto,*">
 
                         <Label Grid.Row="0"
@@ -257,7 +256,6 @@
                         </HorizontalStackLayout>
 
                         <chart:SfCartesianChart Grid.Row="2"
-                                                HeightRequest="150"
                                                 Margin="8,0,8,8"
                                                 BackgroundColor="Transparent">
                             <chart:SfCartesianChart.XAxes>
@@ -274,6 +272,7 @@
                             <chart:SfCartesianChart.YAxes>
                                 <chart:NumericalAxis Minimum="0"
                                                      Maximum="{Binding MaximoEjeY}"
+                                                     Interval="1"
                                                      ShowMajorGridLines="True">
                                     <chart:NumericalAxis.LabelStyle>
                                         <chart:ChartAxisLabelStyle FontSize="10" LabelFormat="0" />
