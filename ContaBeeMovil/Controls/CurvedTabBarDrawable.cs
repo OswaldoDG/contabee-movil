@@ -22,13 +22,13 @@ public class CurvedTabBarDrawable : IDrawable
     public Color BarColor { get; set; } = Helpers.UIHelpers.GetColor("Background");
 
     /// <summary>Radio de la zona curva (aprox. la mitad del FloatingButton).</summary>
-    public float NotchRadius { get; set; } = 40f;
+    public float NotchRadius { get; set; } = 30f;
 
     /// <summary>Profundidad máxima de la curva hacia abajo.</summary>
-    public float NotchDepth { get; set; } = 45f;
+    public float NotchDepth { get; set; } = 45.5f;
 
     /// <summary>Margen horizontal extra para suavizar la transición de la curva.</summary>
-    public float NotchMargin { get; set; } = 45f;
+    public float NotchMargin { get; set; } = 30f;
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
     {

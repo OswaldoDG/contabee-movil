@@ -10,6 +10,18 @@ public partial class App : Application
     public static IServiceProvider Services { get; private set; }
     private readonly DeviceService _deviceService;
 
+    protected override void OnStart()
+    {
+        base.OnStart();
+        AppState.Instance.CargarDesdePreferencias();
+    }
+
+    protected override void OnResume()
+    {
+        base.OnResume();
+        AppState.Instance.CargarDesdePreferencias();
+    }
+
     protected override Window CreateWindow(IActivationState? activationState)
     {
         _ = _deviceService.CheckDeviceIdAsync();

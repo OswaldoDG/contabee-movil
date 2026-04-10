@@ -7,6 +7,7 @@ using Contabee.Api.Crm;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Newtonsoft.Json;
 
@@ -15,6 +16,7 @@ namespace ContaBeeMovil.Pages.Dashboard;
 public class DashboardViewModel : INotifyPropertyChanged
 {
     private readonly IServicioTranscript _servicioTranscript;
+    private readonly IServicioAlerta _servicioAlerta;
 
     private const string CacheDataKey        = "Dashboard_Actividad_Data";
     private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
@@ -33,9 +35,10 @@ public class DashboardViewModel : INotifyPropertyChanged
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
-    public DashboardViewModel(IServicioTranscript servicioTranscript)
+    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta)
     {
         _servicioTranscript = servicioTranscript;
+        _servicioAlerta = servicioAlerta;
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
 
@@ -183,7 +186,17 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     private async Task OnReclamarDemoAsync()
     {
-        if (AppState.Instance.CuentaFiscalActual is null) return;
+        var cuenta = AppState.Instance.CuentaFiscalActual;
+        if (cuenta is null) return;
+
+        var rfc = string.IsNullOrWhiteSpace(cuenta.Rfc) ? "RFC no disponible" : cuenta.Rfc;
+        var confirmar = await _servicioAlerta.MostrarAsync(
+            "Reclamar créditos",
+            $"¿Deseas reclamar 15 créditos para {rfc}?",
+            confirmarText: "Reclamar",
+            cancelarText: "Cancelar");
+
+        if (!confirmar) return;
         await Shell.Current.GoToAsync(nameof(ReclamarDemoPage));
     }
 

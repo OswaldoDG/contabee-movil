@@ -14,13 +14,13 @@ public enum ToastPosition { Top, Center, Bottom }
 public interface IToastService
 {
     Task ShowAsync(string message, ToastType type = ToastType.Success,
-                   int durationMs = 3000, ToastPosition position = ToastPosition.Top);
+                   int durationMs = 3000, ToastPosition position = ToastPosition.Bottom);
 }
 
 public class ToastService : IToastService
 {
     public async Task ShowAsync(string message, ToastType type = ToastType.Success,
-                                int durationMs = 3000, ToastPosition position = ToastPosition.Top)
+                                int durationMs = 3000, ToastPosition position = ToastPosition.Bottom)
     {
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
@@ -129,7 +129,7 @@ public class ToastService : IToastService
         // Icono de tipo (círculo con símbolo)
         var iconFrame = new Border
         {
-            BackgroundColor = Colors.Black,
+            BackgroundColor = UIHelpers.GetColor(type == ToastType.Success ? "Success" : type == ToastType.Error ? "Error" : "Warning"),
             StrokeShape = new RoundRectangle { CornerRadius = 14 },
             Stroke = Colors.Transparent,
             WidthRequest = 28,
@@ -147,7 +147,8 @@ public class ToastService : IToastService
             }
         };
         // Mensaje
-        var textColor = (type == ToastType.Success || type == ToastType.Error) ? color : Color.FromArgb("#1A1A1A");
+        var textColor = UIHelpers.GetColor("PrimaryText");
+        //(type == ToastType.Success || type == ToastType.Error) ? color : Color.FromArgb("#1A1A1A");
         var label = new Label
         {
             Text = message,

@@ -37,7 +37,11 @@ public partial class AppState : ObservableObject
         return string.IsNullOrEmpty(json) ? default : JsonConvert.DeserializeObject<T>(json);
     }
 
-    private void CargarDesdePreferencias()
+    /// <summary>
+    /// Recarga todas las variables persistentes desde Preferences/SecureStorage.
+    /// Se llama automáticamente al iniciar la app y al reanudarla.
+    /// </summary>
+    public void CargarDesdePreferencias()
     {
         _perfil                  = LeerObjeto<PerfilUsuario>(PrefsKeys.Perfil);
         _cuentasFiscales         = LeerObjeto<List<AsociacionCuentaFiscalCompleta>>(PrefsKeys.CuentasFiscales);
@@ -47,6 +51,16 @@ public partial class AppState : ObservableObject
         _recordarme              = Preferences.Get(PrefsKeys.Recordarme, false);
         _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
         _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
+
+        // Notificar a todos los bindings activos que los valores se recargaron
+        OnPropertyChanged(nameof(Perfil));
+        OnPropertyChanged(nameof(CuentasFiscales));
+        OnPropertyChanged(nameof(CuentaFiscalActual));
+        OnPropertyChanged(nameof(DireccionFiscalActual));
+        OnPropertyChanged(nameof(MostrarNombreFiscal));
+        OnPropertyChanged(nameof(Recordarme));
+        OnPropertyChanged(nameof(Licenciamiento));
+        OnPropertyChanged(nameof(EsDev));
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
