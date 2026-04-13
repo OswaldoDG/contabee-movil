@@ -16,35 +16,42 @@
                 StrokeShape="RoundRectangle 24"
                 Stroke="Transparent"
                 StrokeThickness="0"
-                BackgroundColor="{toolkit:AppThemeResource Primary}"
-                Padding="16,10"
-                Margin="24,8"
+                BackgroundColor="Transparent"
+                Padding="5,5"
+                Margin="1,1,1,0"
                 HorizontalOptions="Center">
-            <Border.Shadow>
-                <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.3" />
-            </Border.Shadow>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding ReclamarDemoCommand}" />
             </Border.GestureRecognizers>
-            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="8">
-                <Label Grid.Column="0"
-                       Text="Empieza con créditos gratis"
-                       FontSize="14"
-                       FontAttributes="Bold"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       VerticalOptions="Center" />
-                <Border Grid.Column="1"
-                        StrokeShape="RoundRectangle 12"
+
+            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="0" VerticalOptions="Center">
+
+                <!-- Texto -->
+                <Border Grid.Column="0"
+                        StrokeShape="RoundRectangle 24"
                         Stroke="Transparent"
                         StrokeThickness="0"
-                        BackgroundColor="{toolkit:AppThemeResource Secondary}"
-                        Padding="8,4">
-                    <Label Text="15"
-                           FontSize="14"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        Padding="5,5"
+                        VerticalOptions="End">
+                    <Border.Shadow>
+                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.3" />
+                    </Border.Shadow>
+                    <Label Text="Empieza con créditos gratis"
+                           FontSize="15"
                            FontAttributes="Bold"
-                           TextColor="White"
-                           VerticalOptions="Center" />
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           VerticalOptions="End" />
                 </Border>
+
+                <!-- Icono grande sobresaliendo -->
+                <Image Grid.Column="1"
+                       Source="{AppThemeBinding Light=regalo_claro.png, Dark=regalo_oscuro.png}"
+                       WidthRequest="72"
+                       HeightRequest="72"
+                       Aspect="AspectFit"
+                       VerticalOptions="End"
+                       Margin="-8,0,0,0" />
             </Grid>
         </Border>
 

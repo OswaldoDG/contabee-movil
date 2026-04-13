@@ -86,15 +86,18 @@ public partial class CuentaFiscalSelectorPopup : Popup
     private async void OnSeleccionarCuenta(AsociacionCuentaFiscalCompleta cuenta)
     {
         AppState.Instance.CuentaFiscalActual = cuenta;
+        await CloseAsync();
 
         var sesion = IPlatformApplication.Current?.Services.GetRequiredService<IServicioSesion>();
         if (sesion is not null)
         {
-            await sesion.GetLicenciaAsync();
-            await sesion.GetMisUsuariosAsync();
+            try
+            {
+                await sesion.GetLicenciaAsync();
+                await sesion.GetMisUsuariosAsync();
+            }
+            catch { /* errores de red no deben impedir el cierre del popup */ }
         }
-
-        await CloseAsync();
     }
 
     private void OnToggleRfc(object? sender, TappedEventArgs e)

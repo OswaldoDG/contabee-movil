@@ -65,7 +65,8 @@ public partial class ReclamarDemoPage : ContentPage
             return;
         }
 
-        // ── Éxito: refrescar licenciamiento en AppState ──────────────────────
+        // ── Éxito: refrescar cuenta fiscal (EstadoLicenciaDemo) y licenciamiento ──
+        await _servicioSesion.GetAsociacionesFiscalesAsync();
         await _servicioSesion.GetLicenciaAsync();
         MostrarEstado(Estado.Exito, rfc: rfc);
     }

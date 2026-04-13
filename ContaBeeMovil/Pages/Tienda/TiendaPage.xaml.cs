@@ -4,6 +4,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.IAP;
+using ContaBeeMovil.Services.Notifications;
 using Plugin.InAppBilling;
 
 namespace ContaBeeMovil.Pages.Tienda;
@@ -14,6 +15,7 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioIAP _servicioIAP;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IToastService _toast;
     private readonly IServicioLogs _logs;
 
     private Grid? _loadingOverlay;
@@ -23,13 +25,14 @@ public partial class TiendaPage : ContentPage
     // Catálogo del backend guardado para usarse al verificar la compra
     private List<DtoProducto> _productosCreditos = [];
 
-    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IToastService toast, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioEcommerce = servicioEcommerce;
         _servicioIAP       = servicioIAP;
         _servicioSesion    = servicioSesion;
         _servicioAlerta    = servicioAlerta;
+        _toast             = toast;
         _logs              = logs;
     }
 
@@ -288,6 +291,7 @@ public partial class TiendaPage : ContentPage
             if (compra is null)
             {
                 _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
+                await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
                 return;
             }
 
@@ -296,11 +300,12 @@ public partial class TiendaPage : ContentPage
         catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
         {
             _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
+            await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
         }
         catch (Exception ex)
         {
             _logs.Log($"Tienda: excepción en compra — {ex.GetType().Name}: {ex.Message}");
-            await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error durante la compra. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "Aceptar");
+            await _toast.ShowAsync("La compra no se completó.", ToastType.Error);
         }
         finally
         {

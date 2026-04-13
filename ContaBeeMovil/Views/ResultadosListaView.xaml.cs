@@ -131,6 +131,7 @@ public partial class ResultadosListaView : ContentView
     {
         BarraPaginacion.IsVisible = ConsultaEjecutada;
 
+        LabelEncontrados.Text = string.Format(_textoEncontrados, TotalEncontrados);
         LabelPagina.Text = PaginaActual.ToString();
 
         bool anteriorActivo = PaginaActual > 1;

@@ -73,6 +73,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         RestaurarPreferencias();
 
         BindingContext = this;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.Licenciamiento))
+                OnPropertyChanged(nameof(CreditosCaptura));
+        };
     }
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
@@ -172,6 +178,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
+    public int  CreditosCaptura  => AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0;
 
     // ── Ancho dinámico de cada card en el carrusel ───────────────────────────
 

@@ -213,12 +213,11 @@ public class ServicioSesion : IServicioSesion
         _appState.CuentasFiscales = cuentas;
 
         var actualId = _appState.CuentaFiscalActual?.CuentaFiscalId;
-        var estaEnLista = actualId.HasValue && cuentas.Any(c => c.CuentaFiscalId == actualId.Value);
+        var cuentaFresca = actualId.HasValue ? cuentas.FirstOrDefault(c => c.CuentaFiscalId == actualId.Value) : null;
 
-        if (!estaEnLista)
-        {
-            _appState.CuentaFiscalActual = cuentas.FirstOrDefault();
-        }
+        // Siempre actualizar con la versión fresca del servidor para reflejar cambios
+        // como EstadoLicenciaDemo después de reclamar créditos demo.
+        _appState.CuentaFiscalActual = cuentaFresca ?? cuentas.FirstOrDefault();
 
         await GetMisUsuariosAsync();
     }

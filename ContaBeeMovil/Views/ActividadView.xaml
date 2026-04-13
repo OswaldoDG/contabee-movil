@@ -33,9 +33,9 @@
 
             <!-- Main content: Grid con filas proporcionales para llenar la pantalla -->
             <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
-                  RowSpacing="8"
+                  RowSpacing="10"
                   IsVisible="{Binding MostrarContenido}"
-                  Padding="0,0,0,0">
+                  Padding="0,5,0,25">
 
                 <!-- Row 0: Header navegación de mes -->
                 <Grid Grid.Row="0"
@@ -129,17 +129,20 @@
                     </Label>
                 </Border>
 
-                <!-- Row 3: Créditos + Emitidas/Fallidas/Pendientes en la misma fila -->
-                <Grid Grid.Row="3"
-                      ColumnDefinitions="Auto,*"
-                      ColumnSpacing="8">
+                <!-- Row 3: Créditos + Emitidas/Fallidas/Pendientes (flex wrap) -->
+                <FlexLayout Grid.Row="3"
+                            Direction="Row"
+                            Wrap="Wrap"
+                            JustifyContent="SpaceBetween"
+                            AlignItems="Stretch">
 
                     <!-- Créditos Restantes -->
-                    <Border Grid.Column="0"
+                    <Border FlexLayout.Basis="Auto"
                             BackgroundColor="{toolkit:AppThemeResource Background}"
                             Stroke="Transparent"
                             StrokeShape="RoundRectangle 12"
-                            Padding="16,6">
+                            Padding="16,6"
+                            Margin="0,0,4,4">
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="2" VerticalOptions="Center">
                             <Label Text="Restantes"
                                    FontSize="12"
@@ -154,11 +157,12 @@
                     </Border>
 
                     <!-- Emitidas / Fallidas / Pendientes -->
-                    <Border Grid.Column="1"
+                    <Border FlexLayout.Grow="1"
                             BackgroundColor="{toolkit:AppThemeResource Background}"
                             Stroke="Transparent"
                             StrokeShape="RoundRectangle 12"
-                            Padding="8,6">
+                            Padding="8,6"
+                            Margin="0,0,0,4">
                         <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center">
                             <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
                                 <Label Text="Emitidas"
@@ -211,15 +215,14 @@
                             </VerticalStackLayout>
                         </Grid>
                     </Border>
-                </Grid>
+                </FlexLayout>
 
                 <!-- Row 4: Gráfica — ocupa el espacio restante (*) -->
                 <Border Grid.Row="4"
                         IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
-                        Padding="2">
+                        StrokeShape="RoundRectangle 12">
                     <Grid RowDefinitions="Auto,Auto,*">
 
                         <Label Grid.Row="0"
@@ -227,7 +230,7 @@
                                FontSize="14"
                                FontAttributes="Bold"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               Margin="0,6,0,0">
+                               Margin="0,0,0,0">
                             <Label.FormattedText>
                                 <FormattedString>
                                     <Span Text="Actividad " />
@@ -269,9 +272,10 @@
                             <chart:SfCartesianChart.YAxes>
                                 <chart:NumericalAxis Minimum="0"
                                                      Maximum="{Binding MaximoEjeY}"
+                                                     Interval="1"
                                                      ShowMajorGridLines="True">
                                     <chart:NumericalAxis.LabelStyle>
-                                        <chart:ChartAxisLabelStyle FontSize="10" />
+                                        <chart:ChartAxisLabelStyle FontSize="10" LabelFormat="0" />
                                     </chart:NumericalAxis.LabelStyle>
                                 </chart:NumericalAxis>
                             </chart:SfCartesianChart.YAxes>

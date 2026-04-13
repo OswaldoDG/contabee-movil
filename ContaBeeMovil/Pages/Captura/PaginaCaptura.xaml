@@ -10,6 +10,29 @@
              Shell.NavBarIsVisible="True"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,2,0">
+            <Label Grid.Column="0"
+                   Text="Captura"
+                   FontSize="25"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center" />
+            <Border Grid.Column="1"
+                    StrokeShape="RoundRectangle 12"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    Padding="10,4">
+                <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       VerticalOptions="Center" />
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
     <!-- Grid raíz: contenido + overlay de envío encima -->
     <Grid>
 

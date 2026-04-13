@@ -130,8 +130,11 @@ public partial class FacturacionPage : ContentPage
     // ── Handlers ─────────────────────────────────────────────────────────────────
 
     private async void OnAbrirCaptura(object sender, TappedEventArgs e)
-        => await Shell.Current.GoToAsync(nameof(PaginaCaptura),
-               new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
+    {
+        if (!TieneCreditos) return;
+        await Shell.Current.GoToAsync(nameof(PaginaCaptura),
+            new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
+    }
 
     private async Task OnBuscarFacturas(Busqueda busqueda)
     {
