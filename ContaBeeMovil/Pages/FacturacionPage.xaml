@@ -6,6 +6,7 @@
              xmlns:f="clr-namespace:Fonts"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              Title="Facturación">
     
     <Border Grid.Row="0"

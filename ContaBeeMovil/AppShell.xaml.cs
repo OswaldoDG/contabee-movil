@@ -17,11 +17,22 @@ namespace ContaBeeMovil
 {
     public partial class AppShell : Shell
     {
+        private readonly IServicioSesion _servicioSesion;
+        private readonly IServicioAlerta _servicioAlerta;
+
         public AppShell(IServicioSesion servicioSesion, IServicioAlerta servicioAlerta)
         {
+            // ANTES de InitializeComponent para que DynamicResource
+            // tenga el valor correcto desde el primer frame
+            var isDarkInicial = Application.Current!.RequestedTheme == AppTheme.Dark;
+            Application.Current.Resources["CurrentShellBarColor"] =
+                isDarkInicial ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
+
             InitializeComponent();
+
             _servicioSesion = servicioSesion;
             _servicioAlerta = servicioAlerta;
+
             var currentTheme = Application.Current!.RequestedTheme;
             ThemeSwitch.IsToggled = currentTheme == AppTheme.Dark;
             RegisterRoutes();
@@ -38,7 +49,59 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
             };
 
-            Navigated += (_, _) => ActualizarStatusBar();
+            Navigated += (_, _) => AplicarEstiloIconosConDelay();
+            Loaded += (_, _) => AplicarEstiloIconosConDelay();
+
+            this.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(FlyoutIsPresented))
+                    AplicarEstiloIconosConDelay();
+            };
+
+            Application.Current.RequestedThemeChanged += (_, e) =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    var isDark = e.RequestedTheme == AppTheme.Dark;
+
+                    // Actualizar DynamicResource → Shell detecta el cambio
+                    // → llama SetAppearance automáticamente con el color nuevo
+                    Application.Current!.Resources["CurrentShellBarColor"] =
+                        isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
+
+                    // iOS no usa Shell renderer, lo manejamos directo
+#if IOS
+                    ActualizarEstiloIconos();
+#endif
+                });
+            };
+        }
+
+        private static void AplicarEstiloIconosConDelay()
+        {
+            MainThread.BeginInvokeOnMainThread(async () =>
+            {
+                ActualizarEstiloIconos();
+                await Task.Delay(50);
+                ActualizarEstiloIconos();
+            });
+        }
+
+        private static void ActualizarEstiloIconos()
+        {
+#if ANDROID
+            var isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+            var color = isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
+            CustomToolbarAppearanceTracker.AplicarColorStatusBar(color);
+#elif IOS
+            if (!OperatingSystem.IsIOSVersionAtLeast(13))
+                return;
+            var isDarkIos = Application.Current!.RequestedTheme == AppTheme.Dark;
+            var estilo = isDarkIos ? StatusBarStyle.LightContent : StatusBarStyle.DarkContent;
+            var colorIos = isDarkIos ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
+            StatusBar.SetColor(colorIos);
+            StatusBar.SetStyle(estilo);
+#endif
         }
 
         // ── Snackbar / Toast helpers ──────────────────────────────────────
@@ -46,7 +109,6 @@ namespace ContaBeeMovil
         public static async Task DisplaySnackbarAsync(string message)
         {
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
             var snackbarOptions = new SnackbarOptions
             {
                 BackgroundColor = Color.FromArgb("#FF3300"),
@@ -56,7 +118,6 @@ namespace ContaBeeMovil
                 Font = Font.SystemFontOfSize(18),
                 ActionButtonFont = Font.SystemFontOfSize(14)
             };
-
             var snackbar = Snackbar.Make(message, visualOptions: snackbarOptions);
             await snackbar.Show(cancellationTokenSource.Token);
         }
@@ -65,7 +126,6 @@ namespace ContaBeeMovil
         {
             if (OperatingSystem.IsWindows())
                 return;
-
             var toast = Toast.Make(message, textSize: 18);
             var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             await toast.Show(cts.Token);
@@ -80,8 +140,6 @@ namespace ContaBeeMovil
         }
 
         private string? _emailUsuario;
-        private readonly IServicioSesion _servicioSesion;
-        private readonly IServicioAlerta _servicioAlerta;
 
         private void ActualizarVisibilidadLogs()
         {
@@ -94,47 +152,10 @@ namespace ContaBeeMovil
             var nombre = AppState.Instance.Perfil?.DisplayName;
             if (string.IsNullOrWhiteSpace(nombre))
                 nombre = _emailUsuario;
-
             if (!string.IsNullOrEmpty(nombre) && nombre.Contains('@'))
                 nombre = nombre[..nombre.IndexOf('@')];
-
             if (!string.IsNullOrEmpty(nombre))
                 LabelNombreUsuario.Text = nombre;
-        }
-
-        // ── Status bar dinámica ───────────────────────────────────────────
-
-        private static void ActualizarStatusBar()
-        {
-#if ANDROID || IOS
-            if (!OperatingSystem.IsAndroidVersionAtLeast(23))
-                return;
-
-            var isDark = Application.Current!.RequestedTheme == AppTheme.Dark;
-            var ruta = Current?.CurrentState?.Location?.ToString() ?? string.Empty;
-            var esPaginaPrimaria = ruta.Contains("main")
-                                || ruta.Contains("dashboard")
-                                || ruta.Contains("facturacion");
-
-            Color color;
-            StatusBarStyle estilo;
-
-            if (esPaginaPrimaria)
-            {
-                // AppBarPrimary
-                color = isDark ? Color.FromArgb("#3a3a3a") : Color.FromArgb("#fefdfc");
-                estilo = isDark ? StatusBarStyle.LightContent : StatusBarStyle.DarkContent;
-            }
-            else
-            {
-                // AppBarSecondary
-                color = isDark ? Color.FromArgb("#ce8509") : Color.FromArgb("#f4c611");
-                estilo = StatusBarStyle.DarkContent;
-            }
-
-            StatusBar.SetColor(color);
-            StatusBar.SetStyle(estilo);
-#endif
         }
 
         // ── Toggle de tema ────────────────────────────────────────────────
@@ -142,9 +163,15 @@ namespace ContaBeeMovil
         private void OnThemeSwitchToggled(object? sender, ToggledEventArgs e)
         {
             Application.Current!.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
-            ActualizarStatusBar();
-        }
+            FlyoutIsPresented = false;
 
+#if ANDROID
+            // Solicitar recreación — Android recargará el colors.xml correcto
+            // La flag previene el bucle infinito
+            MainActivity.SolicitarRecreacion();
+            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.Recreate();
+#endif
+        }
         // ── Cerrar sesión ─────────────────────────────────────────────────
 
         private async void OnCerrarSesionClicked(object? sender, EventArgs e)
@@ -154,14 +181,11 @@ namespace ContaBeeMovil
                 mensaje: "¿Estás seguro que deseas cerrar sesión?",
                 cancelarText: "No",
                 confirmarText: "Sí");
-
-            if (!confirmar)
-                return;
-
+            if (!confirmar) return;
             await _servicioSesion.CerrarSesionAsync();
         }
 
-        // ── Navegación: items card ────────────────────────────────────────
+        // ── Navegación ────────────────────────────────────────────────────
 
         private async void OnVincularmeClicked(object? sender, EventArgs e)
         {
@@ -193,15 +217,11 @@ namespace ContaBeeMovil
             await Shell.Current.GoToAsync(nameof(CambiarContrasenaPage));
         }
 
-        // ── Modo desarrollador ────────────────────────────────────────────
-
         private async void OnLogsClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
             await GoToAsync(nameof(LogsPage));
         }
-
-        // ── Items simples ─────────────────────────────────────────────────
 
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
@@ -212,7 +232,8 @@ namespace ContaBeeMovil
         private async void OnDiagnosticoClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await _servicioAlerta.MostrarAsync("Diagnostico", "Próximamente", verBotonCancelar: false, confirmarText: "OK");
+            await _servicioAlerta.MostrarAsync("Diagnostico", "Próximamente",
+                verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnBuzonClicked(object? sender, EventArgs e)
@@ -225,7 +246,8 @@ namespace ContaBeeMovil
         {
             FlyoutIsPresented = false;
             var version = AppInfo.VersionString;
-            await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}", verBotonCancelar: false, confirmarText: "OK");
+            await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}",
+                verBotonCancelar: false, confirmarText: "OK");
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)

@@ -8,6 +8,7 @@
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
              Title="Captura"
              Shell.NavBarIsVisible="True"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Shell.TitleView>

@@ -6,6 +6,7 @@
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
              x:Class="ContaBeeMovil.Pages.DashboardPage"
              x:DataType="vm:DashboardViewModel"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="Auto,*">
