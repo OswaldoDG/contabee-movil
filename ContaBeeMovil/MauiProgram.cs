@@ -48,12 +48,9 @@ namespace ContaBeeMovil
                 .ConfigureDeviceIdProvider()
                 .ConfigureMauiHandlers(handlers =>
                 {
-#if WINDOWS
-                    Microsoft.Maui.Controls.Handlers.Items.CollectionViewHandler.Mapper.AppendToMapping("KeyboardAccessibleCollectionView", (handler, view) =>
-                    {
-                        handler.PlatformView.SingleSelectionFollowsFocus = false;
-                    });
-#endif
+                #if ANDROID
+                    handlers.AddHandler<Shell, CustomShellRenderer>();
+                #endif
                 })
                 .ConfigureFonts(fonts =>
                 {
