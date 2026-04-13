@@ -322,7 +322,6 @@
     <!--  CONTENIDO PRINCIPAL — custom TabBar       -->
     <!-- ══════════════════════════════════════════ -->
     <ShellContent
-        x:Name="MainContent"
         Route="main"
         ContentTemplate="{DataTemplate pages:MainTabbedPage}" />
 

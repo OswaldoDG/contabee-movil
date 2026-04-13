@@ -158,16 +158,22 @@ namespace ContaBeeMovil
 
         // ── Toggle de tema ────────────────────────────────────────────────
 
-        private void OnThemeSwitchToggled(object? sender, ToggledEventArgs e)
+        private async void OnThemeSwitchToggled(object? sender, ToggledEventArgs e)
         {
             Application.Current!.UserAppTheme = e.Value ? AppTheme.Dark : AppTheme.Light;
             FlyoutIsPresented = false;
 
 #if ANDROID
-            // Solicitar recreación — Android recargará el colors.xml correcto
-            // La flag previene el bucle infinito
-            MainActivity.SolicitarRecreacion();
-            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.Recreate();
+
+            var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
+            if (activity?.Window != null)
+            {
+                // Estos flags son NECESARIOS para que SetStatusBarColor funcione
+                activity.Window.AddFlags(
+                    Android.Views.WindowManagerFlags.DrawsSystemBarBackgrounds);
+                activity.Window.ClearFlags(
+                    Android.Views.WindowManagerFlags.TranslucentStatus);
+            }
 #endif
         }
         // ── Cerrar sesión ─────────────────────────────────────────────────
