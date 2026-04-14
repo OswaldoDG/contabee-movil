@@ -4,6 +4,8 @@ namespace ContaBeeMovil.Pages;
 
 public partial class DashboardPage : ContentPage
 {
+    internal static bool PendienteActualizar { get; set; }
+
     private readonly DashboardViewModel _viewModel;
 
     public DashboardPage(DashboardViewModel viewModel)
@@ -16,8 +18,16 @@ public partial class DashboardPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.LoadDataAsync();
+        bool forzar = PendienteActualizar;
+        PendienteActualizar = false;
+        await _viewModel.LoadDataAsync(forzar);
     }
 
-    public async void OnTabActivated() => await _viewModel.LoadDataAsync();
+    public async void OnTabActivated()
+    {
+        await Task.Yield(); // libera el hilo de UI inmediatamente
+        bool forzar = PendienteActualizar;
+        PendienteActualizar = false;
+        await _viewModel.LoadDataAsync(forzar);
+    }
 }

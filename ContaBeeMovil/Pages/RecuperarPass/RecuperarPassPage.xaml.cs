@@ -1,5 +1,4 @@
 using Contabee.Api.abstractions;
-using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.RecuperarPass;
@@ -41,10 +40,9 @@ public partial class RecuperarPassPage : ContentPage
         BtnRestablecer.IsEnabled = !string.IsNullOrWhiteSpace(e.NewTextValue);
     }
 
-    private void OnBackClicked(object? sender, EventArgs e)
+    private async void OnBackClicked(object? sender, EventArgs e)
     {
-        var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-        Application.Current!.Windows[0].Page = paginaLogin;
+        await Navigation.PopAsync();
     }
 
     private async void OnRestablecerClicked(object? sender, EventArgs e)
@@ -72,8 +70,7 @@ public partial class RecuperarPassPage : ContentPage
                     type: ToastType.Success,
                     position: ToastPosition.Bottom);
 
-                var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-                Application.Current!.Windows[0].Page = paginaLogin;
+                await Navigation.PopAsync();
             }
             else
             {

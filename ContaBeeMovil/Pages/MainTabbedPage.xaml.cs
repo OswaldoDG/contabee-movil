@@ -40,25 +40,40 @@ public partial class MainTabbedPage : ContentPage
     {
         if (_currentIndex == index) return;
         _currentIndex = index;
+
+        // 1) Disparar la animación de la gota inmediatamente
         TabBar.SelectedIndex = index;
 
-        await PageContainer.FadeTo(0, 120, Easing.CubicIn);
+        // 2) Dejar que la gota se deslice con el hilo de UI libre
+        await Task.Delay(240);
+
+        // 3) Swap directo del contenido — SIN fade-out (nada de espacio vacío)
+        PageContainer.Opacity = 0;
 
         switch (index)
         {
             case 0:
-                PageContainer.Content        = _dashboardView;
+                PageContainer.Content = _dashboardView;
                 PageContainer.BindingContext = _dashboardPage.BindingContext;
-                _dashboardPage.OnTabActivated();
                 break;
 
             case 1:
-                PageContainer.Content        = _facturacionView;
+                PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
-                _facturacionPage.OnTabActivated();
                 break;
         }
 
-        await PageContainer.FadeTo(1, 180, Easing.CubicOut);
+        // 4) Fade-in suave del contenido nuevo
+        await PageContainer.FadeTo(1, 140, Easing.CubicOut);
+
+        // 5) Carga de datos diferida
+        _ = MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            switch (index)
+            {
+                case 0: _dashboardPage.OnTabActivated(); break;
+                case 1: _facturacionPage.OnTabActivated(); break;
+            }
+        });
     }
 }

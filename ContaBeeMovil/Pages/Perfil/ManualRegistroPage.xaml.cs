@@ -153,7 +153,10 @@ public partial class ManualRegistroPage : ContentPage
 
             var cuentas = await _servicioCrm.GetAsociacionesFiscales();
             if (cuentas.Ok && cuentas.Payload != null)
+            {
                 AppState.Instance.CuentasFiscales = cuentas.Payload;
+                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+            }
 
             SetLoading(false);
             await Navigation.PopModalAsync();
