@@ -3,6 +3,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Pages.Perfil;
@@ -21,14 +22,16 @@ public partial class ManualRegistroPage : ContentPage
 
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
-    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
+    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
 
         SelectorPersona.Elementos = new List<string> { "Física", "Moral" };
         SelectorPersona.IndiceSeleccionado = 0;
@@ -169,17 +172,20 @@ public partial class ManualRegistroPage : ContentPage
         catch (HttpRequestException ex)
         {
             SetLoading(false);
-            await _servicioAlerta.MostrarAsync("Error de conexión", $"No se pudo conectar al servidor: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[ManualRegistroPage] HttpRequestException: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error de conexión", "No se pudo conectar al servidor. Verifica tu conexión.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (TaskCanceledException ex)
         {
             SetLoading(false);
-            await _servicioAlerta.MostrarAsync("Error de tiempo", $"La solicitud tardó demasiado: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[ManualRegistroPage] TaskCanceledException: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error de tiempo", "La solicitud tardó demasiado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {
             SetLoading(false);
-            await _servicioAlerta.MostrarAsync("Error inesperado", $"Ocurrió un error: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[ManualRegistroPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error inesperado", "Ocurrió un error inesperado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
     }
 

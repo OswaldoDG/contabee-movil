@@ -1,16 +1,19 @@
 using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class RegistrarRFCsPage : ContentPage
 {
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
 
-    public RegistrarRFCsPage(IServicioAlerta servicioAlerta)
+    public RegistrarRFCsPage(IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
     }
 
     private async void IconManual_Tapped(object? sender, EventArgs e)
@@ -23,7 +26,8 @@ public partial class RegistrarRFCsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await _servicioAlerta.MostrarAsync("Error", $"No se pudo abrir el registro manual: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[RegistrarRFCsPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo abrir el registro manual.", verBotonCancelar: false, confirmarText: "OK");
         }
     }
 
@@ -39,7 +43,8 @@ public partial class RegistrarRFCsPage : ContentPage
         }
         catch (Exception ex)
         {
-            await _servicioAlerta.MostrarAsync("Error", $"No se pudo abrir el escaneo QR: {ex.Message}", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[RegistrarRFCsPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo abrir el escaneo QR.", verBotonCancelar: false, confirmarText: "OK");
         }
     }
 

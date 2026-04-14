@@ -1,3 +1,5 @@
+using ContaBeeMovil.Services.Dev;
+
 namespace ContaBeeMovil.Services
 {
     /// <summary>
@@ -6,11 +8,13 @@ namespace ContaBeeMovil.Services
     public class ModalErrorHandler : IErrorHandler
     {
         private readonly IServicioAlerta _servicioAlerta;
+        private readonly IServicioLogs _logs;
         private readonly SemaphoreSlim _semaphore = new(1, 1);
 
-        public ModalErrorHandler(IServicioAlerta servicioAlerta)
+        public ModalErrorHandler(IServicioAlerta servicioAlerta, IServicioLogs logs)
         {
             _servicioAlerta = servicioAlerta;
+            _logs = logs;
         }
 
         /// <summary>
@@ -27,7 +31,8 @@ namespace ContaBeeMovil.Services
             try
             {
                 await _semaphore.WaitAsync();
-                await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
+                _logs.Log($"[ModalErrorHandler] {ex.GetType().Name}: {ex.Message}");
+                await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error inesperado.", verBotonCancelar: false, confirmarText: "OK");
             }
             finally
             {

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ContaBeeMovil.Config;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Views;
 using System.Windows.Input;
@@ -16,6 +17,7 @@ public partial class FacturacionPage : ContentPage
 {
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
     private Busqueda? _ultimaBusqueda;
 
     // ── Propiedades observables ──────────────────────────────────────────────────
@@ -77,10 +79,11 @@ public partial class FacturacionPage : ContentPage
 
     // ── Constructor ──────────────────────────────────────────────────────────────
 
-    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta)
+    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
         BuscarFacturasCommand = new Command<Busqueda>(async b => await OnBuscarFacturas(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
         PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
@@ -172,7 +175,8 @@ public partial class FacturacionPage : ContentPage
         }
         catch (Exception ex)
         {
-            await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[FacturacionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {

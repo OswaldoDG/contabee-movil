@@ -1,5 +1,6 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Confirmar;
@@ -10,6 +11,7 @@ public partial class ConfirmarCuentaPage : ContentPage
     private string _token = string.Empty;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IToastService _toastService;
+    private readonly IServicioLogs _logs;
 
     public string Token
     {
@@ -22,11 +24,12 @@ public partial class ConfirmarCuentaPage : ContentPage
         }
     }
 
-    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IToastService ToastService)
+    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IToastService ToastService, IServicioLogs logs)
     {
         InitializeComponent();
         this._servicioIdentidad = servicioIdentidad;
         this._toastService = ToastService;
+        this._logs = logs;
     }
 
     private async void ActivarCuentaAsync(string token)
@@ -39,19 +42,16 @@ public partial class ConfirmarCuentaPage : ContentPage
             if (respuesta.Ok)
             {
                 MostrarEstado(Estado.Exito);
-            }else
-            {
-                var mensaje = respuesta.Error?.Mensaje.Split("Response")[1];
-
-                System.Diagnostics.Debug.WriteLine($"❌ API Error: {respuesta.Error?.Mensaje}");
-                MostrarEstado(Estado.Error, mensaje?? "Error desconocido.");
             }
-
-            
+            else
+            {
+                _logs.Log($"[ConfirmarCuentaPage] Error API: {respuesta.Error?.Codigo} - {respuesta.Error?.Mensaje}");
+                MostrarEstado(Estado.Error, "El enlace no es válido o ya fue usado.");
+            }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"❌ Error: {ex.Message}");
+            _logs.Log($"[ConfirmarCuentaPage] {ex.GetType().Name}: {ex.Message}");
             MostrarEstado(Estado.Error, "El enlace no es válido o ya fue usado.");
         }
     }

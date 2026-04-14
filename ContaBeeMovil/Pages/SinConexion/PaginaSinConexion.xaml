@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.SinConexion.PaginaSinConexion"
+             Shell.NavBarIsVisible="False"
+             Title="Sin conexión">
+
+    <VerticalStackLayout VerticalOptions="Center"
+                         HorizontalOptions="Center"
+                         Spacing="16"
+                         Padding="{StaticResource LayoutPadding}">
+
+        <Label Text="{x:Static f:FluentUI.wifi_off_24_regular}"
+               FontFamily="{x:Static f:FluentUI.FontFamily}"
+               FontSize="72"
+               HorizontalOptions="Center"
+               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+        <Label Text="Sin conexión"
+               Style="{StaticResource Headline}"
+               HorizontalOptions="Center"
+               HorizontalTextAlignment="Center" />
+
+        <Label Text="Por favor, intenta más tarde"
+               Style="{StaticResource Body1}"
+               HorizontalOptions="Center"
+               HorizontalTextAlignment="Center"
+               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+        <Button Text="Reintentar"
+                Clicked="OnReintentar"
+                Style="{toolkit:AppThemeResource Primary}"
+                Margin="0,8,0,0"
+                SemanticProperties.Description="Reintentar conexión" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

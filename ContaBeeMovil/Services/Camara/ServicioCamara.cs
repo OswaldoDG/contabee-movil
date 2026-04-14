@@ -1,3 +1,4 @@
+using ContaBeeMovil.Services.Dev;
 using SkiaSharp;
 using ZXing;
 
@@ -6,11 +7,13 @@ namespace ContaBeeMovil.Services.Camara;
 public class ServicioCamara : IServicioCamara
 {
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
     private TaskCompletionSource<string>? _scanTcs;
 
-    public ServicioCamara(IServicioAlerta servicioAlerta)
+    public ServicioCamara(IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
     }
 
     // ============ MÉTODOS PARA TOMAR FOTO ============
@@ -42,7 +45,8 @@ public class ServicioCamara : IServicioCamara
         }
         catch (Exception ex)
         {
-            await _servicioAlerta.MostrarAsync("Error cámara", ex.Message, verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[ServicioCamara] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error cámara", "No se pudo acceder a la cámara. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
             return string.Empty;
         }
     }

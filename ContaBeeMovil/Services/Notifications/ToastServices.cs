@@ -108,7 +108,7 @@ public class ToastService : IToastService
         var frame = new Border
         {
             BackgroundColor = Color.FromArgb("00FFFFFF"),
-            HorizontalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Center,
         };
         
@@ -124,6 +124,8 @@ public class ToastService : IToastService
             },
             ColumnSpacing = 10,
             VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
+            Padding = new Thickness(12, 10),
         };
 
         // Icono de tipo (círculo con símbolo)
@@ -156,6 +158,7 @@ public class ToastService : IToastService
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
             VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
         };
 
         // Botón cerrar
@@ -188,14 +191,17 @@ public class ToastService : IToastService
             //VerticalOptions = LayoutOptions.End,
 
         };
-        var stack = new Grid();
-
+        var stack = new Grid
+        {
+            HorizontalOptions = LayoutOptions.Fill,
+        };
 
         // Wrapper con acento encima
         var wrapper = new Grid
         {
             Margin = margin,
             VerticalOptions = verticalOptions,
+            HorizontalOptions = LayoutOptions.Fill,
         };
 
         grid.Add(iconFrame, 0, 0);

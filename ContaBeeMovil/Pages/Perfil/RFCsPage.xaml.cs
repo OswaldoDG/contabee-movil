@@ -3,6 +3,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using System.Windows.Input;
 
@@ -12,13 +13,15 @@ public partial class RFCsPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
     private bool _autoNavegado;
 
-    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
+    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
     }
 
     protected override async void OnAppearing()
@@ -61,7 +64,11 @@ public partial class RFCsPage : ContentPage
     private async void BtnAgregar_Clicked(object? sender, EventArgs e)
     {
         try { await AbrirRegistrar(); }
-        catch (Exception ex) { await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK"); }
+        catch (Exception ex)
+        {
+            _logs.Log($"[RFCsPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error inesperado.", verBotonCancelar: false, confirmarText: "OK");
+        }
     }
 
     private async Task AbrirRegistrar()
