@@ -6,6 +6,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Pages.Demo;
+using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
@@ -175,9 +176,9 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     #region Public Methods
 
-    public async Task LoadDataAsync()
+    public async Task LoadDataAsync(bool forzarActualizacion = false)
     {
-        await CargarEstadisticasAsync();
+        await CargarEstadisticasAsync(forzarActualizacion);
     }
 
     #endregion
@@ -230,8 +231,21 @@ public class DashboardViewModel : INotifyPropertyChanged
         var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
         if (cfid == null || cfid == Guid.Empty)
         {
-            TieneError   = true;
-            MensajeError = "No hay una cuenta fiscal seleccionada.";
+            var cuentas = AppState.Instance.CuentasFiscales;
+            if (cuentas is { Count: > 0 })
+            {
+                // Autoseleccionar la primera cuenta disponible;
+                // el PropertyChanged disparará CargarEstadisticasAsync de nuevo.
+                AppState.Instance.CuentaFiscalActual = cuentas[0];
+                return;
+            }
+
+            // Sin cuentas registradas → redirigir al flujo de registro
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
+                var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
+                Application.Current!.Windows[0].Page = registrarPage;
+            });
             return;
         }
 

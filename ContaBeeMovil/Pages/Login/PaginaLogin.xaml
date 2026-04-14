@@ -6,7 +6,14 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Login.PaginaLogin"
              Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
              Title="Login">
+
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior
+            StatusBarColor="{AppThemeBinding Light=#fefdfc, Dark=#141414}"
+            StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </ContentPage.Behaviors>
 
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="{StaticResource LayoutPadding}">

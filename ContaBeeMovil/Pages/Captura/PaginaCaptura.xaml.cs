@@ -104,6 +104,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task CargarTarjetasYRefrescarAsync()
     {
+        await _servicioSesion.GetLicenciaAsync();
         if (AppState.Instance.Tarjetas is null)
             await _servicioSesion.GetTarjetasAsync();
         RefrescarTarjetas();
@@ -178,7 +179,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
-    public int  CreditosCaptura  => AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0;
+    public int  CreditosCaptura  =>
+        (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) -
+        (AppState.Instance.Licenciamiento?.CreditosCapturaConsumo ?? 0);
 
     // ── Ancho dinámico de cada card en el carrusel ───────────────────────────
 
@@ -536,7 +539,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
 
         // ── Punto 2: Validar créditos disponibles en AppState ────────────────
-        var creditosAppState = AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0;
+        var creditosAppState = (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) -
+                               (AppState.Instance.Licenciamiento?.CreditosCapturaConsumo ?? 0);
         if (creditosAppState <= 0)
         {
             await _toastService.ShowAsync("No tienes créditos suficientes.", ToastType.Error, position: ToastPosition.Bottom);
@@ -659,8 +663,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 await Task.Delay(400); // Pausa breve para ver el 100 %
                 AppState.Instance.CapturasLote = null;
                 _capturas.Clear();
+                await _servicioSesion.GetLicenciaAsync();
                 await _toastService.ShowAsync("¡Envío completado!", ToastType.Success, position: ToastPosition.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
+                DashboardPage.PendienteActualizar = true;
                 await Shell.Current.GoToAsync("..");
             }
             // En cualquier otro caso: terminar proceso sin eliminar capturas

@@ -285,8 +285,8 @@
         <Setter Property="FocusedStrokeThickness" Value="2"/>
         <Setter Property="UnfocusedStrokeThickness" Value="1"/>
         <Setter Property="ReserveSpaceForAssistiveLabels" Value="False"/>
-        <Setter Property="HintLabelStyle" Value="{toolkit:AppThemeResource PrimaryText}"/>
-        <Setter Property="ErrorLabelStyle" Value="{toolkit:AppThemeResource PrimaryText}"/>
+        <Setter Property="HintLabelStyle" Value="{StaticResource lightThemeLabelStyle}"/>
+        <Setter Property="ErrorLabelStyle" Value="{StaticResource errorLabelStyleLight}"/>
     </Style>
 
     <!-- Leading icon inside SfTextInputLayout -->

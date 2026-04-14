@@ -45,26 +45,16 @@ public partial class PaginaRegistro : ContentPage
         ErrorCoincidenciaLabel.IsVisible = !string.IsNullOrEmpty(confirmar) && confirmar != password;
     }
 
-    void OnTogglePasswordClicked(object? sender, EventArgs e)
-    {
-        if (PasswordEntry is null || TogglePasswordButton is null)
-            return;
-
-        PasswordEntry.IsPassword = !PasswordEntry.IsPassword;
-
-        TogglePasswordButton.Icon(PasswordEntry.IsPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
-       
-    }
-
     void OnToggleConfirmPasswordClicked(object? sender, EventArgs e)
     {
         if (ConfirmPasswordEntry is null || ToggleConfirmPasswordButton is null)
             return;
 
-        ConfirmPasswordEntry.IsPassword = !ConfirmPasswordEntry.IsPassword;
+        bool isPassword = !ConfirmPasswordEntry.IsPassword;
+        ConfirmPasswordEntry.IsPassword = isPassword;
+        PasswordEntry.IsPassword = isPassword;
 
-        ToggleConfirmPasswordButton.Icon(ConfirmPasswordEntry.IsPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
-        
+        ToggleConfirmPasswordButton.Icon(isPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
     }
 
     void UpdateButtonColor(bool puedeRegistrar)

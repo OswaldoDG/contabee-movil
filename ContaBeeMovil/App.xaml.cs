@@ -32,7 +32,7 @@ public partial class App : Application
         if (tieneSesion)
             window = new Window(Services.GetRequiredService<AppShell>());
         else
-            window = new Window(Services.GetRequiredService<PaginaLogin>());
+            window = new Window(new NavigationPage(Services.GetRequiredService<PaginaLogin>()));
 
         // Notificar cuando la ventana esté lista
         window.Created += async (s, e) =>

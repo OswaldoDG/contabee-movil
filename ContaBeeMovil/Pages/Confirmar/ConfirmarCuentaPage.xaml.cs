@@ -12,6 +12,7 @@ public partial class ConfirmarCuentaPage : ContentPage
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IToastService _toastService;
     private readonly IServicioLogs _logs;
+    private bool _activacionExitosa;
 
     public string Token
     {
@@ -41,6 +42,7 @@ public partial class ConfirmarCuentaPage : ContentPage
             var respuesta = await _servicioIdentidad.ConfirmarCuenta(token);
             if (respuesta.Ok)
             {
+                _activacionExitosa = true;
                 MostrarEstado(Estado.Exito);
             }
             else
@@ -95,6 +97,10 @@ public partial class ConfirmarCuentaPage : ContentPage
 
     private async void OnContinuarClicked(object sender, EventArgs e)
     {
+        if (_activacionExitosa)
+        {
+            PaginaLogin.LimpiarAlNavegar = true;
+        }
         var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
         Application.Current!.Windows[0].Page = paginaLogin;
     }

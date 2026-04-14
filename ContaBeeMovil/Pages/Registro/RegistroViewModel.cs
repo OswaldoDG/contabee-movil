@@ -159,6 +159,7 @@ public class RegistroViewModel : INotifyPropertyChanged
                 "Registro completado. Por favor verifica tu correo electrónico.",
                 ToastType.Success, position: ToastPosition.Bottom);
 
+            PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
         }
         catch (ApiException ex)
@@ -194,8 +195,7 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     private async Task IrALogin()
     {
-        var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-        Application.Current!.Windows[0].Page = paginaLogin;
+        await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
