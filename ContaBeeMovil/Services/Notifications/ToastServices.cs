@@ -98,10 +98,10 @@ public class ToastService : IToastService
         // Margen y alineación según posición
         var (verticalOptions, margin) = position switch
         {
-            ToastPosition.Top => (LayoutOptions.Start, new Thickness(20, 50, 20, 0)),
-            ToastPosition.Center => (LayoutOptions.Center, new Thickness(20, 0, 20, 0)),
-            ToastPosition.Bottom => (LayoutOptions.End, new Thickness(20, 0, 20, 40)),
-            _ => (LayoutOptions.Start, new Thickness(20, 50, 20, 0))
+            ToastPosition.Top => (LayoutOptions.Start, new Thickness(5, 50, 5, 0)),
+            ToastPosition.Center => (LayoutOptions.Center, new Thickness(5, 0, 5, 0)),
+            ToastPosition.Bottom => (LayoutOptions.End, new Thickness(5, 5, 5, 5)),
+            _ => (LayoutOptions.Start, new Thickness(10, 50, 10, 0))
         };
 
         // Contenedor principal //Color.FromArgb("00FFFFFF")
@@ -122,10 +122,10 @@ public class ToastService : IToastService
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
-            ColumnSpacing = 10,
+            ColumnSpacing = 5,
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Fill,
-            Padding = new Thickness(12, 10),
+            Padding = new Thickness(10, 10),
         };
 
         // Icono de tipo (círculo con símbolo)
