@@ -1,8 +1,8 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +41,13 @@ public class AuthHandler : DelegatingHandler
 
         if (esPublica)
             return await base.SendAsync(request, cancellationToken);
+
+        // Verificar conectividad antes de cualquier llamada autenticada
+        if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+        {
+            await MostrarPaginaSinConexionAsync();
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
+        }
 
         var sesion = _serviceProvider.GetRequiredService<IServicioSesion>();
         var appState = _serviceProvider.GetRequiredService<AppState>();
@@ -81,9 +88,16 @@ public class AuthHandler : DelegatingHandler
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        var r = await base.SendAsync(request, cancellationToken);
-
-        return r;
+        try
+        {
+            return await base.SendAsync(request, cancellationToken);
+        }
+        catch (HttpRequestException) when (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+        {
+            // La red se cayó entre el check inicial y la petición efectiva
+            await MostrarPaginaSinConexionAsync();
+            return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
+        }
     }
 
     private async Task<string?> RefrescarTokenAsync(
@@ -135,6 +149,15 @@ public class AuthHandler : DelegatingHandler
         {
             _refreshLock.Release();
         }
+    }
+
+    private async Task MostrarPaginaSinConexionAsync()
+    {
+        await MainThread.InvokeOnMainThreadAsync(() =>
+        {
+            var pagina = _serviceProvider.GetRequiredService<PaginaSinConexion>();
+            Application.Current!.Windows[0].Page = pagina;
+        });
     }
 
     private async Task CerrarSesionAsync(IServicioSesion sesion, AppState appState)

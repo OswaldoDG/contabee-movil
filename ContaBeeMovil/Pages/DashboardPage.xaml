@@ -6,53 +6,50 @@
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
              x:Class="ContaBeeMovil.Pages.DashboardPage"
              x:DataType="vm:DashboardViewModel"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Padding="0">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" Padding="0">
 
         <!-- Banner: reclamar créditos demo -->
-        <Border Grid.Row="0"
+<Border Grid.Row="0"
                 IsVisible="{Binding PuedeReclamarDemo}"
-                StrokeShape="RoundRectangle 24"
+                StrokeShape="RoundRectangle 20"
                 Stroke="Transparent"
                 StrokeThickness="0"
                 BackgroundColor="Transparent"
-                Padding="5,5"
-                Margin="1,1,1,0"
-                HorizontalOptions="Center">
-            <Border.GestureRecognizers>
+                Padding="1,0,1,5" 
+                HorizontalOptions="Center"
+                Margin="0,-5,0,5"> <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding ReclamarDemoCommand}" />
             </Border.GestureRecognizers>
-
-            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="0" VerticalOptions="Center">
-
-                <!-- Texto -->
+            
+            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="0" VerticalOptions="End">
+                                <Image Grid.Column="1"
+                       Source="{AppThemeBinding Light=regalo_claro.png, Dark=regalo_oscuro.png}"
+                       WidthRequest="70"
+                       HeightRequest="70"
+                       Aspect="AspectFit"
+                       VerticalOptions="End"
+                       Margin="-20,-10,0,0" /> 
                 <Border Grid.Column="0"
                         StrokeShape="RoundRectangle 24"
                         Stroke="Transparent"
                         StrokeThickness="0"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        Padding="5,5"
-                        VerticalOptions="End">
+                        Padding="10,5" VerticalOptions="End">
                     <Border.Shadow>
-                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.3" />
+                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,2" Radius="5" Opacity="0.8" />
                     </Border.Shadow>
                     <Label Text="Empieza con créditos gratis"
                            FontSize="15"
                            FontAttributes="Bold"
                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           VerticalOptions="End" />
+                           VerticalOptions="Center" />
                 </Border>
 
-                <!-- Icono grande sobresaliendo -->
-                <Image Grid.Column="1"
-                       Source="{AppThemeBinding Light=regalo_claro.png, Dark=regalo_oscuro.png}"
-                       WidthRequest="72"
-                       HeightRequest="72"
-                       Aspect="AspectFit"
-                       VerticalOptions="End"
-                       Margin="-8,0,0,0" />
-            </Grid>
+</Grid>
         </Border>
 
         <views:ActividadView Grid.Row="1" />

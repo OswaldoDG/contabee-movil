@@ -3,6 +3,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using System.ComponentModel;
@@ -23,12 +24,14 @@ public class RegistroViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IToastService _toast;
     private readonly DeviceService _deviceService;
+    private readonly IServicioLogs _logs;
 
-    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IToastService ToastService,DeviceService deviceService)
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IToastService ToastService, DeviceService deviceService, IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
         _toast = ToastService;
         _deviceService = deviceService;
+        _logs = logs;
         RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
         IrALoginCommand = new Command(async () => await IrALogin());
     }
@@ -172,8 +175,9 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
+            _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
             await _toast.ShowAsync(
-                $"Error inesperado: {ex.Message}",
+                "Ocurrió un error inesperado. Intenta de nuevo.",
                 ToastType.Error);
         }
         finally

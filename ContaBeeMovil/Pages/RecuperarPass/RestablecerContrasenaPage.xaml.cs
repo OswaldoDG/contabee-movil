@@ -1,6 +1,7 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
@@ -12,14 +13,16 @@ public partial class RestablecerContrasenaPage : ContentPage
 {
     private readonly IToastService _toastService;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IServicioLogs _logs;
 
     public string Token { get; set; } = string.Empty;
 
-    public RestablecerContrasenaPage(IToastService toastService, IServicioIdentidad servicioIdentidad)
+    public RestablecerContrasenaPage(IToastService toastService, IServicioIdentidad servicioIdentidad, IServicioLogs logs)
     {
         InitializeComponent();
         _toastService = toastService;
         _servicioIdentidad = servicioIdentidad;
+        _logs = logs;
     }
 
     // ── Toggle visibilidad ──────────────────────────────────────────
@@ -89,14 +92,13 @@ public partial class RestablecerContrasenaPage : ContentPage
             }
             else
             {
-                var mensaje = resultado.Error?.Mensaje ?? "Error al restablecer la contraseña.";
-                System.Diagnostics.Debug.WriteLine($"[RestablecerContrasena] Error: {resultado.Error?.Codigo} - {mensaje}");
-                await _toastService.ShowAsync(mensaje, ToastType.Error, position: ToastPosition.Bottom);
+                _logs.Log($"[RestablecerContrasenaPage] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
+                await _toastService.ShowAsync("Error al restablecer la contraseña.", ToastType.Error, position: ToastPosition.Bottom);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[RestablecerContrasena] Exception: {ex.Message}");
+            _logs.Log($"[RestablecerContrasenaPage] {ex.GetType().Name}: {ex.Message}");
             await _toastService.ShowAsync("Error al restablecer la contraseña.", ToastType.Error, position: ToastPosition.Bottom);
         }
         finally

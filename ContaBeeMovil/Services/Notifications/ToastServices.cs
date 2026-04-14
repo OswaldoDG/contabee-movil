@@ -98,17 +98,17 @@ public class ToastService : IToastService
         // Margen y alineación según posición
         var (verticalOptions, margin) = position switch
         {
-            ToastPosition.Top => (LayoutOptions.Start, new Thickness(20, 50, 20, 0)),
-            ToastPosition.Center => (LayoutOptions.Center, new Thickness(20, 0, 20, 0)),
-            ToastPosition.Bottom => (LayoutOptions.End, new Thickness(20, 0, 20, 40)),
-            _ => (LayoutOptions.Start, new Thickness(20, 50, 20, 0))
+            ToastPosition.Top => (LayoutOptions.Start, new Thickness(20, 50, 5, 0)),
+            ToastPosition.Center => (LayoutOptions.Center, new Thickness(20, 0, 5, 0)),
+            ToastPosition.Bottom => (LayoutOptions.End, new Thickness(20, 5, 20, 5)),
+            _ => (LayoutOptions.Start, new Thickness(20, 50, 10, 0))
         };
 
         // Contenedor principal //Color.FromArgb("00FFFFFF")
         var frame = new Border
         {
             BackgroundColor = Color.FromArgb("00FFFFFF"),
-            HorizontalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Center,
         };
         
@@ -122,8 +122,10 @@ public class ToastService : IToastService
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
-            ColumnSpacing = 10,
+            ColumnSpacing = 5,
             VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
+            Padding = new Thickness(10, 10),
         };
 
         // Icono de tipo (círculo con símbolo)
@@ -156,6 +158,7 @@ public class ToastService : IToastService
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
             VerticalOptions = LayoutOptions.Center,
+            HorizontalOptions = LayoutOptions.Fill,
         };
 
         // Botón cerrar
@@ -188,14 +191,17 @@ public class ToastService : IToastService
             //VerticalOptions = LayoutOptions.End,
 
         };
-        var stack = new Grid();
-
+        var stack = new Grid
+        {
+            HorizontalOptions = LayoutOptions.Fill,
+        };
 
         // Wrapper con acento encima
         var wrapper = new Grid
         {
             Margin = margin,
             VerticalOptions = verticalOptions,
+            HorizontalOptions = LayoutOptions.Fill,
         };
 
         grid.Add(iconFrame, 0, 0);

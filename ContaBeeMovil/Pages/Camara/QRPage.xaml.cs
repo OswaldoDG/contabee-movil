@@ -2,6 +2,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
@@ -12,14 +13,16 @@ public partial class QRPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
     private bool _isProcessing;
 
-    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta)
+    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
         BindingContext = pageModel;
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
 
         BarcodeReader.Options = new BarcodeReaderOptions
         {
@@ -68,7 +71,8 @@ public partial class QRPage : ContentPage
             }
             catch (Exception ex)
             {
-                await _servicioAlerta.MostrarAsync("Error", ex.Message, verBotonCancelar: false, confirmarText: "OK");
+                _logs.Log($"[QRPage] {ex.GetType().Name}: {ex.Message}");
+                await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error al procesar el código QR.", verBotonCancelar: false, confirmarText: "OK");
                 _isProcessing = false;
                 BarcodeReader.IsDetecting = true;
             }

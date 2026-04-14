@@ -1,5 +1,6 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -9,12 +10,14 @@ public partial class SugerenciasPage : ContentPage
 {
     private readonly IToastService _toastService;
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioLogs _logs;
 
-    public SugerenciasPage(IToastService toastService, IServicioCrm servicioCrm)
+    public SugerenciasPage(IToastService toastService, IServicioCrm servicioCrm, IServicioLogs logs)
     {
         InitializeComponent();
         _toastService = toastService;
         _servicioCrm = servicioCrm;
+        _logs = logs;
     }
 
     private void OnEditorTextChanged(object? sender, TextChangedEventArgs e)
@@ -75,8 +78,8 @@ public partial class SugerenciasPage : ContentPage
         catch (Exception ex)
         {
             MostrarLoader(false);
-            System.Diagnostics.Debug.WriteLine($"[Sugerencias] EXCEPCIÓN: {ex}");
-            await _toastService.ShowAsync($"Error inesperado: {ex.Message}", ToastType.Error, position: ToastPosition.Bottom);
+            _logs.Log($"[SugerenciasPage] {ex.GetType().Name}: {ex.Message}");
+            await _toastService.ShowAsync("Ocurrió un error al enviar la sugerencia.", ToastType.Error, position: ToastPosition.Bottom);
             BtnEnviar.IsEnabled = true;
         }
     }
