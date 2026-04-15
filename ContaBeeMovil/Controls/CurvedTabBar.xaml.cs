@@ -5,6 +5,7 @@ public partial class CurvedTabBar : ContentView
     public event EventHandler<int>? TabChanged;
 
     private float _restingNotchDepth;
+    private float _flatNotchDepth;
     private readonly bool _initialized;
 
     public static readonly BindableProperty BarColorProperty =
@@ -69,6 +70,7 @@ public partial class CurvedTabBar : ContentView
         TabsGrid.Padding = new Thickness(0);
 
         _restingNotchDepth = (float)(barHeight * 0.72);
+        _flatNotchDepth = (float)(barHeight * 0.02);
         _drawable.NotchDepth = _restingNotchDepth;
         _drawable.NotchDepthRatio = 0.72f;
 
@@ -112,58 +114,50 @@ public partial class CurvedTabBar : ContentView
         FloatingIconHome.Opacity = 1;
         FloatingIconFacturacion.Opacity = 1;
 
+        // El botón salta inmediatamente, solo la muesca anima
+        PositionFloatingButtonInstant(index, Width);
+
         if (!_initialized)
         {
             _drawable.NotchPosition = GetNotchPosition(index);
             _drawable.NotchDepth = _restingNotchDepth;
             CurvedBackground.Invalidate();
-            PositionFloatingButtonInstant(index, Width);
             return;
         }
 
-        DropNotch(index);
+        AnimateNotch(index);
     }
 
-    // ── Slide horizontal: la gota se desplaza al nuevo lado ───────────────
-    private void DropNotch(int newIndex)
+    // ── Animación en dos fases: retrae → reaparece ────────────────────────
+    private void AnimateNotch(int newIndex)
     {
-        double totalWidth = Width;
-        if (totalWidth <= 0)
-        {
-            Dispatcher.Dispatch(() => DropNotch(newIndex));
-            return;
-        }
+        float toPosition = GetNotchPosition(newIndex);
 
         this.AbortAnimation("NotchAnim");
 
-        float fromPosition = _drawable.NotchPosition;
-        float toPosition = GetNotchPosition(newIndex);
-
-        if (Math.Abs(fromPosition - toPosition) < 0.001f)
-            return;
-
-        // Mantiene la profundidad estable; solo desliza la posición
-        _drawable.NotchDepth = _restingNotchDepth;
-
-        new Animation(v =>
+        // Fase 1 — retrae la muesca actual (depth → plano)
+        var retract = new Animation(v =>
         {
-            float pos = (float)v;
-            _drawable.NotchPosition = pos;
-            FloatingButton.TranslationX = totalWidth * pos - totalWidth / 2.0;
+            _drawable.NotchDepth = (float)v;
             CurvedBackground.Invalidate();
-        }, fromPosition, toPosition, Easing.CubicInOut)
-        .Commit(
-            this,
-            "NotchAnim",
-            rate: 16,
-            length: 240,
-            finished: (_, __) =>
+        }, _drawable.NotchDepth, _flatNotchDepth, Easing.CubicIn);
+
+        retract.Commit(this, "NotchAnim", length: 150, finished: (_, cancelled) =>
+        {
+            if (cancelled) return;
+
+            // Mueve la muesca al nuevo icono cuando está plana (el botón ya está ahí)
+            _drawable.NotchPosition = toPosition;
+
+            // Fase 2 — reaparece la muesca en el nuevo icono (depth → completo)
+            var expand = new Animation(v =>
             {
-                _drawable.NotchPosition = toPosition;
-                _drawable.NotchDepth = _restingNotchDepth;
-                FloatingButton.TranslationX = totalWidth * toPosition - totalWidth / 2.0;
+                _drawable.NotchDepth = (float)v;
                 CurvedBackground.Invalidate();
-            });
+            }, _flatNotchDepth, _restingNotchDepth, Easing.CubicOut);
+
+            expand.Commit(this, "NotchAnim", length: 150);
+        });
     }
 
     private void PositionFloatingButtonInstant(int index, double totalWidth)
