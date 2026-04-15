@@ -14,6 +14,8 @@ public partial class PaginaLogin : ContentPage
     private const string ClaveMododDev = "ModoDeveloper";
     private int _tapCount = 0;
 
+    public static bool LimpiarAlNavegar { get; set; }
+
     public PaginaLogin(LoginViewModel viewModel, IServicioAlmacenamiento almacenamiento, IToastService toastService)
     {
         InitializeComponent();
@@ -37,6 +39,12 @@ public partial class PaginaLogin : ContentPage
         EntryPassword.Focused += OnEntryFocused;
         EntryEmail.Unfocused += OnEntryUnfocused;
         EntryPassword.Unfocused += OnEntryUnfocused;
+
+        if (LimpiarAlNavegar)
+        {
+            LimpiarAlNavegar = false;
+            _viewModel.LimpiarCampos();
+        }
 
         _tapCount = 0;
     }

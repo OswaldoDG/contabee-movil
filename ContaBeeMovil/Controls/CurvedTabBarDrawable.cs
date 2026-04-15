@@ -2,32 +2,16 @@ using Microsoft.Maui.Graphics;
 
 namespace ContaBeeMovil.Controls;
 
-/// <summary>
-/// Dibuja el fondo de la barra de navegación con una curva convexa hacia ABAJO
-/// en el tab activo — el ícono activo "se hunde" en la barra, al estilo
-/// curved_navigation_bar de Flutter (modo downward / embedded).
-/// </summary>
 public class CurvedTabBarDrawable : IDrawable
 {
-    /// <summary>Desplazamiento vertical desde el borde superior donde comienza la barra.</summary>
-    private const float TopOffset = 5f;
+    // Reducido de 0.08 a 0.02 → casi sin espacio muerto arriba
+    private const float TopOffsetRatio = 0.02f;
 
-    /// <summary>
-    /// Posición horizontal normalizada (0.0–1.0) del centro de la curva.
-    /// Ejemplo: 0.25 = primer tab de 2, 0.75 = segundo tab de 2.
-    /// </summary>
     public float NotchPosition { get; set; } = 0.25f;
-
-    /// <summary>Color de fondo de la barra (debe coincidir con AppThemeResource Primary).</summary>
     public Color BarColor { get; set; } = Helpers.UIHelpers.GetColor("Background");
-
-    /// <summary>Radio de la zona curva (aprox. la mitad del FloatingButton).</summary>
     public float NotchRadius { get; set; } = 30f;
-
-    /// <summary>Profundidad máxima de la curva hacia abajo.</summary>
-    public float NotchDepth { get; set; } = 45.5f;
-
-    /// <summary>Margen horizontal extra para suavizar la transición de la curva.</summary>
+    public float NotchDepth { get; set; } = 0f;
+    public float NotchDepthRatio { get; set; } = 0.75f;
     public float NotchMargin { get; set; } = 30f;
 
     public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -36,30 +20,30 @@ public class CurvedTabBarDrawable : IDrawable
         var h = dirtyRect.Height;
         var cx = w * NotchPosition;
 
+        float topOffset = h * TopOffsetRatio;
+        float notchDepth = NotchDepth > 0 ? NotchDepth : h * NotchDepthRatio;
+
         var left = cx - NotchRadius - NotchMargin;
         var right = cx + NotchRadius + NotchMargin;
 
         var path = new PathF();
+        path.MoveTo(0, topOffset);
 
-        path.MoveTo(0, TopOffset);
-
-        if (left > TopOffset)
-            path.LineTo(left, TopOffset);
-
-        path.CurveTo(
-            left + NotchMargin, TopOffset,
-            cx - NotchRadius, NotchDepth,
-            cx, NotchDepth
-        );
+        if (left > topOffset)
+            path.LineTo(left, topOffset);
 
         path.CurveTo(
-            cx + NotchRadius, NotchDepth,
-            right - NotchMargin, TopOffset,
-            right, TopOffset
-        );
+            left + NotchMargin, topOffset,
+            cx - NotchRadius, notchDepth,
+            cx, notchDepth);
+
+        path.CurveTo(
+            cx + NotchRadius, notchDepth,
+            right - NotchMargin, topOffset,
+            right, topOffset);
 
         if (right < w)
-            path.LineTo(w, TopOffset);
+            path.LineTo(w, topOffset);
 
         path.LineTo(w, h);
         path.LineTo(0, h);

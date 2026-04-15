@@ -6,6 +6,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.RecuperarPass.RecuperarPassPage"
              Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
              Title="Recuperar Contraseña">
 
     <Grid RowDefinitions="Auto,*">

@@ -135,11 +135,21 @@ public partial class QRPage : ContentPage
         {
             var cuentas = await _servicioCrm.GetAsociacionesFiscales();
             if (cuentas.Ok && cuentas.Payload != null)
+            {
                 AppState.Instance.CuentasFiscales = cuentas.Payload;
+                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+            }
 
             LoadingOverlay.IsVisible = false;
             await Navigation.PopModalAsync();
-            await Shell.Current.GoToAsync("..");
+
+            if (Shell.Current != null)
+                await Shell.Current.GoToAsync("..");
+            else
+            {
+                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                Application.Current!.Windows[0].Page = shell;
+            }
         }
         else
         {
@@ -171,11 +181,21 @@ public partial class QRPage : ContentPage
         {
             var cuentas = await _servicioCrm.GetAsociacionesFiscales();
             if (cuentas.Ok && cuentas.Payload != null)
+            {
                 AppState.Instance.CuentasFiscales = cuentas.Payload;
+                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+            }
 
             LoadingOverlay.IsVisible = false;
             await Navigation.PopModalAsync();
-            await Shell.Current.GoToAsync("..");
+
+            if (Shell.Current != null)
+                await Shell.Current.GoToAsync("..");
+            else
+            {
+                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                Application.Current!.Windows[0].Page = shell;
+            }
         }
         else
         {

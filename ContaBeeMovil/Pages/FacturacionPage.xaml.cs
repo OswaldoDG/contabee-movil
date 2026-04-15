@@ -126,8 +126,11 @@ public partial class FacturacionPage : ContentPage
 
     public void OnTabActivated()
     {
-        ActualizarCreadores();
-        PanelFiltros.RestaurarEstado();
+        Dispatcher.Dispatch(() =>
+        {
+            ActualizarCreadores();
+            PanelFiltros.RestaurarEstado();
+        });
     }
 
     // ── Handlers ─────────────────────────────────────────────────────────────────

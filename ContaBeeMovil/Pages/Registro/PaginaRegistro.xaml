@@ -5,6 +5,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Registro.PaginaRegistro"
              BackgroundColor="{toolkit:AppThemeResource Background}"
+             NavigationPage.HasNavigationBar="False"
              Title="Registro"
              Shell.TabBarIsVisible="False">
     <Grid>
@@ -61,28 +62,14 @@
                 <Border StrokeShape="RoundRectangle 12"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                        Padding="0">
-                    <Grid ColumnDefinitions="*,Auto" Padding="12,10">
-                        <Entry x:Name="PasswordEntry"
-                               Grid.Column="0"
-                               Placeholder="Contraseña"
-                               Text="{Binding Password}"
-                               IsPassword="True"
-                               BackgroundColor="Transparent"
-                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                               FontSize="15"/>
-                        <mi:MauiIcon x:Name="TogglePasswordButton"
-                                     Grid.Column="1"
-                                     Icon="{mi:Material Icon=Visibility}"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     IconSize="22"
-                                     VerticalOptions="Center"
-                                     BackgroundColor="Transparent">
-                            <mi:MauiIcon.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnTogglePasswordClicked"/>
-                            </mi:MauiIcon.GestureRecognizers>
-                        </mi:MauiIcon>
-                    </Grid>
+                        Padding="12,10">
+                    <Entry x:Name="PasswordEntry"
+                           Placeholder="Contraseña"
+                           Text="{Binding Password}"
+                           IsPassword="True"
+                           BackgroundColor="Transparent"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="15"/>
                 </Border>
 
                 <!-- Confirmar Contraseña -->

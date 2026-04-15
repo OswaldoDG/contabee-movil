@@ -55,6 +55,8 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task CargarCredencialesAsync()
     {
+        if (PaginaLogin.LimpiarAlNavegar) return;
+
         // Restaurar estado del checkbox desde AppState
         _recordarme = AppState.Instance.Recordarme;
         OnPropertyChanged(nameof(Recordarme));
@@ -117,6 +119,21 @@ public class LoginViewModel : INotifyPropertyChanged
     {
         get => _passwordRequerido;
         set { _passwordRequerido = value; OnPropertyChanged(); }
+    }
+
+    public void LimpiarCampos()
+    {
+        _email = string.Empty;
+        _password = string.Empty;
+        _emailTocado = false;
+        _passwordTocado = false;
+        _emailRequerido = false;
+        _passwordRequerido = false;
+        OnPropertyChanged(nameof(Email));
+        OnPropertyChanged(nameof(Password));
+        OnPropertyChanged(nameof(EmailRequerido));
+        OnPropertyChanged(nameof(PasswordRequerido));
+        ((Command)IngresarCommand).ChangeCanExecute();
     }
 
     public bool EstaCargando
@@ -257,12 +274,13 @@ public class LoginViewModel : INotifyPropertyChanged
     private async Task IrARegistro()
     {
         var paginaRegistro = App.Services.GetRequiredService<PaginaRegistro>();
-        Application.Current!.Windows[0].Page = paginaRegistro;
+        await Application.Current!.Windows[0].Page!.Navigation.PushAsync(paginaRegistro);
     }
+
     private void RecuperarContrasena()
     {
         var pagina = App.Services.GetRequiredService<RecuperarPassPage>();
-        Application.Current!.Windows[0].Page = pagina;
+        _ = Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
     }
 
     private async Task MostrarInfoApp()

@@ -5,11 +5,11 @@
              x:Class="ContaBeeMovil.Pages.Confirmar.ConfirmarCuentaPage"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False"
-             BackgroundColor="#F5F5F5">
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid>
         <!-- Barra superior color dorado -->
-        <BoxView BackgroundColor="#F5C000"
+        <BoxView BackgroundColor="{toolkit:AppThemeResource Primary}"
                  HeightRequest="60"
                  VerticalOptions="Start"/>
 
@@ -18,7 +18,7 @@
                 StrokeShape="RoundRectangle 16"
                 Stroke="Transparent"
                 Padding="32"
-                BackgroundColor="White"
+                BackgroundColor="{toolkit:AppThemeResource Background}"
                 VerticalOptions="Center">
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.2"/>
@@ -34,7 +34,7 @@
                     <ActivityIndicator x:Name="LoadingIndicator"
                                        IsRunning="True"
                                        IsVisible="True"
-                                       Color="#F5C000"
+                                       Color="{toolkit:AppThemeResource Primary}"
                                        WidthRequest="80"
                                        HeightRequest="80"/>
 
@@ -45,7 +45,7 @@
                             HeightRequest="90"
                             StrokeShape="RoundRectangle 45"
                             Stroke="Transparent"
-                            BackgroundColor="#F5C000"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
                             Padding="0"
                             HorizontalOptions="Center">
                         <Label Text="✓"
@@ -62,7 +62,7 @@
                             HeightRequest="90"
                             StrokeShape="RoundRectangle 45"
                             Stroke="Transparent"
-                            BackgroundColor="#E53935"
+                            BackgroundColor="{toolkit:AppThemeResource Error}"
                             Padding="0"
                             HorizontalOptions="Center">
                         <Label Text="✕"
@@ -78,7 +78,7 @@
                        Text="Verificando tu cuenta..."
                        FontSize="22"
                        FontAttributes="Bold"
-                       TextColor="#1A1A1A"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
                        HorizontalOptions="Center"
                        HorizontalTextAlignment="Center"
                        Margin="0,0,0,12"/>
@@ -96,8 +96,8 @@
                 <Button x:Name="ContinuarBtn"
                         Text="Continuar"
                         IsVisible="False"
-                        BackgroundColor="#EEEEEE"
-                        TextColor="#1A1A1A"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
                         FontSize="16"
                         CornerRadius="12"
                         HeightRequest="52"

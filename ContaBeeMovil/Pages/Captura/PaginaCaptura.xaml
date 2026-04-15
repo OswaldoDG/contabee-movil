@@ -259,7 +259,7 @@
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="12"
-                        HeightRequest="50">s
+                        HeightRequest="50">
                     <Button.Shadow>
                         <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
                     </Button.Shadow>
