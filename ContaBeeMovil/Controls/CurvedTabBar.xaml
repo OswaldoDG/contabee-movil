@@ -69,7 +69,7 @@
         <VerticalStackLayout x:Name="FloatingButton"
                              VerticalOptions="Start"
                              HorizontalOptions="Center"
-                             Spacing="-4">
+                             Spacing="-3">
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnFloatingButton_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
@@ -89,7 +89,7 @@
                          IsVisible="False" />
             <Label x:Name="FloatingLabel"
                    Text="Inicio"
-                   FontSize="8"
+                   FontSize="9"
                    TextColor="{toolkit:AppThemeResource Icon}"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
