@@ -83,7 +83,7 @@ public partial class CurvedTabBar : ContentView
         FloatingIconFacturacion.IsVisible = index == 1;
 
         // El botón flotante muestra icono + label del tab activo
-        FloatingLabel.Text = index == 0 ? "Inicio" : "Facturación";
+       // FloatingLabel.Text = index == 0 ? "Inicio" : "Facturación";
 
         // Ocultar el tab interno completo cuando está activo
         TabInicio.Opacity           = index == 0 ? 0 : 1;

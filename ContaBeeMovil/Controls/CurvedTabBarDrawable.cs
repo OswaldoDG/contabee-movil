@@ -25,7 +25,7 @@ public class CurvedTabBarDrawable : IDrawable
     public float NotchRadius { get; set; } = 40f;
 
     /// <summary>Profundidad máxima de la curva hacia abajo.</summary>
-    public float NotchDepth { get; set; } = 50f;
+    public float NotchDepth { get; set; } = 40f;
 
     /// <summary>Margen horizontal extra para suavizar la transición de la curva.</summary>
     public float NotchMargin { get; set; } = 40f;
