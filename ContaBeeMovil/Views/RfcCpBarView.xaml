@@ -15,7 +15,7 @@
 
         <Grid x:Name="RootGrid"
               ColumnDefinitions="Auto,*,Auto"
-              Padding="1,1,1,0">
+              Padding="10,2,10,2">
 
             <!-- Botón RFC (izquierda) — abre selector -->
             <Border x:Name="BorderRfc"
