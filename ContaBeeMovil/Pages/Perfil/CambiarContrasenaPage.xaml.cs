@@ -4,6 +4,7 @@ using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
 using System.Text.RegularExpressions;
+using ContaBeeMovil.Helpers;
 
 namespace ContaBeeMovil.Pages.Perfil;
 

@@ -20,14 +20,12 @@
         <!-- Contenedor con fondo para la zona inferior -->
         <Grid Grid.Row="1"
           RowDefinitions="Auto,Auto"
-          RowSpacing="2"
-          BackgroundColor="{toolkit:AppThemeResource Primary}">
+          BackgroundColor="{toolkit:AppThemeResource Background}">
 
             <views:RfcCpBarView Grid.Row="0" />
 
-            <controls:CurvedTabBar x:Name="TabBar"
+            <controls:SimpleTabBar x:Name="TabBar"
                                Grid.Row="1"
-                               BarColor="{toolkit:AppThemeResource Background}"
                                TabChanged="OnTabChanged" />
         </Grid>
 
