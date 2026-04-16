@@ -4,13 +4,14 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Views.RfcCpBarView">
 
-    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
+    <Border x:Name="OuterBorder"
+            BackgroundColor="Transparent"
             Stroke="Transparent"
             StrokeThickness="0"
             StrokeShape="RoundRectangle 10,10,0,0"
             Padding="1,2">
         <Border.Shadow>
-            <Shadow Brush="Black" Offset="0,-4" Radius="8" Opacity="0.10" />
+            <Shadow Brush="Black" Offset="0,-4" Radius="4" Opacity="0.10" />
         </Border.Shadow>
 
         <Grid x:Name="RootGrid"
@@ -25,7 +26,7 @@
                     StrokeShape="RoundRectangle 10"
                     Padding="10,6">
                 <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.2" />
+                    <Shadow Brush="Black" Offset="0,1" Radius="1" Opacity="0.4" />
                 </Border.Shadow>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
@@ -46,7 +47,7 @@
                     StrokeShape="RoundRectangle 10"
                     Padding="10,6">
                 <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,2" Radius="4" Opacity="0.15" />
+                    <Shadow Brush="Black" Offset="0,1" Radius="1" Opacity="0.4" />
                 </Border.Shadow>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnCpButtonTapped" />

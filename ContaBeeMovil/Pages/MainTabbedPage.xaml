@@ -9,7 +9,7 @@
     Shell.TabBarIsVisible="False"
     Shell.NavBarIsVisible="True"
     Shell.BackgroundColor="{DynamicResource CurrentShellBarColor}"
-    BackgroundColor="{toolkit:AppThemeResource Background}">
+    BackgroundColor="Transparent">
 
     <Grid RowDefinitions="*,Auto">
 
@@ -18,16 +18,23 @@
                  Grid.Row="0" />
 
         <!-- Contenedor con fondo para la zona inferior -->
-        <Grid Grid.Row="1"
-          RowDefinitions="Auto,Auto"
-          BackgroundColor="{toolkit:AppThemeResource Background}">
-
-            <views:RfcCpBarView Grid.Row="0" />
-
-            <controls:SimpleTabBar x:Name="TabBar"
-                               Grid.Row="1"
-                               TabChanged="OnTabChanged" />
-        </Grid>
+        <Border Grid.Row="1"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 10,10,0,0"
+                BackgroundColor="{toolkit:AppThemeResource Background}"
+                Padding="0">
+            <Border.Shadow>
+                <Shadow Brush="Black"
+                        Radius="10"
+                        Opacity="0.2" />
+            </Border.Shadow>
+            <Grid RowDefinitions="Auto,Auto">
+                <views:RfcCpBarView Grid.Row="0" />
+                <controls:SimpleTabBar x:Name="TabBar"
+                                       Grid.Row="1"
+                                       TabChanged="OnTabChanged" />
+            </Grid>
+        </Border>
 
     </Grid>
 

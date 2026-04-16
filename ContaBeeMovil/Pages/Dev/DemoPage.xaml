@@ -21,11 +21,11 @@
         <!-- Zona inferior con RfcCpBar y CurvedTabBar -->
         <Grid Grid.Row="1"
               RowDefinitions="Auto,Auto"
-              BackgroundColor="{toolkit:AppThemeResource Background}">
+              BackgroundColor="{toolkit:AppThemeResource Primary}">
             <views:RfcCpBarView Grid.Row="0" />
             <controls:CurvedTabBar Grid.Row="1"
                                    x:Name="TabBar"
-                                   BarColor="{toolkit:AppThemeResource Primary}"
+                                   BarColor="{toolkit:AppThemeResource Background}"
                                    TabChanged="OnTabChanged" />
         </Grid>
 

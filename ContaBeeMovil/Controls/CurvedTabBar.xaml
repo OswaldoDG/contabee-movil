@@ -17,14 +17,14 @@
         <Grid x:Name="TabsGrid"
               ColumnDefinitions="*,*"
               Padding="0,12,0,4"
-              VerticalOptions="End">
+              VerticalOptions="Center">
 
             <!-- Tab 0: Inicio -->
             <VerticalStackLayout Grid.Column="0"
                                  x:Name="TabInicio"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
-                                 Spacing="-1">
+                                 Spacing="-4">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
@@ -46,7 +46,7 @@
                                  x:Name="TabFacturacion"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
-                                 Spacing="-1">
+                                 Spacing="-4">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
@@ -66,31 +66,33 @@
         </Grid>
 
         <!-- Ícono activo flotante -->
-        <Grid x:Name="FloatingButton"
-              WidthRequest="50"
-              HeightRequest="50"
-              VerticalOptions="Start"
-              HorizontalOptions="Center">
-            <Grid.GestureRecognizers>
+        <VerticalStackLayout x:Name="FloatingButton"
+                             VerticalOptions="Start"
+                             HorizontalOptions="Center"
+                             Spacing="-4">
+            <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnFloatingButton_Tapped" />
-            </Grid.GestureRecognizers>
+            </VerticalStackLayout.GestureRecognizers>
             <mi:MauiIcon x:Name="FloatingIconHome"
                          Icon="{mi:Material Icon=Home}"
                          IconColor="{toolkit:AppThemeResource Icon}"
-                         IconSize="30"
+                         IconSize="31"
                          BackgroundColor="Transparent"
                          HorizontalOptions="Center"
-                         VerticalOptions="Center"
                          IsVisible="True" />
             <mi:MauiIcon x:Name="FloatingIconFacturacion"
                          Icon="{mi:Material Icon=Receipt}"
                          IconColor="{toolkit:AppThemeResource Icon}"
-                         IconSize="30"
+                         IconSize="31"
                          BackgroundColor="Transparent"
                          HorizontalOptions="Center"
-                         VerticalOptions="Center"
                          IsVisible="False" />
-        </Grid>
+            <Label x:Name="FloatingLabel"
+                   Text="Inicio"
+                   FontSize="8"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   HorizontalOptions="Center" />
+        </VerticalStackLayout>
 
     </Grid>
 
