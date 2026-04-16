@@ -119,7 +119,7 @@ public class ServicioSesion : IServicioSesion
             var toastService = _serviceProvider.GetRequiredService<IToastService>();
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
 
-            Application.Current!.Windows[0].Page = paginaLogin;
+            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
             await toastService.ShowAsync(mensaje, ToastType.Warning, 4000, ToastPosition.Top);
         });
     }
@@ -289,7 +289,7 @@ public class ServicioSesion : IServicioSesion
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = paginaLogin;
+            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
         });
     }
 
@@ -322,7 +322,7 @@ public class ServicioSesion : IServicioSesion
         await MainThread.InvokeOnMainThreadAsync(() =>
         {
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = paginaLogin;
+            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
         });
     }
 }
