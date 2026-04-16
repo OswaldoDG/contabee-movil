@@ -51,6 +51,8 @@ public partial class AppState : ObservableObject
         _recordarme              = Preferences.Get(PrefsKeys.Recordarme, false);
         _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
         _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
+        _capturasLote            = LeerObjeto<List<CapturaLote>>(PrefsKeys.CapturasLote);
+        System.Diagnostics.Debug.WriteLine($"[AppState] CargarDesdePreferencias — CapturasLote cargadas: {_capturasLote?.Count ?? 0}");
 
         // Notificar a todos los bindings activos que los valores se recargaron
         OnPropertyChanged(nameof(Perfil));
@@ -61,6 +63,7 @@ public partial class AppState : ObservableObject
         OnPropertyChanged(nameof(Recordarme));
         OnPropertyChanged(nameof(Licenciamiento));
         OnPropertyChanged(nameof(EsDev));
+        OnPropertyChanged(nameof(CapturasLote));
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
@@ -74,6 +77,7 @@ public partial class AppState : ObservableObject
         public const string Recordarme             = "AppState_Recordarme";
         public const string Licenciamiento         = "AppState_Licenciamiento";
         public const string EsDev                  = "AppState_EsDev";
+        public const string CapturasLote           = "AppState_CapturasLote";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -229,12 +233,16 @@ public partial class AppState : ObservableObject
     private List<CapturaLote>? _capturasLote;
 
     /// <summary>
-    /// Lote de capturas (fotos de tickets) pendiente de envío. Estado de sesión, no persiste.
+    /// Lote de capturas (fotos de tickets) pendiente de envío. Persiste entre sesiones.
     /// </summary>
     public List<CapturaLote>? CapturasLote
     {
         get => _capturasLote;
-        set => SetProperty(ref _capturasLote, value);
+        set
+        {
+            if (SetProperty(ref _capturasLote, value))
+                GuardarObjeto(PrefsKeys.CapturasLote, value);
+        }
     }
     
     // ── Logs ───────────────────────────────────────────────────────────────────

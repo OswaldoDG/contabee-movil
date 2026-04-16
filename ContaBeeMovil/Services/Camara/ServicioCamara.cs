@@ -35,13 +35,17 @@ public class ServicioCamara : IServicioCamara
             if (photo is null)
                 return string.Empty;
 
-            var localPath = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+            var localPath = Path.Combine(FileSystem.AppDataDirectory, photo.FileName);
 
             await using var sourceStream = await photo.OpenReadAsync();
             await using var localStream = File.OpenWrite(localPath);
             await sourceStream.CopyToAsync(localStream);
 
-            return localPath;
+            var existeDespues = File.Exists(localPath);
+            _logs.Log($"[ServicioCamara] AppDataDirectory={FileSystem.AppDataDirectory}");
+            _logs.Log($"[ServicioCamara] FileName={photo.FileName} | existe={existeDespues} | tamaño={new FileInfo(localPath).Length} bytes");
+
+            return photo.FileName;
         }
         catch (Exception ex)
         {
