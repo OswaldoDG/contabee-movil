@@ -4,23 +4,27 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
-    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
-    <!-- HeightRequest removido, ahora es dinámico desde code-behind -->
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    HeightRequest="50">
 
     <Grid x:Name="RootGrid">
 
+        <!-- Fondo con curva convexa hacia abajo (GraphicsView) -->
         <GraphicsView x:Name="CurvedBackground"
                       InputTransparent="True" />
 
+        <!-- Tabs inactivos (dentro de la barra, zona inferior) -->
         <Grid x:Name="TabsGrid"
               ColumnDefinitions="*,*"
-              VerticalOptions="Fill">
+              Padding="0,12,0,4"
+              VerticalOptions="End">
 
+            <!-- Tab 0: Inicio -->
             <VerticalStackLayout Grid.Column="0"
                                  x:Name="TabInicio"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
-                                 Spacing="2">
+                                 Spacing="-1">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
@@ -37,11 +41,12 @@
                        HorizontalOptions="Center" />
             </VerticalStackLayout>
 
+            <!-- Tab 1: Facturación -->
             <VerticalStackLayout Grid.Column="1"
                                  x:Name="TabFacturacion"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center"
-                                 Spacing="2">
+                                 Spacing="-1">
                 <VerticalStackLayout.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
@@ -60,6 +65,7 @@
 
         </Grid>
 
+        <!-- Ícono activo flotante -->
         <Grid x:Name="FloatingButton"
               WidthRequest="50"
               HeightRequest="50"

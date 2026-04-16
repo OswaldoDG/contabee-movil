@@ -8,6 +8,7 @@
     xmlns:views="clr-namespace:ContaBeeMovil.Views"
     Shell.TabBarIsVisible="False"
     Shell.NavBarIsVisible="True"
+    Shell.BackgroundColor="{DynamicResource CurrentShellBarColor}"
     BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid RowDefinitions="*,Auto">

@@ -6,7 +6,7 @@
              x:Class="ContaBeeMovil.Pages.Perfil.RegistrarRFCsPage"
              Title="Registrar Cuenta Fiscal"
              BackgroundColor="{toolkit:AppThemeResource Background}"
-             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarSecondary}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.TabBarIsVisible="False">

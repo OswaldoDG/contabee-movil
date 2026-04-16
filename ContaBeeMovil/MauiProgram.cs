@@ -50,6 +50,9 @@ namespace ContaBeeMovil
 
             builder.ConfigureMauiHandlers(handlers =>
             {
+#if ANDROID
+                handlers.AddHandler<Shell, CustomShellRenderer>();
+#endif
 #if WINDOWS
                     Microsoft.Maui.Controls.Handlers.Items.CollectionViewHandler.Mapper.AppendToMapping("KeyboardAccessibleCollectionView", (handler, view) =>
                     {
