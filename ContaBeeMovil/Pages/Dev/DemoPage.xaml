@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="ContaBeeMovil.Pages.Dev.DemoPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:ContaBeeMovil.Controls"
+    xmlns:views="clr-namespace:ContaBeeMovil.Views"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    Shell.TabBarIsVisible="False"
+    Shell.NavBarIsVisible="True"
+    Shell.BackgroundColor="{DynamicResource CurrentShellBarColor}"
+    BackgroundColor="{toolkit:AppThemeResource Background}"
+    Title="Demo NavBar">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <!-- Área de contenido dinámico -->
+        <ContentView x:Name="PageContainer"
+                     Grid.Row="0" />
+
+        <!-- Zona inferior con RfcCpBar y CurvedTabBar -->
+        <Grid Grid.Row="1"
+              RowDefinitions="Auto,Auto"
+              BackgroundColor="{toolkit:AppThemeResource Background}">
+            <views:RfcCpBarView Grid.Row="0" />
+            <controls:CurvedTabBar Grid.Row="1"
+                                   x:Name="TabBar"
+                                   BarColor="{toolkit:AppThemeResource Primary}"
+                                   TabChanged="OnTabChanged" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

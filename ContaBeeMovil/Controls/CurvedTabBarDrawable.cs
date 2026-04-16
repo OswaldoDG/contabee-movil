@@ -34,32 +34,40 @@ public class CurvedTabBarDrawable : IDrawable
     {
         var w = dirtyRect.Width;
         var h = dirtyRect.Height;
+
+        // Algunos dispositivos invocan Draw antes de que el View tenga tamaño.
+        // Sin este guard la muesca se dibuja degenerada (o no aparece).
+        if (w <= 0 || h <= 0) return;
+
         var cx = w * NotchPosition;
 
-        var left = cx - NotchRadius - NotchMargin;
+        var left  = cx - NotchRadius - NotchMargin;
         var right = cx + NotchRadius + NotchMargin;
 
         var path = new PathF();
 
         path.MoveTo(0, TopOffset);
 
-        if (left > TopOffset)
+        // Comparar contra 0, no contra TopOffset (que es un valor vertical).
+        if (left > 0)
             path.LineTo(left, TopOffset);
 
         path.CurveTo(
             left + NotchMargin, TopOffset,
-            cx - NotchRadius, NotchDepth,
-            cx, NotchDepth
+            cx - NotchRadius,   NotchDepth,
+            cx,                 NotchDepth
         );
 
         path.CurveTo(
-            cx + NotchRadius, NotchDepth,
+            cx + NotchRadius,   NotchDepth,
             right - NotchMargin, TopOffset,
-            right, TopOffset
+            right,              TopOffset
         );
 
-        if (right < w)
-            path.LineTo(w, TopOffset);
+        // Siempre cerrar hacia la esquina superior-derecha.
+        // Cuando right >= w la curva ya desbordó el canvas; LineTo igual garantiza
+        // que el path cierre limpio sin diagonal diagonal visible.
+        path.LineTo(w, TopOffset);
 
         path.LineTo(w, h);
         path.LineTo(0, h);

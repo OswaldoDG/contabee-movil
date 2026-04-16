@@ -166,6 +166,9 @@ public partial class CurvedTabBar : ContentView
     {
         base.OnSizeAllocated(width, height);
         if (width > 0)
+        {
             PositionFloatingButton(SelectedIndex, width);
+            CurvedBackground.Invalidate();
+        }
     }
 }
