@@ -26,6 +26,23 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         return r;
     }
 
+
+    public async Task<RespuestaPayload<RespuestaCuponValido>> ValidarCupon(string codigo)
+    {
+        RespuestaPayload<RespuestaCuponValido> r = new();
+        try
+        {
+            var res = await servicioEcommerce.ValidarAsync(codigo, TipoCuentaCupon.UsuarioApp, null);
+            r.Payload = res;
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioEcommerce-ValidarCupon");
+        }
+        return r;
+    }
+
     public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, string dispositivoId, string productoTiendaId, string verificationData, string compraId, DtoProducto producto, PasarelarPago pasarela)
     {
         try

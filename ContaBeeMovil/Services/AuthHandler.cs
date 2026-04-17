@@ -22,6 +22,8 @@ public class AuthHandler : DelegatingHandler
         "/usuario/registro/confirmar",
         "/api/identity/usuario/registro/confirmar",
         "/api/identity/connect/token",
+        "/cupones/validar/",
+        "/api/ecommerce/cupones/validar/",
         "/connect/token"
     ];
 

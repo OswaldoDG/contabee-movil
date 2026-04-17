@@ -57,6 +57,20 @@ public partial class PaginaRegistro : ContentPage
         ToggleConfirmPasswordButton.Icon(isPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
     }
 
+    void OnToggleCuponClicked(object? sender, EventArgs e)
+    {
+        CuponBorder.IsVisible = true;
+        CuponToggleLabel.IsVisible = false;
+    }
+
+    void OnCerrarCuponClicked(object? sender, EventArgs e)
+    {
+        CuponBorder.IsVisible = false;
+        CuponToggleLabel.IsVisible = true;
+        CuponEntry.Text = string.Empty;
+        _viewModel.CuponRegistro = null;
+    }
+
     void UpdateButtonColor(bool puedeRegistrar)
     {
         var primary = UIHelpers.GetColor("Primary");
