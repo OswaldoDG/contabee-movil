@@ -284,24 +284,6 @@
                            VerticalOptions="Center" />
                 </Grid>
 
-                <!-- Demo NavBar (solo visible en modo desarrollador) -->
-                <Grid x:Name="DemoMenuItem"
-                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10"
-                      IsVisible="False">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnDemoClicked" />
-                    </Grid.GestureRecognizers>
-                    <Label Grid.Column="0"
-                           Text="{x:Static f:FluentUI.phone_24_regular}"
-                           FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="22"
-                           TextColor="{toolkit:AppThemeResource Icon}"
-                           VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="Demo NavBar"
-                           Style="{StaticResource Body1}"
-                           VerticalOptions="Center" />
-                </Grid>
-
                 <BoxView Style="{StaticResource Divider}" />
                <VerticalStackLayout Spacing="8">
                 <!-- Toggle tema oscuro/claro -->

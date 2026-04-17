@@ -153,7 +153,6 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<TiendaPage>();
             builder.Services.AddTransient<ReclamarDemoPage>();
             builder.Services.AddTransient<LogsPage>();
-            builder.Services.AddTransient<DemoPage>();
             builder.Services.AddTransient<PaginaSinConexion>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();

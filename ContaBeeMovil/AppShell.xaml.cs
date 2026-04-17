@@ -153,8 +153,6 @@ namespace ContaBeeMovil
         {
             if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
                 logs.IsVisible = AppState.Instance.EsDev;
-            if (this.FindByName<Grid>("DemoMenuItem") is { } demo)
-                demo.IsVisible = AppState.Instance.EsDev;
         }
 
         private void ActualizarNombreLabel()
@@ -240,12 +238,6 @@ namespace ContaBeeMovil
             await GoToAsync(nameof(LogsPage));
         }
 
-        private async void OnDemoClicked(object? sender, EventArgs e)
-        {
-            FlyoutIsPresented = false;
-            await GoToAsync(nameof(DemoPage));
-        }
-
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
@@ -302,7 +294,6 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
-            Routing.RegisterRoute(nameof(DemoPage), typeof(DemoPage));
         }
     }
 }
