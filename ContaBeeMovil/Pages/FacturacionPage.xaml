@@ -12,8 +12,7 @@
     <Border Grid.Row="0"
             Padding="0"
             BackgroundColor="{toolkit:AppThemeResource Accent1}"
-            StrokeShape="RoundRectangle 0"
-            StrokeThickness="0">
+            StrokeShape="RoundRectangle 1,1,0,0">
         <Grid RowDefinitions="Auto,*">
 
         <!-- Controles de consulta -->

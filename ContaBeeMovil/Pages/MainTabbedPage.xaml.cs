@@ -41,13 +41,10 @@ public partial class MainTabbedPage : ContentPage
         if (_currentIndex == index) return;
         _currentIndex = index;
 
-        // 1) Disparar la animación de la gota inmediatamente
+        // 1) Actualizar indicador de pestaña
         TabBar.SelectedIndex = index;
 
-        // 2) Dejar que la gota se deslice con el hilo de UI libre
-        await Task.Delay(240);
-
-        // 3) Swap directo del contenido — SIN fade-out (nada de espacio vacío)
+        // 2) Swap directo del contenido — SIN fade-out (nada de espacio vacío)
         PageContainer.Opacity = 0;
 
         switch (index)

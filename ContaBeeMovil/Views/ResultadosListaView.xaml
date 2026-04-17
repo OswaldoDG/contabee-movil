@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
-             x:Class="ContaBeeMovil.Views.ResultadosListaView"
-             BackgroundColor="{toolkit:AppThemeResource Background}">
+             x:Class="ContaBeeMovil.Views.ResultadosListaView">
 
     <Grid RowDefinitions="*,Auto">
 
@@ -27,55 +26,67 @@
                                HeightRequest="48" />
         </Grid>
 
-        <!-- Barra de paginación -->
-        <Grid x:Name="BarraPaginacion"
-              Grid.Row="1"
-              IsVisible="False"
-              Padding="5">
+        <!-- Contenedor con fondo para la zona inferior -->
+        <Border Grid.Row="1" x:Name="BarraPaginacion"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 1,1,0,0"
+                BackgroundColor="{toolkit:AppThemeResource Background}"
+                Padding="0"
+                IsVisible="False">
+                <Border.Shadow>
+                <Shadow Brush="Black"
+                        Radius="1"
+                        Opacity="0.1"
+                        Offset="0,-1" />
+            </Border.Shadow>
+                <!-- Barra de paginación -->
+                <Grid
+                    Grid.Row="1"
+                    Padding="5">
 
-            <Label x:Name="LabelEncontrados"
-                   Style="{StaticResource Body2}"
-                   HorizontalOptions="Start"
-                   VerticalOptions="Center" />
+                    <Label x:Name="LabelEncontrados"
+                        Style="{StaticResource Body2}"
+                        HorizontalOptions="Start"
+                        VerticalOptions="Center" />
 
-            <HorizontalStackLayout HorizontalOptions="Center"
-                                   VerticalOptions="Center"
-                                   Spacing="5">
+                    <HorizontalStackLayout HorizontalOptions="Center"
+                                        VerticalOptions="Center"
+                                        Spacing="5">
 
-                <!-- Botón página anterior -->
-                <Border x:Name="BtnAnterior"
-                        Style="{StaticResource CircleIconButton}"
-                        VerticalOptions="Center">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnAnteriorTapped" />
-                    </Border.GestureRecognizers>
-                    <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
-                           Style="{StaticResource CircleIconLabel}" />
-                </Border>
+                        <!-- Botón página anterior -->
+                        <Border x:Name="BtnAnterior"
+                                Style="{StaticResource CircleIconButton}"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAnteriorTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
+                                Style="{StaticResource CircleIconLabel}" />
+                        </Border>
 
-                <!-- Página actual -->
-                <Label x:Name="LabelPagina"
-                       Style="{StaticResource Body2Strong}"
-                       FontSize="12"
-                       VerticalOptions="Center"
-                       HorizontalOptions="Center"
-                       MinimumWidthRequest="20" />
+                        <!-- Página actual -->
+                        <Label x:Name="LabelPagina"
+                            Style="{StaticResource Body2Strong}"
+                            FontSize="12"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            MinimumWidthRequest="20" />
 
-                <!-- Botón página siguiente -->
-                <Border x:Name="BtnSiguiente"
-                        Style="{StaticResource CircleIconButton}"
-                        VerticalOptions="Center">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnSiguienteTapped" />
-                    </Border.GestureRecognizers>
-                    <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
-                           Style="{StaticResource CircleIconLabel}" />
-                </Border>
+                        <!-- Botón página siguiente -->
+                        <Border x:Name="BtnSiguiente"
+                                Style="{StaticResource CircleIconButton}"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSiguienteTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                                Style="{StaticResource CircleIconLabel}" />
+                        </Border>
 
-            </HorizontalStackLayout>
+                    </HorizontalStackLayout>
 
-        </Grid>
-
-    </Grid>
+                </Grid>
+            </Border>
+       </Grid>
 
 </ContentView>

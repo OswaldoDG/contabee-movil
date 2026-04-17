@@ -7,6 +7,24 @@ namespace ContaBeeMovil.Views;
 
 public partial class RfcCpBarView : ContentView
 {
+    public static readonly BindableProperty BarColorProperty =
+        BindableProperty.Create(
+            nameof(BarColor),
+            typeof(Color),
+            typeof(RfcCpBarView),
+            defaultValue: null,
+            propertyChanged: (b, _, n) =>
+            {
+                if (b is RfcCpBarView v && n is Color c)
+                    v.OuterBorder.BackgroundColor = c;
+            });
+
+    public Color? BarColor
+    {
+        get => (Color?)GetValue(BarColorProperty);
+        set => SetValue(BarColorProperty, value);
+    }
+
     public static readonly BindableProperty ConFondoProperty =
         BindableProperty.Create(
             nameof(ConFondo),

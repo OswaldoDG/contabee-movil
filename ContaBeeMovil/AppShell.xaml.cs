@@ -151,8 +151,8 @@ namespace ContaBeeMovil
 
         private void ActualizarVisibilidadLogs()
         {
-            if (this.FindByName<Grid>("LogsMenuItem") is { } item)
-                item.IsVisible = AppState.Instance.EsDev;
+            if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
+                logs.IsVisible = AppState.Instance.EsDev;
         }
 
         private void ActualizarNombreLabel()

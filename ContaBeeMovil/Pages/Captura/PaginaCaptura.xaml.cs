@@ -7,6 +7,7 @@ using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
@@ -21,6 +22,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IToastService _toastService;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioTranscript _servicioTranscript;
+    private readonly IServicioLogs _logs;
 
     // ── Preferencias recordadas ──────────────────────────────────────────────
 
@@ -32,13 +34,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs)
     {
         _servicioCamara    = servicioCamara;
         _servicioAlerta    = servicioAlerta;
         _toastService      = toastService;
         _servicioSesion    = servicioSesion;
         _servicioTranscript = servicioTranscript;
+        _logs              = logs;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
         _capturas  = new ObservableCollection<CapturaLote>(AppState.Instance.CapturasLote ?? []);
@@ -89,17 +92,82 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             TipoCaptura = tipo;
 
         _capturas.Clear();
-        foreach (var c in AppState.Instance.CapturasLote ?? [])
-            _capturas.Add(c);
+        _pendienteVerificarFotos = true;
 
         ActualizarUsoCfdi();
-        var x = TipoCaptura;
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
         _ = CargarTarjetasYRefrescarAsync();
+
+        if (_pendienteVerificarFotos)
+        {
+            _pendienteVerificarFotos = false;
+            _ = VerificarFotosGuardadasAsync();
+        }
+    }
+
+    private bool _pendienteVerificarFotos;
+
+    private async Task VerificarFotosGuardadasAsync()
+    {
+        var loteCompleto = AppState.Instance.CapturasLote ?? [];
+        _logs.Log($"[PaginaCaptura] VerificarFotos — AppDataDirectory={FileSystem.AppDataDirectory}");
+        _logs.Log($"[PaginaCaptura] VerificarFotos — TipoCaptura={TipoCaptura}, total en AppState={loteCompleto.Count}");
+
+        var capturasGuardadas = loteCompleto
+            .Where(c => c.TipoCaptura == TipoCaptura)
+            .ToList();
+
+        _logs.Log($"[PaginaCaptura] VerificarFotos — del tipo actual={capturasGuardadas.Count}");
+
+        foreach (var c in capturasGuardadas)
+        {
+            var existe = File.Exists(c.Path);
+            _logs.Log($"[PaginaCaptura] VerificarFotos — path={c.Path} | existe={existe}");
+        }
+
+        capturasGuardadas = capturasGuardadas.Where(c => File.Exists(c.Path)).ToList();
+        _logs.Log($"[PaginaCaptura] VerificarFotos — con archivo en disco={capturasGuardadas.Count}");
+
+        if (capturasGuardadas.Count == 0) return;
+
+        bool conservar = await _servicioAlerta.MostrarAsync(
+            "Imágenes guardadas",
+            $"Tienes {capturasGuardadas.Count} imagen(es) de una captura anterior. ¿Deseas conservarlas?",
+            confirmarText: "Conservar",
+            cancelarText: "Eliminar");
+
+        _logs.Log($"[PaginaCaptura] VerificarFotos — usuario eligió conservar={conservar}");
+
+        if (conservar)
+        {
+            foreach (var c in capturasGuardadas)
+                _capturas.Add(c);
+        }
+        else
+        {
+            foreach (var c in capturasGuardadas)
+            {
+                try
+                {
+                    File.Delete(c.Path);
+                    _logs.Log($"[PaginaCaptura] VerificarFotos — archivo eliminado: {c.Path}");
+                }
+                catch (Exception ex)
+                {
+                    _logs.Log($"[PaginaCaptura] VerificarFotos — error al eliminar {c.Path}: {ex.Message}");
+                }
+            }
+
+            var restantes = (AppState.Instance.CapturasLote ?? [])
+                .Where(c => c.TipoCaptura != TipoCaptura)
+                .ToList();
+            AppState.Instance.CapturasLote = restantes.Count > 0 ? restantes : null;
+            _logs.Log($"[PaginaCaptura] VerificarFotos — AppState actualizado, restantes={restantes.Count}");
+        }
     }
 
     private async Task CargarTarjetasYRefrescarAsync()
@@ -421,11 +489,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task TomarFotoAsync()
     {
-        var path = await _servicioCamara.TomarFotoAsync();
-        if (string.IsNullOrEmpty(path)) return;
+        var fileName = await _servicioCamara.TomarFotoAsync();
+        _logs.Log($"[PaginaCaptura] TomarFoto — fileName obtenido: '{fileName}'");
+        if (string.IsNullOrEmpty(fileName)) return;
 
-        _capturas.Add(new CapturaLote { TipoCaptura = TipoCaptura, Path = path });
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
+        _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
+        _capturas.Add(captura);
         AppState.Instance.CapturasLote = [.. _capturas];
+        _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
     }
 
     private async Task EliminarCapturaAsync(CapturaLote captura)
@@ -440,62 +512,6 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         _capturas.Remove(captura);
         AppState.Instance.CapturasLote = [.. _capturas];
-    }
-
-    // ── Arrastrar imagen hacia abajo para eliminar ────────────────────────────
-
-    private double _panY = 0;
-
-    private async void OnImagePanUpdated(object sender, PanUpdatedEventArgs e)
-    {
-        if (sender is not View border) return;
-
-        // El contenedor animable es el Grid padre del Border
-        if (border.Parent is not View contenedor) return;
-
-        switch (e.StatusType)
-        {
-            case GestureStatus.Started:
-                _panY = 0;
-                break;
-
-            case GestureStatus.Running:
-                // Solo permitir arrastrar hacia abajo
-                if (e.TotalY > 0)
-                {
-                    _panY = e.TotalY;
-                    contenedor.TranslationY = _panY;
-                    // Reducir opacidad progresivamente
-                    contenedor.Opacity = Math.Max(0.4, 1 - (_panY / 300));
-                }
-                break;
-
-            case GestureStatus.Completed:
-            case GestureStatus.Canceled:
-                const double umbral = 100;
-                if (e.StatusType == GestureStatus.Completed && _panY > umbral)
-                {
-                    // Animar salida hacia abajo
-                    await contenedor.TranslateTo(0, 600, 200, Easing.CubicIn);
-
-                    var captura = border.BindingContext as CapturaLote;
-                    if (captura is not null)
-                        await EliminarCapturaAsync(captura);
-
-                    // Restaurar posición (el item se eliminó o el usuario canceló)
-                    contenedor.TranslationY = 0;
-                    contenedor.Opacity = 1;
-                }
-                else
-                {
-                    // Volver a posición original con rebote
-                    await Task.WhenAll(
-                        contenedor.TranslateTo(0, 0, 250, Easing.SpringOut),
-                        contenedor.FadeTo(1, 200));
-                }
-                _panY = 0;
-                break;
-        }
     }
 
     private async Task VerImagenAsync(CapturaLote captura)

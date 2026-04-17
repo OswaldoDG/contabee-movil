@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="ContaBeeMovil.Controls.SimpleTabBar"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    HeightRequest="50">
+
+    <Grid ColumnDefinitions="*,*"
+          BackgroundColor="{toolkit:AppThemeResource Background}">
+
+        <!-- Tab 0: Inicio -->
+        <VerticalStackLayout Grid.Column="0"
+                             x:Name="TabInicio"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <mi:MauiIcon x:Name="IconInicio"
+                         Icon="{mi:Material Icon=Home}"
+                         IconSize="22"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         BackgroundColor="Transparent"
+                         HorizontalOptions="Center" />
+            <Label x:Name="LblInicio"
+                   Text="Inicio"
+                   FontSize="10"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource Icon}" />
+                   
+            <BoxView x:Name="UnderlineInicio"
+                     HeightRequest="4"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="True" />
+        </VerticalStackLayout>
+
+        <!-- Tab 1: Facturación -->
+        <VerticalStackLayout Grid.Column="1"
+                             x:Name="TabFacturacion"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <mi:MauiIcon x:Name="IconFacturacion"
+                         Icon="{mi:Material Icon=Receipt}"
+                         IconSize="22"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         BackgroundColor="Transparent"
+                         HorizontalOptions="Center" />
+            <Label x:Name="LblFacturacion"
+                   Text="Facturación"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center"
+                   />
+            <BoxView x:Name="UnderlineFacturacion"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentView>

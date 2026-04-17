@@ -171,23 +171,45 @@
                                   HorizontalOptions="Center"
                                   VerticalOptions="Center">
 
-                                <!-- Imagen: tap para ver, arrastrar hacia abajo para eliminar -->
+                                <!-- Imagen con botón de eliminar superpuesto -->
                                 <Border StrokeShape="RoundRectangle 16"
                                         StrokeThickness="0"
                                         BackgroundColor="Transparent">
                                     <Border.GestureRecognizers>
-                                        <PanGestureRecognizer PanUpdated="OnImagePanUpdated" />
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
+                                            CommandParameter="{Binding .}" />
                                     </Border.GestureRecognizers>
-                                    <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
-                                           Aspect="AspectFill"
-                                           HorizontalOptions="Fill"
-                                           VerticalOptions="Fill">
-                                        <Image.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Image.GestureRecognizers>
-                                    </Image>
+                                    <Grid>
+                                        <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
+                                               Aspect="AspectFill"
+                                               HorizontalOptions="Fill"
+                                               VerticalOptions="Fill" />
+
+                                        <!-- Botón eliminar: esquina superior derecha -->
+                                        <Border HorizontalOptions="Start"
+                                                VerticalOptions="Start"
+                                                Margin="5,5,5,5"
+                                                StrokeShape="RoundRectangle 20"
+                                                StrokeThickness="0"
+                                                BackgroundColor="#77E53935"
+                                                WidthRequest="35"
+                                                HeightRequest="35"
+                                                Padding="0">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Label Text="X"
+                                                   FontSize="15"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"
+                                                   InputTransparent="True" />
+                                        </Border>
+                                    </Grid>
                                 </Border>
 
                             </Grid>
