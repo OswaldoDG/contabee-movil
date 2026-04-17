@@ -39,6 +39,7 @@
                         Padding="12,10">
                     <Entry Placeholder="Nombre"
                            Text="{Binding Nombre}"
+                           Keyboard="Chat"
                            BackgroundColor="Transparent"
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="15"
@@ -67,6 +68,7 @@
                            Placeholder="Contraseña"
                            Text="{Binding Password}"
                            IsPassword="True"
+                           Keyboard="Plain"
                            BackgroundColor="Transparent"
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="15"/>
@@ -83,6 +85,7 @@
                                Placeholder="Confirmar Contraseña"
                                Text="{Binding ConfirmarPassword}"
                                IsPassword="True"
+                               Keyboard="Plain"
                                BackgroundColor="Transparent"
                                PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                                FontSize="15"
@@ -96,6 +99,50 @@
                                      BackgroundColor="Transparent">
                             <mi:MauiIcon.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnToggleConfirmPasswordClicked"/>
+                            </mi:MauiIcon.GestureRecognizers>
+                        </mi:MauiIcon>
+                    </Grid>
+                </Border>
+
+                <!-- Cupón toggle label -->
+                <HorizontalStackLayout x:Name="CuponToggleLabel"
+                                       Spacing="6"
+                                       Margin="4,0,0,0">
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnToggleCuponClicked"/>
+                    </HorizontalStackLayout.GestureRecognizers>
+                    <Label Text="🎟️" FontSize="14" VerticalOptions="Center"/>
+                    <Label Text="¿Tienes un cupón de bienvenida?"
+                           TextColor="{toolkit:AppThemeResource Primary}"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+
+                <!-- Cupón Entry con botón cerrar (hidden by default) -->
+                <Border x:Name="CuponBorder"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="0"
+                        IsVisible="False">
+                    <Grid ColumnDefinitions="*,Auto" Padding="12,10">
+                        <Entry x:Name="CuponEntry"
+                               Grid.Column="0"
+                               Placeholder="Ingresa tu cupón"
+                               Text="{Binding CuponRegistro}"
+                               Keyboard="Plain"
+                               BackgroundColor="Transparent"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="15"/>
+                        <mi:MauiIcon Grid.Column="1"
+                                     Icon="{mi:Material Icon=KeyboardArrowDown}"
+                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                     IconSize="20"
+                                     VerticalOptions="Center"
+                                     BackgroundColor="Transparent">
+                            <mi:MauiIcon.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCerrarCuponClicked"/>
                             </mi:MauiIcon.GestureRecognizers>
                         </mi:MauiIcon>
                     </Grid>
