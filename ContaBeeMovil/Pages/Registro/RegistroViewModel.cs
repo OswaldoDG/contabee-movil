@@ -1,11 +1,15 @@
 ﻿using Contabee.Api;
 using Contabee.Api.abstractions;
+using Contabee.Api.Ecommerce;
 using Contabee.Api.Identidad;
 using ContaBeeMovil;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Views;
+using CommunityToolkit.Maui.Views;
+using CommunityToolkit.Maui.Extensions;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -22,13 +26,15 @@ public class RegistroViewModel : INotifyPropertyChanged
     private string _mensajeError;
     private bool _estaCargando;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IServicioEcommerce _servicioEcommerce;
     private readonly IToastService _toast;
     private readonly DeviceService _deviceService;
     private readonly IServicioLogs _logs;
 
-    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IToastService ToastService, DeviceService deviceService, IServicioLogs logs)
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IToastService ToastService, DeviceService deviceService, IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
+        _servicioEcommerce = servicioEcommerce;
         _toast = ToastService;
         _deviceService = deviceService;
         _logs = logs;
@@ -109,6 +115,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         {
             _estaCargando = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(PuedeRegistrar));
             ((Command)RegistrarCommand).ChangeCanExecute();
         }
     }
@@ -134,6 +141,34 @@ public class RegistroViewModel : INotifyPropertyChanged
         {
             EstaCargando = true;
             MensajeError = string.Empty;
+
+            // Validar cupón si fue proporcionado
+            if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
+            {
+                await _toast.ShowAsync("El cupón debe tener más de 3 caracteres.", ToastType.Error, position: ToastPosition.Bottom);
+                EstaCargando = false;
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(CuponRegistro))
+            {
+                var cuponResult = await _servicioEcommerce.ValidarCupon(CuponRegistro.Trim());
+                if (!cuponResult.Ok || cuponResult.Payload == null || !cuponResult.Payload.Valido)
+                {
+                    var motivo = cuponResult.Payload?.Motivo ?? "Cupón no válido, por favor verifica e intenta de nuevo.";
+                    await _toast.ShowAsync(motivo, ToastType.Error, position: ToastPosition.Bottom);
+                    EstaCargando = false;
+                    return;
+                }
+
+                // Cupón válido: mostrar info al usuario
+                var popup = new AlertaPopup(
+                    "¡Bienvenido! 🎉",
+                    cuponResult.Payload.Descripcion ?? cuponResult.Payload.Nombre ?? "Cupón canjeado exitosamente.",
+                    verBotonCancelar: false,
+                    confirmarText: "Continuar");
+                await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
+            }
 
             // Obtener el ID del dispositivo
             var dispositivoId = await ObtenerDispositivoId();
