@@ -8,87 +8,21 @@
              x:Class="ContaBeeMovil.Views.ActividadView"
              x:DataType="vm:DashboardViewModel">
 
-    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
-            Stroke="Transparent"
-            StrokeShape="RoundRectangle 20"
-            Margin="8,8,8,8"
-            Padding="5">
-        <Border.Triggers>
-            <DataTrigger TargetType="Border"
-                         Binding="{Binding EstaCargando}"
-                         Value="True">
-                <Setter Property="BackgroundColor"
-                        Value="{toolkit:AppThemeResource Background}" />
-            </DataTrigger>
-            <DataTrigger TargetType="Border"
-                         Binding="{Binding MostrarError}"
-                         Value="True">
-                <Setter Property="BackgroundColor"
-                        Value="{toolkit:AppThemeResource Background}" />
-            </DataTrigger>
-        </Border.Triggers>
+    <Grid Margin="8,8,8,8"
+          Padding="5">
 
-        <!-- Outer grid for overlaying spinner/error on top of content -->
-        <Grid>
-
-            <!-- Main content: Grid con filas proporcionales para llenar la pantalla -->
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
+        <RefreshView x:Name="PullRefresh"
+                     Command="{Binding PullRefreshCommand}"
+                     IsRefreshing="{Binding EstaRefrescando}"
+                     RefreshColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Black}}"
+                     IsVisible="{Binding MostrarContenido}">
+          <ScrollView x:Name="MainScroll">
+            <Grid RowDefinitions="Auto,Auto,Auto,*"
                   RowSpacing="10"
-                  IsVisible="{Binding MostrarContenido}"
-                  Padding="0,5,0,25">
+                  Padding="0,5,0,0"
+                  HeightRequest="{Binding Source={x:Reference MainScroll}, Path=Height}">
 
-                <!-- Row 0: Header navegación de mes -->
-                <Grid Grid.Row="0"
-                      ColumnDefinitions="Auto,*,Auto"
-                      VerticalOptions="Center">
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=ChevronLeft}"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
-                                 IconSize="30"
-                                 BackgroundColor="Transparent"
-                                 VerticalOptions="Center"
-                                 Padding="2,2">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-
-                    <HorizontalStackLayout Grid.Column="1"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"
-                                           Spacing="6">
-                        <mi:MauiIcon Icon="{mi:Material Icon=Refresh}"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     IconSize="20"
-                                     BackgroundColor="Transparent"
-                                     VerticalOptions="Center"
-                                     Padding="0">
-                            <mi:MauiIcon.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding RefreshCommand}" />
-                            </mi:MauiIcon.GestureRecognizers>
-                        </mi:MauiIcon>
-                        <Label Text="{Binding MesAnioTexto}"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-
-                    <mi:MauiIcon Grid.Column="2"
-                                 Icon="{mi:Material Icon=ChevronRight}"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
-                                 IconSize="30"
-                                 BackgroundColor="Transparent"
-                                 VerticalOptions="Center"
-                                 Padding="2,2">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
-                </Grid>
-
-                <!-- Row 1: Banner sin actividad (condicional) -->
-                <Border Grid.Row="1"
+                <Border Grid.Row="0"
                         IsVisible="{Binding SinActividad}"
                         BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
                         Stroke="Transparent"
@@ -106,9 +40,8 @@
                     </HorizontalStackLayout>
                 </Border>
 
-                <!-- Row 2: Total Facturado -->
-                <Border Grid.Row="2"
-                        BackgroundColor="{toolkit:AppThemeResource Background}"
+                <Border Grid.Row="1"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12"
                         Padding="16,6">
@@ -129,100 +62,90 @@
                     </Label>
                 </Border>
 
-                <!-- Row 3: Créditos + Emitidas/Fallidas/Pendientes (flex wrap) -->
-                <FlexLayout Grid.Row="3"
-                            Direction="Row"
-                            Wrap="Wrap"
-                            JustifyContent="SpaceBetween"
-                            AlignItems="Stretch">
+                <Grid Grid.Row="2"
+                      ColumnDefinitions="*,*,*,*"
+                      ColumnSpacing="6">
 
-                    <!-- Créditos Restantes -->
-                    <Border FlexLayout.Basis="Auto"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            Stroke="Transparent"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="16,6"
-                            Margin="0,0,4,4">
-                        <VerticalStackLayout HorizontalOptions="Center" Spacing="2" VerticalOptions="Center">
-                            <Label Text="Restantes"
-                                   FontSize="12"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   HorizontalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,10"
+                                HorizontalOptions="Fill">
                             <Label Text="{Binding CreditosRestantes}"
                                    FontSize="24"
                                    FontAttributes="Bold"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Border>
+                        </Border>
+                        <Label Text="Restantes"
+                               FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
 
-                    <!-- Emitidas / Fallidas / Pendientes -->
-                    <Border FlexLayout.Grow="1"
-                            BackgroundColor="{toolkit:AppThemeResource Background}"
-                            Stroke="Transparent"
-                            StrokeShape="RoundRectangle 12"
-                            Padding="8,6"
-                            Margin="0,0,0,4">
-                        <Grid ColumnDefinitions="*,*,*" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center" Spacing="2">
-                                <Label Text="Emitidas"
-                                       FontSize="11"
-                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                       HorizontalOptions="Center" />
-                                <Label Text="{Binding Emitidas}"
-                                       FontSize="22"
-                                       FontAttributes="Bold"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                       HorizontalOptions="Center" />
-                            </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,10"
+                                HorizontalOptions="Fill">
+                            <Label Text="{Binding Emitidas}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                        <Label Text="Emitidas"
+                               FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
 
-                            <BoxView Grid.Column="0"
-                                     WidthRequest="1"
-                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                     HorizontalOptions="End"
-                                     VerticalOptions="Fill"
-                                     Margin="0,3" />
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,10"
+                                HorizontalOptions="Fill">
+                            <Label Text="{Binding Declinadas}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                        <Label Text="Fallidas"
+                               FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
 
-                            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="2">
-                                <Label Text="Fallidas"
-                                       FontSize="11"
-                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                       HorizontalOptions="Center" />
-                                <Label Text="{Binding Declinadas}"
-                                       FontSize="22"
-                                       FontAttributes="Bold"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                       HorizontalOptions="Center" />
-                            </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="3" Spacing="4">
+                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="8,10"
+                                HorizontalOptions="Fill">
+                            <Label Text="{Binding Pendientes}"
+                                   FontSize="24"
+                                   FontAttributes="Bold"
+                                   TextColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource White}}"
+                                   HorizontalOptions="Center" />
+                        </Border>
+                        <Label Text="Pendientes"
+                               FontSize="11"
+                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
 
-                            <BoxView Grid.Column="1"
-                                     WidthRequest="1"
-                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                     HorizontalOptions="End"
-                                     VerticalOptions="Fill"
-                                     Margin="0,3" />
+                </Grid>
 
-                            <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center" Spacing="2">
-                                <Label Text="Pendientes"
-                                       FontSize="11"
-                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                       HorizontalOptions="Center" />
-                                <Label Text="{Binding Pendientes}"
-                                       FontSize="22"
-                                       FontAttributes="Bold"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                       HorizontalOptions="Center" />
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Border>
-                </FlexLayout>
-
-                <!-- Row 4: Gráfica — ocupa el espacio restante (*) -->
-                <Border Grid.Row="4"
+                <Border Grid.Row="3"
                         IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 12"
+                        Margin="0,3,0,3">
                     <Grid RowDefinitions="Auto,Auto,*">
 
                         <Label Grid.Row="0"
@@ -299,37 +222,38 @@
                 </Border>
 
             </Grid>
+          </ScrollView>
+        </RefreshView>
 
-            <!-- Panel de error (overlay) -->
-            <VerticalStackLayout IsVisible="{Binding MostrarError}"
-                                 VerticalOptions="Center"
-                                 HorizontalOptions="Center"
-                                 Spacing="12">
-                <mi:MauiIcon Icon="{mi:Material Icon=CloudOff}"
-                             IconColor="{toolkit:AppThemeResource Primary}"
-                             IconSize="48"
-                             HorizontalOptions="Center" />
-                <Label Text="{Binding MensajeError}"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       FontSize="14"
-                       HorizontalTextAlignment="Center" />
-                <Button Text="Reintentar"
-                        Command="{Binding RefreshCommand}"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="White"
-                        CornerRadius="20"
-                        Padding="24,8"
-                        HorizontalOptions="Center" />
-            </VerticalStackLayout>
+        <!-- Panel de error (overlay) -->
+        <VerticalStackLayout IsVisible="{Binding MostrarError}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <mi:MauiIcon Icon="{mi:Material Icon=CloudOff}"
+                         IconColor="{toolkit:AppThemeResource Primary}"
+                         IconSize="48"
+                         HorizontalOptions="Center" />
+            <Label Text="{Binding MensajeError}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   FontSize="14"
+                   HorizontalTextAlignment="Center" />
+            <Button Text="Reintentar"
+                    Command="{Binding RefreshCommand}"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="White"
+                    CornerRadius="20"
+                    Padding="24,8"
+                    HorizontalOptions="Center" />
+        </VerticalStackLayout>
 
-            <!-- Spinner (overlay) -->
-            <ActivityIndicator IsRunning="{Binding EstaCargando}"
-                               IsVisible="{Binding EstaCargando}"
-                               Color="{toolkit:AppThemeResource Primary}"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center" />
+        <!-- Spinner (overlay) -->
+        <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="{toolkit:AppThemeResource Primary}"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
 
-        </Grid>
-    </Border>
+    </Grid>
 
 </ContentView>

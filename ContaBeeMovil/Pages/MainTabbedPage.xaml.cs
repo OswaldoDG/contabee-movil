@@ -19,9 +19,10 @@ public partial class MainTabbedPage : ContentPage
         _dashboardPage   = services.GetRequiredService<DashboardPage>();
         _facturacionPage = services.GetRequiredService<FacturacionPage>();
 
-        // Extraer vistas antes de que tengan parent asignado
         _dashboardView   = _dashboardPage.Content;
         _facturacionView = _facturacionPage.Content;
+
+        MonthNavBar.BindingContext = _dashboardPage.BindingContext;
 
         SwitchToTab(0);
     }
@@ -46,6 +47,8 @@ public partial class MainTabbedPage : ContentPage
 
         // 2) Swap directo del contenido — SIN fade-out (nada de espacio vacío)
         PageContainer.Opacity = 0;
+
+        MonthNavBar.IsVisible = index == 0;
 
         switch (index)
         {

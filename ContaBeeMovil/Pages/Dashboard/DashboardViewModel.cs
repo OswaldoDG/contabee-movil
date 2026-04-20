@@ -33,6 +33,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private bool _estaCargando;
     private bool _tieneError;
     private bool _sinActividad;
+    private bool _estaRefrescando;
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
@@ -48,6 +49,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             async () => await NavegaMesAsync(1),
             () => new DateTime(_anio, _mes, 1) < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
         RefreshCommand      = new Command(async () => await ReiniciarAlMesActualAsync());
+        PullRefreshCommand  = new Command(async () => await PullRefreshAsync());
         ReclamarDemoCommand = new Command(async () => await OnReclamarDemoAsync());
 
         AppState.Instance.PropertyChanged += (_, e) =>
@@ -159,6 +161,12 @@ public class DashboardViewModel : INotifyPropertyChanged
         set { _sinActividad = value; OnPropertyChanged(); }
     }
 
+    public bool EstaRefrescando
+    {
+        get => _estaRefrescando;
+        set { _estaRefrescando = value; OnPropertyChanged(); }
+    }
+
     #endregion
 
     public bool PuedeReclamarDemo =>
@@ -170,6 +178,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     public ICommand MesAnteriorCommand { get; }
     public ICommand MesSiguienteCommand { get; }
     public ICommand RefreshCommand { get; }
+    public ICommand PullRefreshCommand { get; }
     public ICommand ReclamarDemoCommand { get; }
 
     #endregion
@@ -199,6 +208,20 @@ public class DashboardViewModel : INotifyPropertyChanged
 
         if (!confirmar) return;
         await Shell.Current.GoToAsync(nameof(ReclamarDemoPage));
+    }
+
+    private async Task PullRefreshAsync()
+    {
+        EstaRefrescando = true;
+        try
+        {
+            LimpiarCache();
+            await CargarEstadisticasAsync(forzarActualizacion: true);
+        }
+        finally
+        {
+            EstaRefrescando = false;
+        }
     }
 
     private async Task ReiniciarAlMesActualAsync()
