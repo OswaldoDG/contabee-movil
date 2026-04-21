@@ -57,19 +57,13 @@
 
             </VerticalStackLayout>
 
-            <Grid ColumnDefinitions="50,Auto,*,Auto,Auto"
+            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*"
                   ColumnSpacing="8"
                   VerticalOptions="Center">
 
-                <Label x:Name="LabelPeriodo"
-                       Grid.Column="0"
-                       Style="{StaticResource Body2Strong}"
-                       LineBreakMode="TailTruncation"
-                       VerticalOptions="Center">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLabelPeriodoTapped"/>
-                    </Label.GestureRecognizers>
-                </Label>
+                <views:SelectorFlotante x:Name="SelectorOrden"
+                                        Grid.Column="0"
+                                        VerticalOptions="Center" />
 
                 <Border Grid.Column="1"
                         Style="{StaticResource CircleIconButton}"
@@ -82,11 +76,26 @@
                            Text="{x:Static f:FluentUI.arrow_sort_down_lines_20_regular}" />
                 </Border>
 
-                <views:SelectorFlotante x:Name="SelectorOrden"
-                                        Grid.Column="2"
-                                        VerticalOptions="Center" />
+                <!-- Embudo: limpiar filtros -->
+                <Border x:Name="BtnFiltroActivo"
+                        Grid.Column="2"
+                        Style="{StaticResource CircleIconButton}"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
+                    </Border.GestureRecognizers>
+                    <Label x:Name="IconFiltro"
+                           Text="{x:Static f:FluentUI.filter_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
 
-                <Border Grid.Column="3"
+                <!-- Buscar: se oculta cuando está colapsado -->
+                <Border x:Name="BtnBuscar"
+                        Grid.Column="3"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         StrokeShape="RoundRectangle 22"
                         StrokeThickness="0"

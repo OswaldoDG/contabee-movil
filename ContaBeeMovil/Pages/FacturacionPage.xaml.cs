@@ -71,6 +71,9 @@ public partial class FacturacionPage : ContentPage
 
     public bool SinCreditos => !TieneCreditos;
 
+    /// <summary>Panel de filtros expuesto para sincronización de título desde MainTabbedPage.</summary>
+    public FiltrosFacturasView Filtros => PanelFiltros;
+
     // ── Comandos ─────────────────────────────────────────────────────────────────
 
     public ICommand BuscarFacturasCommand { get; }
