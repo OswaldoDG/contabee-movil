@@ -304,6 +304,106 @@
         }
       }
     },
+    "/cupones/capturagratuita/{cuentaId}": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "aplicado",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/historial": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/cupones/validar/{codigo}": {
       "post": {
         "tags": [
@@ -554,14 +654,49 @@
         }
       }
     },
-    "/iappurchases/purchasenotification": {
+    "/iappurchases/completar": {
       "post": {
         "tags": [
           "InAppPurchase"
         ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -1132,6 +1267,23 @@
         ],
         "type": "string"
       },
+      "generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita": {
+        "required": [
+          "codigo"
+        ],
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "generic.ecommerce.model.cupones.dtos.RespuestaCuponValido": {
         "required": [
           "codigo",
@@ -1285,6 +1437,10 @@
           "productoTiendaId": {
             "type": "string",
             "nullable": true
+          },
+          "montoCompra": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false

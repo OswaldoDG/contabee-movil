@@ -229,17 +229,41 @@ public partial class TiendaPage : ContentPage
         var verificationData = compra.TransactionIdentifier;
 #endif
 
+        var precioPublico = productoCatalogo.Precios.FirstOrDefault(p => p.Tipo == TipoPrecio.Publico);
+        var comprobante = new DtoComprobanteCompra
+        {
+            CuentaFiscalId   = cfid.ToString(),
+            DispositivoId    = dispositivoId,
+            PasarelarPago    = pasarela,
+            PasarelaId       = verificationData,
+            CompraId         = compra.TransactionIdentifier,
+            ProductoTiendaId = compra.ProductId,
+            MontoCompra      = precioPublico?.Precio ?? 0,
+            Elementos        =
+            [
+                new DtoElementoCompra
+                {
+                    Id         = productoCatalogo.Id.ToString(),
+                    ProductoId = productoCatalogo.Clave,
+                    TipoPrecio = TipoPrecio.Publico,
+                    Cantidad   = 1,
+                    Periodo    = precioPublico?.PeriodoRenta ?? 1,
+                }
+            ],
+        };
+
+        _logs.Log($"Tienda: PAYLOAD verificar = {System.Text.Json.JsonSerializer.Serialize(comprobante)}");
         _logs.Log($"Tienda: verificando en backend — pasarela={pasarela} producto={compra.ProductId}");
-        var verificado = await _servicioEcommerce.VerificarCompraIAP(
-            cfid,
-            dispositivoId,
-            compra.ProductId,
-            verificationData,
-            compra.TransactionIdentifier,
-            productoCatalogo,
-            pasarela);
+        var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, comprobante);
 
         _logs.Log($"Tienda: verificación backend — verificado={verificado}");
+
+        bool completado = false;
+        if (verificado)
+        {
+            completado = await _servicioEcommerce.CompletarCompraIAP(cfid, comprobante);
+            _logs.Log($"Tienda: completar backend — completado={completado}");
+        }
 
         // Consumir la compra (completePurchase) para permitir futuras compras del mismo producto
         await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
@@ -251,13 +275,13 @@ public partial class TiendaPage : ContentPage
 
         if (!silencioso)
         {
-            if (verificado)
+            if (completado)
                 await _servicioAlerta.MostrarAsync("¡Compra exitosa!", $"Tu {productoCatalogo.Nombre} ya está disponible en tu cuenta.", verBotonCancelar: false, confirmarText: "Aceptar");
             else
                 await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
         }
 
-        return verificado;
+        return completado;
     }
 
     // ── Botón comprar ─────────────────────────────────────────────────────────
@@ -311,6 +335,118 @@ public partial class TiendaPage : ContentPage
         {
             SetCargando(false);
         }
+    }
+
+    // ── Compra directa (debug: fuerza compra de captura100 sin catálogo) ──────
+
+    private async void OnCompraDirectaClicked(object sender, EventArgs e)
+    {
+        const string productoId = "contabee.creditos.captura100";
+
+        var cuenta = AppState.Instance.CuentaFiscalActual;
+        if (cuenta is null)
+        {
+            await _servicioAlerta.MostrarAsync("Sin cuenta fiscal", "Selecciona una cuenta fiscal antes de comprar.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return;
+        }
+
+        _logs.Log($"Tienda: compra directa — iniciando IAP para {productoId}");
+        SetCargando(true);
+        try
+        {
+            var compra = await _servicioIAP.ComprarAsync(productoId);
+            if (compra is null)
+            {
+                _logs.Log("Tienda: compra directa — cancelada por el usuario");
+                await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+                return;
+            }
+
+            await ProcesarCompraDirectaAsync(compra, cuenta.CuentaFiscalId);
+        }
+        catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
+        {
+            _logs.Log($"Tienda: compra directa — cancelada ({ex.Message})");
+            await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+        }
+        catch (Exception ex)
+        {
+            _logs.Log($"Tienda: compra directa — excepción {ex.GetType().Name}: {ex.Message}");
+            await _toast.ShowAsync("La compra no se completó.", ToastType.Error);
+        }
+        finally
+        {
+            SetCargando(false);
+        }
+    }
+
+    private async Task ProcesarCompraDirectaAsync(InAppBillingPurchase compra, Guid cfid)
+    {
+        var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+
+#if IOS || MACCATALYST
+        var pasarela = PasarelarPago.Apple;
+        string? verificationData = null;
+        try
+        {
+            var receiptUrl = Foundation.NSBundle.MainBundle.AppStoreReceiptUrl;
+            var receiptData = receiptUrl != null ? Foundation.NSData.FromUrl(receiptUrl) : null;
+            verificationData = receiptData?.GetBase64EncodedString(Foundation.NSDataBase64EncodingOptions.None);
+        }
+        catch { }
+        verificationData ??= compra.OriginalJson;
+        _logs.Log($"Tienda: compra directa — receipt length={verificationData?.Length ?? 0}");
+#elif ANDROID
+        var pasarela = PasarelarPago.Google;
+        var verificationData = compra.PurchaseToken;
+#else
+        var pasarela = PasarelarPago.Interbancario;
+        var verificationData = compra.TransactionIdentifier;
+#endif
+
+        var comprobante = new DtoComprobanteCompra
+        {
+            CuentaFiscalId   = cfid.ToString(),
+            DispositivoId    = dispositivoId,
+            PasarelarPago    = pasarela,
+            PasarelaId       = verificationData,
+            CompraId         = compra.TransactionIdentifier,
+            ProductoTiendaId = compra.ProductId,
+            MontoCompra      = 0,
+            Elementos        =
+            [
+                new DtoElementoCompra
+                {
+                    Id         = "captura100",
+                    ProductoId = "CAPTURA100",
+                    TipoPrecio = TipoPrecio.Publico,
+                    Cantidad   = 1,
+                    Periodo    = 1,
+                }
+            ],
+        };
+
+        _logs.Log($"Tienda: compra directa — PAYLOAD verificar = {System.Text.Json.JsonSerializer.Serialize(comprobante)}");
+        var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, comprobante);
+        _logs.Log($"Tienda: compra directa — verificado={verificado}");
+
+        bool completado = false;
+        if (verificado)
+        {
+            completado = await _servicioEcommerce.CompletarCompraIAP(cfid, comprobante);
+            _logs.Log($"Tienda: compra directa — completado={completado}");
+        }
+
+        await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
+        _logs.Log("Tienda: compra directa — consumida");
+
+        await _servicioSesion.GetLicenciaAsync();
+        _logs.Log("Tienda: compra directa — licencia actualizada");
+
+        if (completado)
+            await _servicioAlerta.MostrarAsync("¡Compra exitosa!", "Los créditos captura100 ya están disponibles.", verBotonCancelar: false, confirmarText: "Aceptar");
+        else
+            await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

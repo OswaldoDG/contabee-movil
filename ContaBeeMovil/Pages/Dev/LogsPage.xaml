@@ -54,15 +54,27 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="x:String">
-                    <Grid Padding="16,6">
+                    <Grid Padding="12,6" ColumnDefinitions="*,Auto">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnLogTapped" />
                         </Grid.GestureRecognizers>
-                        <Label Text="{Binding .}"
+                        <Label Grid.Column="0"
+                               Text="{Binding .}"
                                Style="{StaticResource Caption1}"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
                                FontFamily="OpenSansRegular"
-                               LineBreakMode="WordWrap" />
+                               LineBreakMode="WordWrap"
+                               VerticalOptions="Center"/>
+                        <Button Grid.Column="1"
+                                Text="⎘"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                Padding="8,4"
+                                MinimumWidthRequest="36"
+                                VerticalOptions="Center"
+                                CommandParameter="{Binding .}"
+                                Clicked="OnCopiarLogClicked"/>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

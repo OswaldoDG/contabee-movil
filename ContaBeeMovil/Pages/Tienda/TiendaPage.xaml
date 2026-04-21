@@ -87,8 +87,19 @@
                 </CollectionView.ItemTemplate>
 
                 <CollectionView.Footer>
-                    <BoxView HeightRequest="32"
-                             Color="Transparent"/>
+                    <VerticalStackLayout Padding="16,8,16,32" Spacing="8">
+                        <Label Text="Compra directa (debug)"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               HorizontalOptions="Center"/>
+                        <Button Text="Comprar captura100 directo"
+                                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                TextColor="#1a1a1a"
+                                CornerRadius="12"
+                                Padding="16,12"
+                                HorizontalOptions="Fill"
+                                Clicked="OnCompraDirectaClicked"/>
+                    </VerticalStackLayout>
                 </CollectionView.Footer>
 
             </CollectionView>

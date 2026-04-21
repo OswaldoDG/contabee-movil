@@ -24,4 +24,10 @@ public partial class LogsPage : ContentPage
         if (sender is Grid { BindingContext: string texto })
             await Clipboard.Default.SetTextAsync(texto);
     }
+
+    private async void OnCopiarLogClicked(object? sender, EventArgs e)
+    {
+        if (sender is Button { CommandParameter: string texto })
+            await Clipboard.Default.SetTextAsync(texto);
+    }
 }
