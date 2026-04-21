@@ -6,7 +6,7 @@ namespace ContaBeeMovil.Converters;
 /// <summary>
 /// Color del texto del badge central:
 ///   ≤4 (pendiente)  → Blanco
-///   5  (finalizado) → PrimaryText (negro en light, blanco en dark)
+///   5  (finalizado) → Negro (sobre fondo amarillo)
 ///   6  (error)      → Blanco
 /// </summary>
 public class EstadoBadgeTextColorConverter : IValueConverter
@@ -19,7 +19,7 @@ public class EstadoBadgeTextColorConverter : IValueConverter
         return (int)item.Estado switch
         {
             <= 4 => Colors.White,
-            5 => EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.Black),
+            5 => Colors.Black,
             6 => Colors.White,
             _ => Colors.White
         };

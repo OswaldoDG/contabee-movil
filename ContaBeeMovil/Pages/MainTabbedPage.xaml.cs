@@ -55,13 +55,13 @@ public partial class MainTabbedPage : ContentPage
         PageContainer.Opacity = 0;
 
         MonthNavBar.IsVisible = index == 0;
+        LabelTitulo.IsVisible = index == 1;
 
         switch (index)
         {
             case 0:
                 PageContainer.Content = _dashboardView;
                 PageContainer.BindingContext = _dashboardPage.BindingContext;
-                LabelTitulo.Text = "Inicio";
                 break;
 
             case 1:

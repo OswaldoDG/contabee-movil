@@ -33,33 +33,36 @@
             <VerticalStackLayout Grid.Column="0" Spacing="4" Padding="10">
 
                 <!-- Fila 0: Consecutivo · Fecha (pill) | Forma de pago con terminación (pill) -->
-                <Grid ColumnDefinitions="32,Auto,*,Auto" HeightRequest="28">
-                    <Label Grid.Column="0"
-                           Text="{Binding Consecutivo}"
+                <FlexLayout Direction="Row"
+                           Wrap="Wrap"
+                           AlignItems="Center"
+                           JustifyContent="Start"
+                           MinimumHeightRequest="28">
+                    <Label Text="{Binding Consecutivo}"
                            Style="{StaticResource Body2Strong}"
                            VerticalOptions="Center"
-                           HorizontalOptions="Center" />
-                    <Border Grid.Column="1"
-                            StrokeShape="RoundRectangle 8"
+                           HorizontalOptions="Center"
+                           WidthRequest="32"
+                           Margin="0,0,8,0" />
+                    <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
                             Padding="8,2"
-                            Margin="8,0,0,0"
+                            Margin="0,0,8,2"
                             VerticalOptions="Center">
                         <Label Text="{Binding Datos.FechaCreacion, StringFormat='{0:d/M/yyyy HH:mm}'}"
                                Style="{StaticResource Caption1}"
                                VerticalOptions="Center"
                                LineBreakMode="NoWrap" />
                     </Border>
-                    <Border Grid.Column="3"
-                            StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
                             Padding="8,2"
-                            VerticalOptions="Center"
-                            HorizontalOptions="End">
+                            Margin="0,0,0,2"
+                            VerticalOptions="Center">
                         <Label Style="{StaticResource Caption1}"
                                VerticalOptions="Center"
                                LineBreakMode="NoWrap">
@@ -71,7 +74,7 @@
                             </Label.Text>
                         </Label>
                     </Border>
-                </Grid>
+                </FlexLayout>
 
                 <!-- Fila 1: Iniciales NombreCreador · Badge estado/monto -->
                 <Grid ColumnDefinitions="32,*" HeightRequest="32">
@@ -99,8 +102,12 @@
                 </Grid>
 
                 <!-- Fila 2: Cámara · UsoCfdi o Motivo (pill) | RFC Emisor (pill) -->
-                <Grid ColumnDefinitions="32,Auto,*,Auto" HeightRequest="32">
-                    <Grid Grid.Column="0" HeightRequest="32">
+                <FlexLayout Direction="Row"
+                           Wrap="Wrap"
+                           AlignItems="Center"
+                           JustifyContent="Start"
+                           MinimumHeightRequest="32">
+                    <Grid HeightRequest="32" WidthRequest="32" Margin="0,0,8,0">
                         <Border x:Name="BtnCamaraLeft" Style="{StaticResource CircleIconButton}"
                                 HeightRequest="32" WidthRequest="32"
                                 StrokeThickness="0"
@@ -121,37 +128,34 @@
                                            WidthRequest="20" HeightRequest="20"
                                            HorizontalOptions="Center" VerticalOptions="Center" />
                     </Grid>
-                    <Border Grid.Column="1"
-                            StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
                             Padding="8,2"
-                            Margin="8,0,0,0"
+                            Margin="0,0,8,2"
                             HeightRequest="32"
                             VerticalOptions="Center"
-                            HorizontalOptions="Start">
+                            FlexLayout.Shrink="1">
                         <Label Text="{Binding Datos, Converter={StaticResource UsoCfdiOError}}"
                                Style="{StaticResource Caption1}"
                                LineBreakMode="TailTruncation"
                                VerticalOptions="Center" />
                     </Border>
-                    <Border Grid.Column="3"
-                            StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
                             Padding="8,2"
-                            Margin="8,0,0,0"
+                            Margin="0,0,0,2"
                             VerticalOptions="Center"
-                            HorizontalOptions="End"
                             IsVisible="{Binding Dato.RfcReceptor, Converter={StaticResource StringNotEmpty}}">
                         <Label Text="{Binding Datos.RfcReceptor}"
                                Style="{StaticResource Caption1}"
                                VerticalOptions="Center"
                                LineBreakMode="NoWrap" />
                     </Border>
-                </Grid>
+                </FlexLayout>
 
             </VerticalStackLayout>
 

@@ -15,6 +15,16 @@ public partial class FiltrosFacturasView : ContentView
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ];
 
+    private static readonly Dictionary<string, string> _mesesAbreviados = new()
+    {
+        ["Febrero"]    = "Feb",
+        ["Agosto"]     = "Ago",
+        ["Septiembre"] = "Sep",
+        ["Octubre"]    = "Oct",
+        ["Noviembre"]  = "Nov",
+        ["Diciembre"]  = "Dic"
+    };
+
     private static readonly List<string> _estados =
         ["Estado", "Nuevos", "En Proceso", "Reprogramados", "Finalizados", "Error"];
 
@@ -196,6 +206,8 @@ public partial class FiltrosFacturasView : ContentView
                     ? FluentUI.arrow_sort_up_lines_20_regular
                     : FluentUI.arrow_sort_down_lines_20_regular;
             }
+
+            ActualizarPeriodoTexto();
         }
         finally
         {
@@ -385,12 +397,16 @@ public partial class FiltrosFacturasView : ContentView
             && SelectorMes.IndiceSeleccionado >= 0
             && SelectorMes.IndiceSeleccionado < _meses.Count)
         {
-            PeriodoTexto = $"Comprobantes {_meses[SelectorMes.IndiceSeleccionado].ToLower()} {anioStr}";
+            string mes = _meses[SelectorMes.IndiceSeleccionado];
+            string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
+            PeriodoTexto = $"Comprobantes {mesParaMostrar} {anioStr}";
         }
         else
         {
             var hoy = DateTime.Now;
-            PeriodoTexto = $"Comprobantes {_meses[hoy.Month - 1].ToLower()} {hoy.Year}";
+            string mes = _meses[hoy.Month - 1];
+            string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
+            PeriodoTexto = $"Comprobantes {mesParaMostrar} {hoy.Year}";
         }
     }
 
