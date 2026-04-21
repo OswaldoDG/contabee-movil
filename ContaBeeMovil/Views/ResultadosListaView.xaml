@@ -42,14 +42,17 @@
                 <!-- Barra de paginación -->
                 <Grid
                     Grid.Row="1"
+                    ColumnDefinitions="Auto,*,Auto"
                     Padding="5">
 
                     <Label x:Name="LabelEncontrados"
+                        Grid.Column="0"
                         Style="{StaticResource Body2}"
                         HorizontalOptions="Start"
                         VerticalOptions="Center" />
 
-                    <HorizontalStackLayout HorizontalOptions="Center"
+                    <HorizontalStackLayout Grid.Column="1"
+                                        HorizontalOptions="Center"
                                         VerticalOptions="Center"
                                         Spacing="5">
 
@@ -84,6 +87,30 @@
                         </Border>
 
                     </HorizontalStackLayout>
+
+                    <!-- Botón de cámara/captura -->
+                    <Border x:Name="BtnCaptura"
+                            Grid.Column="2"
+                            WidthRequest="44" HeightRequest="44"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            IsVisible="False">
+                        <Border.Shadow>
+                            <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,2" Radius="4" Opacity="0.4" />
+                        </Border.Shadow>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCapturaTapped" />
+                        </Border.GestureRecognizers>
+                        <Label Text="{x:Static f:FluentUI.camera_20_regular}"
+                               FontFamily="FluentUI"
+                               FontSize="22"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
 
                 </Grid>
             </Border>

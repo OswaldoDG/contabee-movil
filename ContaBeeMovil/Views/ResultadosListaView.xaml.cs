@@ -103,6 +103,25 @@ public partial class ResultadosListaView : ContentView
         set => SetValue(SiguienteCommandProperty, value);
     }
 
+    public static readonly BindableProperty CapturaCommandProperty =
+        BindableProperty.Create(nameof(CapturaCommand), typeof(ICommand), typeof(ResultadosListaView));
+
+    public ICommand? CapturaCommand
+    {
+        get => (ICommand?)GetValue(CapturaCommandProperty);
+        set => SetValue(CapturaCommandProperty, value);
+    }
+
+    public static readonly BindableProperty MostrarBotonCapturaProperty =
+        BindableProperty.Create(nameof(MostrarBotonCaptura), typeof(bool), typeof(ResultadosListaView), false,
+            propertyChanged: (b, _, v) => ((ResultadosListaView)b).BtnCaptura.IsVisible = (bool)v);
+
+    public bool MostrarBotonCaptura
+    {
+        get => (bool)GetValue(MostrarBotonCapturaProperty);
+        set => SetValue(MostrarBotonCapturaProperty, value);
+    }
+
     // ── Constructor ──────────────────────────────────────────────────────────────
 
     public ResultadosListaView()
@@ -123,6 +142,12 @@ public partial class ResultadosListaView : ContentView
     {
         if (SiguienteCommand?.CanExecute(null) == true)
             SiguienteCommand.Execute(null);
+    }
+
+    private void OnCapturaTapped(object sender, TappedEventArgs e)
+    {
+        if (CapturaCommand?.CanExecute(null) == true)
+            CapturaCommand.Execute(null);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────

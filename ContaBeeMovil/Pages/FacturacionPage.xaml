@@ -7,8 +7,8 @@
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
-             Title="Facturación">
-    
+             Title="Comprobantes">
+
     <Border Grid.Row="0"
             Padding="0"
             BackgroundColor="{toolkit:AppThemeResource Accent1}"

@@ -23,6 +23,13 @@ public partial class MainTabbedPage : ContentPage
         _dashboardView   = _dashboardPage.Content;
         _facturacionView = _facturacionPage.Content;
 
+        // Sincronizar título cuando cambia el periodo en facturación
+        _facturacionPage.Filtros.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Views.FiltrosFacturasView.PeriodoTexto) && _currentIndex == 1)
+                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
+        };
+
         SwitchToTab(0);
     }
 
@@ -52,11 +59,13 @@ public partial class MainTabbedPage : ContentPage
             case 0:
                 PageContainer.Content = _dashboardView;
                 PageContainer.BindingContext = _dashboardPage.BindingContext;
+                LabelTitulo.Text = "Inicio";
                 break;
 
             case 1:
                 PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
+                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
                 break;
         }
 

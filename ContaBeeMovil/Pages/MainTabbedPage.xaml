@@ -11,6 +11,15 @@
     Shell.BackgroundColor="{DynamicResource CurrentShellBarColor}"
     BackgroundColor="Transparent">
 
+    <Shell.TitleView>
+        <Label x:Name="LabelTitulo"
+               Text="Inicio"
+               FontSize="25"
+               FontAttributes="Bold"
+               TextColor="{toolkit:AppThemeResource PrimaryText}"
+               VerticalOptions="Center" />
+    </Shell.TitleView>
+
     <Grid RowDefinitions="*,Auto">
 
         <!-- Área de contenido dinámico -->
