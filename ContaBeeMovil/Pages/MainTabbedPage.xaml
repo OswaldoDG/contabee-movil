@@ -14,49 +14,51 @@
     BackgroundColor="Transparent">
 
     <Shell.TitleView>
-        <Grid x:Name="MonthNavBar"
-              x:DataType="vm:DashboardViewModel"
-              ColumnDefinitions="Auto,*,Auto"
-              VerticalOptions="Center"
-              HorizontalOptions="Fill"
-              Padding="0">
-            <mi:MauiIcon Grid.Column="0"
-                         Icon="{mi:Material Icon=ChevronLeft}"
-                         IconColor="{toolkit:AppThemeResource Icon}"
-                         IconSize="30"
-                         BackgroundColor="Transparent"
-                         VerticalOptions="Center">
-                <mi:MauiIcon.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
-                </mi:MauiIcon.GestureRecognizers>
-            </mi:MauiIcon>
+        <Grid>
+            <Grid x:Name="MonthNavBar"
+                  x:DataType="vm:DashboardViewModel"
+                  ColumnDefinitions="Auto,*,Auto"
+                  VerticalOptions="Center"
+                  HorizontalOptions="Fill"
+                  Padding="0">
+                <mi:MauiIcon Grid.Column="0"
+                             Icon="{mi:Material Icon=ChevronLeft}"
+                             IconColor="{toolkit:AppThemeResource Icon}"
+                             IconSize="30"
+                             BackgroundColor="Transparent"
+                             VerticalOptions="Center">
+                    <mi:MauiIcon.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
 
-            <Label Grid.Column="1"
-                   Text="{Binding MesAnioTexto}"
-                   FontSize="18"
+                <Label Grid.Column="1"
+                       Text="{Binding MesAnioTexto}"
+                       FontSize="18"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+                <mi:MauiIcon Grid.Column="2"
+                             Icon="{mi:Material Icon=ChevronRight}"
+                             IconColor="{toolkit:AppThemeResource Icon}"
+                             IconSize="30"
+                             BackgroundColor="Transparent"
+                             VerticalOptions="Center"
+                             Margin="0,0,30,0">
+                    <mi:MauiIcon.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
+                    </mi:MauiIcon.GestureRecognizers>
+                </mi:MauiIcon>
+            </Grid>
+            <Label x:Name="LabelTitulo"
+                   Text="Inicio"
+                   FontSize="25"
                    FontAttributes="Bold"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   HorizontalOptions="Center"
                    VerticalOptions="Center" />
-
-            <mi:MauiIcon Grid.Column="2"
-                         Icon="{mi:Material Icon=ChevronRight}"
-                         IconColor="{toolkit:AppThemeResource Icon}"
-                         IconSize="30"
-                         BackgroundColor="Transparent"
-                         VerticalOptions="Center"
-                         Margin="0,0,30,0">
-                <mi:MauiIcon.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
-                </mi:MauiIcon.GestureRecognizers>
-            </mi:MauiIcon>
         </Grid>
-        <Label x:Name="LabelTitulo"
-               Text="Inicio"
-               FontSize="25"
-               FontAttributes="Bold"
-               TextColor="{toolkit:AppThemeResource PrimaryText}"
-               VerticalOptions="Center" />
     </Shell.TitleView>
 
     <Grid RowDefinitions="*,Auto">
