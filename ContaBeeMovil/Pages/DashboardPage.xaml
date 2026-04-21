@@ -12,27 +12,27 @@
 
     <Grid RowDefinitions="Auto,*" Padding="0">
 
-        <!-- Banner: reclamar créditos demo -->
-<Border Grid.Row="0"
+        <!-- Banner: reclamar créditos demo (deshabilitado temporalmente)
+        <Border Grid.Row="0"
                 IsVisible="{Binding PuedeReclamarDemo}"
                 StrokeShape="RoundRectangle 20"
                 Stroke="Transparent"
                 StrokeThickness="0"
                 BackgroundColor="Transparent"
-                Padding="1,0,1,5" 
+                Padding="1,0,1,5"
                 HorizontalOptions="Center"
-                Margin="0,-5,0,5"> <Border.GestureRecognizers>
+                Margin="0,-5,0,5">
+            <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding ReclamarDemoCommand}" />
             </Border.GestureRecognizers>
-            
             <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="0" VerticalOptions="End">
-                                <Image Grid.Column="1"
+                <Image Grid.Column="1"
                        Source="{AppThemeBinding Light=regalo_claro.png, Dark=regalo_oscuro.png}"
                        WidthRequest="70"
                        HeightRequest="70"
                        Aspect="AspectFit"
                        VerticalOptions="End"
-                       Margin="-20,-10,0,0" /> 
+                       Margin="-20,-10,0,0" />
                 <Border Grid.Column="0"
                         StrokeShape="RoundRectangle 24"
                         Stroke="Transparent"
@@ -48,9 +48,9 @@
                            TextColor="{toolkit:AppThemeResource PrimaryText}"
                            VerticalOptions="Center" />
                 </Border>
-
-</Grid>
+            </Grid>
         </Border>
+        -->
 
         <views:ActividadView Grid.Row="1" />
 

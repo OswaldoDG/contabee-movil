@@ -30,7 +30,7 @@
     <!-- Light  → tema claro                       -->
     <!-- Dark   → tema oscuro                      -->
     <!-- ========================================= -->
-    <toolkit:AppThemeColor x:Key="Primary"   Light="#f4c611" Dark="#ce8509" />
+    <toolkit:AppThemeColor x:Key="Primary"   Light="#fec001" Dark="#fec001" />
     <toolkit:AppThemeColor x:Key="Secondary" Light="#ce8509" Dark="#ce8509" />
     <toolkit:AppThemeColor x:Key="Tertiary"  Light="#ce8509" Dark="#7a7a7a" />
     <toolkit:AppThemeColor x:Key="Alternate" Light="#f2f1f0" Dark="#3a3a3a" />

@@ -2,65 +2,47 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Views.RfcCpBarView">
 
-    <Border x:Name="OuterBorder"
-            BackgroundColor="Transparent"
-            Stroke="Transparent"
-            StrokeThickness="0"
-            StrokeShape="RoundRectangle 10,10,0,0"
-            Padding="1,2">
-        <Border.Shadow>
-            <Shadow Brush="Black" Offset="0,-4" Radius="4" Opacity="0.10" />
-        </Border.Shadow>
+    <Grid x:Name="RootGrid"
+          ColumnDefinitions="Auto,*,Auto"
+          BackgroundColor="{toolkit:AppThemeResource Primary}"
+          Padding="12,6">
 
-        <Grid x:Name="RootGrid"
-              ColumnDefinitions="Auto,*,Auto"
-              Padding="10,2,10,2">
+        <Label Grid.Column="0"
+               x:Name="IconRfc"
+               Text="{x:Static f:FluentUI.person_24_regular}"
+               FontFamily="{x:Static f:FluentUI.FontFamily}"
+               FontSize="24"
+               TextColor="{StaticResource Black}"
+               VerticalOptions="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
+            </Label.GestureRecognizers>
+        </Label>
 
-            <!-- Botón RFC (izquierda) — abre selector -->
-            <Border x:Name="BorderRfc"
-                    Grid.Column="0"
-                    BackgroundColor="{toolkit:AppThemeResource Tertiary}"
-                    Stroke="Transparent"
-                    StrokeShape="RoundRectangle 10"
-                    Padding="10,6">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,1" Radius="1" Opacity="0.4" />
-                </Border.Shadow>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
-                </Border.GestureRecognizers>
-                <Label x:Name="LabelRfc"
-                       Text="?"
-                       FontAttributes="Bold"
-                       FontSize="13"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       VerticalOptions="Center" />
-            </Border>
+        <Label Grid.Column="1"
+               x:Name="LabelRfcCp"
+               Text="? - ?"
+               FontSize="13"
+               FontAttributes="Bold"
+               TextColor="{StaticResource Black}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center" />
 
-            <!-- Botón CP (derecha) — abre selector de dirección -->
-            <Border x:Name="BorderCp"
-                    Grid.Column="2"
-                    BackgroundColor="{toolkit:AppThemeResource Tertiary}"
-                    Stroke="Transparent"
-                    StrokeShape="RoundRectangle 10"
-                    Padding="10,6">
-                <Border.Shadow>
-                    <Shadow Brush="Black" Offset="0,1" Radius="1" Opacity="0.4" />
-                </Border.Shadow>
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnCpButtonTapped" />
-                </Border.GestureRecognizers>
-                <Label x:Name="LabelCp"
-                       Text="?"
-                       FontAttributes="Bold"
-                       FontSize="13"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       VerticalOptions="Center" />
-            </Border>
+        <Label Grid.Column="2"
+               x:Name="IconCp"
+               Text="{x:Static f:FluentUI.location_24_regular}"
+               FontFamily="{x:Static f:FluentUI.FontFamily}"
+               FontSize="24"
+               TextColor="{StaticResource Black}"
+               VerticalOptions="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCpButtonTapped" />
+            </Label.GestureRecognizers>
+        </Label>
 
-        </Grid>
-    </Border>
+    </Grid>
 
 </ContentView>

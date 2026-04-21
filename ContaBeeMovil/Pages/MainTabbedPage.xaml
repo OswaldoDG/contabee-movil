@@ -5,11 +5,53 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:controls="clr-namespace:ContaBeeMovil.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
     xmlns:views="clr-namespace:ContaBeeMovil.Views"
     Shell.TabBarIsVisible="False"
     Shell.NavBarIsVisible="True"
     Shell.BackgroundColor="{DynamicResource CurrentShellBarColor}"
     BackgroundColor="Transparent">
+
+    <Shell.TitleView>
+        <Grid x:Name="MonthNavBar"
+              x:DataType="vm:DashboardViewModel"
+              ColumnDefinitions="Auto,*,Auto"
+              VerticalOptions="Center"
+              HorizontalOptions="Fill"
+              Padding="0">
+            <mi:MauiIcon Grid.Column="0"
+                         Icon="{mi:Material Icon=ChevronLeft}"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         IconSize="30"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center">
+                <mi:MauiIcon.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding MesAnteriorCommand}" />
+                </mi:MauiIcon.GestureRecognizers>
+            </mi:MauiIcon>
+
+            <Label Grid.Column="1"
+                   Text="{Binding MesAnioTexto}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+
+            <mi:MauiIcon Grid.Column="2"
+                         Icon="{mi:Material Icon=ChevronRight}"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         IconSize="30"
+                         BackgroundColor="Transparent"
+                         VerticalOptions="Center"
+                         Margin="0,0,30,0">
+                <mi:MauiIcon.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
+                </mi:MauiIcon.GestureRecognizers>
+            </mi:MauiIcon>
+        </Grid>
+    </Shell.TitleView>
 
     <Grid RowDefinitions="*,Auto">
 
