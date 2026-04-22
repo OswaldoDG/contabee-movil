@@ -14,7 +14,7 @@
     BackgroundColor="Transparent">
 
     <Shell.TitleView>
-        <Grid>
+        <Grid HorizontalOptions="Fill" Margin="-56,0,0,0">
             <Grid x:Name="MonthNavBar"
                   x:DataType="vm:DashboardViewModel"
                   ColumnDefinitions="Auto,*,Auto"
@@ -45,8 +45,7 @@
                              IconColor="{toolkit:AppThemeResource Icon}"
                              IconSize="30"
                              BackgroundColor="Transparent"
-                             VerticalOptions="Center"
-                             Margin="0,0,30,0">
+                             VerticalOptions="Center">
                     <mi:MauiIcon.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding MesSiguienteCommand}" />
                     </mi:MauiIcon.GestureRecognizers>
@@ -56,7 +55,11 @@
                    FontSize="25"
                    FontAttributes="Bold"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   VerticalOptions="Center" />
+                   VerticalOptions="Center"
+                   HorizontalOptions="Fill"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="TailTruncation"
+                   MaxLines="1" />
         </Grid>
     </Shell.TitleView>
 

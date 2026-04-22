@@ -6,8 +6,6 @@ namespace ContaBeeMovil.Views;
 
 public partial class ResultadosListaView : ContentView
 {
-    private const string _textoEncontrados = "Encontrados {0}";
-
     // ── BindableProperties ───────────────────────────────────────────────────────
 
     public static readonly BindableProperty ElementosProperty =
@@ -32,12 +30,7 @@ public partial class ResultadosListaView : ContentView
 
     public static readonly BindableProperty TotalEncontradosProperty =
         BindableProperty.Create(nameof(TotalEncontrados), typeof(long), typeof(ResultadosListaView), 0L,
-            propertyChanged: (b, _, v) =>
-            {
-                var view = (ResultadosListaView)b;
-                view.LabelEncontrados.Text = string.Format(_textoEncontrados, v);
-                view.ActualizarPaginacion();
-            });
+            propertyChanged: (b, _, v) => ((ResultadosListaView)b).ActualizarPaginacion());
 
     public long TotalEncontrados
     {
@@ -156,8 +149,8 @@ public partial class ResultadosListaView : ContentView
     {
         BarraPaginacion.IsVisible = ConsultaEjecutada;
 
-        LabelEncontrados.Text = string.Format(_textoEncontrados, TotalEncontrados);
-        LabelPagina.Text = PaginaActual.ToString();
+        // Formato: "1-[total]" donde [total] es el número de páginas
+        LabelPagina.Text = $"{PaginaActual}-{TotalPaginas}";
 
         bool anteriorActivo = PaginaActual > 1;
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;

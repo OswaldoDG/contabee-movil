@@ -67,6 +67,7 @@ public partial class MainTabbedPage : ContentPage
             case 1:
                 PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
+                // Solo MES AÑO sin "Comprobantes"
                 LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
                 break;
         }

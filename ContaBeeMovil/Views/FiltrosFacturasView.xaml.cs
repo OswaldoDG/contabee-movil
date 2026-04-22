@@ -111,6 +111,19 @@ public partial class FiltrosFacturasView : ContentView
         set => SetValue(PeriodoTextoProperty, value);
     }
 
+    public static readonly BindableProperty PeriodoTextoCompletoProperty =
+        BindableProperty.Create(
+            nameof(PeriodoTextoCompleto),
+            typeof(string),
+            typeof(FiltrosFacturasView),
+            defaultValue: string.Empty);
+
+    public string PeriodoTextoCompleto
+    {
+        get => (string)GetValue(PeriodoTextoCompletoProperty);
+        set => SetValue(PeriodoTextoCompletoProperty, value);
+    }
+
     public FiltrosFacturasView()
     {
         InitializeComponent();
@@ -399,14 +412,16 @@ public partial class FiltrosFacturasView : ContentView
         {
             string mes = _meses[SelectorMes.IndiceSeleccionado];
             string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
-            PeriodoTexto = $"Comprobantes {mesParaMostrar} {anioStr}";
+            PeriodoTexto = $"{mesParaMostrar} {anioStr}";
+            PeriodoTextoCompleto = $"Comprobantes {mesParaMostrar} {anioStr}";
         }
         else
         {
             var hoy = DateTime.Now;
             string mes = _meses[hoy.Month - 1];
             string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
-            PeriodoTexto = $"Comprobantes {mesParaMostrar} {hoy.Year}";
+            PeriodoTexto = $"{mesParaMostrar} {hoy.Year}";
+            PeriodoTextoCompleto = $"Comprobantes {mesParaMostrar} {hoy.Year}";
         }
     }
 

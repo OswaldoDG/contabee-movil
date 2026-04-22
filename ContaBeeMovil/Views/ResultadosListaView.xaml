@@ -40,75 +40,84 @@
                         Offset="0,-1" />
             </Border.Shadow>
                 <!-- Barra de paginación -->
-                <HorizontalStackLayout
-                    Grid.Row="1"
-                    Padding="12,8"
-                    Spacing="16"
-                    HorizontalOptions="Start"
-                    VerticalOptions="Center">
+                <Grid Grid.Row="1" 
+                      ColumnDefinitions="*,Auto,*"
+                      Padding="12,8"
+                      HorizontalOptions="Fill"
+                      VerticalOptions="Center">
 
-                    <!-- Etiqueta de encontrados -->
-                    <Label x:Name="LabelEncontrados"
-                        Style="{StaticResource Body2Strong}"
-                        VerticalOptions="Center" />
+                    <!-- Espacio izquierdo -->
+                    <BoxView Grid.Column="0" IsVisible="False" />
 
-                    <!-- Botón página anterior -->
-                    <Border x:Name="BtnAnterior"
-                            StrokeShape="RoundRectangle 22"
-                            HeightRequest="44"
-                            WidthRequest="44"
-                            StrokeThickness="2"
-                            Stroke="{toolkit:AppThemeResource Primary}"
-                            BackgroundColor="Transparent"
-                            Padding="0"
-                            VerticalOptions="Center">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnAnteriorTapped" />
-                        </Border.GestureRecognizers>
-                        <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
-                               FontFamily="FluentUI"
-                               FontSize="20"
-                               TextColor="{toolkit:AppThemeResource Primary}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-                    </Border>
+                    <!-- Controles de paginación centrados -->
+                    <HorizontalStackLayout Grid.Column="1"
+                                          Spacing="18"
+                                          HorizontalOptions="Center"
+                                          VerticalOptions="Center">
 
-                    <!-- Página actual -->
-                    <Label x:Name="LabelPagina"
-                        Style="{StaticResource Body1Strong}"
-                        FontSize="16"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Center"
-                        MinimumWidthRequest="30" />
+                        <!-- Botón página anterior -->
+                        <Border x:Name="BtnAnterior"
+                                StrokeShape="RoundRectangle 22"
+                                HeightRequest="44"
+                                WidthRequest="44"
+                                StrokeThickness="2"
+                                Stroke="{toolkit:AppThemeResource Primary}"
+                                BackgroundColor="Transparent"
+                                Padding="0"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAnteriorTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
+                                   FontFamily="FluentUI"
+                                   FontSize="20"
+                                   TextColor="{toolkit:AppThemeResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
 
-                    <!-- Botón página siguiente -->
-                    <Border x:Name="BtnSiguiente"
-                            StrokeShape="RoundRectangle 22"
-                            HeightRequest="44"
-                            WidthRequest="44"
-                            StrokeThickness="2"
-                            Stroke="{toolkit:AppThemeResource Primary}"
-                            BackgroundColor="Transparent"
-                            Padding="0"
-                            VerticalOptions="Center">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnSiguienteTapped" />
-                        </Border.GestureRecognizers>
-                        <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
-                               FontFamily="FluentUI"
-                               FontSize="20"
-                               TextColor="{toolkit:AppThemeResource Primary}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-                    </Border>
+                        <!-- Página actual con formato "1-[total]" -->
+                        <Label x:Name="LabelPagina"
+                            Style="{StaticResource Body1Strong}"
+                            FontSize="16"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            WidthRequest="60" />
 
-                    <!-- Botón de cámara/captura -->
+                        <!-- Botón página siguiente -->
+                        <Border x:Name="BtnSiguiente"
+                                StrokeShape="RoundRectangle 22"
+                                HeightRequest="44"
+                                WidthRequest="44"
+                                StrokeThickness="2"
+                                Stroke="{toolkit:AppThemeResource Primary}"
+                                BackgroundColor="Transparent"
+                                Padding="0"
+                                VerticalOptions="Center">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSiguienteTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                                   FontFamily="FluentUI"
+                                   FontSize="20"
+                                   TextColor="{toolkit:AppThemeResource Primary}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                    </HorizontalStackLayout>
+
+                    <!-- Botón de cámara a la derecha -->
                     <Border x:Name="BtnCaptura"
+                            Grid.Column="2"
                             WidthRequest="44" HeightRequest="44"
                             StrokeShape="RoundRectangle 12"
                             StrokeThickness="0"
                             BackgroundColor="{toolkit:AppThemeResource Primary}"
                             VerticalOptions="Center"
+                            HorizontalOptions="End"
+                            Margin="0,0,8,0"
                             IsVisible="False">
                         <Border.Shadow>
                             <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,2" Radius="4" Opacity="0.4" />
@@ -124,7 +133,7 @@
                                VerticalOptions="Center" />
                     </Border>
 
-                </HorizontalStackLayout>
+                </Grid>
             </Border>
        </Grid>
 

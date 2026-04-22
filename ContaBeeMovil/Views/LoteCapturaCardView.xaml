@@ -27,23 +27,70 @@
             Margin="5,4"
             Padding="0">
 
-        <Grid ColumnDefinitions="*,Auto">
+        <Grid ColumnDefinitions="Auto,*,Auto">
 
-            <!-- ── Contenido izquierdo ─────────────────────────────────────── -->
-            <VerticalStackLayout Grid.Column="0" Spacing="4" Padding="10">
+            <!-- ── COLUMNA IZQUIERDA: Consecutivo, Iniciales, Cámara ─────────────────────────────────────── -->
+            <Grid Grid.Column="0" 
+                  RowDefinitions="*,*,*"
+                  Padding="10"
+                  VerticalOptions="Fill"
+                  HorizontalOptions="Center"
+                  WidthRequest="52">
 
-                <!-- Fila 0: Consecutivo · Fecha (pill) | Forma de pago con terminación (pill) -->
+                <!-- Consecutivo -->
+                <Label Grid.Row="0"
+                       Text="{Binding Consecutivo}"
+                       Style="{StaticResource Body2Strong}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+                <!-- Iniciales NombreCreador -->
+                <Label Grid.Row="1"
+                       Text="{Binding Datos.NombreCreador, Converter={StaticResource NombreIniciales}}"
+                       Style="{StaticResource Body2Strong}"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+
+                <!-- Cámara -->
+                <Grid Grid.Row="2"
+                      HeightRequest="32" WidthRequest="32" 
+                      VerticalOptions="Center"
+                      HorizontalOptions="Center">
+                    <Border x:Name="BtnCamaraLeft" Style="{StaticResource CircleIconButton}"
+                            HeightRequest="32" WidthRequest="32"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnDescargarImagen" />
+                        </Border.GestureRecognizers>
+                        <Label Text="{x:Static f:FluentUI.camera_20_regular}"
+                               Style="{StaticResource CircleIconLabel}"
+                               FontSize="18"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center" />
+                    </Border>
+                    <ActivityIndicator x:Name="SpinnerCamaraLeft"
+                                       IsVisible="False" IsRunning="False"
+                                       Color="{toolkit:AppThemeResource Primary}"
+                                       WidthRequest="20" HeightRequest="20"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                </Grid>
+            </Grid>
+
+            <!-- ── COLUMNA CENTRAL: Información principal alineada y centrada ─────────────────────────────────────── -->
+            <VerticalStackLayout Grid.Column="1" 
+                                Spacing="8" 
+                                Padding="10,10,10,10"
+                                VerticalOptions="Center"
+                                HorizontalOptions="Fill">
+
+                <!-- Fila 1: Fecha (pill) | Forma de pago con terminación (pill) -->
                 <FlexLayout Direction="Row"
                            Wrap="Wrap"
                            AlignItems="Center"
-                           JustifyContent="Start"
-                           MinimumHeightRequest="28">
-                    <Label Text="{Binding Consecutivo}"
-                           Style="{StaticResource Body2Strong}"
-                           VerticalOptions="Center"
-                           HorizontalOptions="Center"
-                           WidthRequest="32"
-                           Margin="0,0,8,0" />
+                           JustifyContent="SpaceBetween">
                     <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
@@ -76,91 +123,57 @@
                     </Border>
                 </FlexLayout>
 
-                <!-- Fila 1: Iniciales NombreCreador · Badge estado/monto -->
-                <Grid ColumnDefinitions="32,*" HeightRequest="32">
-                    <Label Grid.Column="0"
-                           Text="{Binding Datos.NombreCreador, Converter={StaticResource NombreIniciales}}"
+                <!-- Fila 2: Badge estado/monto -->
+                <Border BackgroundColor="{Binding Datos, Converter={StaticResource BadgeColor}}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="16,6"
+                        HorizontalOptions="Fill"
+                        VerticalOptions="Center">
+                    <Label Text="{Binding Datos, Converter={StaticResource BadgeTexto}}"
+                           TextColor="{Binding Datos, Converter={StaticResource BadgeTextColor}}"
                            Style="{StaticResource Body2Strong}"
-                           FontSize="14"
+                           HorizontalTextAlignment="Center"
                            VerticalOptions="Center"
-                           HorizontalOptions="Center" />
-                    <Border Grid.Column="1"
-                            BackgroundColor="{Binding Datos, Converter={StaticResource BadgeColor}}"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 8"
-                            Padding="16,6"
-                            Margin="8,0,0,0"
-                            HorizontalOptions="FillAndExpand"
-                            VerticalOptions="Center">
-                        <Label Text="{Binding Datos, Converter={StaticResource BadgeTexto}}"
-                               TextColor="{Binding Datos, Converter={StaticResource BadgeTextColor}}"
-                               Style="{StaticResource Body2Strong}"
-                               HorizontalTextAlignment="Center"
-                               VerticalOptions="Center"
-                               LineBreakMode="TailTruncation" />
-                    </Border>
-                </Grid>
+                           LineBreakMode="TailTruncation" />
+                </Border>
 
-                <!-- Fila 2: Cámara · UsoCfdi o Motivo (pill) | RFC Emisor (pill) -->
-                <FlexLayout Direction="Row"
-                           Wrap="Wrap"
-                           AlignItems="Center"
-                           JustifyContent="Start"
-                           MinimumHeightRequest="32">
-                    <Grid HeightRequest="32" WidthRequest="32" Margin="0,0,8,0">
-                        <Border x:Name="BtnCamaraLeft" Style="{StaticResource CircleIconButton}"
-                                HeightRequest="32" WidthRequest="32"
-                                StrokeThickness="0"
-                                VerticalOptions="Center"
-                                HorizontalOptions="Center">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnDescargarImagen" />
-                            </Border.GestureRecognizers>
-                            <Label Text="{x:Static f:FluentUI.camera_20_regular}"
-                                   Style="{StaticResource CircleIconLabel}"
-                                   FontSize="18"
-                                   VerticalOptions="Center"
-                                   HorizontalOptions="Center" />
-                        </Border>
-                        <ActivityIndicator x:Name="SpinnerCamaraLeft"
-                                           IsVisible="False" IsRunning="False"
-                                           Color="{toolkit:AppThemeResource Primary}"
-                                           WidthRequest="20" HeightRequest="20"
-                                           HorizontalOptions="Center" VerticalOptions="Center" />
-                    </Grid>
+                <!-- Fila 3: UsoCfdi o Motivo + RFC Receptor (apilados verticalmente) -->
+                <VerticalStackLayout Spacing="4">
+                    <!-- UsoCFDI o Error -->
                     <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
-                            Padding="8,2"
-                            Margin="0,0,8,2"
-                            HeightRequest="32"
-                            VerticalOptions="Center"
-                            FlexLayout.Shrink="1">
+                            Padding="8,4"
+                            HorizontalOptions="Fill">
                         <Label Text="{Binding Datos, Converter={StaticResource UsoCfdiOError}}"
                                Style="{StaticResource Caption1}"
                                LineBreakMode="TailTruncation"
-                               VerticalOptions="Center" />
+                               VerticalOptions="Center"
+                               HorizontalOptions="Start" />
                     </Border>
+
+                    <!-- RFC RfcEmisor -->
                     <Border StrokeShape="RoundRectangle 8"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
-                            Padding="8,2"
-                            Margin="0,0,0,2"
-                            VerticalOptions="Center"
-                            IsVisible="{Binding Dato.RfcReceptor, Converter={StaticResource StringNotEmpty}}">
-                        <Label Text="{Binding Datos.RfcReceptor}"
+                            Padding="8,4"
+                            HorizontalOptions="Fill"
+                            IsVisible="{Binding Datos.RfcEmisor, Converter={StaticResource StringNotEmpty}}">
+                        <Label Text="{Binding Datos.RfcEmisor}"
                                Style="{StaticResource Caption1}"
                                VerticalOptions="Center"
+                               HorizontalOptions="Start"
                                LineBreakMode="NoWrap" />
                     </Border>
-                </FlexLayout>
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
 
-            <!-- ── Columna derecha: Cámara / PDF / XML apilados ─────────────────────── -->
-            <Border Grid.Column="1"
+            <!-- ── Columna derecha: PDF / XML apilados (área azul - no tocar) ─────────────────────── -->
+            <Border Grid.Column="2"
                     BackgroundColor="{toolkit:AppThemeResource Alternate}"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 0,16,0,16"
