@@ -52,7 +52,7 @@
                 </mi:MauiIcon>
             </Grid>
             <Label x:Name="LabelTitulo"
-                   FontSize="25"
+                   FontSize="18"
                    FontAttributes="Bold"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                    VerticalOptions="Center"

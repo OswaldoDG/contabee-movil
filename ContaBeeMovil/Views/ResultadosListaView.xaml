@@ -78,7 +78,7 @@
                             <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
                                    FontFamily="FluentUI"
                                    FontSize="20"
-                                   TextColor="{toolkit:AppThemeResource Primary}"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
@@ -87,6 +87,7 @@
                         <Label x:Name="LabelPagina"
                             Style="{StaticResource Body1Strong}"
                             FontSize="16"
+                            TextColor="{toolkit:AppThemeResource PrimaryText}"
                             VerticalOptions="Center"
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center"
@@ -108,7 +109,7 @@
                             <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
                                    FontFamily="FluentUI"
                                    FontSize="20"
-                                   TextColor="{toolkit:AppThemeResource Primary}"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
                         </Border>
