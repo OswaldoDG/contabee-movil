@@ -109,7 +109,7 @@
                     <Label Text="{x:Static f:FluentUI.search_20_regular}"
                            FontFamily="{x:Static f:FluentUI.FontFamily}"
                            FontSize="20"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           TextColor="#1A1A1A"
                            HorizontalOptions="Center"
                            VerticalOptions="Center" />
                 </Border>

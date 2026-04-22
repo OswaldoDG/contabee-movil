@@ -46,12 +46,19 @@
                       HorizontalOptions="Fill"
                       VerticalOptions="Center">
 
-                    <!-- Espacio izquierdo -->
-                    <BoxView Grid.Column="0" IsVisible="False" />
+                    <!-- Total encontrados -->
+                    <Label x:Name="LabelTotal"
+                           Grid.Column="0"
+                           FontSize="12"
+                           HorizontalOptions="Start"
+                           HorizontalTextAlignment="Start"
+                           VerticalOptions="Center"
+                           LineBreakMode="NoWrap"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
                     <!-- Controles de paginación centrados -->
                     <HorizontalStackLayout Grid.Column="1"
-                                          Spacing="18"
+                                          Spacing="10"
                                           HorizontalOptions="Center"
                                           VerticalOptions="Center">
 
@@ -83,7 +90,7 @@
                             VerticalOptions="Center"
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center"
-                            WidthRequest="60" />
+                            WidthRequest="40" />
 
                         <!-- Botón página siguiente -->
                         <Border x:Name="BtnSiguiente"

@@ -145,6 +145,7 @@ public partial class FacturacionPage : ContentPage
             new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
     }
 
+
     private async Task OnBuscarFacturas(Busqueda busqueda)
     {
         if (AppState.Instance.CuentaFiscalActual is null)

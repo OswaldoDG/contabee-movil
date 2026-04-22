@@ -149,8 +149,8 @@ public partial class ResultadosListaView : ContentView
     {
         BarraPaginacion.IsVisible = ConsultaEjecutada;
 
-        // Formato: "1-[total]" donde [total] es el número de páginas
-        LabelPagina.Text = $"{PaginaActual}-{TotalPaginas}";
+        LabelPagina.Text = $"{PaginaActual}";
+        LabelTotal.Text = TotalEncontrados == 1 ? "1 resultado" : $"{TotalEncontrados} resultados";
 
         bool anteriorActivo = PaginaActual > 1;
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;
