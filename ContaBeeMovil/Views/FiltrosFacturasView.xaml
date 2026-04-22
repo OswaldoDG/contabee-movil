@@ -57,16 +57,18 @@
 
             </VerticalStackLayout>
 
-            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"
                   ColumnSpacing="8"
                   VerticalOptions="Center">
 
                 <views:SelectorFlotante x:Name="SelectorOrden"
                                         Grid.Column="0"
+                                        HorizontalOptions="Fill"
                                         VerticalOptions="Center" />
 
                 <Border Grid.Column="1"
                         Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
                         VerticalOptions="Center">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleOrden" />
@@ -80,6 +82,7 @@
                 <Border x:Name="BtnFiltroActivo"
                         Grid.Column="2"
                         Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
                         VerticalOptions="Center">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
@@ -102,6 +105,7 @@
                         HeightRequest="44"
                         WidthRequest="44"
                         Padding="0"
+                        HorizontalOptions="Center"
                         VerticalOptions="Center">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBuscarTapped" />
@@ -116,6 +120,7 @@
 
                 <Border Grid.Column="4"
                         Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
                         VerticalOptions="Center">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleExpandir" />
