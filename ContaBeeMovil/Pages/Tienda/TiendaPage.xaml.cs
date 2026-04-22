@@ -21,6 +21,7 @@ public partial class TiendaPage : ContentPage
     private Grid? _loadingOverlay;
     private CollectionView? _listaProductos;
     private Border? _bannerProximamente;
+    private VerticalStackLayout? _debugCompraDirecta;
 
     // Catálogo del backend guardado para usarse al verificar la compra
     private List<DtoProducto> _productosCreditos = [];
@@ -40,9 +41,12 @@ public partial class TiendaPage : ContentPage
     {
         base.OnAppearing();
 
-        _loadingOverlay     = this.FindByName<Grid>("LoadingOverlay");
-        _listaProductos     = this.FindByName<CollectionView>("ListaProductos");
-        _bannerProximamente = this.FindByName<Border>("BannerProximamente");
+        _loadingOverlay      = this.FindByName<Grid>("LoadingOverlay");
+        _listaProductos      = this.FindByName<CollectionView>("ListaProductos");
+        _bannerProximamente  = this.FindByName<Border>("BannerProximamente");
+        _debugCompraDirecta  = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
+        if (_debugCompraDirecta is not null)
+            _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
 
         _logs.Log("Tienda: página abierta");
         await CargarProductosAsync();
@@ -215,10 +219,19 @@ public partial class TiendaPage : ContentPage
         try
         {
             var receiptUrl = Foundation.NSBundle.MainBundle.AppStoreReceiptUrl;
-            var receiptData = receiptUrl != null ? Foundation.NSData.FromUrl(receiptUrl) : null;
-            verificationData = receiptData?.GetBase64EncodedString(Foundation.NSDataBase64EncodingOptions.None);
+            var receiptPath = receiptUrl?.Path;
+            _logs.Log($"Tienda: receipt path={receiptPath} exists={receiptPath != null && System.IO.File.Exists(receiptPath)}");
+            if (receiptPath != null && System.IO.File.Exists(receiptPath))
+            {
+                var bytes = System.IO.File.ReadAllBytes(receiptPath);
+                verificationData = Convert.ToBase64String(bytes);
+                _logs.Log($"Tienda: receipt leído OK — bytes={bytes.Length} b64length={verificationData.Length} preview={verificationData[..Math.Min(60, verificationData.Length)]}...");
+            }
         }
-        catch { }
+        catch (Exception exReceipt)
+        {
+            _logs.Log($"Tienda: error leyendo receipt — {exReceipt.Message}");
+        }
         verificationData ??= compra.OriginalJson;
         _logs.Log($"Tienda: receipt length={verificationData?.Length ?? 0}");
 #elif ANDROID
@@ -341,7 +354,7 @@ public partial class TiendaPage : ContentPage
 
     private async void OnCompraDirectaClicked(object sender, EventArgs e)
     {
-        const string productoId = "contabee.creditos.captura100";
+        const string productoId = "contabee.creditos.captura15";
 
         var cuenta = AppState.Instance.CuentaFiscalActual;
         if (cuenta is null)
@@ -384,6 +397,7 @@ public partial class TiendaPage : ContentPage
     {
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
+
 #if IOS || MACCATALYST
         var pasarela = PasarelarPago.Apple;
         string? verificationData = null;
@@ -391,11 +405,17 @@ public partial class TiendaPage : ContentPage
         {
             var receiptUrl = Foundation.NSBundle.MainBundle.AppStoreReceiptUrl;
             var receiptData = receiptUrl != null ? Foundation.NSData.FromUrl(receiptUrl) : null;
-            verificationData = receiptData?.GetBase64EncodedString(Foundation.NSDataBase64EncodingOptions.None);
+            if (receiptData != null && receiptData.Length > 0)
+                verificationData = receiptData.GetBase64EncodedString(Foundation.NSDataBase64EncodingOptions.None);
         }
         catch { }
-        verificationData ??= compra.OriginalJson;
-        _logs.Log($"Tienda: compra directa — receipt length={verificationData?.Length ?? 0}");
+        _logs.Log($"Tienda: receipt length={verificationData?.Length ?? 0}");
+        if (string.IsNullOrEmpty(verificationData))
+        {
+            _logs.Log("Tienda: receipt no disponible — abortando verificación");
+            await _servicioAlerta.MostrarAsync("Sin receipt", "No se pudo obtener el comprobante de Apple. Intenta desde TestFlight.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return;
+        }
 #elif ANDROID
         var pasarela = PasarelarPago.Google;
         var verificationData = compra.PurchaseToken;
@@ -417,8 +437,8 @@ public partial class TiendaPage : ContentPage
             [
                 new DtoElementoCompra
                 {
-                    Id         = "captura100",
-                    ProductoId = "CAPTURA100",
+                    Id         = "captura15",
+                    ProductoId = "CAPTURA15",
                     TipoPrecio = TipoPrecio.Publico,
                     Cantidad   = 1,
                     Periodo    = 1,
@@ -444,7 +464,7 @@ public partial class TiendaPage : ContentPage
         _logs.Log("Tienda: compra directa — licencia actualizada");
 
         if (completado)
-            await _servicioAlerta.MostrarAsync("¡Compra exitosa!", "Los créditos captura100 ya están disponibles.", verBotonCancelar: false, confirmarText: "Aceptar");
+            await _servicioAlerta.MostrarAsync("¡Compra exitosa!", "Los créditos captura15 ya están disponibles.", verBotonCancelar: false, confirmarText: "Aceptar");
         else
             await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
     }

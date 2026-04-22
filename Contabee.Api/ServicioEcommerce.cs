@@ -42,26 +42,32 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
 
     public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] VerificarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelarPago} pasarelaId={comprobante.PasarelaId}");
         try
         {
             await servicioEcommerce.VerificarAsync(cuentaFiscalId, comprobante);
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] VerificarCompraIAP ← OK");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] VerificarCompraIAP ← ERROR {ex.GetType().Name}: {ex.Message}");
             return false;
         }
     }
 
     public async Task<bool> CompletarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelarPago} pasarelaId={comprobante.PasarelaId}");
         try
         {
             await servicioEcommerce.CompletarAsync(cuentaFiscalId, comprobante);
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP ← OK");
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP ← ERROR {ex.GetType().Name}: {ex.Message}");
             return false;
         }
     }
