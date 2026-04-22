@@ -7,8 +7,8 @@
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
-             Title="Facturación">
-    
+             Title="Comprobantes">
+
     <Border Grid.Row="0"
             Padding="0"
             BackgroundColor="{toolkit:AppThemeResource Accent1}"
@@ -65,30 +65,31 @@
         </views:ResultadosListaView>
 
             <!-- FAB Captura -->
-            <Border WidthRequest="60" HeightRequest="60"
-                    StrokeShape="RoundRectangle 16"
+            <Border WidthRequest="44" HeightRequest="44"
+                    StrokeShape="RoundRectangle 12"
                     StrokeThickness="0"
+                    Padding="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
                     HorizontalOptions="End" VerticalOptions="End"
-                    Margin="0,0,16,5">
+                    Margin="0,0,8,8">
                 <Border.Triggers>
                     <DataTrigger TargetType="Border" Binding="{Binding SinCreditos}" Value="True">
                         <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
                     </DataTrigger>
                 </Border.Triggers>
-                <Border.Shadow>
-                    <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="8" Opacity="0.5" />
-                </Border.Shadow>
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAbrirCaptura" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
-                             IconColor="{toolkit:AppThemeResource PrimaryText}"
-                             IconSize="28"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             BackgroundColor="Transparent"
-                             Padding="0" />
+                <Label Text="{x:Static f:FluentUI.camera_20_regular}"
+                       FontFamily="FluentUI"
+                       FontSize="20"
+                       TextColor="#1A1A1A"
+                       WidthRequest="44"
+                       HeightRequest="44"
+                       HorizontalTextAlignment="Center"
+                       VerticalTextAlignment="Center"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Fill" />
             </Border>
 
         </Grid>

@@ -6,8 +6,6 @@ namespace ContaBeeMovil.Views;
 
 public partial class ResultadosListaView : ContentView
 {
-    private const string _textoEncontrados = "Encontrados {0}";
-
     // ── BindableProperties ───────────────────────────────────────────────────────
 
     public static readonly BindableProperty ElementosProperty =
@@ -32,12 +30,7 @@ public partial class ResultadosListaView : ContentView
 
     public static readonly BindableProperty TotalEncontradosProperty =
         BindableProperty.Create(nameof(TotalEncontrados), typeof(long), typeof(ResultadosListaView), 0L,
-            propertyChanged: (b, _, v) =>
-            {
-                var view = (ResultadosListaView)b;
-                view.LabelEncontrados.Text = string.Format(_textoEncontrados, v);
-                view.ActualizarPaginacion();
-            });
+            propertyChanged: (b, _, v) => ((ResultadosListaView)b).ActualizarPaginacion());
 
     public long TotalEncontrados
     {
@@ -103,6 +96,25 @@ public partial class ResultadosListaView : ContentView
         set => SetValue(SiguienteCommandProperty, value);
     }
 
+    public static readonly BindableProperty CapturaCommandProperty =
+        BindableProperty.Create(nameof(CapturaCommand), typeof(ICommand), typeof(ResultadosListaView));
+
+    public ICommand? CapturaCommand
+    {
+        get => (ICommand?)GetValue(CapturaCommandProperty);
+        set => SetValue(CapturaCommandProperty, value);
+    }
+
+    public static readonly BindableProperty MostrarBotonCapturaProperty =
+        BindableProperty.Create(nameof(MostrarBotonCaptura), typeof(bool), typeof(ResultadosListaView), false,
+            propertyChanged: (b, _, v) => ((ResultadosListaView)b).BtnCaptura.IsVisible = (bool)v);
+
+    public bool MostrarBotonCaptura
+    {
+        get => (bool)GetValue(MostrarBotonCapturaProperty);
+        set => SetValue(MostrarBotonCapturaProperty, value);
+    }
+
     // ── Constructor ──────────────────────────────────────────────────────────────
 
     public ResultadosListaView()
@@ -125,14 +137,20 @@ public partial class ResultadosListaView : ContentView
             SiguienteCommand.Execute(null);
     }
 
+    private void OnCapturaTapped(object sender, TappedEventArgs e)
+    {
+        if (CapturaCommand?.CanExecute(null) == true)
+            CapturaCommand.Execute(null);
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────────
 
     private void ActualizarPaginacion()
     {
         BarraPaginacion.IsVisible = ConsultaEjecutada;
 
-        LabelEncontrados.Text = string.Format(_textoEncontrados, TotalEncontrados);
-        LabelPagina.Text = PaginaActual.ToString();
+        LabelPagina.Text = $"{PaginaActual}";
+        LabelTotal.Text = $"Encontrados {TotalEncontrados}";
 
         bool anteriorActivo = PaginaActual > 1;
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;

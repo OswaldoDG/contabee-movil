@@ -31,7 +31,8 @@ namespace ContaBeeMovil
             // App estaba CERRADA y se abrió por el link
             HandleIntent(Intent);
 
-            // Si hay una recreación pendiente, ejecutarla UNA sola vez
+            // Si hay una recreación
+            // , ejecutarla UNA sola vez
             if (_pendingRecreate)
             {
                 _pendingRecreate = false;

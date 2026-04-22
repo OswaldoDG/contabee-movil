@@ -9,14 +9,14 @@ public partial class LoteCapturaCardView : ContentView
 
     public LoteCapturaCardView() => InitializeComponent();
 
-    private async void OnDescargarImagen(object sender, TappedEventArgs e)
-        => await DescargarYCompartir("imagen", BtnCamara, SpinnerCamara);
-
     private async void OnDescargarPdf(object sender, TappedEventArgs e)
         => await DescargarYCompartir("pdf", BtnPdf, SpinnerPdf);
 
     private async void OnDescargarXml(object sender, TappedEventArgs e)
         => await DescargarYCompartir("xml", BtnXml, SpinnerXml);
+
+    private async void OnDescargarImagen(object sender, TappedEventArgs e)
+        => await DescargarYCompartir("imagen", BtnCamaraLeft, SpinnerCamaraLeft);
 
     private async Task DescargarYCompartir(string tipo, Border btn, ActivityIndicator spinner)
     {

@@ -15,6 +15,16 @@ public partial class FiltrosFacturasView : ContentView
         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
     ];
 
+    private static readonly Dictionary<string, string> _mesesAbreviados = new()
+    {
+        ["Febrero"]    = "Feb",
+        ["Agosto"]     = "Ago",
+        ["Septiembre"] = "Sep",
+        ["Octubre"]    = "Oct",
+        ["Noviembre"]  = "Nov",
+        ["Diciembre"]  = "Dic"
+    };
+
     private static readonly List<string> _estados =
         ["Estado", "Nuevos", "En Proceso", "Reprogramados", "Finalizados", "Error"];
 
@@ -88,11 +98,37 @@ public partial class FiltrosFacturasView : ContentView
         set => SetValue(BuscarCommandProperty, value);
     }
 
+    public static readonly BindableProperty PeriodoTextoProperty =
+        BindableProperty.Create(
+            nameof(PeriodoTexto),
+            typeof(string),
+            typeof(FiltrosFacturasView),
+            defaultValue: string.Empty);
+
+    public string PeriodoTexto
+    {
+        get => (string)GetValue(PeriodoTextoProperty);
+        set => SetValue(PeriodoTextoProperty, value);
+    }
+
+    public static readonly BindableProperty PeriodoTextoCompletoProperty =
+        BindableProperty.Create(
+            nameof(PeriodoTextoCompleto),
+            typeof(string),
+            typeof(FiltrosFacturasView),
+            defaultValue: string.Empty);
+
+    public string PeriodoTextoCompleto
+    {
+        get => (string)GetValue(PeriodoTextoCompletoProperty);
+        set => SetValue(PeriodoTextoCompletoProperty, value);
+    }
+
     public FiltrosFacturasView()
     {
         InitializeComponent();
         InicializarSelectores();
-        ActualizarLabelPeriodo();
+        ActualizarPeriodoTexto();
     }
 
     private void InicializarSelectores()
@@ -183,6 +219,8 @@ public partial class FiltrosFacturasView : ContentView
                     ? FluentUI.arrow_sort_up_lines_20_regular
                     : FluentUI.arrow_sort_down_lines_20_regular;
             }
+
+            ActualizarPeriodoTexto();
         }
         finally
         {
@@ -261,11 +299,11 @@ public partial class FiltrosFacturasView : ContentView
         SelectorTipo.IndiceSeleccionado    = 0;
         EntryRfc.Text                      = string.Empty;
 
+        ActualizarPeriodoTexto();
+        ActualizarIndicadorFiltros();
         var busqueda = new Busqueda { Filtros = filtros, Paginado = new Paginado { Pagina = 1, TamanoPagina = 10 }, Contar = true };
         EjecutarBusqueda(busqueda);
     }
-
-    private void OnLabelPeriodoTapped(object sender, TappedEventArgs e) => IrARecientes();
 
     private void OnBuscarTapped(object sender, TappedEventArgs e)
     {
@@ -274,6 +312,7 @@ public partial class FiltrosFacturasView : ContentView
 
     private void EjecutarBusqueda(Busqueda busqueda)
     {
+        ActualizarPeriodoTexto();
         GuardarEstado();
         if (BuscarCommand?.CanExecute(busqueda) == true)
             BuscarCommand.Execute(busqueda);
@@ -290,12 +329,53 @@ public partial class FiltrosFacturasView : ContentView
         if (_expandido)
         {
             PanelFiltros.IsVisible = true;
+            BtnBuscar.IsVisible = true;
             await PanelFiltros.FadeToAsync(1, 200);
         }
         else
         {
             await PanelFiltros.FadeToAsync(0, 150);
             PanelFiltros.IsVisible = false;
+            BtnBuscar.IsVisible = false;
+        }
+        ActualizarIndicadorFiltros();
+    }
+
+    private void OnLimpiarFiltrosYActualizar(object sender, TappedEventArgs e)
+    {
+        var hoy = DateTime.Now;
+        SelectorAnio.ElementoSeleccionado = hoy.Year.ToString();
+        SelectorMes.IndiceSeleccionado = hoy.Month - 1;
+
+        SelectorEstado.IndiceSeleccionado  = 0;
+        SelectorCreador.IndiceSeleccionado = -1;
+        SelectorEnvio.IndiceSeleccionado   = 0;
+        SelectorTipo.IndiceSeleccionado    = 0;
+        EntryRfc.Text                      = string.Empty;
+
+        ActualizarIndicadorFiltros();
+        ActualizarPeriodoTexto();
+        EjecutarBusqueda(BusquedaActual);
+    }
+
+    private bool TieneFiltrosExtra()
+    {
+        return SelectorEstado.IndiceSeleccionado > 0
+            || SelectorCreador.IndiceSeleccionado > 0
+            || SelectorEnvio.IndiceSeleccionado > 0
+            || SelectorTipo.IndiceSeleccionado > 0
+            || !string.IsNullOrWhiteSpace(EntryRfc.Text);
+    }
+
+    private void ActualizarIndicadorFiltros()
+    {
+        if (TieneFiltrosExtra())
+        {
+            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange);
+        }
+        else
+        {
+            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
         }
     }
 
@@ -324,10 +404,25 @@ public partial class FiltrosFacturasView : ContentView
         _          => campo
     };
 
-    private void ActualizarLabelPeriodo()
+    private void ActualizarPeriodoTexto()
     {
-        var hoy = DateTime.Now;
-        LabelPeriodo.Text = $"{_meses[hoy.Month - 1][..3]} {hoy.Year % 100:D2}";
+        if (SelectorAnio.ElementoSeleccionado is string anioStr
+            && SelectorMes.IndiceSeleccionado >= 0
+            && SelectorMes.IndiceSeleccionado < _meses.Count)
+        {
+            string mes = _meses[SelectorMes.IndiceSeleccionado];
+            string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
+            PeriodoTexto = $"{mesParaMostrar} {anioStr}";
+            PeriodoTextoCompleto = $"Comprobantes {mesParaMostrar} {anioStr}";
+        }
+        else
+        {
+            var hoy = DateTime.Now;
+            string mes = _meses[hoy.Month - 1];
+            string mesParaMostrar = _mesesAbreviados.GetValueOrDefault(mes, mes);
+            PeriodoTexto = $"{mesParaMostrar} {hoy.Year}";
+            PeriodoTextoCompleto = $"Comprobantes {mesParaMostrar} {hoy.Year}";
+        }
     }
 
     private record FiltrosPersistidos(

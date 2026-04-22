@@ -23,6 +23,12 @@ public partial class MainTabbedPage : ContentPage
         _facturacionView = _facturacionPage.Content;
 
         MonthNavBar.BindingContext = _dashboardPage.BindingContext;
+        // Sincronizar título cuando cambia el periodo en facturación
+        _facturacionPage.Filtros.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(Views.FiltrosFacturasView.PeriodoTexto) && _currentIndex == 1)
+                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
+        };
 
         SwitchToTab(0);
     }
@@ -49,6 +55,7 @@ public partial class MainTabbedPage : ContentPage
         PageContainer.Opacity = 0;
 
         MonthNavBar.IsVisible = index == 0;
+        LabelTitulo.IsVisible = index == 1;
 
         switch (index)
         {
@@ -60,6 +67,8 @@ public partial class MainTabbedPage : ContentPage
             case 1:
                 PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
+                // Solo MES AÑO sin "Comprobantes"
+                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
                 break;
         }
 

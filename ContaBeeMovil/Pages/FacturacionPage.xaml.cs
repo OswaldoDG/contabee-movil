@@ -71,6 +71,9 @@ public partial class FacturacionPage : ContentPage
 
     public bool SinCreditos => !TieneCreditos;
 
+    /// <summary>Panel de filtros expuesto para sincronización de título desde MainTabbedPage.</summary>
+    public FiltrosFacturasView Filtros => PanelFiltros;
+
     // ── Comandos ─────────────────────────────────────────────────────────────────
 
     public ICommand BuscarFacturasCommand { get; }
@@ -141,6 +144,7 @@ public partial class FacturacionPage : ContentPage
         await Shell.Current.GoToAsync(nameof(PaginaCaptura),
             new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
     }
+
 
     private async Task OnBuscarFacturas(Busqueda busqueda)
     {

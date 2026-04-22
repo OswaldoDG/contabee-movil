@@ -1,28 +1,24 @@
 using Contabee.Api.Transcript;
+using ContaBeeMovil.Helpers;
 using System.Globalization;
 
 namespace ContaBeeMovil.Converters;
 
 /// <summary>
-/// Chip inferior de la card. Lógica:
-///   0-4  → "Pendiente"
-///   5    → FechaFinalizacion formateada, o "Pendiente" si es null
-///   6    → texto del motivo de error
+/// Fila inferior de la card:
+///   ≤4 o 5 → Descripción corta del UsoCfdi
+///   6      → Motivo del error
 /// </summary>
-public class EstadoChipConverter : IValueConverter
+public class UsoCfdiOErrorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is not ElementoPaginaCapturaDespliegue item)
             return string.Empty;
 
-        return (int)item.Estado switch
+        if ((int)item.Estado == 6)
         {
-            <= 4 => "Pendiente",
-            5    => item.FechaFinalizacion.HasValue
-                        ? item.FechaFinalizacion.Value.ToString("dd/MM/yyyy  h:mm tt", culture)
-                        : "Pendiente",
-            6    => item.Motivo switch
+            return item.Motivo switch
             {
                 MotivoEstado.ImagenDeficiente => "Error: Deficiente",
                 MotivoEstado.ImagenErronea => "Error: No es ticket",
@@ -33,9 +29,13 @@ public class EstadoChipConverter : IValueConverter
                 MotivoEstado.Extemporaneo => "Error: Error de Fecha",
                 MotivoEstado.OtroError => "Error: Otro",
                 _ => "Error"
-            },
-            _ => string.Empty
-        };
+            };
+        }
+
+        var uso = UsoCfdiProvider.GetUsoCfdi()
+            .FirstOrDefault(u => u.Codigo == item.ClaveUsoCfdi);
+
+        return uso?.Descripcion ?? item.ClaveUsoCfdi ?? string.Empty;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
