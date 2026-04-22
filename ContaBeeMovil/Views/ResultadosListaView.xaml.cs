@@ -150,7 +150,7 @@ public partial class ResultadosListaView : ContentView
         BarraPaginacion.IsVisible = ConsultaEjecutada;
 
         LabelPagina.Text = $"{PaginaActual}";
-        LabelTotal.Text = TotalEncontrados == 1 ? "1 resultado" : $"{TotalEncontrados} resultados";
+        LabelTotal.Text = $"Encontrados {TotalEncontrados}";
 
         bool anteriorActivo = PaginaActual > 1;
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;

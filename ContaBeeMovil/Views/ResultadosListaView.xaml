@@ -68,7 +68,7 @@
                                 HeightRequest="44"
                                 WidthRequest="44"
                                 StrokeThickness="2"
-                                Stroke="{toolkit:AppThemeResource Primary}"
+                                Stroke="{toolkit:AppThemeResource PrimaryText}"
                                 BackgroundColor="Transparent"
                                 Padding="0"
                                 VerticalOptions="Center">
@@ -99,7 +99,7 @@
                                 HeightRequest="44"
                                 WidthRequest="44"
                                 StrokeThickness="2"
-                                Stroke="{toolkit:AppThemeResource Primary}"
+                                Stroke="{toolkit:AppThemeResource PrimaryText}"
                                 BackgroundColor="Transparent"
                                 Padding="0"
                                 VerticalOptions="Center">
