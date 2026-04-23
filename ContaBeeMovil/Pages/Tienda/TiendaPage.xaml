@@ -32,7 +32,26 @@
             <CollectionView x:Name="ListaProductos"
                             Grid.Row="1"
                             SelectionMode="None"
-                            BackgroundColor="{toolkit:AppThemeResource Accent1}"                            >
+                            BackgroundColor="{toolkit:AppThemeResource Accent1}">
+
+                <CollectionView.Header>
+                    <VerticalStackLayout x:Name="DebugCompraDirecta"
+                                         Padding="16,12,16,4"
+                                         Spacing="6"
+                                         IsVisible="False">
+                        <Label Text="[DEV] Compra directa"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               HorizontalOptions="Center"/>
+                        <Button Text="Comprar captura15 directo"
+                                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                TextColor="#1a1a1a"
+                                CornerRadius="12"
+                                Padding="16,12"
+                                HorizontalOptions="Fill"
+                                Clicked="OnCompraDirectaClicked"/>
+                    </VerticalStackLayout>
+                </CollectionView.Header>
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical" ItemSpacing="2"/>
                 </CollectionView.ItemsLayout>
@@ -85,11 +104,6 @@
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
-                <CollectionView.Footer>
-                    <BoxView HeightRequest="32"
-                             Color="Transparent"/>
-                </CollectionView.Footer>
 
             </CollectionView>
 

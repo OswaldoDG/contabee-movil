@@ -24,10 +24,23 @@ public class ServicioIAP : IServicioIAP
                 return [];
 
             var ids = productIds.ToArray();
-            _logs.Log($"IAP: GetProductInfoAsync ids=[{string.Join(", ", ids)}]");
-            var productos = await billing.GetProductInfoAsync(ItemType.InAppPurchase, ids);
-            _logs.Log($"IAP: productos recibidos={productos?.Count() ?? 0}");
-            return productos ?? [];
+            _logs.Log($"IAP: consultando {ids.Length} productos uno por uno...");
+            var resultados = new List<InAppBillingProduct>();
+            foreach (var id in ids)
+            {
+                try
+                {
+                    var p = await billing.GetProductInfoAsync(ItemType.InAppPurchase, [id]);
+                    if (p != null) resultados.AddRange(p);
+                    _logs.Log($"IAP: {id} — encontrado");
+                }
+                catch
+                {
+                    _logs.Log($"IAP: {id} — no encontrado en tienda");
+                }
+            }
+            _logs.Log($"IAP: {resultados.Count}/{ids.Length} productos disponibles en tienda");
+            return resultados;
         }
         catch (Exception ex)
         {

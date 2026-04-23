@@ -138,9 +138,9 @@
     <Style x:Key="Caption1"
            TargetType="Label">
         <Setter Property="FontSize"
-                Value="13" />
-        <Setter Property="LineHeight"
-                Value="1.38" />
+                Value="10" />
+        <!-- <Setter Property="LineHeight"
+                Value="1" /> -->
         <!-- 18 -->
     </Style>
     <Style x:Key="Caption1Strong"
@@ -407,10 +407,21 @@
     <Style x:Key="DangerButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="Transparent"/>
         <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="12"/>
         <Setter Property="CornerRadius" Value="26"/>
         <Setter Property="HeightRequest" Value="48"/>
         <Setter Property="Padding" Value="20,0"/>
+        <Setter Property="BorderWidth" Value="1.5"/>
+        <Setter Property="BorderColor" Value="{toolkit:AppThemeResource Error}"/>
+    </Style>
+        <!-- Danger Button: For destructive actions -->
+    <Style x:Key="CleanLogsButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="HeightRequest" Value="10"/>
+        <Setter Property="Padding" Value="1,0"/>
         <Setter Property="BorderWidth" Value="1.5"/>
         <Setter Property="BorderColor" Value="{toolkit:AppThemeResource Error}"/>
     </Style>

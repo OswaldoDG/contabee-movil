@@ -7,29 +7,25 @@
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Title="Logs"
              Shell.TabBarIsVisible="False">
-
-    <Grid RowDefinitions="Auto,*">
-
-        <!-- Barra superior -->
-        <Grid Grid.Row="0"
-              ColumnDefinitions="*,Auto"
-              Padding="16,12"
-              BackgroundColor="{toolkit:AppThemeResource Background}">
-            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
-                <Label Text="Logs del desarrollador"
-                       Style="{StaticResource Body1Strong}" />
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="2">
+            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="1">
+                <Label Text="Logs"
+                       Style="{StaticResource Body1Strong}"
+                       FontSize="15"/>
                 <Label Text="{Binding Logs.Count, StringFormat='{0} entradas'}"
                        Style="{StaticResource Caption1}"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       FontSize="12" />
             </VerticalStackLayout>
             <Button Grid.Column="1"
                     Text="Limpiar"
-                    Style="{StaticResource DangerButton}"
-                    Clicked="OnLimpiarClicked"
-                    VerticalOptions="Center" />
+                    Style="{StaticResource CleanLogsButton}"
+                    Clicked="OnLimpiarClicked"/>
         </Grid>
+    </Shell.TitleView>
 
-        <BoxView Grid.Row="0" VerticalOptions="End" Style="{StaticResource Divider}" />
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Lista de logs -->
         <CollectionView Grid.Row="1"
@@ -53,16 +49,31 @@
             </CollectionView.EmptyView>
 
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                    <Grid Padding="16,6">
-                        <Grid.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnLogTapped" />
-                        </Grid.GestureRecognizers>
-                        <Label Text="{Binding .}"
-                               Style="{StaticResource Caption1}"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               FontFamily="OpenSansRegular"
-                               LineBreakMode="WordWrap" />
+                <DataTemplate x:DataType="x:String" >
+                    <Grid Padding="5,6"  ColumnDefinitions="*,Auto" >
+<Label Grid.Column="0"
+       Text="{Binding .}"
+       Style="{StaticResource Caption1}"
+       TextColor="{toolkit:AppThemeResource PrimaryText}"
+       FontFamily="OpenSansRegular"
+       LineBreakMode="WordWrap"
+       VerticalOptions="Center"
+       Margin="0,0,0,10"/>
+
+<Button Grid.Column="1"
+        Text="{x:Static f:FluentUI.copy_24_regular}"
+        FontFamily="{x:Static f:FluentUI.FontFamily}"
+        FontSize="18"
+        BackgroundColor="Transparent"
+        TextColor="{toolkit:AppThemeResource SecondaryText}"
+        Padding="6,0"
+        VerticalOptions="Center"
+        CommandParameter="{Binding .}"
+        Clicked="OnCopiarLogClicked"/>
+
+<BoxView Grid.Row="0"
+         VerticalOptions="End"
+         Style="{StaticResource Divider}" />
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
