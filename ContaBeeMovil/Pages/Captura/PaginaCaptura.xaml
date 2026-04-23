@@ -35,16 +35,16 @@
     </Shell.TitleView>
 
     <!-- Grid raíz: contenido + overlay de envío encima -->
-    <Grid>
+    <Grid Padding="0">
 
         <!-- ══════════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
              ══════════════════════════════════════════════════════════════════════ -->
-        <Grid RowDefinitions="Auto,*,Auto">
+        <Grid RowDefinitions="Auto,*,Auto" Padding="0">
 
             <!-- ── Zona de controles (scroll por si el teclado sube) ───────────── -->
             <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
-                <VerticalStackLayout Spacing="0" Padding="5,4,5,4">
+                <VerticalStackLayout Spacing="0" Padding="5,0,5,4">
 
                     <!-- 1. Barra RFC / CP -->
                     <views:RfcCpBarView Margin="-12,0" ConFondo="False" EnColumnas="True" Padding="5,0" />

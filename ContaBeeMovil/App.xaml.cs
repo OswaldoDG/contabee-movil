@@ -39,6 +39,7 @@ public partial class App : Application
         {
             await Task.Delay(800);
             DeepLinkHandler.NotifyAppReady();
+            SharedImageHandler.NotifyAppReady();
         };
 
         return window;

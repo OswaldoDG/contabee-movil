@@ -105,8 +105,43 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (_pendienteVerificarFotos)
         {
             _pendienteVerificarFotos = false;
-            _ = VerificarFotosGuardadasAsync();
+            _ = InicializarCapturasAsync();
         }
+    }
+
+    private async Task InicializarCapturasAsync()
+    {
+        await VerificarFotosGuardadasAsync();
+
+        var sharedFileName = SharedImageHandler.TakePendingSharedImage();
+        if (string.IsNullOrEmpty(sharedFileName)) return;
+
+        if (_capturas.Count > 0)
+        {
+            var mantener = await _servicioAlerta.MostrarAsync(
+                "Foto compartida",
+                $"Tienes {_capturas.Count} captura(s) guardada(s). ¿Deseas mantenerlas junto con la foto compartida?",
+                confirmarText: "Mantener",
+                cancelarText: "Eliminar");
+
+            if (!mantener)
+            {
+                foreach (var c in _capturas.ToList())
+                {
+                    try { File.Delete(c.Path); } catch { /* ignorar */ }
+                }
+                _capturas.Clear();
+
+                var restantes = (AppState.Instance.CapturasLote ?? [])
+                    .Where(c => c.TipoCaptura != TipoCaptura)
+                    .ToList();
+                AppState.Instance.CapturasLote = restantes.Count > 0 ? restantes : null;
+            }
+        }
+
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName };
+        _capturas.Add(captura);
+        AppState.Instance.CapturasLote = [.. _capturas];
     }
 
     private bool _pendienteVerificarFotos;

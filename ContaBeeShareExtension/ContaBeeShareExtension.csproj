@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <OutputType>Library</OutputType>
+    <IsAppExtension>true</IsAppExtension>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationId>mx.contabee.app.shareextension</ApplicationId>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <RootNamespace>ContaBeeShareExtension</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
+    <CodesignProvision>ContaBee ShareExtension Development</CodesignProvision>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <CodesignKey>Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)</CodesignKey>
+    <CodesignProvision>ContaBee ShareExtension AppStore</CodesignProvision>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+  </PropertyGroup>
+
+</Project>

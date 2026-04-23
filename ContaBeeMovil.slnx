@@ -3,4 +3,5 @@
   <Project Path="ContaBeeMovil/ContaBeeMovil.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
+  <Project Path="ContaBeeShareExtension/ContaBeeShareExtension.csproj" />
 </Solution>
