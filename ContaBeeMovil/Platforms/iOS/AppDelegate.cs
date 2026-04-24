@@ -1,7 +1,6 @@
 ﻿using ContaBeeMovil.Helpers;
 using Foundation;
 using UIKit;
-using System.IO;
 
 namespace ContaBeeMovil;
 
@@ -9,7 +8,8 @@ namespace ContaBeeMovil;
 public class AppDelegate : MauiUIApplicationDelegate
 {
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-    // Captura el deep link cuando la app estaba CERRADA
+
+    // App cerrada → abierta vía URL scheme (cold start)
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
     {
         var result = base.FinishedLaunching(application, launchOptions);
@@ -17,62 +17,35 @@ public class AppDelegate : MauiUIApplicationDelegate
         if (launchOptions != null)
         {
             var urlKey = UIApplication.LaunchOptionsUrlKey;
-            if (launchOptions.TryGetValue(urlKey, out var urlValue))
+            if (launchOptions.TryGetValue(urlKey, out var urlValue) && urlValue is NSUrl launchUrl)
             {
-                var url = urlValue as NSUrl;
-                if (url != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"🍎 Deep link (app cerrada): {url.AbsoluteString}");
-                    DeepLinkHandler.HandleDeepLink(url.AbsoluteString);
-                }
+                var uri = launchUrl.AbsoluteString;
+                System.Diagnostics.Debug.WriteLine($"🍎 FinishedLaunching URL: {uri}");
+
+                if (uri.StartsWith("contabee://shared-image"))
+                    SharedImageHandler.NotifySharedImageScheme();
+                else
+                    DeepLinkHandler.HandleDeepLink(uri);
             }
         }
 
         return result;
     }
 
-    // Captura el deep link cuando la app estaba ABIERTA
+    // App en background → foreground vía URL scheme
     public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
     {
-        System.Diagnostics.Debug.WriteLine($"🍎 OpenUrl: {url.AbsoluteString}");
+        var uri = url.AbsoluteString;
+        System.Diagnostics.Debug.WriteLine($"🍎 OpenUrl: {uri}");
 
-        if (url.AbsoluteString.StartsWith("contabee://shared-image"))
+        if (uri.StartsWith("contabee://shared-image"))
         {
-            HandleSharedImageUrl();
+            // Solo señalar — el acceso al App Group ocurre diferido en SharedImageHandler
+            SharedImageHandler.NotifySharedImageScheme();
             return true;
         }
 
-        DeepLinkHandler.HandleDeepLink(url.AbsoluteString);
+        DeepLinkHandler.HandleDeepLink(uri);
         return true;
-    }
-
-    private static void HandleSharedImageUrl()
-    {
-        try
-        {
-            const string appGroupId = "group.mx.contabee.app";
-            var defaults = new NSUserDefaults(appGroupId, NSUserDefaultsType.SuiteName);
-            var fileName = defaults.StringForKey("pendingSharedImage");
-
-            if (string.IsNullOrEmpty(fileName)) return;
-
-            var groupContainer = NSFileManager.DefaultManager.GetContainerUrl(appGroupId);
-            if (groupContainer == null) return;
-
-            var srcPath = Path.Combine(groupContainer.Path, fileName);
-            var destPath = Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, fileName);
-
-            if (File.Exists(srcPath))
-            {
-                File.Copy(srcPath, destPath, overwrite: true);
-                defaults.RemoveObject("pendingSharedImage");
-                System.Diagnostics.Debug.WriteLine($"📷 iOS share: imagen copiada a {destPath}");
-                SharedImageHandler.HandleSharedImage(fileName);
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"❌ iOS share: error — {ex.Message}");
-        }
     }
 }
