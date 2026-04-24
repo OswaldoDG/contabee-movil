@@ -1,5 +1,6 @@
 using Foundation;
 using UIKit;
+using UserNotifications;
 
 namespace ContaBeeShareExtension;
 
@@ -126,26 +127,39 @@ public class ShareViewController : UIViewController
                     defaults.SetString(fileName, "pendingSharedImage");
                     defaults.Synchronize();
                     AppendLog("NSUserDefaults saved");
+                    ScheduleNotification();
 
                     InvokeOnMainThread(() =>
                     {
-                        // Intentar abrir la app principal. En iOS 17+ esto puede devolver false
-                        // para custom URL schemes invocados desde una extensión de otra app (Photos).
-                        // Completamos la extensión independientemente del resultado.
+                        var url = new NSUrl(AppUrlScheme);
+
+                        // UIApplication.SharedApplication en el contexto de una Share Extension
+                        // tiene acceso al UIApplication del host (Photos), que sí puede abrir
+                        // URLs hacia otras apps — igual que WhatsApp/Gmail.
+                        // ExtensionContext.OpenUrl devuelve false en iOS 17+ para custom schemes.
                         try
                         {
-                            var url = new NSUrl(AppUrlScheme);
-                            ExtensionContext?.OpenUrl(url, (success) =>
-                            {
-                                AppendLog($"OpenUrl success={success}");
-                                // El completion handler llega en hilo de fondo — volver al main thread
-                                InvokeOnMainThread(CompleteExtension);
-                            });
+                            UIApplication.SharedApplication.OpenUrl(
+                                url,
+                                new NSDictionary<NSString, NSObject>(),
+                                (success) =>
+                                {
+                                    AppendLog($"UIApp.OpenUrl success={success}");
+                                    InvokeOnMainThread(CompleteExtension);
+                                });
                         }
                         catch (Exception ex)
                         {
-                            AppendLog($"OpenUrl ex={ex.Message}");
-                            CompleteExtension();
+                            AppendLog($"UIApp.OpenUrl no disponible: {ex.Message}");
+                            // Fallback: ExtensionContext (puede devolver false pero intentamos)
+                            try
+                            {
+                                ExtensionContext?.OpenUrl(url, (_) => InvokeOnMainThread(CompleteExtension));
+                            }
+                            catch
+                            {
+                                CompleteExtension();
+                            }
                         }
                     });
                 }
@@ -160,6 +174,28 @@ public class ShareViewController : UIViewController
         {
             AppendLog($"CANCEL: LoadDataRepresentation threw={ex.Message}");
             Cancel();
+        }
+    }
+
+    private void ScheduleNotification()
+    {
+        try
+        {
+            var content = new UNMutableNotificationContent
+            {
+                Title = "ContaBee",
+                Body = "Tu foto está lista. Toca para procesarla.",
+                Sound = UNNotificationSound.Default
+            };
+            var trigger = UNTimeIntervalNotificationTrigger.CreateTrigger(1, repeats: false);
+            var request = UNNotificationRequest.FromIdentifier(
+                $"shareext_{DateTime.Now:yyyyMMddHHmmss}", content, trigger);
+            UNUserNotificationCenter.Current.AddNotificationRequest(request, (error) =>
+                AppendLog(error == null ? "Notification ok" : $"Notification error: {error.LocalizedDescription}"));
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"Notification ex: {ex.Message}");
         }
     }
 

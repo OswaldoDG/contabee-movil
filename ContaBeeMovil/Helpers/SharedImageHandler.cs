@@ -6,6 +6,7 @@ public static class SharedImageHandler
 {
     private static string? _pendingFileName;
     private static bool _appReady;
+    private static bool _processingAppGroup;
 
     public static void HandleSharedImage(string fileName)
     {
@@ -75,12 +76,15 @@ public static class SharedImageHandler
 
     private static void TriggerIosSchemeProcessing()
     {
-        // Diferir al hilo principal después de que OpenUrl termine y MAUI estabilice
+        // Evitar doble navegación cuando AppDelegate.OpenUrl y OnResume se disparan juntos
+        if (_processingAppGroup) return;
+        _processingAppGroup = true;
+
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("📷 SharedImage: procesando URL scheme en hilo principal");
+                System.Diagnostics.Debug.WriteLine("📷 SharedImage: procesando App Group");
                 await Task.Run(ReadAndCopyFromAppGroupAsync);
                 if (_pendingFileName != null)
                 {
@@ -94,7 +98,11 @@ public static class SharedImageHandler
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error procesando URL scheme — {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error procesando App Group — {ex.Message}");
+            }
+            finally
+            {
+                _processingAppGroup = false;
             }
         });
     }

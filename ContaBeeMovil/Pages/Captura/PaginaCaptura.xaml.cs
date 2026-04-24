@@ -54,8 +54,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         ActualizarUsoCfdi();
 
         TomarFotoCommand        = new Command(async () => await TomarFotoAsync());
-        EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
-        VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
+VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
         EnviarCommand           = new Command(async () => await EnviarAsync());
         CancelarCommand         = new Command(async () => await CancelarAsync());
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
@@ -100,6 +99,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
         _ = CargarTarjetasYRefrescarAsync();
 
         if (_pendienteVerificarFotos)
@@ -116,32 +116,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         var sharedFileName = SharedImageHandler.TakePendingSharedImage();
         if (string.IsNullOrEmpty(sharedFileName)) return;
 
-        if (_capturas.Count > 0)
-        {
-            var mantener = await _servicioAlerta.MostrarAsync(
-                "Foto compartida",
-                $"Tienes {_capturas.Count} captura(s) guardada(s). ¿Deseas mantenerlas junto con la foto compartida?",
-                confirmarText: "Mantener",
-                cancelarText: "Eliminar");
-
-            if (!mantener)
-            {
-                foreach (var c in _capturas.ToList())
-                {
-                    try { File.Delete(c.Path); } catch { /* ignorar */ }
-                }
-                _capturas.Clear();
-
-                var restantes = (AppState.Instance.CapturasLote ?? [])
-                    .Where(c => c.TipoCaptura != TipoCaptura)
-                    .ToList();
-                AppState.Instance.CapturasLote = restantes.Count > 0 ? restantes : null;
-            }
-        }
-
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName };
         _capturas.Add(captura);
         AppState.Instance.CapturasLote = [.. _capturas];
+        OnPropertyChanged(nameof(TieneCapturas));
     }
 
     private bool _pendienteVerificarFotos;
@@ -278,6 +256,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Capturas ─────────────────────────────────────────────────────────────
 
     private readonly ObservableCollection<CapturaLote> _capturas;
+
     public ObservableCollection<CapturaLote> Capturas => _capturas;
 
     public bool TieneCapturas    => _capturas.Count > 0;
@@ -350,8 +329,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Comandos ─────────────────────────────────────────────────────────────
 
     public ICommand TomarFotoCommand        { get; }
-    public ICommand EliminarCapturaCommand  { get; }
-    public ICommand VerImagenCommand        { get; }
+public ICommand VerImagenCommand        { get; }
     public ICommand EnviarCommand           { get; }
     public ICommand CancelarCommand         { get; }
     public ICommand IrAgregarTarjetaCommand { get; }
@@ -535,21 +513,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
     }
 
-    private async Task EliminarCapturaAsync(CapturaLote captura)
-    {
-        bool confirmar = await _servicioAlerta.MostrarAsync(
-            "Eliminar captura",
-            "¿Deseas eliminar esta captura del lote?",
-            confirmarText: "Eliminar",
-            cancelarText: "Cancelar");
-
-        if (!confirmar) return;
-
-        _capturas.Remove(captura);
-        AppState.Instance.CapturasLote = [.. _capturas];
-    }
-
-    private async Task VerImagenAsync(CapturaLote captura)
+private async Task VerImagenAsync(CapturaLote captura)
         => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
                new Dictionary<string, object> { ["path"] = captura.Path });
 
