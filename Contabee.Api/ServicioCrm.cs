@@ -153,27 +153,31 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
 
     }
 
-    public async Task<RespuestaPayload<RespuestaSolicitudLicenciamientoDemo>> SolicitarLicenciamientoDemo(string rfc, string dispositivoId,Guid? cfid)
+    public async Task<RespuestaPayload<RespuestaSolicitudLicenciamientoDemo>> SolicitarLicenciamientoDemo(string rfc, string dispositivoId, Guid? cfid, string cupon)
     {
         RespuestaPayload<RespuestaSolicitudLicenciamientoDemo> r = new();
 
         try
         {
-
-            var res = await servicioCrm.SolicitarAsync(rfc,dispositivoId,cfid);
-            if (res != null)
-            {
-                r.Payload = res;
-            }
+            var res = await servicioCrm.SolicitarAsync(rfc, dispositivoId, cfid, cupon);
+            if (res != null) r.Payload = res;
             r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen = "ServicioCrm-SolicitarLicenciamientoDemo"
+            };
         }
         catch (Exception ex)
         {
-            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicitar Licencia Demo");
+            r.Error = ex.ErrorGenerico("ServicioCrm-SolicitarLicenciamientoDemo");
         }
 
         return r;
-
     }
 
     public async Task<RespuestaPayload<LicenciamientoCuentaFiscal>> ActivarLicenciamientoDemo(string token, string dispositivoId, Guid? cfid)
@@ -197,5 +201,27 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
 
         return r;
 
+    }
+
+    public async Task<RespuestaPayload<List<LicenciamientoGratuito>>> GetLicenciamientosFactibles(string rfc, string dispositivoId, Guid? cfid)
+    {
+        RespuestaPayload<List<LicenciamientoGratuito>> r = new();
+        try
+        {
+            var res = await servicioCrm.FactibleAsync(rfc, dispositivoId, cfid);
+            r.Payload = res?.ToList() ?? new List<LicenciamientoGratuito>();
+            r.Ok = true;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 404)
+        {
+            r.Payload = new List<LicenciamientoGratuito>();
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Get Licenciamientos Factibles");
+        }
+
+        return r;
     }
 }

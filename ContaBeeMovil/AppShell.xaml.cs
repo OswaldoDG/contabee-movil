@@ -12,6 +12,7 @@ using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Font = Microsoft.Maui.Font;
+using ContaBee.Pages.Cupones;
 
 namespace ContaBeeMovil
 {
@@ -237,6 +238,11 @@ namespace ContaBeeMovil
             FlyoutIsPresented = false;
             await GoToAsync(nameof(LogsPage));
         }
+        private async void OnCuponesClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            await Shell.Current.GoToAsync(nameof(PaginaCupones));
+        }
 
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
@@ -294,6 +300,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
+            Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
         }
     }
 }

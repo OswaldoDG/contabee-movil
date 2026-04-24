@@ -35,7 +35,7 @@ public partial class ReclamarDemoPage : ContentPage
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
         // ── Paso 1: Solicitar token ──────────────────────────────────────────
-        var solicitud = await _servicioCrm.SolicitarLicenciamientoDemo(rfc, dispositivoId, cfid);
+        var solicitud = await _servicioCrm.SolicitarLicenciamientoDemo(rfc, dispositivoId, cfid, null);
 
         if (!solicitud.Ok)
         {
