@@ -19,4 +19,9 @@ public class CapturaLote
     public string Path => string.IsNullOrEmpty(FileName)
         ? string.Empty
         : System.IO.Path.Combine(FileSystem.AppDataDirectory, FileName);
+
+    /// <summary>
+    /// Indica que la imagen fue recibida desde otra app (Share Extension).
+    /// </summary>
+    public bool EsCompartida { get; set; } = false;
 }

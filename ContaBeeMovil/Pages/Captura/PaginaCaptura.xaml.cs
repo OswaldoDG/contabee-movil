@@ -54,7 +54,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         ActualizarUsoCfdi();
 
         TomarFotoCommand        = new Command(async () => await TomarFotoAsync());
-VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
+        VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
+        EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
         EnviarCommand           = new Command(async () => await EnviarAsync());
         CancelarCommand         = new Command(async () => await CancelarAsync());
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
@@ -118,7 +119,7 @@ VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsy
         var sharedFileName = SharedImageHandler.TakePendingSharedImage();
         if (string.IsNullOrEmpty(sharedFileName)) return;
 
-        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName };
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
         _capturas.Add(captura);
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
@@ -273,8 +274,15 @@ VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsy
     public double CapturaItemWidth
     {
         get => _capturaItemWidth;
-        private set { _capturaItemWidth = value; OnPropertyChanged(); }
+        private set
+        {
+            _capturaItemWidth = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CapturaItemHeight));
+        }
     }
+
+    public double CapturaItemHeight => _capturaItemWidth * (4.0 / 3.0);
 
     protected override void OnSizeAllocated(double width, double height)
     {
@@ -331,7 +339,8 @@ VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsy
     // ── Comandos ─────────────────────────────────────────────────────────────
 
     public ICommand TomarFotoCommand        { get; }
-public ICommand VerImagenCommand        { get; }
+    public ICommand VerImagenCommand        { get; }
+    public ICommand EliminarCapturaCommand  { get; }
     public ICommand EnviarCommand           { get; }
     public ICommand CancelarCommand         { get; }
     public ICommand IrAgregarTarjetaCommand { get; }
@@ -515,9 +524,29 @@ public ICommand VerImagenCommand        { get; }
         _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
     }
 
-private async Task VerImagenAsync(CapturaLote captura)
+    private async Task VerImagenAsync(CapturaLote captura)
         => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
                new Dictionary<string, object> { ["path"] = captura.Path });
+
+    private async Task EliminarCapturaAsync(CapturaLote captura)
+    {
+        bool confirmar = await _servicioAlerta.MostrarAsync(
+            "Eliminar imagen",
+            "¿Estás seguro de que deseas eliminar esta imagen?",
+            confirmarText: "Eliminar",
+            cancelarText: "Cancelar");
+
+        if (!confirmar) return;
+
+        _capturas.Remove(captura);
+        AppState.Instance.CapturasLote = _capturas.Count > 0 ? [.. _capturas] : null;
+
+        if (!captura.EsCompartida && File.Exists(captura.Path))
+        {
+            try { File.Delete(captura.Path); }
+            catch (Exception ex) { _logs.Log($"[PaginaCaptura] EliminarCaptura — error al borrar archivo: {ex.Message}"); }
+        }
+    }
 
     private async Task EnviarAsync()
     {
