@@ -29,6 +29,7 @@ using ZXing.Net.Maui.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
+using ContaBee.Pages.Cupones;
 
 
 namespace ContaBeeMovil
@@ -121,13 +122,13 @@ namespace ContaBeeMovil
 
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
-
+            builder.Services.AddTransient<PaginaCuponesViewModel>();
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
             builder.Services.AddTransient<MainTabbedPage>();
-
+            builder.Services.AddTransient<PaginaCupones>();
             builder.Services.AddTransient<RegistroViewModel>();
             builder.Services.AddTransient<PaginaRegistro>();
 

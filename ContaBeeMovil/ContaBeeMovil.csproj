@@ -151,6 +151,9 @@
     <MauiXaml Update="Pages\Camara\TomarFotoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Pages\Cupones\PaginaCupones.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
     <MauiXaml Update="Pages\Perfil\ManualRegistroPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
