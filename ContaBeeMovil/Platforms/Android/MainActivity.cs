@@ -6,7 +6,7 @@ using ContaBeeMovil.Helpers;
 
 namespace ContaBeeMovil
 {
-    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop,
+    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTask,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
                                ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     [IntentFilter(new[] { Intent.ActionView },

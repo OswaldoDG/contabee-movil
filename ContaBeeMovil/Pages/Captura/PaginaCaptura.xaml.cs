@@ -44,7 +44,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _logs              = logs;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
-        _capturas  = new ObservableCollection<CapturaLote>(AppState.Instance.CapturasLote ?? []);
+        _capturas  = [];
         _capturas.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(TieneCapturas));
@@ -87,12 +87,13 @@ VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsy
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("tipo", out var t) && t is TipoProcesoCaptura tipo)
+        if (query.TryGetValue("tipo", out var t) && t is TipoProcesoCaptura tipo && tipo != _tipoCaptura)
+        {
             TipoCaptura = tipo;
+            _capturas.Clear();
+        }
 
-        _capturas.Clear();
         _pendienteVerificarFotos = true;
-
         ActualizarUsoCfdi();
     }
 
@@ -111,7 +112,8 @@ VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsy
 
     private async Task InicializarCapturasAsync()
     {
-        await VerificarFotosGuardadasAsync();
+        if (!_capturas.Any(c => c.TipoCaptura == TipoCaptura))
+            await VerificarFotosGuardadasAsync();
 
         var sharedFileName = SharedImageHandler.TakePendingSharedImage();
         if (string.IsNullOrEmpty(sharedFileName)) return;
