@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="ContaBee.Pages.Cupones.PaginaCupones"
+    Title="Cupones">
+
+    <ContentPage.Content>
+        <Grid RowDefinitions="Auto,*" Padding="16">
+
+            <Label
+                Text="Cupones disponibles"
+                FontSize="22"
+                FontAttributes="Bold"
+                Margin="0,0,0,12" />
+
+            <CollectionView
+                Grid.Row="1"
+                ItemsSource="{Binding Cupones}"
+                SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="8" Padding="20">
+                        <Label
+                            Text="No hay cupones disponibles"
+                            HorizontalOptions="Center"
+                            FontSize="16"
+                            TextColor="Gray" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            StrokeThickness="1"
+                            Stroke="#D9D9D9"
+                            StrokeShape="RoundRectangle 12"
+                            BackgroundColor="White"
+                            Margin="0,0,0,12"
+                            Padding="14">
+
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+                                  ColumnDefinitions="*,Auto"
+                                  RowSpacing="8">
+
+                                <Label
+                                    Grid.Row="0"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Tipo}"
+                                    FontSize="18"
+                                    FontAttributes="Bold" />
+
+                                <Label
+                                    Grid.Row="1"
+                                    Text="{Binding Cantidad, StringFormat='Cantidad: {0}'}"
+                                    FontSize="14" />
+
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.ColumnSpan="2"
+                                    Text="{Binding Cupon, TargetNullValue='Sin cupón'}"
+                                    FontSize="14"
+                                    TextColor="#444" />
+
+                                <Button
+                                    Grid.Row="3"
+                                    Grid.Column="1"
+                                    Text="Aplicar"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AplicarCuponCommand}"
+                                    CommandParameter="{Binding .}"
+                                    CornerRadius="8"
+                                    Padding="14,8" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </ContentPage.Content>
+</ContentPage>

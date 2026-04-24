@@ -848,10 +848,33 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
-          },
-          "409": {
-            "description": "Conflict"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoGratuito"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoGratuito"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.LicenciamientoGratuito"
+                  }
+                }
+              }
+            }
           },
           "403": {
             "description": "Forbidden"
@@ -890,6 +913,13 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "cupon",
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -2936,8 +2966,7 @@
             "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
           },
           "cuentaUsuario": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",
-            "nullable": true
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
           },
           "direcciones": {
             "type": "array",
@@ -3374,6 +3403,23 @@
         },
         "additionalProperties": false
       },
+      "contabee.model.crm.licenciamiento.LicenciamientoGratuito": {
+        "type": "object",
+        "properties": {
+          "cantidad": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.TipoLicenciamientoGratuito"
+          },
+          "cupon": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "contabee.model.crm.licenciamiento.RespuestaSolicitudLicenciamientoDemo": {
         "required": [
           "token"
@@ -3386,6 +3432,13 @@
           }
         },
         "additionalProperties": false
+      },
+      "contabee.model.crm.licenciamiento.TipoLicenciamientoGratuito": {
+        "enum": [
+          "Demo",
+          "Cupon"
+        ],
+        "type": "string"
       },
       "contabee.model.crm.organizacion.dtos.DtoActualizaCentroCostos": {
         "type": "object",
