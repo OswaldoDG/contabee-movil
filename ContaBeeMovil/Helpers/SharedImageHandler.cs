@@ -5,6 +5,8 @@ namespace ContaBeeMovil.Helpers;
 
 public static class SharedImageHandler
 {
+    public static event Action<string>? ImagenCompartidaRecibida;
+
     private static string? _pendingFileName;
     private static bool _appReady;
     private static bool _processingAppGroup;
@@ -133,6 +135,15 @@ public static class SharedImageHandler
                 if (!tieneSesion)
                 {
                     Logs?.Log("[SharedImage] sin sesión activa — se omite navegación");
+                    return;
+                }
+
+                // Si PaginaCaptura ya está visible y suscrita, entregar la imagen sin navegar
+                if (ImagenCompartidaRecibida != null)
+                {
+                    var fileName = TakePendingSharedImage();
+                    Logs?.Log($"[SharedImage] entregando a PaginaCaptura activa — {fileName}");
+                    ImagenCompartidaRecibida(fileName!);
                     return;
                 }
 

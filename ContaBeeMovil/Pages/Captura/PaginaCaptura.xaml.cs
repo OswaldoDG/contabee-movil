@@ -102,6 +102,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         base.OnAppearing();
 
+        SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
+
         _ = CargarTarjetasYRefrescarAsync();
 
         if (_pendienteVerificarFotos)
@@ -123,6 +125,22 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _capturas.Add(captura);
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
+        await _toastService.ShowAsync("Imagen agregada correctamente.", ToastType.Success, position: ToastPosition.Bottom);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
+    }
+
+    private void OnImagenCompartidaRecibida(string fileName)
+    {
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
+        _capturas.Add(captura);
+        AppState.Instance.CapturasLote = [.. _capturas];
+        OnPropertyChanged(nameof(TieneCapturas));
+        _ = _toastService.ShowAsync("Imagen agregada correctamente.", ToastType.Success, position: ToastPosition.Bottom);
     }
 
     private bool _pendienteVerificarFotos;
