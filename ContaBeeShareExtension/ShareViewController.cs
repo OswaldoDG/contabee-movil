@@ -12,38 +12,10 @@ public class ShareViewController : UIViewController
     private const string UtiImage = "public.image";
     private const string UtiPng = "public.png";
     private const string UtiJpeg = "public.jpeg";
-    private const string LogFile = "shareext_log.txt";
-
-    private string? _logPath;
-
-    private void InitLog()
-    {
-        try
-        {
-            var container = NSFileManager.DefaultManager.GetContainerUrl(AppGroupId);
-            if (container?.Path is not string p) return;
-            _logPath = System.IO.Path.Combine(p, LogFile);
-            if (System.IO.File.Exists(_logPath)) System.IO.File.Delete(_logPath);
-            AppendLog("--- extension start ---");
-        }
-        catch { }
-    }
-
-    private void AppendLog(string msg)
-    {
-        try
-        {
-            if (_logPath == null) return;
-            System.IO.File.AppendAllText(_logPath, $"{DateTime.Now:HH:mm:ss.fff} {msg}\n");
-        }
-        catch { }
-    }
 
     public override void ViewDidLoad()
     {
         base.ViewDidLoad();
-        InitLog();
-        AppendLog("ViewDidLoad");
         ProcessSharedImage();
     }
 
@@ -52,41 +24,31 @@ public class ShareViewController : UIViewController
         var inputItems = ExtensionContext?.InputItems;
         if (inputItems == null || inputItems.Length == 0)
         {
-            AppendLog("CANCEL: no inputItems");
             Cancel(); return;
         }
 
         var attachments = inputItems[0].Attachments;
         if (attachments == null || attachments.Length == 0)
         {
-            AppendLog("CANCEL: no attachments");
             Cancel(); return;
         }
-
-        AppendLog($"attachments={attachments.Length}");
-        foreach (var a in attachments)
-            AppendLog($"  types: {string.Join(", ", a.RegisteredTypeIdentifiers ?? [])}");
 
         var imageProvider = attachments.FirstOrDefault(p => p.HasItemConformingTo(UtiImage));
         if (imageProvider == null)
         {
-            AppendLog("CANCEL: no image attachment");
             Cancel(); return;
         }
 
         var hasPng  = imageProvider.HasItemConformingTo(UtiPng);
         var hasJpeg = imageProvider.HasItemConformingTo(UtiJpeg);
-        AppendLog($"hasPng={hasPng} hasJpeg={hasJpeg}");
 
         var typeIdentifier = hasPng ? UtiPng : hasJpeg ? UtiJpeg : UtiImage;
         var ext      = typeIdentifier == UtiPng ? "png" : "jpg";
         var fileName = $"shared_{DateTime.Now:yyyyMMddHHmmss}.{ext}";
-        AppendLog($"typeId={typeIdentifier} fileName={fileName}");
 
         var groupContainer = NSFileManager.DefaultManager.GetContainerUrl(AppGroupId);
         if (groupContainer == null)
         {
-            AppendLog("CANCEL: groupContainer null");
             Cancel(); return;
         }
 
@@ -94,39 +56,30 @@ public class ShareViewController : UIViewController
         var destPath = destUrl.Path;
         if (destPath == null)
         {
-            AppendLog("CANCEL: destPath null");
             Cancel(); return;
         }
-        AppendLog($"dest={destPath}");
 
-        AppendLog("calling LoadDataRepresentation...");
         try
         {
             imageProvider.LoadDataRepresentation(typeIdentifier, (data, error) =>
             {
-                AppendLog($"callback: data={data?.Length.ToString() ?? "null"} error={error?.LocalizedDescription ?? "null"}");
-
                 if (error != null || data == null)
                 {
-                    AppendLog($"CANCEL: load failed error={error?.LocalizedDescription}");
                     InvokeOnMainThread(Cancel); return;
                 }
 
                 try
                 {
                     var written = data.Save(destPath, atomically: true);
-                    AppendLog($"Save={written}");
 
                     if (!written)
                     {
-                        AppendLog("CANCEL: Save=false");
                         InvokeOnMainThread(Cancel); return;
                     }
 
                     var defaults = new NSUserDefaults(AppGroupId, NSUserDefaultsType.SuiteName);
                     defaults.SetString(fileName, "pendingSharedImage");
                     defaults.Synchronize();
-                    AppendLog("NSUserDefaults saved");
                     ScheduleNotification();
 
                     InvokeOnMainThread(() =>
@@ -142,15 +95,10 @@ public class ShareViewController : UIViewController
                             UIApplication.SharedApplication.OpenUrl(
                                 url,
                                 new NSDictionary<NSString, NSObject>(),
-                                (success) =>
-                                {
-                                    AppendLog($"UIApp.OpenUrl success={success}");
-                                    InvokeOnMainThread(CompleteExtension);
-                                });
+                                (_) => InvokeOnMainThread(CompleteExtension));
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            AppendLog($"UIApp.OpenUrl no disponible: {ex.Message}");
                             // Fallback: ExtensionContext (puede devolver false pero intentamos)
                             try
                             {
@@ -163,16 +111,14 @@ public class ShareViewController : UIViewController
                         }
                     });
                 }
-                catch (Exception ex)
+                catch
                 {
-                    AppendLog($"CANCEL: save ex={ex.Message}");
                     InvokeOnMainThread(Cancel);
                 }
             });
         }
-        catch (Exception ex)
+        catch
         {
-            AppendLog($"CANCEL: LoadDataRepresentation threw={ex.Message}");
             Cancel();
         }
     }
@@ -190,13 +136,9 @@ public class ShareViewController : UIViewController
             var trigger = UNTimeIntervalNotificationTrigger.CreateTrigger(1, repeats: false);
             var request = UNNotificationRequest.FromIdentifier(
                 $"shareext_{DateTime.Now:yyyyMMddHHmmss}", content, trigger);
-            UNUserNotificationCenter.Current.AddNotificationRequest(request, (error) =>
-                AppendLog(error == null ? "Notification ok" : $"Notification error: {error.LocalizedDescription}"));
+            UNUserNotificationCenter.Current.AddNotificationRequest(request, (_) => { });
         }
-        catch (Exception ex)
-        {
-            AppendLog($"Notification ex: {ex.Message}");
-        }
+        catch { }
     }
 
     private void CompleteExtension()
@@ -204,18 +146,15 @@ public class ShareViewController : UIViewController
         try
         {
             ExtensionContext?.CompleteRequest([], null);
-            AppendLog("DONE");
         }
-        catch (Exception ex)
+        catch
         {
-            AppendLog($"CompleteRequest ex={ex.Message}");
             Cancel();
         }
     }
 
     private void Cancel()
     {
-        AppendLog("CancelRequest");
         ExtensionContext?.CancelRequest(new NSError(new NSString("ContaBeeShareExtension"), 0));
     }
 }

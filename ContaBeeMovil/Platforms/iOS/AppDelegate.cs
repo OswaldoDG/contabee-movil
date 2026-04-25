@@ -19,7 +19,7 @@ public class AppDelegate : MauiUIApplicationDelegate
         // pueda enviar la notificación "foto lista" cuando openURL falla en iOS 17+
         UNUserNotificationCenter.Current.RequestAuthorization(
             UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound | UNAuthorizationOptions.Badge,
-            (granted, _) => System.Diagnostics.Debug.WriteLine($"🔔 Notificaciones: {granted}"));
+            (_, _) => { });
 
         if (launchOptions != null)
         {
@@ -27,7 +27,6 @@ public class AppDelegate : MauiUIApplicationDelegate
             if (launchOptions.TryGetValue(urlKey, out var urlValue) && urlValue is NSUrl launchUrl)
             {
                 var uri = launchUrl.AbsoluteString;
-                System.Diagnostics.Debug.WriteLine($"🍎 FinishedLaunching URL: {uri}");
 
                 if (uri.StartsWith("contabee://shared-image"))
                     SharedImageHandler.NotifySharedImageScheme();
@@ -43,7 +42,6 @@ public class AppDelegate : MauiUIApplicationDelegate
     public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
     {
         var uri = url.AbsoluteString;
-        System.Diagnostics.Debug.WriteLine($"🍎 OpenUrl: {uri}");
 
         if (uri.StartsWith("contabee://shared-image"))
         {

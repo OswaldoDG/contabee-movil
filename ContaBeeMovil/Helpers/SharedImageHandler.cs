@@ -1,4 +1,5 @@
 using Contabee.Api.Transcript;
+using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil.Helpers;
 
@@ -8,9 +9,11 @@ public static class SharedImageHandler
     private static bool _appReady;
     private static bool _processingAppGroup;
 
+    private static IServicioLogs? Logs => App.Services?.GetService<IServicioLogs>();
+
     public static void HandleSharedImage(string fileName)
     {
-        System.Diagnostics.Debug.WriteLine($"📷 SharedImage: imagen recibida = {fileName}");
+        Logs?.Log($"[SharedImage] imagen recibida (Android) — {fileName}");
         _pendingFileName = fileName;
         if (_appReady)
             ProcessPendingImage();
@@ -20,7 +23,7 @@ public static class SharedImageHandler
     // No accede al App Group aquí — solo señala y delega a ProcessIosScheme cuando la app esté lista
     public static void NotifySharedImageScheme()
     {
-        System.Diagnostics.Debug.WriteLine("📷 SharedImage: URL scheme recibida");
+        Logs?.Log("[SharedImage] URL scheme recibida (iOS)");
         if (_appReady)
             TriggerIosSchemeProcessing();
         // Si la app no está lista, NotifyAppReady llamará TriggerIosSchemeProcessing de todas formas
@@ -28,9 +31,8 @@ public static class SharedImageHandler
 
     public static void NotifyAppReady()
     {
-        System.Diagnostics.Debug.WriteLine("✅ SharedImage: app lista");
+        Logs?.Log("[SharedImage] app lista");
         _appReady = true;
-        ReadExtensionDiagLog();
         if (_pendingFileName != null)
         {
             // Android ya entregó el archivo directamente
@@ -42,29 +44,6 @@ public static class SharedImageHandler
             // como apertura manual cuando openURL falló desde la extensión
             TriggerIosSchemeProcessing();
         }
-    }
-
-    // Lee y vuelca el log de diagnóstico que escribe ShareViewController en el App Group.
-    // Aparece en Console vía Debug.WriteLine del proceso principal (que sí va a NSLog en MAUI).
-    private static void ReadExtensionDiagLog()
-    {
-#if IOS || MACCATALYST
-        try
-        {
-            const string appGroupId = "group.mx.contabee.app";
-            var container = Foundation.NSFileManager.DefaultManager.GetContainerUrl(appGroupId);
-            if (container?.Path is not string p) return;
-            var logPath = System.IO.Path.Combine(p, "shareext_log.txt");
-            if (!System.IO.File.Exists(logPath)) return;
-            var content = System.IO.File.ReadAllText(logPath);
-            System.IO.File.Delete(logPath);
-            System.Diagnostics.Debug.WriteLine($"📋 ShareExt diag log:\n{content}");
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error leyendo diag log — {ex.Message}");
-        }
-#endif
     }
 
     public static string? TakePendingSharedImage()
@@ -84,21 +63,21 @@ public static class SharedImageHandler
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("📷 SharedImage: procesando App Group");
+                Logs?.Log("[SharedImage] leyendo App Group...");
                 await Task.Run(ReadAndCopyFromAppGroupAsync);
                 if (_pendingFileName != null)
                 {
-                    System.Diagnostics.Debug.WriteLine($"📷 SharedImage: archivo listo: {_pendingFileName}");
+                    Logs?.Log($"[SharedImage] archivo listo — {_pendingFileName}");
                     ProcessPendingImage();
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("⚠️ SharedImage: no se encontró archivo en App Group");
+                    Logs?.Log("[SharedImage] no se encontró archivo en App Group");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error procesando App Group — {ex.Message}");
+                Logs?.Log($"[SharedImage] error procesando App Group — {ex.Message}");
             }
             finally
             {
@@ -116,29 +95,25 @@ public static class SharedImageHandler
             const string appGroupId = "group.mx.contabee.app";
             var defaults = new Foundation.NSUserDefaults(appGroupId, Foundation.NSUserDefaultsType.SuiteName);
             var fileName = defaults.StringForKey("pendingSharedImage");
-            System.Diagnostics.Debug.WriteLine($"📷 SharedImage: NSUserDefaults fileName = '{fileName}'");
 
             if (string.IsNullOrEmpty(fileName)) return;
 
             var groupContainer = Foundation.NSFileManager.DefaultManager.GetContainerUrl(appGroupId);
-            System.Diagnostics.Debug.WriteLine($"📷 SharedImage: groupContainer = {groupContainer?.Path}");
             if (groupContainer?.Path is not { } containerPath) return;
 
             var srcPath = System.IO.Path.Combine(containerPath, fileName);
             var destPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, fileName);
 
-            System.Diagnostics.Debug.WriteLine($"📷 SharedImage: src={srcPath} existe={System.IO.File.Exists(srcPath)}");
-
             if (!System.IO.File.Exists(srcPath)) return;
 
             System.IO.File.Copy(srcPath, destPath, overwrite: true);
             defaults.RemoveObject("pendingSharedImage");
-            System.Diagnostics.Debug.WriteLine($"📷 SharedImage: copiado a {destPath}");
+            Logs?.Log($"[SharedImage] archivo copiado desde App Group — {fileName}");
             _pendingFileName = fileName;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error copiando archivo — {ex.Message}");
+            Logs?.Log($"[SharedImage] error copiando desde App Group — {ex.Message}");
         }
 #endif
     }
@@ -157,17 +132,17 @@ public static class SharedImageHandler
                 var tieneSesion = Preferences.Get("TieneSesion", false);
                 if (!tieneSesion)
                 {
-                    System.Diagnostics.Debug.WriteLine("⚠️ SharedImage: no autenticado, se omite navegación");
+                    Logs?.Log("[SharedImage] sin sesión activa — se omite navegación");
                     return;
                 }
 
-                System.Diagnostics.Debug.WriteLine("📷 SharedImage: navegando a PaginaCaptura");
+                Logs?.Log("[SharedImage] navegando a PaginaCaptura");
                 await Shell.Current.GoToAsync("PaginaCaptura",
                     new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ SharedImage: error navegando — {ex.Message}");
+                Logs?.Log($"[SharedImage] error navegando a PaginaCaptura — {ex.Message}");
             }
         });
     }

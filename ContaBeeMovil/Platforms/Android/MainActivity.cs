@@ -3,6 +3,7 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil
 {
@@ -81,12 +82,11 @@ namespace ContaBeeMovil
                 using var outputStream = System.IO.File.OpenWrite(destPath);
                 inputStream!.CopyTo(outputStream);
 
-                System.Diagnostics.Debug.WriteLine($"📷 Android share: imagen copiada a {destPath}");
                 SharedImageHandler.HandleSharedImage(fileName);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"❌ Android share: error — {ex.Message}");
+                App.Services?.GetService<IServicioLogs>()?.Log($"[SharedImage] Android: error copiando imagen — {ex.Message}");
             }
         }
     }
