@@ -32,7 +32,7 @@ public class ServicioToast : IServicioToast
                 if (pagina == null) return;
 
                 var cts = new CancellationTokenSource();
-                var (capaOverlay, esNueva) = ObtenerOCrearOverlay(pagina);
+                var capaOverlay = ObtenerOCrearOverlay(pagina);
                 var toast = ConstruirVista(mensaje, icono, posicion, cts);
 
                 double entradaY = posicion switch
@@ -62,9 +62,6 @@ public class ServicioToast : IServicioToast
 
                 if (capaOverlay.Children.Contains(toast))
                     capaOverlay.Children.Remove(toast);
-
-                if (capaOverlay.Children.Count == 0 && esNueva)
-                    RestaurarContenido(pagina);
             });
         }
         finally
@@ -92,42 +89,51 @@ public class ServicioToast : IServicioToast
         };
     }
 
-    private static (Grid capa, bool esNueva) ObtenerOCrearOverlay(ContentPage pagina)
+    private static Grid ObtenerOCrearOverlay(ContentPage pagina)
     {
-        if (pagina.Content is Grid raizExistente && raizExistente.ClassId == "ToastOverlay_Root")
+        // Si el root ya es un Grid que contiene nuestra capa, reutilizarla
+        if (pagina.Content is Grid gridRoot)
         {
-            var capaExistente = raizExistente.Children
+            var existente = gridRoot.Children
                 .OfType<Grid>()
-                .First(c => c.ClassId == "ToastOverlay_Layer");
-            return (capaExistente, false);
+                .FirstOrDefault(c => c.ClassId == "ToastOverlay_Layer");
+            if (existente != null) return existente;
+
+            // Agregar capa directamente al Grid existente sin re-parentizar su contenido
+            var capa = new Grid
+            {
+                ClassId = "ToastOverlay_Layer",
+                BackgroundColor = Colors.Transparent,
+                InputTransparent = true,
+                CascadeInputTransparent = false,
+                HorizontalOptions = LayoutOptions.Fill,
+                VerticalOptions = LayoutOptions.Fill,
+            };
+            int filas = Math.Max(gridRoot.RowDefinitions.Count, 1);
+            int cols  = Math.Max(gridRoot.ColumnDefinitions.Count, 1);
+            Grid.SetRow(capa, 0);
+            Grid.SetColumn(capa, 0);
+            Grid.SetRowSpan(capa, filas);
+            Grid.SetColumnSpan(capa, cols);
+            gridRoot.Children.Add(capa);
+            return capa;
         }
 
+        // Root no es Grid: envolver una sola vez y nunca restaurar
         var contenidoOriginal = pagina.Content;
         var raiz = new Grid { ClassId = "ToastOverlay_Root" };
         raiz.Children.Add(contenidoOriginal);
 
-        var capa = new Grid
+        var capaFallback = new Grid
         {
             ClassId = "ToastOverlay_Layer",
             BackgroundColor = Colors.Transparent,
             InputTransparent = true,
             CascadeInputTransparent = false,
         };
-        raiz.Children.Add(capa);
-
+        raiz.Children.Add(capaFallback);
         pagina.Content = raiz;
-        return (capa, true);
-    }
-
-    private static void RestaurarContenido(ContentPage pagina)
-    {
-        if (pagina.Content is not Grid raiz || raiz.ClassId != "ToastOverlay_Root") return;
-
-        var original = raiz.Children.FirstOrDefault(c => c is not Grid g || g.ClassId != "ToastOverlay_Layer");
-        if (original == null) return;
-
-        raiz.Children.Clear();
-        pagina.Content = (View)original;
+        return capaFallback;
     }
 
     private static Grid ConstruirVista(string mensaje, ToastIcono icono, ToastPosicion posicion, CancellationTokenSource cts)
