@@ -1,4 +1,4 @@
-﻿using Contabee.Api;
+using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Ecommerce;
 using Contabee.Api.Identidad;
@@ -27,15 +27,15 @@ public class RegistroViewModel : INotifyPropertyChanged
     private bool _estaCargando;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioEcommerce _servicioEcommerce;
-    private readonly IToastService _toast;
+    private readonly IServicioToast _toast;
     private readonly DeviceService _deviceService;
     private readonly IServicioLogs _logs;
 
-    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IToastService ToastService, DeviceService deviceService, IServicioLogs logs)
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IServicioToast servicioToast, DeviceService deviceService, IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioEcommerce = servicioEcommerce;
-        _toast = ToastService;
+        _toast = servicioToast;
         _deviceService = deviceService;
         _logs = logs;
         RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
@@ -142,10 +142,9 @@ public class RegistroViewModel : INotifyPropertyChanged
             EstaCargando = true;
             MensajeError = string.Empty;
 
-            // Validar cupón si fue proporcionado
             if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
             {
-                await _toast.ShowAsync("El cupón debe tener más de 3 caracteres.", ToastType.Error, position: ToastPosition.Bottom);
+                await _toast.MostrarAsync("El cupón debe tener más de 3 caracteres.", ToastIcono.Error, ToastPosicion.Bottom);
                 EstaCargando = false;
                 return;
             }
@@ -156,12 +155,11 @@ public class RegistroViewModel : INotifyPropertyChanged
                 if (!cuponResult.Ok || cuponResult.Payload == null || !cuponResult.Payload.Valido)
                 {
                     var motivo = cuponResult.Payload?.Motivo ?? "Cupón no válido, por favor verifica e intenta de nuevo.";
-                    await _toast.ShowAsync(motivo, ToastType.Error, position: ToastPosition.Bottom);
+                    await _toast.MostrarAsync(motivo, ToastIcono.Error, ToastPosicion.Bottom);
                     EstaCargando = false;
                     return;
                 }
 
-                // Cupón válido: mostrar info al usuario
                 var popup = new AlertaPopup(
                     "¡Bienvenido! 🎉",
                     cuponResult.Payload.Descripcion ?? cuponResult.Payload.Nombre ?? "Cupón canjeado exitosamente.",
@@ -170,7 +168,6 @@ public class RegistroViewModel : INotifyPropertyChanged
                 await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
             }
 
-            // Obtener el ID del dispositivo
             var dispositivoId = await ObtenerDispositivoId();
 
             var model = new RegisterViewModel
@@ -182,7 +179,6 @@ public class RegistroViewModel : INotifyPropertyChanged
                 CuponRegistro = string.IsNullOrWhiteSpace(CuponRegistro) ? null : CuponRegistro
             };
 
-            // Llamar al servicio de registro
            var respuesta =  await _servicioIdentidad.Registrar(model);
 
            if(!respuesta.Ok)
@@ -190,9 +186,9 @@ public class RegistroViewModel : INotifyPropertyChanged
                 throw new Exception(respuesta.HttpCode.ToString());
             }
 
-            await _toast.ShowAsync(
+            await _toast.MostrarAsync(
                 "Registro completado. Por favor verifica tu correo electrónico.",
-                ToastType.Success, position: ToastPosition.Bottom);
+                ToastIcono.Info, ToastPosicion.Bottom);
 
             PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
@@ -206,15 +202,15 @@ public class RegistroViewModel : INotifyPropertyChanged
                 _ => "Error al registrar. Por favor verifica tus datos."
             };
 
-            await _toast.ShowAsync(mensaje, ToastType.Error);
+            await _toast.MostrarAsync(mensaje, ToastIcono.Error);
             MensajeError = mensaje;
         }
         catch (Exception ex)
         {
             _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
-            await _toast.ShowAsync(
+            await _toast.MostrarAsync(
                 "Ocurrió un error inesperado. Intenta de nuevo.",
-                ToastType.Error);
+                ToastIcono.Error);
         }
         finally
         {
@@ -225,7 +221,6 @@ public class RegistroViewModel : INotifyPropertyChanged
     private async Task<string> ObtenerDispositivoId()
     {
         return await _deviceService.GetDeviceIdAsync();
-       
     }
 
     private async Task IrALogin()

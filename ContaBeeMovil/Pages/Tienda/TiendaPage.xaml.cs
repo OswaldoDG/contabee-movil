@@ -15,7 +15,7 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioIAP _servicioIAP;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
-    private readonly IToastService _toast;
+    private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
 
     private Grid? _loadingOverlay;
@@ -28,7 +28,7 @@ public partial class TiendaPage : ContentPage
 
     private const string PrefsKeyComprasPendientes = "tienda.compras_pendientes";
 
-    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IToastService toast, IServicioLogs logs)
+    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioEcommerce = servicioEcommerce;
@@ -337,7 +337,7 @@ public partial class TiendaPage : ContentPage
             if (compra is null)
             {
                 _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-                await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
                 return;
             }
 
@@ -346,12 +346,12 @@ public partial class TiendaPage : ContentPage
         catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
         {
             _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-            await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
         }
         catch (Exception ex)
         {
             _logs.Log($"Tienda: excepción en compra — {ex.GetType().Name}: {ex.Message}");
-            await _toast.ShowAsync("La compra no se completó.", ToastType.Error);
+            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error);
         }
         finally
         {
@@ -380,7 +380,7 @@ public partial class TiendaPage : ContentPage
             if (compra is null)
             {
                 _logs.Log("Tienda: compra directa — cancelada por el usuario");
-                await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
                 return;
             }
 
@@ -389,12 +389,12 @@ public partial class TiendaPage : ContentPage
         catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
         {
             _logs.Log($"Tienda: compra directa — cancelada ({ex.Message})");
-            await _toast.ShowAsync("Compra cancelada", ToastType.Warning);
+            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
         }
         catch (Exception ex)
         {
             _logs.Log($"Tienda: compra directa — excepción {ex.GetType().Name}: {ex.Message}");
-            await _toast.ShowAsync("La compra no se completó.", ToastType.Error);
+            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error);
         }
         finally
         {

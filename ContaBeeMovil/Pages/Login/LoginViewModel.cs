@@ -19,7 +19,7 @@ public class LoginViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioNotificacion _notificacion;
-    private readonly IToastService toastService;
+    private readonly IServicioToast _toast;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private const string ClaveMododDev = "ModoDeveloper";
     private string _email = string.Empty;
@@ -35,13 +35,13 @@ public class LoginViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioNotificacion notificacion,
-        IToastService toastService,
+        IServicioToast toast,
         IServicioAlmacenamiento almacenamiento)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
         _notificacion = notificacion;
-        this.toastService = toastService;
+        _toast = toast;
         _almacenamiento = almacenamiento;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);
         VincularmeCommand = new Command(async () => await Vincularme());
@@ -57,11 +57,9 @@ public class LoginViewModel : INotifyPropertyChanged
     {
         if (PaginaLogin.LimpiarAlNavegar) return;
 
-        // Restaurar estado del checkbox desde AppState
         _recordarme = AppState.Instance.Recordarme;
         OnPropertyChanged(nameof(Recordarme));
 
-        // Siempre cargar el email guardado si existe, independientemente del checkbox
         var email = await _servicioSesion.LeeEmailAsync();
         if (!string.IsNullOrEmpty(email))
         {
@@ -192,7 +190,7 @@ public class LoginViewModel : INotifyPropertyChanged
                 var mensaje = resultado.Error?.Codigo == "invalid_grant"
                     ? "El correo o la contraseña son incorrectos."
                     : "Ha ocurrido un error al iniciar sesión.";
-                await toastService.ShowAsync(mensaje, type: ToastType.Warning, position: ToastPosition.Bottom);
+                await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
                 return;
             }
 
@@ -209,7 +207,6 @@ public class LoginViewModel : INotifyPropertyChanged
 
             await VerificarModoDeveloperAsync();
 
-            // Transition animation
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");
             var logoImage = page?.FindByName<Image>("LogoImage");
@@ -221,7 +218,7 @@ public class LoginViewModel : INotifyPropertyChanged
                 var fadeTask = formContainer.FadeToAsync(0, 350, Easing.CubicIn);
                 await Task.WhenAll(logoTask, slideTask, fadeTask);
             }
-            // Guardar estado del checkbox en AppState
+
             AppState.Instance.Recordarme = Recordarme;
 
             var tieneCuentasFiscales =
@@ -239,12 +236,10 @@ public class LoginViewModel : INotifyPropertyChanged
                 Application.Current!.Windows[0].Page = registrarPage;
             }
         }
-        catch 
+        catch
         {
-           // _ = _notificacion.MostrarErrorAsync($"Error al iniciar sesión: {ex.Message}");
+            await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
-            await toastService.ShowAsync("Error al iniciar sesión.", type: ToastType.Warning, position: ToastPosition.Bottom);
-            // Reset animation if error
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");
             var logoImage = page?.FindByName<Image>("LogoImage");
@@ -266,9 +261,7 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Vincularme()
     {
-       //await  _notificacion.ShowAlert("La funcionalidad de vinculación estará disponible próximamente.");
-
-       await toastService.ShowAsync("La funcionalidad de vinculación estará disponible próximamente.",type: ToastType.Warning,position:ToastPosition.Bottom);
+        await _toast.MostrarAsync("La funcionalidad de vinculación estará disponible próximamente.", ToastIcono.Warning, ToastPosicion.Bottom);
     }
 
     private async Task IrARegistro()
@@ -285,15 +278,14 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task MostrarInfoApp()
     {
-       // await _notificacion.MostrarInfoAsync("ContaBee - Sistema de contabilidad móvil.");
-        await toastService.ShowAsync("ContaBee - Sistema de contabilidad móvil.", type: ToastType.Warning, position: ToastPosition.Bottom);
+        await _toast.MostrarAsync("ContaBee - Sistema de contabilidad móvil.", ToastIcono.Info, ToastPosicion.Bottom);
     }
 
     private async Task MostrarInfo()
     {
         var version = AppInfo.Current.VersionString;
         var build = AppInfo.Current.BuildString;
-        await toastService.ShowAsync($"ContaBee v{version} ({build})", type: ToastType.Success, position: ToastPosition.Bottom);
+        await _toast.MostrarAsync($"ContaBee v{version} ({build})", ToastIcono.Info, ToastPosicion.Bottom);
     }
 
     #endregion

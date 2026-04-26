@@ -4,19 +4,18 @@ using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
 using System.Text.RegularExpressions;
-using ContaBeeMovil.Helpers;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class CambiarContrasenaPage : ContentPage
 {
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
     private readonly IServicioIdentidad _servicioIdentidad;
 
-    public CambiarContrasenaPage(IToastService toastService, IServicioIdentidad servicioIdentidad)
+    public CambiarContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad)
     {
         InitializeComponent();
-        _toastService = toastService;
+        _servicioToast = servicioToast;
         _servicioIdentidad = servicioIdentidad;
     }
 
@@ -63,7 +62,7 @@ public partial class CambiarContrasenaPage : ContentPage
 
         if (nueva != confirmar)
         {
-            await _toastService.ShowAsync("Las contraseñas no coinciden.", ToastType.Error);
+            await _servicioToast.MostrarAsync("Las contraseñas no coinciden.", ToastIcono.Error);
             return;
         }
 
@@ -73,14 +72,14 @@ public partial class CambiarContrasenaPage : ContentPage
 
         if (resultado.Ok)
         {
-            await _toastService.ShowAsync("Contraseña actualizada correctamente.", ToastType.Success);
+            await _servicioToast.MostrarAsync("Contraseña actualizada correctamente.", ToastIcono.Info);
             await Shell.Current.GoToAsync("..");
         }
         else
         {
             var mensaje = resultado.Error?.Mensaje ?? "Error al cambiar la contraseña.";
             System.Diagnostics.Debug.WriteLine($"[CambiarContrasena] Error: Codigo={resultado.Error?.Codigo}, Mensaje={resultado.Error?.Mensaje}, HttpCode={resultado.Error?.HttpCode}");
-            await _toastService.ShowAsync(mensaje, ToastType.Error);
+            await _servicioToast.MostrarAsync(mensaje, ToastIcono.Error);
         }
 
         ActualizarEstadoBoton();

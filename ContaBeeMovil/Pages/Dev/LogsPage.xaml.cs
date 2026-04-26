@@ -7,13 +7,13 @@ namespace ContaBeeMovil.Pages.Dev;
 public partial class LogsPage : ContentPage
 {
     private readonly IServicioLogs _servicioLogs;
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
 
-    public LogsPage(IServicioLogs servicioLogs, IToastService toastService)
+    public LogsPage(IServicioLogs servicioLogs, IServicioToast servicioToast)
     {
         InitializeComponent();
         _servicioLogs = servicioLogs;
-        _toastService = toastService;
+        _servicioToast = servicioToast;
         BindingContext = AppState.Instance;
     }
 
@@ -33,6 +33,6 @@ public partial class LogsPage : ContentPage
         if (sender is not Button { CommandParameter: string texto }) return;
         await Clipboard.Default.SetTextAsync(texto);
         try { HapticFeedback.Default.Perform(HapticFeedbackType.LongPress); } catch { }
-        await _toastService.ShowAsync("Copiado al portapapeles");
+        await _servicioToast.MostrarAsync("Copiado al portapapeles");
     }
 }

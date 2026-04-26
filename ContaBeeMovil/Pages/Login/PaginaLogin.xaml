@@ -197,6 +197,7 @@
                        Style="{StaticResource CircleIconLabel}"
                        SemanticProperties.Description="Informaci&#243;n"/>
             </Border>
+
         </HorizontalStackLayout>
 
     </Grid>
