@@ -13,6 +13,6 @@ public partial class PaginaCupones : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _viewModel.CargarCuponesAsync();
+        //await _viewModel.CargarCuponesAsync();
     }
 }
