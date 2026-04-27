@@ -5,76 +5,45 @@
     x:Class="ContaBee.Pages.Cupones.PaginaCupones"
     Title="Cupones">
 
-    <ContentPage.Content>
-        <Grid RowDefinitions="Auto,*" Padding="16">
+    <Grid RowDefinitions="Auto,*" Padding="16">
+        <!-- Buscar / Registrar cupón -->
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,0,0,12">
+            <Border StrokeThickness="1" Stroke="#D9D9D9" StrokeShape="RoundRectangle 12" BackgroundColor="White" Padding="14,8">
+                <Entry Placeholder="Código"
+                       Text="{Binding CodigoCupon}"
+                       ReturnType="Search" />
+            </Border>
 
-            <Label
-                Text="Cupones disponibles"
-                FontSize="22"
-                FontAttributes="Bold"
-                Margin="0,0,0,12" />
+            <Button Grid.Column="1"
+                    Text="Buscar"
+                    Command="{Binding BuscarCuponCommand}"
+                    Padding="16,0"
+                    CornerRadius="12" />
+        </Grid>
 
-            <CollectionView
-                Grid.Row="1"
-                ItemsSource="{Binding Cupones}"
-                SelectionMode="None">
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Cupones}" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeThickness="1" Stroke="#D9D9D9" StrokeShape="RoundRectangle 12" BackgroundColor="White" Margin="0,0,0,12" Padding="14">
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                            <Label Text="{Binding Tipo}" FontSize="18" FontAttributes="Bold" />
+                            <Label Grid.Row="1" Text="{Binding Cupon, TargetNullValue='Sin descripción'}" />
 
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout Spacing="8" Padding="20">
-                        <Label
-                            Text="No hay cupones disponibles"
-                            HorizontalOptions="Center"
-                            FontSize="16"
-                            TextColor="Gray" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
-
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Border
-                            StrokeThickness="1"
-                            Stroke="#D9D9D9"
-                            StrokeShape="RoundRectangle 12"
-                            BackgroundColor="White"
-                            Margin="0,0,0,12"
-                            Padding="14">
-
-                            <Grid RowDefinitions="Auto,Auto,Auto,Auto"
-                                  ColumnDefinitions="*,Auto"
-                                  RowSpacing="8">
-
-                                <Label
-                                    Grid.Row="0"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Tipo}"
-                                    FontSize="18"
-                                    FontAttributes="Bold" />
-
-                                <Label
-                                    Grid.Row="1"
-                                    Text="{Binding Cantidad, StringFormat='Cantidad: {0}'}"
-                                    FontSize="14" />
-
-                                <Label
-                                    Grid.Row="2"
-                                    Grid.ColumnSpan="2"
-                                    Text="{Binding Cupon, TargetNullValue='Sin cupón'}"
-                                    FontSize="14"
-                                    TextColor="#444" />
-
-                                <Button
-                                    Grid.Row="3"
-                                    Grid.Column="1"
+                            <Button Grid.Column="1"
+                                    Grid.RowSpan="2"
                                     Text="Aplicar"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AplicarCuponCommand}"
-                                    CommandParameter="{Binding .}"
-                                    CornerRadius="8"
-                                    Padding="14,8" />
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </Grid>
-    </ContentPage.Content>
+                                    CommandParameter="{Binding .}" />
+
+                            <!-- Estado aplicado -->
+                            <VerticalStackLayout Grid.Row="2" Grid.ColumnSpan="2" IsVisible="{Binding Aplicado}">
+                                <Label Text="{Binding FechaAplicacion, StringFormat='Aplicado: {0:dd/MM/yyyy HH:mm}'}" FontSize="12" />
+                                <Label Text="{Binding CuentaFiscalId, StringFormat='Cuenta/RFC: {0}'}" FontSize="12" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>

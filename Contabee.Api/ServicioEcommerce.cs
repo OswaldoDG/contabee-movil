@@ -77,7 +77,7 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario →");
         try
         {
-            var res = await servicioEcommerce.CuponesUsuarioAsync();
+            var res = await servicioEcommerce.CuponesAsync();
             System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← OK");
             return res.ToList();
         }
@@ -85,6 +85,22 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         {
             System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← ERROR {ex.GetType().Name}: {ex.Message}");
             return new List<CuponUsuario>();
+        }
+    }
+
+    public async Task<CuponUsuario> AplicarCupon(string codigo, ActivacionCuponDto activacionCupon)
+    {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon → codigo={codigo} cuentaId={activacionCupon.UsuarioId} cfid={activacionCupon.CuentaFiscalId}");
+        try
+        {
+            var res = await servicioEcommerce.AplicarAsync(codigo, activacionCupon);
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon ← OK");
+            return res;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon ← ERROR {ex.GetType().Name}: {ex.Message}");
+            return new CuponUsuario();
         }
     }
 }

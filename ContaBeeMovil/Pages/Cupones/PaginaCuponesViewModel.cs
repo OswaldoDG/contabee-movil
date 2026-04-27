@@ -1,5 +1,6 @@
 ﻿using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
+using Contabee.Api.Ecommerce;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using System.Collections.ObjectModel;
@@ -11,11 +12,13 @@ namespace ContaBee.Pages.Cupones;
 
 public class PaginaCuponesViewModel : INotifyPropertyChanged
 {
-    private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioEcommerce _servicioEcommerce;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
 
     private bool _estaCargando;
+    private string _codigoCupon = string.Empty;
+
     public bool EstaCargando
     {
         get => _estaCargando;
@@ -27,90 +30,130 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         }
     }
 
-    //public ObservableCollection<CuponUsuario> Cupones { get; } = [];
+    public string CodigoCupon
+    {
+        get => _codigoCupon;
+        set
+        {
+            if (_codigoCupon == value) return;
+            _codigoCupon = value;
+            OnPropertyChanged();
+        }
+    }
 
+    public ObservableCollection<CuponUsuario> Cupones { get; } = [];
+
+    public ICommand BuscarCuponCommand { get; }
     public ICommand AplicarCuponCommand { get; }
 
     public PaginaCuponesViewModel(
-        IServicioCrm servicioCrm,
+        IServicioEcommerce servicioEcommerce,
         IServicioSesion servicioSesion,
         IServicioAlerta servicioAlerta)
     {
-        _servicioCrm = servicioCrm;
+        _servicioEcommerce = servicioEcommerce;
         _servicioSesion = servicioSesion;
         _servicioAlerta = servicioAlerta;
 
-        //AplicarCuponCommand = new Command<LicenciamientoGratuito>(async item => await AplicarCuponAsync(item));
+        BuscarCuponCommand = new Command(async () => await RegistrarCuponPorCodigoAsync());
+        AplicarCuponCommand = new Command<CuponUsuario>(async item => await AplicarCuponAsync(item));
     }
 
-    //public async Task CargarCuponesAsync()
-    //{
-    //    if (EstaCargando) return;
+    public async Task CargarCuponesAsync()
+    {
+        if (EstaCargando) return;
 
-    //    var cuenta = AppState.Instance.CuentaFiscalActual;
-    //    if (cuenta is null || string.IsNullOrWhiteSpace(cuenta.Rfc)) return;
+        EstaCargando = true;
+        try
+        {
+            _ = await _servicioSesion.LeeIdDeDispositivo();
+            var cupones = await _servicioEcommerce.CuponesUsuario();
 
-    //    EstaCargando = true;
-    //    try
-    //    {
-    //        var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
-    //        var respuesta = await _servicioCrm.GetLicenciamientosFactibles(cuenta.Rfc, dispositivoId, cuenta.CuentaFiscalId);
+            Cupones.Clear();
+            foreach (var item in cupones ?? [])
+                Cupones.Add(item);
+        }
+        finally
+        {
+            EstaCargando = false;
+        }
+    }
 
-    //        if (!respuesta.Ok)
-    //        {
-    //            await _servicioAlerta.MostrarAsync("Cupones", "No se pudieron cargar los cupones.", confirmarText: "OK", verBotonCancelar: false);
-    //            return;
-    //        }
+    private async Task RegistrarCuponPorCodigoAsync()
+    {
+        if (EstaCargando) return;
 
-    //        Cupones.Clear();
-    //        foreach (var item in respuesta.Payload ?? [])
-    //            Cupones.Add(item);
-    //    }
-    //    finally
-    //    {
-    //        EstaCargando = false;
-    //    }
-    //}
+        var codigo = CodigoCupon?.Trim();
+        if (string.IsNullOrWhiteSpace(codigo))
+        {
+            await _servicioAlerta.MostrarAsync("Cupón", "Captura un código.", confirmarText: "OK", verBotonCancelar: false);
+            return;
+        }
 
-    //private async Task AplicarCuponAsync(LicenciamientoGratuito? item)
-    //{
-    //    if (item is null || EstaCargando) return;
+        EstaCargando = true;
+        try
+        {            
+            var registrado = await _servicioEcommerce.AplicarCupon(codigo, new ActivacionCuponDto
+            {
+                Codigo = codigo,
+                Activar = false
+            });
 
-    //    var cuenta = AppState.Instance.CuentaFiscalActual;
-    //    if (cuenta is null || string.IsNullOrWhiteSpace(cuenta.Rfc)) return;
+            if (registrado is null || !registrado.Aplicado)
+            {
+                await _servicioAlerta.MostrarAsync("Cupón", "No se pudo registrar el cupón.", confirmarText: "OK", verBotonCancelar: false);
+                return;
+            }
 
-    //    EstaCargando = true;
-    //    try
-    //    {
-    //        var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+            CodigoCupon = string.Empty;
+        }
+        finally
+        {
+            EstaCargando = false;
+        }
 
-    //        var solicitud = await _servicioCrm.SolicitarLicenciamientoDemo(
-    //            cuenta.Rfc, dispositivoId, cuenta.CuentaFiscalId, item.Cupon);
+        await CargarCuponesAsync();
+    }
 
-    //        if (!solicitud.Ok || string.IsNullOrWhiteSpace(solicitud.Payload?.Token))
-    //        {
-    //            await _servicioAlerta.MostrarAsync("Cupón", "No se pudo solicitar la aplicación del cupón.", confirmarText: "OK", verBotonCancelar: false);
-    //            return;
-    //        }
+    private async Task AplicarCuponAsync(CuponUsuario? item)
+    {
+        if (item is null || EstaCargando) return;
 
-    //        var activacion = await _servicioCrm.ActivarLicenciamientoDemo(
-    //            solicitud.Payload.Token, dispositivoId, cuenta.CuentaFiscalId);
+        var cuenta = AppState.Instance.CuentaFiscalActual;
+        if (cuenta is null) return;
 
-    //        if (!activacion.Ok)
-    //        {
-    //            await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
-    //            return;
-    //        }
+        EstaCargando = true;
+        try
+        {
+            _ = await _servicioSesion.LeeIdDeDispositivo();
 
-    //        Cupones.Remove(item);
-    //    }
-    //    finally
-    //    {
-    //        EstaCargando = false;
-    //    }
+            var payload = new ActivacionCuponDto
+            {
+                Codigo = item.Codigo,
+                UsuarioId = cuenta.UsuarioId.ToString(),
+                Activar = true
+            };
 
-    //    await CargarCuponesAsync();
-    //}
+            if (item.TipoCuenta == TipoCuentaCupon.CuentaFiscal)
+            {
+                payload.CuentaFiscalId = cuenta.CuentaFiscalId.ToString();
+            }
+
+            var activacion = await _servicioEcommerce.AplicarCupon(item.Codigo, payload);
+
+            if (activacion is null || !activacion.Aplicado)
+            {
+                await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
+                return;
+            }
+        }
+        finally
+        {
+            EstaCargando = false;
+        }
+
+        await CargarCuponesAsync();
+    }
 
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)

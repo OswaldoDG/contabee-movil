@@ -9,4 +9,5 @@ public interface IServicioEcommerce
     Task<bool> CompletarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante);
     //Task<RespuestaPayload<RespuestaCuponValido>> ValidarCupon(string codigo);
     Task<List<CuponUsuario>> CuponesUsuario();
+    Task<CuponUsuario> AplicarCupon(string codigo, ActivacionCuponDto activacionCupon);
 }
