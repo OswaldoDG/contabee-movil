@@ -38,7 +38,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         _toast = servicioToast;
         _deviceService = deviceService;
         _logs = logs;
-        RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
+        //RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
         IrALoginCommand = new Command(async () => await IrALogin());
     }
     public string Nombre
@@ -135,88 +135,92 @@ public class RegistroViewModel : INotifyPropertyChanged
     public bool TieneNumero { get;  set; }
     public bool TieneCaracterEspecial { get;  set; }
 
-    private async Task Registrar()
-    {
-        try
-        {
-            EstaCargando = true;
-            MensajeError = string.Empty;
+    //private async Task Registrar()
+    //{
+    //    try
+    //    {
+    //        EstaCargando = true;
+    //        MensajeError = string.Empty;
 
-            if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
-            {
-                await _toast.MostrarAsync("El cupón debe tener más de 3 caracteres.", ToastIcono.Error, ToastPosicion.Bottom);
-                EstaCargando = false;
-                return;
-            }
+    //        // Validar cupón si fue proporcionado
+    //        if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
+    //        {
+    //            await _toast.ShowAsync("El cupón debe tener más de 3 caracteres.", ToastType.Error, position: ToastPosition.Bottom);
+    //            EstaCargando = false;
+    //            return;
+    //        }
 
-            if (!string.IsNullOrWhiteSpace(CuponRegistro))
-            {
-                var cuponResult = await _servicioEcommerce.ValidarCupon(CuponRegistro.Trim());
-                if (!cuponResult.Ok || cuponResult.Payload == null || !cuponResult.Payload.Valido)
-                {
-                    var motivo = cuponResult.Payload?.Motivo ?? "Cupón no válido, por favor verifica e intenta de nuevo.";
-                    await _toast.MostrarAsync(motivo, ToastIcono.Error, ToastPosicion.Bottom);
-                    EstaCargando = false;
-                    return;
-                }
+    //        if (!string.IsNullOrWhiteSpace(CuponRegistro))
+    //        {
+    //            var cuponResult = await _servicioEcommerce.ValidarCupon(CuponRegistro.Trim());
+    //            if (!cuponResult.Ok || cuponResult.Payload == null || !cuponResult.Payload.Valido)
+    //            {
+    //                var motivo = cuponResult.Payload?.Motivo ?? "Cupón no válido, por favor verifica e intenta de nuevo.";
+    //                await _toast.ShowAsync(motivo, ToastType.Error, position: ToastPosition.Bottom);
+    //                EstaCargando = false;
+    //                return;
+    //            }
 
-                var popup = new AlertaPopup(
-                    "¡Bienvenido! 🎉",
-                    cuponResult.Payload.Descripcion ?? cuponResult.Payload.Nombre ?? "Cupón canjeado exitosamente.",
-                    verBotonCancelar: false,
-                    confirmarText: "Continuar");
-                await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
-            }
+    //            // Cupón válido: mostrar info al usuario
+    //            var popup = new AlertaPopup(
+    //                "¡Bienvenido! 🎉",
+    //                cuponResult.Payload.Descripcion ?? cuponResult.Payload.Nombre ?? "Cupón canjeado exitosamente.",
+    //                verBotonCancelar: false,
+    //                confirmarText: "Continuar");
+    //            await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
+    //        }
 
-            var dispositivoId = await ObtenerDispositivoId();
+    //        // Obtener el ID del dispositivo
+    //        var dispositivoId = await ObtenerDispositivoId();
 
-            var model = new RegisterViewModel
-            {
-                Email = Email,
-                Password = Password,
-                DispositivoId = dispositivoId,
-                Nombre = Nombre,
-                CuponRegistro = string.IsNullOrWhiteSpace(CuponRegistro) ? null : CuponRegistro
-            };
+    //        var model = new RegisterViewModel
+    //        {
+    //            Email = Email,
+    //            Password = Password,
+    //            DispositivoId = dispositivoId,
+    //            Nombre = Nombre,
+    //            CuponRegistro = string.IsNullOrWhiteSpace(CuponRegistro) ? null : CuponRegistro
+    //        };
 
-           var respuesta =  await _servicioIdentidad.Registrar(model);
+    //        // Llamar al servicio de registro
+    //       var respuesta =  await _servicioIdentidad.Registrar(model);
 
-           if(!respuesta.Ok)
-            {
-                throw new Exception(respuesta.HttpCode.ToString());
-            }
+    //       if(!respuesta.Ok)
+    //        {
+    //            throw new Exception(respuesta.HttpCode.ToString());
+    //        }
 
-            await _toast.MostrarAsync(
-                "Registro completado. Por favor verifica tu correo electrónico.",
-                ToastIcono.Info, ToastPosicion.Bottom);
+    //        await _toast.ShowAsync(
+    //            "Registro completado. Por favor verifica tu correo electrónico.",
+    //            ToastType.Success, position: ToastPosition.Bottom);
 
-            PaginaLogin.LimpiarAlNavegar = true;
-            await IrALogin();
-        }
-        catch (ApiException ex)
-        {
-            var mensaje = ex.StatusCode switch
-            {
-                409 => "El correo electrónico ya está registrado.",
-                500 => "Error al registrar. Por favor intenta más tarde.",
-                _ => "Error al registrar. Por favor verifica tus datos."
-            };
+    //        PaginaLogin.LimpiarAlNavegar = true;
+    //        await IrALogin();
+    //    }
+    //    catch (ApiException ex)
+    //    {
+    //        var mensaje = ex.StatusCode switch
+    //        {
+    //            409 => "El correo electrónico ya está registrado.",
+    //            500 => "Error al registrar. Por favor intenta más tarde.",
+    //            _ => "Error al registrar. Por favor verifica tus datos."
+    //        };
 
-            await _toast.MostrarAsync(mensaje, ToastIcono.Error);
-            MensajeError = mensaje;
-        }
-        catch (Exception ex)
-        {
-            _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
-            await _toast.MostrarAsync(
-                "Ocurrió un error inesperado. Intenta de nuevo.",
-                ToastIcono.Error);
-        }
-        finally
-        {
-            EstaCargando = false;
-        }
-    }
+    //        await _toast.ShowAsync(mensaje, ToastType.Error);
+    //        MensajeError = mensaje;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
+    //        await _toast.ShowAsync(
+    //            "Ocurrió un error inesperado. Intenta de nuevo.",
+    //            ToastType.Error);
+    //    }
+    //    finally
+    //    {
+    //        EstaCargando = false;
+    //    }
+    //}
 
     private async Task<string> ObtenerDispositivoId()
     {

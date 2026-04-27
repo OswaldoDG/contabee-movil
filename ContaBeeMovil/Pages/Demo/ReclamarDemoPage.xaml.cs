@@ -20,56 +20,56 @@ public partial class ReclamarDemoPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await EjecutarFlujoAsync();
+        //await EjecutarFlujoAsync();
     }
 
-    private async Task EjecutarFlujoAsync()
-    {
-        var cuenta = AppState.Instance.CuentaFiscalActual;
-        if (cuenta is null) return;
+    //private async Task EjecutarFlujoAsync()
+    //{
+    //    var cuenta = AppState.Instance.CuentaFiscalActual;
+    //    if (cuenta is null) return;
 
-        MostrarEstado(Estado.Cargando);
+    //    MostrarEstado(Estado.Cargando);
 
-        var rfc           = cuenta.Rfc;
-        var cfid          = cuenta.CuentaFiscalId;
-        var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+    //    var rfc           = cuenta.Rfc;
+    //    var cfid          = cuenta.CuentaFiscalId;
+    //    var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
-        // ── Paso 1: Solicitar token ──────────────────────────────────────────
-        var solicitud = await _servicioCrm.SolicitarLicenciamientoDemo(rfc, dispositivoId, cfid, null);
+    //    // ── Paso 1: Solicitar token ──────────────────────────────────────────
+    //    var solicitud = await _servicioCrm.SolicitarLicenciamientoDemo(rfc, dispositivoId, cfid, null);
 
-        if (!solicitud.Ok)
-        {
-            var mensaje = solicitud.HttpCode == HttpStatusCode.Conflict
-                ? $"Los créditos para {rfc} ya fueron reclamados anteriormente."
-                : "No se pudieron activar los créditos. Intenta de nuevo.";
-            MostrarEstado(Estado.Error, mensaje);
-            return;
-        }
+    //    if (!solicitud.Ok)
+    //    {
+    //        var mensaje = solicitud.HttpCode == HttpStatusCode.Conflict
+    //            ? $"Los créditos para {rfc} ya fueron reclamados anteriormente."
+    //            : "No se pudieron activar los créditos. Intenta de nuevo.";
+    //        MostrarEstado(Estado.Error, mensaje);
+    //        return;
+    //    }
 
-        var token = solicitud.Payload?.Token;
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            MostrarEstado(Estado.Error, "No se pudieron activar los créditos. Intenta de nuevo.");
-            return;
-        }
+    //    var token = solicitud.Payload?.Token;
+    //    if (string.IsNullOrWhiteSpace(token))
+    //    {
+    //        MostrarEstado(Estado.Error, "No se pudieron activar los créditos. Intenta de nuevo.");
+    //        return;
+    //    }
 
-        // ── Paso 2: Activar con el token ─────────────────────────────────────
-        var activacion = await _servicioCrm.ActivarLicenciamientoDemo(token, dispositivoId, cfid);
+    //    // ── Paso 2: Activar con el token ─────────────────────────────────────
+    //    var activacion = await _servicioCrm.ActivarLicenciamientoDemo(token, dispositivoId, cfid);
 
-        if (!activacion.Ok)
-        {
-            var mensaje = activacion.HttpCode == HttpStatusCode.Conflict
-                ? $"Los créditos para {rfc} ya fueron reclamados anteriormente."
-                : "No se pudieron activar los créditos. Intenta de nuevo.";
-            MostrarEstado(Estado.Error, mensaje);
-            return;
-        }
+    //    if (!activacion.Ok)
+    //    {
+    //        var mensaje = activacion.HttpCode == HttpStatusCode.Conflict
+    //            ? $"Los créditos para {rfc} ya fueron reclamados anteriormente."
+    //            : "No se pudieron activar los créditos. Intenta de nuevo.";
+    //        MostrarEstado(Estado.Error, mensaje);
+    //        return;
+    //    }
 
-        // ── Éxito: refrescar cuenta fiscal (EstadoLicenciaDemo) y licenciamiento ──
-        await _servicioSesion.GetAsociacionesFiscalesAsync();
-        await _servicioSesion.GetLicenciaAsync();
-        MostrarEstado(Estado.Exito, rfc: rfc);
-    }
+    //    // ── Éxito: refrescar cuenta fiscal (EstadoLicenciaDemo) y licenciamiento ──
+    //    await _servicioSesion.GetAsociacionesFiscalesAsync();
+    //    await _servicioSesion.GetLicenciaAsync();
+    //    MostrarEstado(Estado.Exito, rfc: rfc);
+    //}
 
     private void MostrarEstado(Estado estado, string? mensajeError = null, string? rfc = null)
     {
