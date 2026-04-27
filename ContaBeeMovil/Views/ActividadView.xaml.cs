@@ -20,7 +20,7 @@ public partial class ActividadView : ContentView
 #if ANDROID
         if (PullRefresh.Handler?.PlatformView is AndroidX.SwipeRefreshLayout.Widget.SwipeRefreshLayout swipe)
         {
-            var primary = ObtenerColorPrimary();
+            var primary = UIHelpers.GetColor("Primary");
             var yellow = new Android.Graphics.Color(
                 (byte)(primary.Red * 255),
                 (byte)(primary.Green * 255),
@@ -31,27 +31,15 @@ public partial class ActividadView : ContentView
 #elif IOS
         if (PullRefresh.Handler?.PlatformView is UIKit.UIView platformView)
         {
+            MakeScrollViewTransparent(platformView);
             var uiRefresh = FindUIRefreshControl(platformView);
             if (uiRefresh != null)
             {
-                var primary = ObtenerColorPrimary();
-                uiRefresh.BackgroundColor = UIKit.UIColor.FromRGB(
-                    (byte)(primary.Red * 255),
-                    (byte)(primary.Green * 255),
-                    (byte)(primary.Blue * 255));
+                uiRefresh.BackgroundColor = UIKit.UIColor.Clear;
                 uiRefresh.TintColor = UIKit.UIColor.Black;
             }
         }
 #endif
-    }
-
-    private static Color ObtenerColorPrimary()
-    {
-        if (Application.Current!.Resources.TryGetValue("Primary", out var value))
-        {
-            if (value is Color c) return c;
-        }
-        return Color.FromArgb("#fec001");
     }
 
 #if IOS
@@ -66,6 +54,15 @@ public partial class ActividadView : ContentView
             if (result != null) return result;
         }
         return null;
+    }
+
+    private static void MakeScrollViewTransparent(UIKit.UIView view)
+    {
+        if (view is UIKit.UIScrollView scrollView)
+            scrollView.BackgroundColor = UIKit.UIColor.Clear;
+
+        foreach (var subview in view.Subviews)
+            MakeScrollViewTransparent(subview);
     }
 #endif
 }

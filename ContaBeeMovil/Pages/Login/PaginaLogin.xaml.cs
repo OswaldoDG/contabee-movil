@@ -10,18 +10,18 @@ public partial class PaginaLogin : ContentPage
 {
     private readonly LoginViewModel _viewModel;
     private readonly IServicioAlmacenamiento _almacenamiento;
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
     private const string ClaveMododDev = "ModoDeveloper";
     private int _tapCount = 0;
 
     public static bool LimpiarAlNavegar { get; set; }
 
-    public PaginaLogin(LoginViewModel viewModel, IServicioAlmacenamiento almacenamiento, IToastService toastService)
+    public PaginaLogin(LoginViewModel viewModel, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast)
     {
         InitializeComponent();
         this._viewModel = viewModel;
         this._almacenamiento = almacenamiento;
-        this._toastService = toastService;
+        this._servicioToast = servicioToast;
         BindingContext = this._viewModel;
     }
 
@@ -82,7 +82,7 @@ public partial class PaginaLogin : ContentPage
                 FechaActivacion = DateTime.UtcNow.ToString("O")
             };
             await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
-            await _toastService.ShowAsync("Modo Desarrollador activado", ToastType.Success, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom);
             _tapCount = 0;
         }
     }

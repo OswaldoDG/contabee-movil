@@ -19,7 +19,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 {
     private readonly IServicioCamara _servicioCamara;
     private readonly IServicioAlerta _servicioAlerta;
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioLogs _logs;
@@ -34,17 +34,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IToastService toastService, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs)
     {
         _servicioCamara    = servicioCamara;
         _servicioAlerta    = servicioAlerta;
-        _toastService      = toastService;
+        _servicioToast     = servicioToast;
         _servicioSesion    = servicioSesion;
         _servicioTranscript = servicioTranscript;
         _logs              = logs;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
-        _capturas  = new ObservableCollection<CapturaLote>(AppState.Instance.CapturasLote ?? []);
+        _capturas  = [];
         _capturas.CollectionChanged += (_, _) =>
         {
             OnPropertyChanged(nameof(TieneCapturas));
@@ -54,8 +54,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         ActualizarUsoCfdi();
 
         TomarFotoCommand        = new Command(async () => await TomarFotoAsync());
-        EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
         VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
+        EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
         EnviarCommand           = new Command(async () => await EnviarAsync());
         CancelarCommand         = new Command(async () => await CancelarAsync());
         IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
@@ -88,25 +88,59 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.TryGetValue("tipo", out var t) && t is TipoProcesoCaptura tipo)
+        if (query.TryGetValue("tipo", out var t) && t is TipoProcesoCaptura tipo && tipo != _tipoCaptura)
+        {
             TipoCaptura = tipo;
+            _capturas.Clear();
+        }
 
-        _capturas.Clear();
         _pendienteVerificarFotos = true;
-
         ActualizarUsoCfdi();
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
+
         _ = CargarTarjetasYRefrescarAsync();
 
         if (_pendienteVerificarFotos)
         {
             _pendienteVerificarFotos = false;
-            _ = VerificarFotosGuardadasAsync();
+            _ = InicializarCapturasAsync();
         }
+    }
+
+    private async Task InicializarCapturasAsync()
+    {
+        if (!_capturas.Any(c => c.TipoCaptura == TipoCaptura))
+            await VerificarFotosGuardadasAsync();
+
+        var sharedFileName = SharedImageHandler.TakePendingSharedImage();
+        if (string.IsNullOrEmpty(sharedFileName)) return;
+
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
+        _capturas.Add(captura);
+        AppState.Instance.CapturasLote = [.. _capturas];
+        OnPropertyChanged(nameof(TieneCapturas));
+        await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
+    }
+
+    private void OnImagenCompartidaRecibida(string fileName)
+    {
+        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
+        _capturas.Add(captura);
+        AppState.Instance.CapturasLote = [.. _capturas];
+        OnPropertyChanged(nameof(TieneCapturas));
+        _ = _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
     }
 
     private bool _pendienteVerificarFotos;
@@ -243,6 +277,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Capturas ─────────────────────────────────────────────────────────────
 
     private readonly ObservableCollection<CapturaLote> _capturas;
+
     public ObservableCollection<CapturaLote> Capturas => _capturas;
 
     public bool TieneCapturas    => _capturas.Count > 0;
@@ -257,8 +292,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public double CapturaItemWidth
     {
         get => _capturaItemWidth;
-        private set { _capturaItemWidth = value; OnPropertyChanged(); }
+        private set
+        {
+            _capturaItemWidth = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CapturaItemHeight));
+        }
     }
+
+    public double CapturaItemHeight => _capturaItemWidth * (4.0 / 3.0);
 
     protected override void OnSizeAllocated(double width, double height)
     {
@@ -315,8 +357,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Comandos ─────────────────────────────────────────────────────────────
 
     public ICommand TomarFotoCommand        { get; }
-    public ICommand EliminarCapturaCommand  { get; }
     public ICommand VerImagenCommand        { get; }
+    public ICommand EliminarCapturaCommand  { get; }
     public ICommand EnviarCommand           { get; }
     public ICommand CancelarCommand         { get; }
     public ICommand IrAgregarTarjetaCommand { get; }
@@ -500,23 +542,29 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
     }
 
+    private async Task VerImagenAsync(CapturaLote captura)
+        => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
+               new Dictionary<string, object> { ["path"] = captura.Path });
+
     private async Task EliminarCapturaAsync(CapturaLote captura)
     {
         bool confirmar = await _servicioAlerta.MostrarAsync(
-            "Eliminar captura",
-            "¿Deseas eliminar esta captura del lote?",
+            "Eliminar imagen",
+            "¿Estás seguro de que deseas eliminar esta imagen?",
             confirmarText: "Eliminar",
             cancelarText: "Cancelar");
 
         if (!confirmar) return;
 
         _capturas.Remove(captura);
-        AppState.Instance.CapturasLote = [.. _capturas];
-    }
+        AppState.Instance.CapturasLote = _capturas.Count > 0 ? [.. _capturas] : null;
 
-    private async Task VerImagenAsync(CapturaLote captura)
-        => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
-               new Dictionary<string, object> { ["path"] = captura.Path });
+        if (!captura.EsCompartida && File.Exists(captura.Path))
+        {
+            try { File.Delete(captura.Path); }
+            catch (Exception ex) { _logs.Log($"[PaginaCaptura] EliminarCaptura — error al borrar archivo: {ex.Message}"); }
+        }
+    }
 
     private async Task EnviarAsync()
     {
@@ -524,7 +572,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         var cuentaFiscal = AppState.Instance.CuentaFiscalActual;
         if (cuentaFiscal is null)
         {
-            await _toastService.ShowAsync("Selecciona una cuenta fiscal.", ToastType.Warning, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Selecciona una cuenta fiscal.", ToastIcono.Warning, ToastPosicion.Bottom);
             return;
         }
 
@@ -532,7 +580,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         var formaPago = idxFP >= 0 && idxFP < FormasPago.Count ? FormasPago[idxFP] : null;
         if (formaPago is null)
         {
-            await _toastService.ShowAsync("Selecciona el método de pago.", ToastType.Warning, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Selecciona el método de pago.", ToastIcono.Warning, ToastPosicion.Bottom);
             return;
         }
 
@@ -542,7 +590,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         var tarjeta = requiereTarjeta && idxT >= 0 && idxT < tarjetas.Count ? tarjetas[idxT] : null;
         if (requiereTarjeta && tarjeta is null)
         {
-            await _toastService.ShowAsync("Selecciona la tarjeta.", ToastType.Warning, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Selecciona la tarjeta.", ToastIcono.Warning, ToastPosicion.Bottom);
             return;
         }
 
@@ -550,7 +598,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         var usoCfdi = idxUso >= 0 && idxUso < _usoCfdiOpciones.Count ? _usoCfdiOpciones[idxUso] : null;
         if (usoCfdi is null)
         {
-            await _toastService.ShowAsync("Selecciona el uso de CFDI.", ToastType.Warning, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Selecciona el uso de CFDI.", ToastIcono.Warning, ToastPosicion.Bottom);
             return;
         }
 
@@ -559,7 +607,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                                (AppState.Instance.Licenciamiento?.CreditosCapturaConsumo ?? 0);
         if (creditosAppState <= 0)
         {
-            await _toastService.ShowAsync("No tienes créditos suficientes.", ToastType.Error, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("No tienes créditos suficientes.", ToastIcono.Error, ToastPosicion.Bottom);
             return;
         }
 
@@ -594,11 +642,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 // Sin loteId → no hay lote que completar
                 if (loteResult.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired)
                 {
-                    await _toastService.ShowAsync("No cuentas con créditos suficientes.", ToastType.Error, position: ToastPosition.Bottom);
+                    await _servicioToast.MostrarAsync("No cuentas con créditos suficientes.", ToastIcono.Error, ToastPosicion.Bottom);
                 }
                 else
                 {
-                    await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
+                    await _servicioToast.MostrarAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
                 }
             }
             else
@@ -610,7 +658,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 var precargaResult = await _servicioTranscript.ObtenerPrecargaAsync(loteId.Value);
                 if (!precargaResult.Ok)
                 {
-                    await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
+                    await _servicioToast.MostrarAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
                 }
                 else
                 {
@@ -657,7 +705,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                             precargaResult.Payload.SasToken, rutas, progresoBlobCallback);
 
                         if (!subirResult.Ok)
-                            await _toastService.ShowAsync("Ha ocurrido un error al intentar enviar su captura.", ToastType.Error, position: ToastPosition.Bottom);
+                            await _servicioToast.MostrarAsync("Ha ocurrido un error al intentar enviar su captura.", ToastIcono.Error, ToastPosicion.Bottom);
                         else
                             exitoso = true;
                     }
@@ -666,7 +714,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
         catch
         {
-            await _toastService.ShowAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastType.Error, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
         }
 
         // ── Punto 6: Completar el lote ───────────────────────────────────────
@@ -680,7 +728,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 AppState.Instance.CapturasLote = null;
                 _capturas.Clear();
                 await _servicioSesion.GetLicenciaAsync();
-                await _toastService.ShowAsync("¡Envío completado!", ToastType.Success, position: ToastPosition.Bottom);
+                await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
                 DashboardPage.PendienteActualizar = true;
                 await Shell.Current.GoToAsync("..");

@@ -116,11 +116,11 @@ public class ServicioSesion : IServicioSesion
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
-            var toastService = _serviceProvider.GetRequiredService<IToastService>();
+            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
 
             Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-            await toastService.ShowAsync(mensaje, ToastType.Warning, 4000, ToastPosition.Top);
+            await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
         });
     }
 
@@ -247,9 +247,9 @@ public class ServicioSesion : IServicioSesion
         catch
         {
             _appState.Tarjetas = [];
-            var toastService = _serviceProvider.GetRequiredService<IToastService>();
+            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
             await MainThread.InvokeOnMainThreadAsync(() =>
-                toastService.ShowAsync("No se pudieron cargar tus tarjetas", ToastType.Warning, 4000, ToastPosition.Top));
+                toast.MostrarAsync("No se pudieron cargar tus tarjetas", ToastIcono.Warning, ToastPosicion.Bottom));
         }
     }
 

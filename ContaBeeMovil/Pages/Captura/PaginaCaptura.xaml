@@ -35,16 +35,16 @@
     </Shell.TitleView>
 
     <!-- Grid raíz: contenido + overlay de envío encima -->
-    <Grid>
+    <Grid Padding="0">
 
         <!-- ══════════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
              ══════════════════════════════════════════════════════════════════════ -->
-        <Grid RowDefinitions="Auto,*,Auto">
+        <Grid RowDefinitions="Auto,*,Auto" Padding="0">
 
             <!-- ── Zona de controles (scroll por si el teclado sube) ───────────── -->
             <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
-                <VerticalStackLayout Spacing="0" Padding="5,4,5,4">
+                <VerticalStackLayout Spacing="0" Padding="5,0,5,4">
 
                     <!-- 1. Barra RFC / CP -->
                     <views:RfcCpBarView Margin="-12,0" ConFondo="False" EnColumnas="True" Padding="5,0" />
@@ -165,45 +165,45 @@
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:CapturaLote">
-                            <Grid Margin="6,4"
+                            <Grid Margin="1,1"
                                   WidthRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CapturaItemWidth}"
-                                  HeightRequest="460"
+                                  HeightRequest="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=CapturaItemHeight}"
                                   HorizontalOptions="Center"
-                                  VerticalOptions="Center">
+                                  VerticalOptions="Center"
+                                  Padding="30">
 
-                                <!-- Imagen con botón de eliminar superpuesto -->
-                                <Border StrokeShape="RoundRectangle 16"
+                                <!-- Imagen encerrada en border con sombra y esquinas redondeadas -->
+                                <Border StrokeShape="RoundRectangle 15"
                                         StrokeThickness="0"
-                                        BackgroundColor="Transparent">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
-                                            CommandParameter="{Binding .}" />
-                                    </Border.GestureRecognizers>
-                                    <Grid>
+                                        BackgroundColor="{toolkit:AppThemeResource Background}"
+                                        Padding="0">
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black" Offset="0,4" Radius="5" Opacity="0.22" />
+                                    </Border.Shadow>
+                                    <Grid Padding="0">
                                         <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
                                                Aspect="AspectFill"
                                                HorizontalOptions="Fill"
                                                VerticalOptions="Fill" />
 
                                         <!-- Botón eliminar: esquina superior derecha -->
-                                        <Border HorizontalOptions="Start"
+                                        <Border HorizontalOptions="End"
                                                 VerticalOptions="Start"
-                                                Margin="5,5,5,5"
+                                                Margin="0,10,10,0"
                                                 StrokeShape="RoundRectangle 20"
                                                 StrokeThickness="0"
-                                                BackgroundColor="#77E53935"
-                                                WidthRequest="35"
-                                                HeightRequest="35"
+                                                BackgroundColor="#CC000000"
+                                                WidthRequest="38"
+                                                HeightRequest="38"
                                                 Padding="0">
                                             <Border.GestureRecognizers>
                                                 <TapGestureRecognizer
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
                                                     CommandParameter="{Binding .}" />
                                             </Border.GestureRecognizers>
-                                            <Label Text="X"
-                                                   FontSize="15"
-                                                   FontAttributes="Bold"
+                                            <Label Text="{x:Static f:FluentUI.delete_20_regular}"
+                                                   FontFamily="FluentUI"
+                                                   FontSize="20"
                                                    TextColor="White"
                                                    HorizontalOptions="Center"
                                                    VerticalOptions="Center"

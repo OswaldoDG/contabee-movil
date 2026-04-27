@@ -27,7 +27,7 @@ public partial class LoteCapturaCardView : ContentView
         var servicio = IPlatformApplication.Current.Services
             .GetRequiredService<IServicioTranscript>();
         var toast = IPlatformApplication.Current.Services
-            .GetRequiredService<IToastService>();
+            .GetRequiredService<IServicioToast>();
 
         _ocupado = true;
         SetBusy(btn, spinner, true);
@@ -36,7 +36,7 @@ public partial class LoteCapturaCardView : ContentView
             var archivo = await servicio.DescargarArchivoAsync(item.Datos.Id, tipo);
             if (archivo is null)
             {
-                await toast.ShowAsync("No se pudo descargar el archivo.", ToastType.Error, position: ToastPosition.Bottom);
+                await toast.MostrarAsync("No se pudo descargar el archivo.", ToastIcono.Error, ToastPosicion.Bottom);
                 return;
             }
 
@@ -54,7 +54,7 @@ public partial class LoteCapturaCardView : ContentView
         }
         catch
         {
-            await toast.ShowAsync("No se pudo descargar el archivo.", ToastType.Error, position: ToastPosition.Bottom);
+            await toast.MostrarAsync("No se pudo descargar el archivo.", ToastIcono.Error, ToastPosicion.Bottom);
         }
         finally
         {

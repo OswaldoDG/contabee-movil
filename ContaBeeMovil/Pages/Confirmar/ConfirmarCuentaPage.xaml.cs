@@ -10,7 +10,6 @@ public partial class ConfirmarCuentaPage : ContentPage
 {
     private string _token = string.Empty;
     private readonly IServicioIdentidad _servicioIdentidad;
-    private readonly IToastService _toastService;
     private readonly IServicioLogs _logs;
     private bool _activacionExitosa;
 
@@ -25,11 +24,10 @@ public partial class ConfirmarCuentaPage : ContentPage
         }
     }
 
-    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IToastService ToastService, IServicioLogs logs)
+    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IServicioLogs logs)
     {
         InitializeComponent();
         this._servicioIdentidad = servicioIdentidad;
-        this._toastService = ToastService;
         this._logs = logs;
     }
 
@@ -62,7 +60,6 @@ public partial class ConfirmarCuentaPage : ContentPage
     {
         MainThread.BeginInvokeOnMainThread(() =>
         {
-            // Ocultar todo primero
             LoadingIndicator.IsVisible = false;
             LoadingIndicator.IsRunning = false;
             SuccessIcon.IsVisible = false;
