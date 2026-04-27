@@ -7,7 +7,6 @@ using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
-using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
@@ -18,7 +17,6 @@ public class LoginViewModel : INotifyPropertyChanged
 {
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
-    private readonly IServicioNotificacion _notificacion;
     private readonly IServicioToast _toast;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private const string ClaveMododDev = "ModoDeveloper";
@@ -34,13 +32,11 @@ public class LoginViewModel : INotifyPropertyChanged
     public LoginViewModel(
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
-        IServicioNotificacion notificacion,
         IServicioToast toast,
         IServicioAlmacenamiento almacenamiento)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
-        _notificacion = notificacion;
         _toast = toast;
         _almacenamiento = almacenamiento;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);

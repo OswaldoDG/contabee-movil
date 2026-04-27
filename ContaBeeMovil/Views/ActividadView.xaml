@@ -14,8 +14,9 @@
         <RefreshView x:Name="PullRefresh"
                      Command="{Binding PullRefreshCommand}"
                      IsRefreshing="{Binding EstaRefrescando}"
-                     RefreshColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Black}}"
-                     IsVisible="{Binding MostrarContenido}">
+                     RefreshColor="{toolkit:AppThemeResource Icon}"
+                     IsVisible="{Binding MostrarContenido}"
+                     Background="{toolkit:AppThemeResource Background}">
           <ScrollView x:Name="MainScroll">
             <Grid RowDefinitions="Auto,Auto,Auto,*"
                   RowSpacing="10"

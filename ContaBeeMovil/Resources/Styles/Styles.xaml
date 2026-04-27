@@ -251,9 +251,6 @@
         </Setter>
     </Style>
 
-    <Style TargetType="RefreshView">
-        <Setter Property="RefreshColor" Value="{toolkit:AppThemeResource  Accent1}" />
-    </Style>
 
     <Style TargetType="SearchBar">
         <Setter Property="TextColor" Value="{toolkit:AppThemeResource  Accent1}" />
