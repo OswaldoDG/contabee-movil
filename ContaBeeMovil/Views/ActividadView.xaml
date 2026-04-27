@@ -6,7 +6,8 @@
              xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
              x:Class="ContaBeeMovil.Views.ActividadView"
-             x:DataType="vm:DashboardViewModel">
+             x:DataType="vm:DashboardViewModel"
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
     <Grid Margin="8,8,8,8"
           Padding="5">
