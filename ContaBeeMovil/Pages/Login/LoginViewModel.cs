@@ -232,6 +232,7 @@ public class LoginViewModel : INotifyPropertyChanged
             {
                 // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
+                registrarPage.FromLogin = true;
                 Application.Current!.Windows[0].Page = registrarPage;
             }
         }

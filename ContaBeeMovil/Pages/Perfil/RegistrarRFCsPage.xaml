@@ -11,7 +11,7 @@
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.TabBarIsVisible="False">
 
-    <Grid RowDefinitions="*,1,*">
+    <Grid RowDefinitions="*,1,*,Auto">
 
         <!-- Registro Manual -->
         <VerticalStackLayout Grid.Row="0"
@@ -79,6 +79,18 @@
                 </mi:MauiIcon>
             </Border>
         </VerticalStackLayout>
+
+        <!-- Volver a inicio -->
+        <Button x:Name="BtnVolverInicio"
+                Grid.Row="3"
+                Text="Volver a inicio"
+                Margin="24,16,24,5"
+                Clicked="VolverAInicio_Clicked"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                CornerRadius="10"
+                HorizontalOptions="Center"
+                IsVisible="False" />
 
     </Grid>
 </ContentPage>

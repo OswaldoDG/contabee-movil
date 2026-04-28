@@ -4,6 +4,7 @@ using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,15 +24,17 @@ public class ServicioSesion : IServicioSesion
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private readonly IServiceProvider _serviceProvider;
+    private readonly IServicioLogs _logs;
     private bool _posLoginAbortado;
 
-    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider)
+    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs)
     {
         _appState = appState;
         _servicioCrm = servicioCrm;
         _servicioIdentidad = servicioIdentidad;
         _almacenamiento = almacenamiento;
         _serviceProvider = serviceProvider;
+        _logs = logs;
     }
 
     public async Task<string> LeeIdDeDispositivo()
@@ -165,13 +168,20 @@ public class ServicioSesion : IServicioSesion
         }
        
 
-        var respuesta = await _servicioCrm.GetLicenciamiento(_appState.CuentaFiscalActual.CuentaFiscalId);
+        var cfid = _appState.CuentaFiscalActual.CuentaFiscalId;
+        _logs.Log($"[Licencia] GET licenciamiento → cfid={cfid}");
+
+        var respuesta = await _servicioCrm.GetLicenciamiento(cfid);
 
         if (respuesta.Ok)
         {
-            _appState.Licenciamiento = respuesta.Payload;
+            var p = respuesta.Payload;
+            _logs.Log($"[Licencia] OK → CreditosCaptura={p?.CreditosCaptura} CreditosCapturaConsumo={p?.CreditosCapturaConsumo} LicenciasCaptura={p?.LicenciasCaptura} LicenciasColaboracion={p?.LicenciasColaboracion} CapturaOnPremise={p?.CapturaOnPremise}");
+            _appState.Licenciamiento = p;
             return;
         }
+
+        _logs.Log($"[Licencia] ERROR → HttpCode={respuesta.HttpCode} Mensaje={respuesta.Error?.Mensaje}");
 
         if (respuesta.HttpCode == HttpStatusCode.NotFound)
         {
