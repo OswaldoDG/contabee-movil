@@ -25,6 +25,7 @@ public class RegistroViewModel : INotifyPropertyChanged
     private string _cuponRegistro;
     private string _mensajeError;
     private bool _estaCargando;
+    private bool _aceptaPrivacidad;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioEcommerce _servicioEcommerce;
     private readonly IServicioToast _toast;
@@ -120,8 +121,21 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool AceptaPrivacidad
+    {
+        get => _aceptaPrivacidad;
+        set
+        {
+            _aceptaPrivacidad = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(PuedeRegistrar));
+            ((Command)RegistrarCommand).ChangeCanExecute();
+        }
+    }
+
     public bool PuedeRegistrar =>
         !EstaCargando &&
+        AceptaPrivacidad &&
         !string.IsNullOrWhiteSpace(Nombre) &&
         !string.IsNullOrWhiteSpace(Email) &&
         !string.IsNullOrWhiteSpace(Password) &&

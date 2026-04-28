@@ -114,50 +114,57 @@
                    IsVisible="False" />
 
             <!-- Validaciones de contraseña -->
-            <VerticalStackLayout Spacing="5" Margin="6,5,0,0">
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconMin6"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="20" HeightRequest="20" />
-                    <Label Text="Mínimo 6 caracteres"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14" />
-                </HorizontalStackLayout>
+            <VerticalStackLayout Spacing="5" Margin="12,5,0,0">
+                <Label Text="Tu contraseña debe contener:"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       Margin="0,0,0,2" />
+                <VerticalStackLayout Spacing="5" Margin="12,0,0,0">
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconMin6"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="20"
+                                     WidthRequest="20" HeightRequest="20" />
+                        <Label Text="Mínimo 6 caracteres"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="14" />
+                    </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconMayus"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="20" HeightRequest="20" />
-                    <Label Text="Una letra mayúscula"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14" />
-                </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconMayus"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="20"
+                                     WidthRequest="20" HeightRequest="20" />
+                        <Label Text="Una letra mayúscula"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="14" />
+                    </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconNumero"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="18" HeightRequest="18" />
-                    <Label Text="Un número"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14" />
-                </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconNumero"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="20"
+                                     WidthRequest="18" HeightRequest="18" />
+                        <Label Text="Un número"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="14" />
+                    </HorizontalStackLayout>
 
-                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                    <mi:MauiIcon x:Name="IconEspecial"
-                                 Icon="{mi:Material Icon=Check}"
-                                 IconColor="{toolkit:AppThemeResource Disabled}"
-                                 IconSize="20"
-                                 WidthRequest="18" HeightRequest="18" />
-                    <Label Text="Caracter especial (@ # $ %)"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           FontSize="14" />
-                </HorizontalStackLayout>
+                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                        <mi:MauiIcon x:Name="IconEspecial"
+                                     Icon="{mi:Material Icon=Check}"
+                                     IconColor="{toolkit:AppThemeResource Disabled}"
+                                     IconSize="20"
+                                     WidthRequest="18" HeightRequest="18" />
+                        <Label Text="Caracter especial (@ # $ %)"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="14" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
             </VerticalStackLayout>
 
             <!-- Botón Actualizar -->

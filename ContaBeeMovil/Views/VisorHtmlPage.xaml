@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Views.VisorHtmlPage"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             NavigationPage.HasNavigationBar="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+
+        <Label x:Name="TituloLabel"
+               Grid.Row="0"
+               FontSize="20"
+               FontAttributes="Bold"
+               TextColor="{toolkit:AppThemeResource PrimaryText}"
+               Padding="20,16,20,8" />
+
+        <WebView x:Name="Visor"
+                 Grid.Row="1"
+                 Navigated="OnVisorNavegado"
+                 Navigating="OnVisorNavegando" />
+
+        <Button x:Name="BtnRegresar"
+                Grid.Row="2"
+                Text="Regresar"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                FontAttributes="Bold"
+                HeightRequest="48"
+                CornerRadius="10"
+                Margin="20,8,20,16"
+                IsEnabled="False"
+                Clicked="OnRegresarClicked">
+            <Button.Triggers>
+                <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                    <Setter Property="Opacity" Value="1" />
+                </Trigger>
+            </Button.Triggers>
+        </Button>
+
+    </Grid>
+
+</ContentPage>

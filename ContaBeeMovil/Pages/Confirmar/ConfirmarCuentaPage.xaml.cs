@@ -99,7 +99,7 @@ public partial class ConfirmarCuentaPage : ContentPage
             PaginaLogin.LimpiarAlNavegar = true;
         }
         var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-        Application.Current!.Windows[0].Page = paginaLogin;
+        Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
     }
 
     private enum Estado { Cargando, Exito, Error }

@@ -2,6 +2,7 @@ using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Core;
 using Contabee.Api.abstractions;
 using Contabee.Pages.Registro;
+using ContaBeeMovil.Views;
 using MauiIcons.Core;
 using MauiIcons.Material;
 using System.Text.RegularExpressions;
@@ -33,7 +34,8 @@ public partial class PaginaRegistro : ContentPage
                 args.PropertyName == nameof(RegistroViewModel.Password) ||
                 args.PropertyName == nameof(RegistroViewModel.ConfirmarPassword) ||
                 args.PropertyName == nameof(RegistroViewModel.Nombre) ||
-                args.PropertyName == nameof(RegistroViewModel.Email))
+                args.PropertyName == nameof(RegistroViewModel.Email) ||
+                args.PropertyName == nameof(RegistroViewModel.AceptaPrivacidad))
                 UpdateButtonColor(_viewModel.PuedeRegistrar);
         };
     }
@@ -57,18 +59,10 @@ public partial class PaginaRegistro : ContentPage
         ToggleConfirmPasswordButton.Icon(isPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
     }
 
-    void OnToggleCuponClicked(object? sender, EventArgs e)
+    async void OnAvisoPrivacidadTapped(object? sender, TappedEventArgs e)
     {
-        CuponBorder.IsVisible = true;
-        CuponToggleLabel.IsVisible = false;
-    }
-
-    void OnCerrarCuponClicked(object? sender, EventArgs e)
-    {
-        CuponBorder.IsVisible = false;
-        CuponToggleLabel.IsVisible = true;
-        CuponEntry.Text = string.Empty;
-        _viewModel.CuponRegistro = null;
+        var visor = await VisorHtmlPage.DesdeArchivoAsync("Aviso de privacidad", "privacidad.html");
+        await Navigation.PushModalAsync(visor);
     }
 
     void UpdateButtonColor(bool puedeRegistrar)
