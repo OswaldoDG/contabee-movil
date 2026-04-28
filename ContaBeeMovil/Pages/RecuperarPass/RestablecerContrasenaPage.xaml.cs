@@ -55,7 +55,7 @@ public partial class RestablecerContrasenaPage : ContentPage
     private void OnBackClicked(object? sender, EventArgs e)
     {
         var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-        Application.Current!.Windows[0].Page = paginaLogin;
+        Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
     }
 
     private async void OnRestablecerClicked(object? sender, EventArgs e)
@@ -81,7 +81,7 @@ public partial class RestablecerContrasenaPage : ContentPage
                 await _servicioToast.MostrarAsync("Contraseña restablecida correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
 
                 var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
-                Application.Current!.Windows[0].Page = paginaLogin;
+                Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
             }
             else
             {

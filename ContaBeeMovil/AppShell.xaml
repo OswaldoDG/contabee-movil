@@ -253,6 +253,21 @@
                 </Grid>
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAvisoPrivacidadClicked" />
+                    </Grid.GestureRecognizers>
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUI.shield_lock_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="Aviso de privacidad"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                </Grid>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                    <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
                     </Grid.GestureRecognizers>
                     <Label Grid.Column="0"

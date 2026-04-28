@@ -32,6 +32,57 @@
                                  Spacing="8"
                                  VerticalOptions="Center">
 
+                <!-- Aviso de privacidad (siempre activo, en la parte superior) -->
+                <HorizontalStackLayout Spacing="8" Margin="4,0,0,0" VerticalOptions="Center">
+                    <CheckBox x:Name="ChkPrivacidad"
+                              IsChecked="{Binding AceptaPrivacidad}"
+                              Color="{toolkit:AppThemeResource Primary}"
+                              VerticalOptions="Center" />
+                    <Label VerticalOptions="Center"
+                           FontSize="13"
+                           LineBreakMode="WordWrap"
+                           HorizontalOptions="FillAndExpand">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="He leído y estoy de acuerdo con el "
+                                      TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                                <Span Text="aviso de privacidad"
+                                      TextColor="{toolkit:AppThemeResource Primary}"
+                                      FontAttributes="Bold"
+                                      TextDecorations="Underline" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnAvisoPrivacidadTapped" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!-- Cupón (siempre visible, en la parte superior) -->
+                <Border StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Padding="12,10">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Entry x:Name="CuponEntry"
+                               Grid.Column="0"
+                               Placeholder="Cupón de bienvenida (opcional)"
+                               Text="{Binding CuponRegistro}"
+                               Keyboard="Plain"
+                               BackgroundColor="Transparent"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="15" />
+                        <Label Grid.Column="1"
+                               Text="🎟️"
+                               FontSize="16"
+                               VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!-- Campos del formulario -->
+                <VerticalStackLayout x:Name="PanelCampos"
+                                     Spacing="8">
+
                 <!-- Nombre -->
                 <Border StrokeShape="RoundRectangle 12"
                         Stroke="Transparent"
@@ -104,50 +155,6 @@
                     </Grid>
                 </Border>
 
-                <!-- Cupón toggle label -->
-                <HorizontalStackLayout x:Name="CuponToggleLabel"
-                                       Spacing="6"
-                                       Margin="4,0,0,0">
-                    <HorizontalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnToggleCuponClicked"/>
-                    </HorizontalStackLayout.GestureRecognizers>
-                    <Label Text="🎟️" FontSize="14" VerticalOptions="Center"/>
-                    <Label Text="¿Tienes un cupón de bienvenida?"
-                           TextColor="{toolkit:AppThemeResource Primary}"
-                           FontSize="13"
-                           FontAttributes="Bold"
-                           VerticalOptions="Center"/>
-                </HorizontalStackLayout>
-
-                <!-- Cupón Entry con botón cerrar (hidden by default) -->
-                <Border x:Name="CuponBorder"
-                        StrokeShape="RoundRectangle 12"
-                        Stroke="Transparent"
-                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                        Padding="0"
-                        IsVisible="False">
-                    <Grid ColumnDefinitions="*,Auto" Padding="12,10">
-                        <Entry x:Name="CuponEntry"
-                               Grid.Column="0"
-                               Placeholder="Ingresa tu cupón"
-                               Text="{Binding CuponRegistro}"
-                               Keyboard="Plain"
-                               BackgroundColor="Transparent"
-                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                               FontSize="15"/>
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=KeyboardArrowDown}"
-                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                     IconSize="20"
-                                     VerticalOptions="Center"
-                                     BackgroundColor="Transparent">
-                            <mi:MauiIcon.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnCerrarCuponClicked"/>
-                            </mi:MauiIcon.GestureRecognizers>
-                        </mi:MauiIcon>
-                    </Grid>
-                </Border>
-
                 <!-- Error: contraseñas no coinciden -->
                 <Label x:Name="ErrorCoincidenciaLabel"
                        Text="Las contraseñas no coinciden"
@@ -157,47 +164,56 @@
                        IsVisible="False" />
 
                 <!-- Password requirements -->
-                <VerticalStackLayout Spacing="3" Margin="4,2,0,0">
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconMin6"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="16"
-                                     WidthRequest="16" HeightRequest="16"/>
-                        <Label Text="Mínimo 6 caracteres"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               FontSize="12"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconMayus"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="16"
-                                     WidthRequest="16" HeightRequest="16"/>
-                        <Label Text="Una letra mayúscula"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               FontSize="12"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconNumero"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="16"
-                                     WidthRequest="16" HeightRequest="16"/>
-                        <Label Text="Un número"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               FontSize="12"/>
-                    </HorizontalStackLayout>
-                    <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconEspecial"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="16"
-                                     WidthRequest="16" HeightRequest="16"/>
-                        <Label Text="Caracter especial (@ $ % &amp; . _ # )"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               FontSize="12"/>
-                    </HorizontalStackLayout>
+                <VerticalStackLayout Spacing="3" Margin="12,2,0,0">
+                    <Label Text="Tu contraseña debe contener:"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           Margin="0,0,0,2" />
+                    <VerticalStackLayout Spacing="3" Margin="12,0,0,0">
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <mi:MauiIcon x:Name="IconMin6"
+                                         Icon="{mi:Material Icon=Check}"
+                                         IconColor="{toolkit:AppThemeResource Disabled}"
+                                         IconSize="16"
+                                         WidthRequest="16" HeightRequest="16"/>
+                            <Label Text="Mínimo 6 caracteres"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   FontSize="12"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <mi:MauiIcon x:Name="IconMayus"
+                                         Icon="{mi:Material Icon=Check}"
+                                         IconColor="{toolkit:AppThemeResource Disabled}"
+                                         IconSize="16"
+                                         WidthRequest="16" HeightRequest="16"/>
+                            <Label Text="Una letra mayúscula"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   FontSize="12"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <mi:MauiIcon x:Name="IconNumero"
+                                         Icon="{mi:Material Icon=Check}"
+                                         IconColor="{toolkit:AppThemeResource Disabled}"
+                                         IconSize="16"
+                                         WidthRequest="16" HeightRequest="16"/>
+                            <Label Text="Un número"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   FontSize="12"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <mi:MauiIcon x:Name="IconEspecial"
+                                         Icon="{mi:Material Icon=Check}"
+                                         IconColor="{toolkit:AppThemeResource Disabled}"
+                                         IconSize="16"
+                                         WidthRequest="16" HeightRequest="16"/>
+                            <Label Text="Caracter especial (@ $ % &amp; . _ # )"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   FontSize="12"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
                 </VerticalStackLayout>
 
                 <!-- Crear cuenta button -->
@@ -210,7 +226,7 @@
                         CornerRadius="10"
                         HorizontalOptions="Center"
                         WidthRequest="220"
-                        Margin="0,6,0,0"/>
+                        Margin="0,20,0,0"/>
 
             </VerticalStackLayout>
 

@@ -11,6 +11,7 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;
 
 namespace ContaBeeMovil
@@ -263,6 +264,13 @@ namespace ContaBeeMovil
             var version = AppInfo.VersionString;
             await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}",
                 verBotonCancelar: false, confirmarText: "OK");
+        }
+
+        private async void OnAvisoPrivacidadClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            var visor = await VisorHtmlPage.DesdeArchivoAsync("Aviso de privacidad", "privacidad.html");
+            await Navigation.PushModalAsync(visor);
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)
