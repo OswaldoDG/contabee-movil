@@ -194,7 +194,7 @@
                                    FontSize="22"
                                    TextColor="{toolkit:AppThemeResource Icon}"
                                    VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="Configuración"
+                            <Label Grid.Column="2" Text="Mi cuenta"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
                             <Label Grid.Column="3"
