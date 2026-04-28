@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <OutputType>Library</OutputType>
+    <IsAppExtension>true</IsAppExtension>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationId>mx.contabee.app.shareextension</ApplicationId>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <RootNamespace>ContaBeeShareExtension</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
+    <CodesignProvision>ContaBee ShareExtension Development</CodesignProvision>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <!-- iOS extensions no permiten JIT: usar intérprete de Mono en lugar de JIT -->
+    <MtouchInterpreter>all</MtouchInterpreter>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <CodesignKey>Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)</CodesignKey>
+    <CodesignProvision>ContaBee ShareExtension AppStore</CodesignProvision>
+    <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <!-- AOT + intérprete para módulos problemáticos (mismo patrón que la app principal) -->
+    <MtouchLink>SdkOnly</MtouchLink>
+    <MtouchInterpreter>all</MtouchInterpreter>
+  </PropertyGroup>
+
+</Project>

@@ -6,13 +6,13 @@ namespace ContaBeeMovil.Pages.RecuperarPass;
 public partial class RecuperarPassPage : ContentPage
 {
     private readonly IServicioIdentidad _servicioIdentidad;
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
 
-    public RecuperarPassPage(IServicioIdentidad servicioIdentidad, IToastService toastService)
+    public RecuperarPassPage(IServicioIdentidad servicioIdentidad, IServicioToast servicioToast)
     {
         InitializeComponent();
         _servicioIdentidad = servicioIdentidad;
-        _toastService = toastService;
+        _servicioToast = servicioToast;
     }
 
     protected override void OnAppearing()
@@ -65,27 +65,24 @@ public partial class RecuperarPassPage : ContentPage
 
             if (resultado.Ok)
             {
-                await _toastService.ShowAsync(
+                await _servicioToast.MostrarAsync(
                     "Se ha enviado un enlace a el email para recuperar su contraseña",
-                    type: ToastType.Success,
-                    position: ToastPosition.Bottom);
+                    ToastIcono.Info, ToastPosicion.Bottom);
 
                 await Navigation.PopAsync();
             }
             else
             {
-                await _toastService.ShowAsync(
+                await _servicioToast.MostrarAsync(
                     "No fue posible hacer la solicitud, intenta de nuevo más tarde",
-                    type: ToastType.Error,
-                    position: ToastPosition.Bottom);
+                    ToastIcono.Error, ToastPosicion.Bottom);
             }
         }
         catch
         {
-            await _toastService.ShowAsync(
+            await _servicioToast.MostrarAsync(
                 "No fue posible hacer la solicitud, intenta de nuevo más tarde",
-                type: ToastType.Error,
-                position: ToastPosition.Bottom);
+                ToastIcono.Error, ToastPosicion.Bottom);
         }
         finally
         {

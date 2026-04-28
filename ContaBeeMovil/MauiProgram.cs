@@ -81,11 +81,10 @@ namespace ContaBeeMovil
             builder.Services.AddLogging(configure => configure.AddDebug());
 #endif
 
-            builder.Services.AddSingleton<IToastService, ToastService>();
+            builder.Services.AddSingleton<IServicioToast, ServicioToast>();
             builder.Services.AddSingleton<IServicioAlmacenamiento, ServicioAlmacenamiento>();
             builder.Services.AddSingleton<DeviceService>();
             builder.Services.AddSingleton<IServicioSesion, ServicioSesion>();
-            builder.Services.AddSingleton<IServicioNotificacion, ServicioNotificacion>();
             builder.Services.AddSingleton<IServicioAlerta, ServicioAlerta>();
             builder.Services.AddSingleton(AppState.Instance);
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();

@@ -8,14 +8,14 @@ namespace ContaBeeMovil.Pages.Sugerencias;
 
 public partial class SugerenciasPage : ContentPage
 {
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioLogs _logs;
 
-    public SugerenciasPage(IToastService toastService, IServicioCrm servicioCrm, IServicioLogs logs)
+    public SugerenciasPage(IServicioToast servicioToast, IServicioCrm servicioCrm, IServicioLogs logs)
     {
         InitializeComponent();
-        _toastService = toastService;
+        _servicioToast = servicioToast;
         _servicioCrm = servicioCrm;
         _logs = logs;
     }
@@ -65,13 +65,13 @@ public partial class SugerenciasPage : ContentPage
 
             if (resultado.Ok)
             {
-                await _toastService.ShowAsync("Sugerencia enviada correctamente.", ToastType.Success, position: ToastPosition.Bottom);
+                await _servicioToast.MostrarAsync("Sugerencia enviada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
                 await Shell.Current.GoToAsync("..");
             }
             else
             {
                 var mensaje = resultado.Error?.Mensaje ?? "Error al enviar la sugerencia.";
-                await _toastService.ShowAsync(mensaje, ToastType.Error, position: ToastPosition.Bottom);
+                await _servicioToast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
                 BtnEnviar.IsEnabled = true;
             }
         }
@@ -79,7 +79,7 @@ public partial class SugerenciasPage : ContentPage
         {
             MostrarLoader(false);
             _logs.Log($"[SugerenciasPage] {ex.GetType().Name}: {ex.Message}");
-            await _toastService.ShowAsync("Ocurrió un error al enviar la sugerencia.", ToastType.Error, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Ocurrió un error al enviar la sugerencia.", ToastIcono.Error, ToastPosicion.Bottom);
             BtnEnviar.IsEnabled = true;
         }
     }

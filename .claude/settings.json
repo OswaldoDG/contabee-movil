@@ -8,7 +8,10 @@
       "Bash(grep -v \"^$\")",
       "Bash(dotnet list:*)",
       "Bash(dotnet clean:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "Bash(grep -E \"\\\\.\\(xaml|cs\\)$\")",
+      "Bash(grep -E \"\\\\.\\(cs|xaml\\)$\")",
+      "Read(//Users/neurofant/Downloads/**)"
     ]
   }
 }

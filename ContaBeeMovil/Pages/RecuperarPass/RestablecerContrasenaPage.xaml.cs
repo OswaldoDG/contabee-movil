@@ -11,21 +11,19 @@ namespace ContaBeeMovil.Pages.RecuperarPass;
 
 public partial class RestablecerContrasenaPage : ContentPage
 {
-    private readonly IToastService _toastService;
+    private readonly IServicioToast _servicioToast;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioLogs _logs;
 
     public string Token { get; set; } = string.Empty;
 
-    public RestablecerContrasenaPage(IToastService toastService, IServicioIdentidad servicioIdentidad, IServicioLogs logs)
+    public RestablecerContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad, IServicioLogs logs)
     {
         InitializeComponent();
-        _toastService = toastService;
+        _servicioToast = servicioToast;
         _servicioIdentidad = servicioIdentidad;
         _logs = logs;
     }
-
-    // ── Toggle visibilidad ──────────────────────────────────────────
 
     private void OnToggleNuevaContrasenaClicked(object? sender, TappedEventArgs e)
     {
@@ -43,8 +41,6 @@ public partial class RestablecerContrasenaPage : ContentPage
             : MaterialIcons.VisibilityOff);
     }
 
-    // ── Validación en tiempo real ───────────────────────────────────
-
     private void OnNuevaContrasenaTextChanged(object? sender, TextChangedEventArgs e)
     {
         ActualizarIconosValidacion(e.NewTextValue ?? string.Empty);
@@ -55,8 +51,6 @@ public partial class RestablecerContrasenaPage : ContentPage
     {
         ActualizarEstadoBoton();
     }
-
-    // ── Acción principal ────────────────────────────────────────────
 
     private void OnBackClicked(object? sender, EventArgs e)
     {
@@ -71,7 +65,7 @@ public partial class RestablecerContrasenaPage : ContentPage
 
         if (nueva != confirmar)
         {
-            await _toastService.ShowAsync("Las contraseñas no coinciden.", ToastType.Error, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Las contraseñas no coinciden.", ToastIcono.Error, ToastPosicion.Bottom);
             return;
         }
 
@@ -84,22 +78,21 @@ public partial class RestablecerContrasenaPage : ContentPage
 
             if (resultado.Ok)
             {
-                await _toastService.ShowAsync("Contraseña restablecida correctamente.", ToastType.Success, position: ToastPosition.Bottom);
+                await _servicioToast.MostrarAsync("Contraseña restablecida correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
 
-                // Redirigir al login
                 var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
                 Application.Current!.Windows[0].Page = paginaLogin;
             }
             else
             {
                 _logs.Log($"[RestablecerContrasenaPage] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
-                await _toastService.ShowAsync("Error al restablecer la contraseña.", ToastType.Error, position: ToastPosition.Bottom);
+                await _servicioToast.MostrarAsync("Error al restablecer la contraseña.", ToastIcono.Error, ToastPosicion.Bottom);
             }
         }
         catch (Exception ex)
         {
             _logs.Log($"[RestablecerContrasenaPage] {ex.GetType().Name}: {ex.Message}");
-            await _toastService.ShowAsync("Error al restablecer la contraseña.", ToastType.Error, position: ToastPosition.Bottom);
+            await _servicioToast.MostrarAsync("Error al restablecer la contraseña.", ToastIcono.Error, ToastPosicion.Bottom);
         }
         finally
         {
@@ -107,8 +100,6 @@ public partial class RestablecerContrasenaPage : ContentPage
             ActualizarEstadoBoton();
         }
     }
-
-    // ── Helpers ─────────────────────────────────────────────────────
 
     private void ActualizarIconosValidacion(string pwd)
     {

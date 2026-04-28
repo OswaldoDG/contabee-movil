@@ -1,4 +1,4 @@
-﻿using Contabee.Api;
+using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Ecommerce;
 using Contabee.Api.Identidad;
@@ -27,15 +27,15 @@ public class RegistroViewModel : INotifyPropertyChanged
     private bool _estaCargando;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioEcommerce _servicioEcommerce;
-    private readonly IToastService _toast;
+    private readonly IServicioToast _toast;
     private readonly DeviceService _deviceService;
     private readonly IServicioLogs _logs;
 
-    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IToastService ToastService, DeviceService deviceService, IServicioLogs logs)
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IServicioToast servicioToast, DeviceService deviceService, IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioEcommerce = servicioEcommerce;
-        _toast = ToastService;
+        _toast = servicioToast;
         _deviceService = deviceService;
         _logs = logs;
         //RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
@@ -225,7 +225,6 @@ public class RegistroViewModel : INotifyPropertyChanged
     private async Task<string> ObtenerDispositivoId()
     {
         return await _deviceService.GetDeviceIdAsync();
-       
     }
 
     private async Task IrALogin()

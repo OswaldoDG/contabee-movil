@@ -3,10 +3,11 @@ using Android.Content;
 using Android.Content.PM;
 using Android.OS;
 using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil
 {
-    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTop,
+    [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTask,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
                                ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     [IntentFilter(new[] { Intent.ActionView },
@@ -14,6 +15,10 @@ namespace ContaBeeMovil
         DataScheme = "contabee",
         DataHost = "contabee.app.link",
         AutoVerify = true)]
+    [IntentFilter(new[] { Intent.ActionSend },
+        Categories = new[] { Intent.CategoryDefault },
+        DataMimeType = "image/*",
+        Label = "Compartir a ContaBee")]
     public class MainActivity : MauiAppCompatActivity
     {
         // Flag estático para evitar bucle infinito de recreaciones
@@ -54,6 +59,34 @@ namespace ContaBeeMovil
             {
                 var uri = intent.Data.ToString();
                 DeepLinkHandler.HandleDeepLink(uri);
+                return;
+            }
+
+            if (intent?.Action == Intent.ActionSend && intent.Type?.StartsWith("image/") == true)
+                HandleShareIntent(intent);
+        }
+
+        private void HandleShareIntent(Intent intent)
+        {
+#pragma warning disable CA1422
+            var uri = intent.GetParcelableExtra(Intent.ExtraStream) as Android.Net.Uri;
+#pragma warning restore CA1422
+            if (uri == null) return;
+
+            try
+            {
+                var fileName = $"shared_{DateTime.Now:yyyyMMddHHmmss}.jpg";
+                var destPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, fileName);
+
+                using var inputStream = ContentResolver!.OpenInputStream(uri);
+                using var outputStream = System.IO.File.OpenWrite(destPath);
+                inputStream!.CopyTo(outputStream);
+
+                SharedImageHandler.HandleSharedImage(fileName);
+            }
+            catch (Exception ex)
+            {
+                App.Services?.GetService<IServicioLogs>()?.Log($"[SharedImage] Android: error copiando imagen — {ex.Message}");
             }
         }
     }

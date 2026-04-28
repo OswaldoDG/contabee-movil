@@ -1,6 +1,7 @@
 ﻿using ContaBeeMovil.Helpers;
 using Foundation;
 using UIKit;
+using UserNotifications;
 
 namespace ContaBeeMovil;
 
@@ -8,33 +9,48 @@ namespace ContaBeeMovil;
 public class AppDelegate : MauiUIApplicationDelegate
 {
     protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-    // Captura el deep link cuando la app estaba CERRADA
+
+    // App cerrada → abierta vía URL scheme (cold start)
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
     {
         var result = base.FinishedLaunching(application, launchOptions);
 
+        // Solicitar permiso de notificaciones — necesario para que la Share Extension
+        // pueda enviar la notificación "foto lista" cuando openURL falla en iOS 17+
+        UNUserNotificationCenter.Current.RequestAuthorization(
+            UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound | UNAuthorizationOptions.Badge,
+            (_, _) => { });
+
         if (launchOptions != null)
         {
             var urlKey = UIApplication.LaunchOptionsUrlKey;
-            if (launchOptions.TryGetValue(urlKey, out var urlValue))
+            if (launchOptions.TryGetValue(urlKey, out var urlValue) && urlValue is NSUrl launchUrl)
             {
-                var url = urlValue as NSUrl;
-                if (url != null)
-                {
-                    System.Diagnostics.Debug.WriteLine($"🍎 Deep link (app cerrada): {url.AbsoluteString}");
-                    DeepLinkHandler.HandleDeepLink(url.AbsoluteString);
-                }
+                var uri = launchUrl.AbsoluteString;
+
+                if (uri.StartsWith("contabee://shared-image"))
+                    SharedImageHandler.NotifySharedImageScheme();
+                else
+                    DeepLinkHandler.HandleDeepLink(uri);
             }
         }
 
         return result;
     }
 
-    // Captura el deep link cuando la app estaba ABIERTA
+    // App en background → foreground vía URL scheme
     public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
     {
-        System.Diagnostics.Debug.WriteLine($"🍎 Deep link (app abierta): {url.AbsoluteString}");
-        DeepLinkHandler.HandleDeepLink(url.AbsoluteString);
+        var uri = url.AbsoluteString;
+
+        if (uri.StartsWith("contabee://shared-image"))
+        {
+            // Solo señalar — el acceso al App Group ocurre diferido en SharedImageHandler
+            SharedImageHandler.NotifySharedImageScheme();
+            return true;
+        }
+
+        DeepLinkHandler.HandleDeepLink(uri);
         return true;
     }
 }
