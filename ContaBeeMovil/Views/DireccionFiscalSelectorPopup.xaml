@@ -8,7 +8,7 @@
 
     <Border BackgroundColor="{toolkit:AppThemeResource Background}"
             Stroke="Transparent"
-            StrokeShape="RoundRectangle 20"
+            StrokeShape="RoundRectangle 10"
             Padding="20,24"
             WidthRequest="320">
         <Border.Shadow>

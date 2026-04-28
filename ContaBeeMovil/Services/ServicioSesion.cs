@@ -23,6 +23,7 @@ public class ServicioSesion : IServicioSesion
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private readonly IServiceProvider _serviceProvider;
+    private bool _posLoginAbortado;
 
     public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider)
     {
@@ -71,6 +72,7 @@ public class ServicioSesion : IServicioSesion
     {
         SecureStorage.Remove(CLAVE_ACCESS_TOKEN);
         SecureStorage.Remove(CLAVE_REFRESH_TOKEN);
+        SecureStorage.Remove(CLAVE_EXPIRACION);
         Preferences.Set("TieneSesion", false);
         return Task.CompletedTask;
     }
@@ -108,6 +110,7 @@ public class ServicioSesion : IServicioSesion
 
     private async Task ForzarReloginAsync(string mensaje)
     {
+        _posLoginAbortado = true;
         await LimpiaTokensAsync();
         _appState.Perfil = null;
         _appState.CuentasFiscales = null;
@@ -132,6 +135,9 @@ public class ServicioSesion : IServicioSesion
             _appState.Perfil = respuesta.Payload;
             return;
         }
+
+        if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
+            return;
 
         await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
             ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
@@ -185,6 +191,9 @@ public class ServicioSesion : IServicioSesion
             return;
         }
 
+        if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
+            return;
+
         await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
             ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
             : "Ocurrió un problema al obtener tu licencia");
@@ -194,32 +203,51 @@ public class ServicioSesion : IServicioSesion
     {
         var respuesta = await _servicioCrm.GetAsociacionesFiscales();
 
-        if (respuesta.HttpCode == HttpStatusCode.NotFound)
+        if (respuesta.Ok)
         {
-            _appState.CuentasFiscales = [];
-            _appState.CuentaFiscalActual = null;
+            AplicarCuentasFiscales(respuesta.Payload ?? []);
+            await GetMisUsuariosAsync();
             return;
         }
 
-        if (!respuesta.Ok)
+        // Sin internet — PaginaSinConexion ya mostrada por AuthHandler
+        if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
+            return;
+
+        // Token expirado sin refresh → forzar relogin inmediato
+        if (respuesta.HttpCode == HttpStatusCode.Unauthorized)
         {
-            await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
-                ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
-                : "Ocurrió un problema al cargar tus cuentas fiscales");
+            await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
             return;
         }
 
-        var cuentas = respuesta.Payload ?? [];
+        // Error transitorio — reintentar una vez
+        await Task.Delay(1500);
+        respuesta = await _servicioCrm.GetAsociacionesFiscales();
+
+        if (respuesta.Ok)
+        {
+            AplicarCuentasFiscales(respuesta.Payload ?? []);
+            await GetMisUsuariosAsync();
+            return;
+        }
+
+        if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
+            return;
+
+        await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
+            ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
+            : "Ocurrió un problema al cargar tus cuentas fiscales, intenta de nuevo");
+    }
+
+    private void AplicarCuentasFiscales(List<Contabee.Api.Crm.AsociacionCuentaFiscalCompleta> cuentas)
+    {
         _appState.CuentasFiscales = cuentas;
-
         var actualId = _appState.CuentaFiscalActual?.CuentaFiscalId;
         var cuentaFresca = actualId.HasValue ? cuentas.FirstOrDefault(c => c.CuentaFiscalId == actualId.Value) : null;
-
         // Siempre actualizar con la versión fresca del servidor para reflejar cambios
         // como EstadoLicenciaDemo después de reclamar créditos demo.
         _appState.CuentaFiscalActual = cuentaFresca ?? cuentas.FirstOrDefault();
-
-        await GetMisUsuariosAsync();
     }
 
     public async Task GetMisUsuariosAsync()
@@ -267,10 +295,35 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PosLoginAsync()
     {
+        _posLoginAbortado = false;
+
         await GetPerfilAsync();
+        if (_posLoginAbortado) return;
+
         await GetAsociacionesFiscalesAsync();
+        if (_posLoginAbortado) return;
+
         await GetTarjetasAsync();
+        if (_posLoginAbortado) return;
+
         await GetLicenciaAsync();
+    }
+
+    public async Task VerificarSesionAlReanudarAsync()
+    {
+        if (!Preferences.Get("TieneSesion", false))
+            return;
+
+        var expiracion = await LeeExpiracionAsync();
+        if (!expiracion.HasValue || DateTime.Now < expiracion.Value)
+            return; // válido o indeterminado — AuthHandler maneja el refresh en el próximo request
+
+        bool puedeRefrescar = _appState.Recordarme && !string.IsNullOrEmpty(await LeeRefreshTokenAsync());
+        if (puedeRefrescar)
+            return; // AuthHandler lo refresheará automáticamente en la siguiente petición
+
+        // Token expirado + sin posibilidad de refresh → expulsar inmediatamente
+        await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
     }
 
     public async Task CerrarSesionAsync()

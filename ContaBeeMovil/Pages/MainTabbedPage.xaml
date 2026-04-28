@@ -81,7 +81,7 @@
                 <Shadow Brush="Black"
                         Radius="1"
                         Opacity="0.1"
-                        Offset="0,-1" />
+                        Offset="0,-2" />
             </Border.Shadow>
             <Grid RowDefinitions="Auto,Auto">
                 <views:RfcCpBarView Grid.Row="0" />

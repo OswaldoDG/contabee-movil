@@ -142,6 +142,7 @@ public class RegistroViewModel : INotifyPropertyChanged
             EstaCargando = true;
             MensajeError = string.Empty;
 
+            // Validar cupón si fue proporcionado
             if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
             {
                 await _toast.MostrarAsync("El cupón debe tener más de 3 caracteres.", ToastIcono.Error, ToastPosicion.Bottom);
@@ -151,23 +152,27 @@ public class RegistroViewModel : INotifyPropertyChanged
 
             if (!string.IsNullOrWhiteSpace(CuponRegistro))
             {
-                var cuponResult = await _servicioEcommerce.ValidarCupon(CuponRegistro.Trim());
-                if (!cuponResult.Ok || cuponResult.Payload == null || !cuponResult.Payload.Valido)
+                var cuponResult = await _servicioEcommerce.AplicarCupon(CuponRegistro, new ActivacionCuponDto
                 {
-                    var motivo = cuponResult.Payload?.Motivo ?? "Cupón no válido, por favor verifica e intenta de nuevo.";
-                    await _toast.MostrarAsync(motivo, ToastIcono.Error, ToastPosicion.Bottom);
+                    Codigo = CuponRegistro,
+                    Activar = false
+                });
+                if (cuponResult.Codigo is null || cuponResult.Aplicado == true)
+                {
+                    await _toast.MostrarAsync("Cupón no válido, por favor verifica e intenta de nuevo.", ToastIcono.Error, ToastPosicion.Bottom);
                     EstaCargando = false;
                     return;
                 }
 
                 var popup = new AlertaPopup(
                     "¡Bienvenido! 🎉",
-                    cuponResult.Payload.Descripcion ?? cuponResult.Payload.Nombre ?? "Cupón canjeado exitosamente.",
+                    cuponResult.Descripcion ?? cuponResult.Nombre ?? "Cupón canjeado exitosamente.",
                     verBotonCancelar: false,
                     confirmarText: "Continuar");
                 await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
             }
 
+            // Obtener el ID del dispositivo
             var dispositivoId = await ObtenerDispositivoId();
 
             var model = new RegisterViewModel
@@ -179,9 +184,10 @@ public class RegistroViewModel : INotifyPropertyChanged
                 CuponRegistro = string.IsNullOrWhiteSpace(CuponRegistro) ? null : CuponRegistro
             };
 
-           var respuesta =  await _servicioIdentidad.Registrar(model);
+            // Llamar al servicio de registro
+            var respuesta = await _servicioIdentidad.Registrar(model);
 
-           if(!respuesta.Ok)
+            if (!respuesta.Ok)
             {
                 throw new Exception(respuesta.HttpCode.ToString());
             }
@@ -202,7 +208,7 @@ public class RegistroViewModel : INotifyPropertyChanged
                 _ => "Error al registrar. Por favor verifica tus datos."
             };
 
-            await _toast.MostrarAsync(mensaje, ToastIcono.Error);
+            await _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
             MensajeError = mensaje;
         }
         catch (Exception ex)

@@ -4,8 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
+using Contabee.Api.Ecommerce;
 using Contabee.Api.Transcript;
-using ContaBeeMovil.Pages.Demo;
+using ContaBee.Pages.Cupones;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
@@ -18,6 +19,7 @@ public class DashboardViewModel : INotifyPropertyChanged
 {
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioEcommerce _servicioEcommerce;
 
     private const string CacheDataKey        = "Dashboard_Actividad_Data";
     private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
@@ -34,13 +36,15 @@ public class DashboardViewModel : INotifyPropertyChanged
     private bool _tieneError;
     private bool _sinActividad;
     private bool _estaRefrescando;
+    private bool _tieneCuponBienvenida;
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
-    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta)
+    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
+        _servicioEcommerce = servicioEcommerce;
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
 
@@ -50,14 +54,18 @@ public class DashboardViewModel : INotifyPropertyChanged
             () => new DateTime(_anio, _mes, 1) < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
         RefreshCommand      = new Command(async () => await ReiniciarAlMesActualAsync());
         PullRefreshCommand  = new Command(async () => await PullRefreshAsync());
-        ReclamarDemoCommand = new Command(async () => await OnReclamarDemoAsync());
+        VerCuponesCommand   = new Command(async () => await Shell.Current.GoToAsync(nameof(PaginaCupones)));
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
             {
-                OnPropertyChanged(nameof(PuedeReclamarDemo));
                 _ = CargarEstadisticasAsync(forzarActualizacion: true);
+                _ = CargarCuponBienvenidaAsync();
+            }
+            else if (e.PropertyName is nameof(AppState.CuponesVersion))
+            {
+                _ = CargarCuponBienvenidaAsync();
             }
         };
     }
@@ -167,11 +175,13 @@ public class DashboardViewModel : INotifyPropertyChanged
         set { _estaRefrescando = value; OnPropertyChanged(); }
     }
 
-    #endregion
+    public bool TieneCuponBienvenida
+    {
+        get => _tieneCuponBienvenida;
+        private set { _tieneCuponBienvenida = value; OnPropertyChanged(); }
+    }
 
-    public bool PuedeReclamarDemo =>
-        AppState.Instance.CuentaFiscalActual?.EstadoLicenciaDemo
-            is EstadoLicenciaDemo.SinEvaluar or EstadoLicenciaDemo.Factible;
+    #endregion
 
     #region Commands
 
@@ -179,7 +189,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     public ICommand MesSiguienteCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand PullRefreshCommand { get; }
-    public ICommand ReclamarDemoCommand { get; }
+    public ICommand VerCuponesCommand { get; }
 
     #endregion
 
@@ -187,27 +197,19 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     public async Task LoadDataAsync(bool forzarActualizacion = false)
     {
-        await CargarEstadisticasAsync(forzarActualizacion);
+        await Task.WhenAll(
+            CargarEstadisticasAsync(forzarActualizacion),
+            CargarCuponBienvenidaAsync());
     }
 
     #endregion
 
     #region Private Methods
 
-    private async Task OnReclamarDemoAsync()
+    private async Task CargarCuponBienvenidaAsync()
     {
-        var cuenta = AppState.Instance.CuentaFiscalActual;
-        if (cuenta is null) return;
-
-        var rfc = string.IsNullOrWhiteSpace(cuenta.Rfc) ? "RFC no disponible" : cuenta.Rfc;
-        var confirmar = await _servicioAlerta.MostrarAsync(
-            "Reclamar créditos",
-            $"¿Deseas reclamar 15 créditos para {rfc}?",
-            confirmarText: "Reclamar",
-            cancelarText: "Cancelar");
-
-        if (!confirmar) return;
-        await Shell.Current.GoToAsync(nameof(ReclamarDemoPage));
+        var cupones = await _servicioEcommerce.CuponesUsuario();
+        TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
     }
 
     private async Task PullRefreshAsync()
@@ -216,7 +218,9 @@ public class DashboardViewModel : INotifyPropertyChanged
         try
         {
             LimpiarCache();
-            await CargarEstadisticasAsync(forzarActualizacion: true);
+            await Task.WhenAll(
+                CargarEstadisticasAsync(forzarActualizacion: true),
+                CargarCuponBienvenidaAsync());
         }
         finally
         {
@@ -263,7 +267,11 @@ public class DashboardViewModel : INotifyPropertyChanged
                 return;
             }
 
-            // Sin cuentas registradas → redirigir al flujo de registro
+            // null = error de red/sesión que ya fue manejado por AuthHandler o ForzarReloginAsync
+            if (cuentas is null)
+                return;
+
+            // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();

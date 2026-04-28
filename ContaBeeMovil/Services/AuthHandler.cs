@@ -173,7 +173,7 @@ public class AuthHandler : DelegatingHandler
         {
             var toast = _serviceProvider.GetRequiredService<IServicioToast>();
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = paginaLogin;
+            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
             await toast.MostrarAsync("Tu sesión ha caducado", ToastIcono.Warning, ToastPosicion.Bottom);
         });
     }

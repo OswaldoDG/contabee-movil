@@ -6,10 +6,11 @@
              xmlns:chart="clr-namespace:Syncfusion.Maui.Toolkit.Charts;assembly=Syncfusion.Maui.Toolkit"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Dashboard"
              x:Class="ContaBeeMovil.Views.ActividadView"
-             x:DataType="vm:DashboardViewModel">
+             x:DataType="vm:DashboardViewModel"
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid Margin="8,8,8,8"
-          Padding="5">
+    <Grid Margin="8,1,8,8"
+          Padding="5,1,5,0">
 
         <RefreshView x:Name="PullRefresh"
                      Command="{Binding PullRefreshCommand}"
@@ -44,7 +45,7 @@
                 <Border Grid.Row="1"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 10"
                         Padding="16,6">
                     <Label HorizontalOptions="Center"
                            VerticalOptions="Center">
@@ -65,13 +66,13 @@
 
                 <Grid Grid.Row="2"
                       ColumnDefinitions="*,*,*,*"
-                      ColumnSpacing="6">
+                      ColumnSpacing="5">
 
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
                                 Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12"
-                                Padding="8,10"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="1,10"
                                 HorizontalOptions="Fill">
                             <Label Text="{Binding CreditosRestantes}"
                                    FontSize="24"
@@ -88,7 +89,7 @@
                     <VerticalStackLayout Grid.Column="1" Spacing="4">
                         <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
                                 Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12"
+                                StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
                                 HorizontalOptions="Fill">
                             <Label Text="{Binding Emitidas}"
@@ -106,7 +107,7 @@
                     <VerticalStackLayout Grid.Column="2" Spacing="4">
                         <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
                                 Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12"
+                                StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
                                 HorizontalOptions="Fill">
                             <Label Text="{Binding Declinadas}"
@@ -124,7 +125,7 @@
                     <VerticalStackLayout Grid.Column="3" Spacing="4">
                         <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
                                 Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12"
+                                StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
                                 HorizontalOptions="Fill">
                             <Label Text="{Binding Pendientes}"
@@ -145,7 +146,7 @@
                         IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 10"
                         Margin="0,3,0,3">
                     <Grid RowDefinitions="Auto,Auto,*">
 

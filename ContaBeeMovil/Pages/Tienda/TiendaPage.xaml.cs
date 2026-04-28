@@ -48,7 +48,11 @@ public partial class TiendaPage : ContentPage
         _bannerProximamente  = this.FindByName<Border>("BannerProximamente");
         _debugCompraDirecta  = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
         if (_debugCompraDirecta is not null)
+        {
             _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
+            if (!AppState.Instance.EsDev && _listaProductos is not null)
+                _listaProductos.Header = null;
+        }
 
         _logs.Log("Tienda: página abierta");
         await CargarProductosAsync();

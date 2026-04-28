@@ -12,45 +12,39 @@
 
     <Grid RowDefinitions="Auto,*" Padding="0">
 
-        <!-- Banner: reclamar créditos demo (deshabilitado temporalmente)
+        <!--Banner: cupones disponibles-->
         <Border Grid.Row="0"
-                IsVisible="{Binding PuedeReclamarDemo}"
-                StrokeShape="RoundRectangle 20"
-                Stroke="Transparent"
-                StrokeThickness="0"
-                BackgroundColor="Transparent"
-                Padding="1,0,1,5"
+                IsVisible="{Binding TieneCuponBienvenida}"
+                StrokeShape="RoundRectangle 10"
+                Stroke="{toolkit:AppThemeResource Secondary}"
+                StrokeThickness="1.5"
+                BackgroundColor="{AppThemeBinding Light=#FFF8E1, Dark=#282828}"
+                Padding="10,10"
                 HorizontalOptions="Center"
-                Margin="0,-5,0,5">
+                Margin="12,5,12,0">
             <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding ReclamarDemoCommand}" />
+                <TapGestureRecognizer Command="{Binding VerCuponesCommand}" />
             </Border.GestureRecognizers>
-            <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="0" VerticalOptions="End">
-                <Image Grid.Column="1"
-                       Source="{AppThemeBinding Light=regalo_claro.png, Dark=regalo_oscuro.png}"
-                       WidthRequest="70"
-                       HeightRequest="70"
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalOptions="Center">
+                <Image Grid.Column="0"
+                       Source="{AppThemeBinding Light=cupon_claro.png, Dark=cupon_oscuro.png}"
+                       WidthRequest="42"
+                       HeightRequest="42"
                        Aspect="AspectFit"
-                       VerticalOptions="End"
-                       Margin="-20,-10,0,0" />
-                <Border Grid.Column="0"
-                        StrokeShape="RoundRectangle 24"
-                        Stroke="Transparent"
-                        StrokeThickness="0"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        Padding="10,5" VerticalOptions="End">
-                    <Border.Shadow>
-                        <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,2" Radius="5" Opacity="0.8" />
-                    </Border.Shadow>
-                    <Label Text="Empieza con créditos gratis"
+                       VerticalOptions="Center" />
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                    <Label Text="¡Tienes cupones disponibles!"
                            FontSize="15"
                            FontAttributes="Bold"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           TextColor="{AppThemeBinding Light=#ce8509, Dark=#fefdfc}"
                            VerticalOptions="Center" />
-                </Border>
+                    <Label Text="Toca aquí para ver tus cupones"
+                           FontSize="12"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           VerticalOptions="Center" />
+                </VerticalStackLayout>
             </Grid>
         </Border>
-        -->
 
         <views:ActividadView Grid.Row="1" />
 

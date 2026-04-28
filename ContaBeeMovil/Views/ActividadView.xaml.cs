@@ -1,3 +1,5 @@
+using ContaBeeMovil.Helpers;
+
 namespace ContaBeeMovil.Views;
 
 public partial class ActividadView : ContentView

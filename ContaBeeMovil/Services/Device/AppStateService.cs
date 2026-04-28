@@ -257,6 +257,19 @@ public partial class AppState : ObservableObject
         set => SetProperty(ref _logs, value);
     }
 
+    // ── CuponesVersion ────────────────────────────────────────────────────────
+    private int _cuponesVersion;
+
+    /// <summary>
+    /// Se incrementa cada vez que el usuario aplica un cupón. No persiste entre sesiones.
+    /// Permite que el DashboardViewModel reaccione sin depender de OnAppearing.
+    /// </summary>
+    public int CuponesVersion
+    {
+        get => _cuponesVersion;
+        set => SetProperty(ref _cuponesVersion, value);
+    }
+
     // ── EsDev ──────────────────────────────────────────────────────────────────
     private bool _esDev;
 

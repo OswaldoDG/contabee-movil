@@ -7,7 +7,7 @@
 
     <Border x:Name="Trigger"
             BackgroundColor="{toolkit:AppThemeResource Background}"
-            StrokeShape="RoundRectangle 12"
+            StrokeShape="RoundRectangle 10"
             StrokeThickness="1"
             Stroke="{toolkit:AppThemeResource Accent1}"
             Padding="5,0"

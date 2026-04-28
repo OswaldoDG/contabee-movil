@@ -150,52 +150,5 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         }
 
         return r;
-
-    }
-
-    public async Task<RespuestaPayload<RespuestaSolicitudLicenciamientoDemo>> SolicitarLicenciamientoDemo(string rfc, string dispositivoId,Guid? cfid)
-    {
-        RespuestaPayload<RespuestaSolicitudLicenciamientoDemo> r = new();
-
-        try
-        {
-
-            var res = await servicioCrm.SolicitarAsync(rfc,dispositivoId,cfid);
-            if (res != null)
-            {
-                r.Payload = res;
-            }
-            r.Ok = true;
-        }
-        catch (Exception ex)
-        {
-            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicitar Licencia Demo");
-        }
-
-        return r;
-
-    }
-
-    public async Task<RespuestaPayload<LicenciamientoCuentaFiscal>> ActivarLicenciamientoDemo(string token, string dispositivoId, Guid? cfid)
-    {
-        RespuestaPayload<LicenciamientoCuentaFiscal> r = new();
-
-        try
-        {
-
-            var res = await servicioCrm.ActivarAsync(token,dispositivoId,cfid);
-            if (res != null)
-            {
-                r.Payload = res;
-            }
-            r.Ok = true;
-        }
-        catch (Exception ex)
-        {
-            r.Error = ex.ErrorGenerico("ServicioIdentidad-Activar Licencia Demo");
-        }
-
-        return r;
-
     }
 }

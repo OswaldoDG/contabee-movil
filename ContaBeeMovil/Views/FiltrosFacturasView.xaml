@@ -40,7 +40,7 @@
                 </Grid>
 
                 <Border BackgroundColor="{toolkit:AppThemeResource Background}"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 10"
                         StrokeThickness="1"
                         Stroke="{toolkit:AppThemeResource Accent1}"
                         Padding="12,0">
@@ -100,7 +100,7 @@
                 <Border x:Name="BtnBuscar"
                         Grid.Column="3"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        StrokeShape="RoundRectangle 22"
+                        StrokeShape="RoundRectangle 10"
                         StrokeThickness="0"
                         HeightRequest="44"
                         WidthRequest="44"
