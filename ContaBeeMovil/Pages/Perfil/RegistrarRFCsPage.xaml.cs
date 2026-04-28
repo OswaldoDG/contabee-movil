@@ -4,16 +4,24 @@ using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
+[QueryProperty(nameof(FromLogin), "fromLogin")]
 public partial class RegistrarRFCsPage : ContentPage
 {
+    public bool FromLogin
+    {
+        set => BtnVolverInicio.IsVisible = value;
+    }
+
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IServicioSesion _servicioSesion;
 
-    public RegistrarRFCsPage(IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public RegistrarRFCsPage(IServicioAlerta servicioAlerta, IServicioLogs logs, IServicioSesion servicioSesion)
     {
         InitializeComponent();
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _servicioSesion = servicioSesion;
     }
 
     private async void IconManual_Tapped(object? sender, EventArgs e)
@@ -51,5 +59,10 @@ public partial class RegistrarRFCsPage : ContentPage
     private async void IconVincular_Tapped(object? sender, EventArgs e)
     {
         await _servicioAlerta.MostrarAsync("Vincular", "Funcionalidad para vincular próximamente.", verBotonCancelar: false, confirmarText: "OK");
+    }
+
+    private async void VolverAInicio_Clicked(object? sender, EventArgs e)
+    {
+        await _servicioSesion.CerrarSesionAsync();
     }
 }
