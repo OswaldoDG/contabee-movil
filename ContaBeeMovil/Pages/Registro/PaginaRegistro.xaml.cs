@@ -35,7 +35,8 @@ public partial class PaginaRegistro : ContentPage
                 args.PropertyName == nameof(RegistroViewModel.ConfirmarPassword) ||
                 args.PropertyName == nameof(RegistroViewModel.Nombre) ||
                 args.PropertyName == nameof(RegistroViewModel.Email) ||
-                args.PropertyName == nameof(RegistroViewModel.AceptaPrivacidad))
+                args.PropertyName == nameof(RegistroViewModel.AceptaPrivacidad) ||
+                args.PropertyName == nameof(RegistroViewModel.AceptaTerminos))
                 UpdateButtonColor(_viewModel.PuedeRegistrar);
         };
     }
@@ -62,6 +63,12 @@ public partial class PaginaRegistro : ContentPage
     async void OnAvisoPrivacidadTapped(object? sender, TappedEventArgs e)
     {
         var visor = await VisorHtmlPage.DesdeArchivoAsync("Aviso de privacidad", "privacidad.html");
+        await Navigation.PushModalAsync(visor);
+    }
+
+    async void OnTerminosTapped(object? sender, TappedEventArgs e)
+    {
+        var visor = await VisorHtmlPage.DesdeArchivoAsync("Términos del servicio", "tos.html");
         await Navigation.PushModalAsync(visor);
     }
 

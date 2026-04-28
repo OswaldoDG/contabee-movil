@@ -60,6 +60,34 @@
                     </Label>
                 </HorizontalStackLayout>
 
+                <!-- Términos del servicio (siempre activo, debajo del aviso de privacidad) -->
+                <HorizontalStackLayout Spacing="8"
+                        Margin="4,0,0,0"
+                        VerticalOptions="Center">
+                    <CheckBox x:Name="ChkTerminos"
+                              IsChecked="{Binding AceptaTerminos}"
+                              Color="{toolkit:AppThemeResource Primary}"
+                              VerticalOptions="Center"/>
+                    <Label VerticalOptions="Center"
+                           FontSize="13"
+                           LineBreakMode="WordWrap"
+                           HorizontalOptions="FillAndExpand">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="He leído y acepto los "
+                                      TextColor="{toolkit:AppThemeResource PrimaryText}"/>
+                                <Span Text="términos del servicio"
+                                      TextColor="{toolkit:AppThemeResource Primary}"
+                                      FontAttributes="Bold"
+                                      TextDecorations="Underline"/>
+                            </FormattedString>
+                        </Label.FormattedText>
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnTerminosTapped"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </HorizontalStackLayout>
+
                 <!-- Cupón (siempre visible, en la parte superior) -->
                 <Border StrokeShape="RoundRectangle 12"
                         Stroke="Transparent"
