@@ -64,7 +64,7 @@
 
                         <!-- Botón página anterior -->
                         <Border x:Name="BtnAnterior"
-                                StrokeShape="RoundRectangle 22"
+                                StrokeShape="RoundRectangle 10"
                                 HeightRequest="44"
                                 WidthRequest="44"
                                 StrokeThickness="2"
@@ -95,7 +95,7 @@
 
                         <!-- Botón página siguiente -->
                         <Border x:Name="BtnSiguiente"
-                                StrokeShape="RoundRectangle 22"
+                                StrokeShape="RoundRectangle 10"
                                 HeightRequest="44"
                                 WidthRequest="44"
                                 StrokeThickness="2"
@@ -120,7 +120,7 @@
                     <Border x:Name="BtnCaptura"
                             Grid.Column="2"
                             WidthRequest="44" HeightRequest="44"
-                            StrokeShape="RoundRectangle 12"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="0"
                             BackgroundColor="{toolkit:AppThemeResource Primary}"
                             VerticalOptions="Center"

@@ -10,7 +10,7 @@
     <Grid RowDefinitions="*, Auto" Padding="24" RowSpacing="16">
 
         <Border Grid.Row="0"
-                StrokeShape="RoundRectangle 16"
+                StrokeShape="RoundRectangle 10"
                 Stroke="{toolkit:AppThemeResource Accent1}"
                 StrokeThickness="1"
                 BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">

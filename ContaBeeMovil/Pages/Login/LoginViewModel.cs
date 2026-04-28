@@ -217,17 +217,20 @@ public class LoginViewModel : INotifyPropertyChanged
 
             AppState.Instance.Recordarme = Recordarme;
 
-            var tieneCuentasFiscales =
-                AppState.Instance.CuentasFiscales != null &&
-                AppState.Instance.CuentasFiscales.Count > 0;
+            var cuentas = AppState.Instance.CuentasFiscales;
 
-            if (tieneCuentasFiscales)
+            // null significa que ocurrió un error y ForzarReloginAsync ya navegó al login
+            if (cuentas == null)
+                return;
+
+            if (cuentas.Count > 0)
             {
                 var shell = MauiProgram.Services.GetRequiredService<AppShell>();
                 Application.Current!.Windows[0].Page = shell;
             }
             else
             {
+                // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
                 Application.Current!.Windows[0].Page = registrarPage;
             }

@@ -24,21 +24,21 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         return r;
     }
 
-    public async Task<RespuestaPayload<RespuestaCuponValido>> ValidarCupon(string codigo)
-    {
-        RespuestaPayload<RespuestaCuponValido> r = new();
-        try
-        {
-            var res = await servicioEcommerce.ValidarAsync(codigo, TipoCuentaCupon.UsuarioApp, null);
-            r.Payload = res;
-            r.Ok = true;
-        }
-        catch (Exception ex)
-        {
-            r.Error = ex.ErrorGenerico("ServicioEcommerce-ValidarCupon");
-        }
-        return r;
-    }
+    //public async Task<RespuestaPayload<RespuestaCuponValido>> ValidarCupon(string codigo)
+    //{
+    //    RespuestaPayload<RespuestaCuponValido> r = new();
+    //    try
+    //    {
+    //        var res = await servicioEcommerce.ValidarAsync(codigo, TipoCuentaCupon.UsuarioApp, null);
+    //        r.Payload = res;
+    //        r.Ok = true;
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        r.Error = ex.ErrorGenerico("ServicioEcommerce-ValidarCupon");
+    //    }
+    //    return r;
+    //}
 
     public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
@@ -69,6 +69,38 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         {
             System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP ← ERROR {ex.GetType().Name}: {ex.Message}");
             return false;
+        }
+    }
+
+    public async Task<List<CuponUsuario>> CuponesUsuario()
+    {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario →");
+        try
+        {
+            var res = await servicioEcommerce.CuponesAsync();
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← OK");
+            return res.ToList();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← ERROR {ex.GetType().Name}: {ex.Message}");
+            return new List<CuponUsuario>();
+        }
+    }
+
+    public async Task<CuponUsuario> AplicarCupon(string codigo, ActivacionCuponDto activacionCupon)
+    {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon → codigo={codigo} cuentaId={activacionCupon.UsuarioId} cfid={activacionCupon.CuentaFiscalId}");
+        try
+        {
+            var res = await servicioEcommerce.AplicarAsync(codigo, activacionCupon);
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon ← OK");
+            return res;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] AplicarCupon ← ERROR {ex.GetType().Name}: {ex.Message}");
+            return new CuponUsuario();
         }
     }
 }

@@ -9,7 +9,7 @@
     <Border x:Name="ContenedorPopup"
             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
             Stroke="Transparent"
-            StrokeShape="RoundRectangle 20"
+            StrokeShape="RoundRectangle 10"
             Padding="24,20"
             Margin="20">
         <Border.Shadow>

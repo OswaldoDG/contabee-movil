@@ -61,7 +61,7 @@
 
                         <!-- Tarjeta virtual -->
                         <Border Stroke="transparent"
-                                StrokeShape="RoundRectangle 16"
+                                StrokeShape="RoundRectangle 10"
                                 Padding="20,16,20,20"
                                 HorizontalOptions="Fill"
                                 VerticalOptions="Fill"

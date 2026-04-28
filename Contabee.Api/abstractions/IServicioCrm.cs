@@ -11,6 +11,4 @@ public interface IServicioCrm
     Task<Respuesta> EliminarAsociacionFiscal(long id);
     Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request);
     Task<RespuestaPayload<DtoLicenciamiento2>> GetLicenciamiento(Guid cfid);
-    Task<RespuestaPayload<RespuestaSolicitudLicenciamientoDemo>> SolicitarLicenciamientoDemo(string rfc, string dispositivoId, Guid? cfid);
-    Task<RespuestaPayload<LicenciamientoCuentaFiscal>> ActivarLicenciamientoDemo(string token, string dispositivoId, Guid? cfid);
 }

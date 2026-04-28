@@ -2,7 +2,6 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using StatusBar = CommunityToolkit.Maui.Core.Platform.StatusBar;
 using ContaBeeMovil.Pages.Confirmar;
-using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
@@ -13,6 +12,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;
+using ContaBee.Pages.Cupones;
 
 namespace ContaBeeMovil
 {
@@ -238,6 +238,11 @@ namespace ContaBeeMovil
             FlyoutIsPresented = false;
             await GoToAsync(nameof(LogsPage));
         }
+        private async void OnCuponesClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            await Shell.Current.GoToAsync(nameof(PaginaCupones));
+        }
 
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
@@ -300,8 +305,8 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
-            Routing.RegisterRoute(nameof(ReclamarDemoPage), typeof(ReclamarDemoPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
+            Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
         }
     }
 }

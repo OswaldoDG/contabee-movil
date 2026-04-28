@@ -35,7 +35,7 @@ public partial class RFCsPage : ContentPage
         CargarCuentas();
 
         var cuentas = AppState.Instance.CuentasFiscales;
-        if (!_autoNavegado && (cuentas == null || cuentas.Count == 0))
+        if (!_autoNavegado && cuentas != null && cuentas.Count == 0)
         {
             _autoNavegado = true;
             await AbrirRegistrar();

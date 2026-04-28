@@ -15,7 +15,7 @@
 
         <!-- Tarjeta central -->
         <Border Margin="24,40,24,24"
-                StrokeShape="RoundRectangle 16"
+                StrokeShape="RoundRectangle 10"
                 Stroke="Transparent"
                 Padding="32"
                 BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -43,7 +43,7 @@
                             IsVisible="False"
                             WidthRequest="90"
                             HeightRequest="90"
-                            StrokeShape="RoundRectangle 45"
+                            StrokeShape="RoundRectangle 10"
                             Stroke="Transparent"
                             BackgroundColor="{toolkit:AppThemeResource Primary}"
                             Padding="0"
@@ -60,7 +60,7 @@
                             IsVisible="False"
                             WidthRequest="90"
                             HeightRequest="90"
-                            StrokeShape="RoundRectangle 45"
+                            StrokeShape="RoundRectangle 10"
                             Stroke="Transparent"
                             BackgroundColor="{toolkit:AppThemeResource Error}"
                             Padding="0"

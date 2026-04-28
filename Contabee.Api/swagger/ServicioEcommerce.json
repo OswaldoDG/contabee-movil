@@ -304,253 +304,6 @@
         }
       }
     },
-    "/cupones/capturagratuita/{cuentaId}": {
-      "get": {
-        "tags": [
-          "Cupones"
-        ],
-        "parameters": [
-          {
-            "name": "cuentaId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "aplicado",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/cupones/historial": {
-      "post": {
-        "tags": [
-          "Cupones"
-        ],
-        "parameters": [
-          {
-            "name": "cfid",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/cupones/validar/{codigo}": {
-      "post": {
-        "tags": [
-          "Cupones"
-        ],
-        "parameters": [
-          {
-            "name": "codigo",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "tipo",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCuentaCupon"
-            }
-          },
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.RespuestaCuponValido"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/cupones/aplicar/{codigo}/mi": {
-      "post": {
-        "tags": [
-          "Cupones"
-        ],
-        "parameters": [
-          {
-            "name": "codigo",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/cupones/aplicar/{codigo}/cuentafiscal": {
-      "post": {
-        "tags": [
-          "Cupones"
-        ],
-        "parameters": [
-          {
-            "name": "codigo",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "cfid",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
     "/cupones/aplicar/{codigo}": {
       "post": {
         "tags": [
@@ -564,22 +317,129 @@
             "schema": {
               "type": "string"
             }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              }
+            }
           },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/interproceso/aplicar/{codigo}": {
+      "post": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
           {
-            "name": "id",
-            "in": "query",
+            "name": "codigo",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "tipo",
-            "in": "query",
-            "schema": {
-              "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCuentaCupon"
-            }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.cupones.dtos.ActivacionCuponDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1259,42 +1119,16 @@
         },
         "additionalProperties": false
       },
-      "generic.ecommerce.model.cupones.TipoCuentaCupon": {
-        "enum": [
-          "Todas",
-          "CuentaFiscal",
-          "UsuarioApp"
-        ],
-        "type": "string"
-      },
-      "generic.ecommerce.model.cupones.dtos.RespuestaCuponCapturaGratuita": {
+      "generic.ecommerce.model.cupones.CuponUsuario": {
         "required": [
-          "codigo"
-        ],
-        "type": "object",
-        "properties": {
-          "codigo": {
-            "type": "string",
-            "nullable": true
-          },
-          "cantidad": {
-            "type": "number",
-            "format": "double"
-          }
-        },
-        "additionalProperties": false
-      },
-      "generic.ecommerce.model.cupones.dtos.RespuestaCuponValido": {
-        "required": [
-          "codigo",
           "descripcion",
           "nombre"
         ],
         "type": "object",
         "properties": {
-          "codigo": {
-            "type": "string",
-            "nullable": true
+          "id": {
+            "type": "integer",
+            "format": "int64"
           },
           "nombre": {
             "type": "string",
@@ -1304,10 +1138,64 @@
             "type": "string",
             "nullable": true
           },
-          "valido": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCupon"
+          },
+          "tipoCuenta": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.cupones.TipoCuentaCupon"
+          },
+          "aplicado": {
             "type": "boolean"
           },
-          "motivo": {
+          "fecha": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "generic.ecommerce.model.cupones.TipoCuentaCupon": {
+        "enum": [
+          "Todas",
+          "CuentaFiscal",
+          "UsuarioApp"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.cupones.TipoCupon": {
+        "enum": [
+          "DescuentoFijo",
+          "DescuentoPorcentaje",
+          "ProductoGratuito",
+          "NPorM",
+          "Merchandise",
+          "CapturaBienvenida"
+        ],
+        "type": "string"
+      },
+      "generic.ecommerce.model.cupones.dtos.ActivacionCuponDto": {
+        "required": [
+          "codigo"
+        ],
+        "type": "object",
+        "properties": {
+          "codigo": {
+            "type": "string",
+            "nullable": true
+          },
+          "activar": {
+            "type": "boolean"
+          },
+          "usuarioId": {
+            "type": "string",
+            "nullable": true
+          },
+          "cuentaFiscalId": {
             "type": "string",
             "nullable": true
           }

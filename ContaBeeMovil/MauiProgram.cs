@@ -6,7 +6,6 @@ using Contabee.Pages.Registro;
 using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Pages.Confirmar;
-using ContaBeeMovil.Pages.Demo;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
@@ -29,6 +28,7 @@ using ZXing.Net.Maui.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
+using ContaBee.Pages.Cupones;
 
 
 namespace ContaBeeMovil
@@ -121,13 +121,13 @@ namespace ContaBeeMovil
 
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
-
+            builder.Services.AddTransient<PaginaCuponesViewModel>();
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
             builder.Services.AddTransient<MainTabbedPage>();
-
+            builder.Services.AddTransient<PaginaCupones>();
             builder.Services.AddTransient<RegistroViewModel>();
             builder.Services.AddTransient<PaginaRegistro>();
 
@@ -150,7 +150,6 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<PaginaCaptura>();
             builder.Services.AddTransient<VisorImagenPage>();
             builder.Services.AddTransient<TiendaPage>();
-            builder.Services.AddTransient<ReclamarDemoPage>();
             builder.Services.AddTransient<LogsPage>();
             builder.Services.AddTransient<PaginaSinConexion>();
             // Cámara pages and view models
