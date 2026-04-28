@@ -73,6 +73,7 @@
     <toolkit:AppThemeColor x:Key="Camera"          Light="#8f8f8f"   Dark="#8f8f8f"  />
     <toolkit:AppThemeColor x:Key="AppBarPrimary"   Light="#fefdfc"   Dark="#3a3a3a"  />
     <toolkit:AppThemeColor x:Key="AppBarSecondary" Light="#f4c611"   Dark="#ce8509"  />
+    <toolkit:AppThemeColor x:Key="CardBackground" Light="#ffffff" Dark="#1E1E1E" />
 
     <!-- ========================================= -->
     <!-- BRUSHES                                   -->

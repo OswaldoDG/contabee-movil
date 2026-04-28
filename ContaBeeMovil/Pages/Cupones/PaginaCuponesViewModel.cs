@@ -43,6 +43,16 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
     public ObservableCollection<CuponUsuario> Cupones { get; } = [];
 
+    public string TextoCuentaFiscalAplicacion
+    {
+        get
+        {
+            var cuenta = AppState.Instance.CuentaFiscalActual;
+            if (cuenta is null) return "?";
+            return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;
+        }
+    }
+
     public ICommand BuscarCuponCommand { get; }
     public ICommand AplicarCuponCommand { get; }
 
@@ -54,6 +64,16 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         _servicioEcommerce = servicioEcommerce;
         _servicioSesion = servicioSesion;
         _servicioAlerta = servicioAlerta;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.CuentaFiscalActual)
+                or nameof(AppState.DireccionFiscalActual)
+                or nameof(AppState.MostrarNombreFiscal))
+            {
+                OnPropertyChanged(nameof(TextoCuentaFiscalAplicacion));
+            }
+        };
 
         BuscarCuponCommand = new Command(async () => await RegistrarCuponPorCodigoAsync());
         AplicarCuponCommand = new Command<CuponUsuario>(async item => await AplicarCuponAsync(item));
@@ -99,7 +119,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
                 Activar = false
             });
 
-            if (registrado is null || !registrado.Aplicado)
+            if (registrado.Codigo is null || registrado.Aplicado)
             {
                 await _servicioAlerta.MostrarAsync("Cupón", "No se pudo registrar el cupón.", confirmarText: "OK", verBotonCancelar: false);
                 return;
