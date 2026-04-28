@@ -33,7 +33,7 @@
                                  VerticalOptions="Center">
 
                 <!-- Nombre -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="12,10">
@@ -47,7 +47,7 @@
                 </Border>
 
                 <!-- Correo -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="12,10">
@@ -60,7 +60,7 @@
                 </Border>
 
                 <!-- Contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="12,10">
@@ -75,7 +75,7 @@
                 </Border>
 
                 <!-- Confirmar Contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="0">
@@ -121,7 +121,7 @@
 
                 <!-- Cupón Entry con botón cerrar (hidden by default) -->
                 <Border x:Name="CuponBorder"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="0"

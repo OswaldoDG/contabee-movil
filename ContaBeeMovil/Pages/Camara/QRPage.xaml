@@ -37,7 +37,7 @@
                 BarcodesDetected="OnBarcodesDetected" />
 
             <!-- Guía visual de encuadre -->
-            <Border StrokeShape="RoundRectangle 8"
+            <Border StrokeShape="RoundRectangle 10"
                     Stroke="White"
                     StrokeThickness="2"
                     BackgroundColor="Transparent"

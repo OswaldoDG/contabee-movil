@@ -54,13 +54,17 @@ public class DashboardViewModel : INotifyPropertyChanged
             () => new DateTime(_anio, _mes, 1) < new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1));
         RefreshCommand      = new Command(async () => await ReiniciarAlMesActualAsync());
         PullRefreshCommand  = new Command(async () => await PullRefreshAsync());
-        ReclamarDemoCommand = new Command(async () => await OnReclamarDemoAsync());
+        VerCuponesCommand   = new Command(async () => await Shell.Current.GoToAsync(nameof(PaginaCupones)));
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
             {
                 _ = CargarEstadisticasAsync(forzarActualizacion: true);
+                _ = CargarCuponBienvenidaAsync();
+            }
+            else if (e.PropertyName is nameof(AppState.CuponesVersion))
+            {
                 _ = CargarCuponBienvenidaAsync();
             }
         };
@@ -185,7 +189,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     public ICommand MesSiguienteCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand PullRefreshCommand { get; }
-    public ICommand ReclamarDemoCommand { get; }
+    public ICommand VerCuponesCommand { get; }
 
     #endregion
 
@@ -202,15 +206,10 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     #region Private Methods
 
-    private async Task OnReclamarDemoAsync()
-    {
-        await Shell.Current.GoToAsync(nameof(PaginaCupones));
-    }
-
     private async Task CargarCuponBienvenidaAsync()
     {
         var cupones = await _servicioEcommerce.CuponesUsuario();
-        TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida);
+        TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
     }
 
     private async Task PullRefreshAsync()
@@ -268,7 +267,11 @@ public class DashboardViewModel : INotifyPropertyChanged
                 return;
             }
 
-            // Sin cuentas registradas → redirigir al flujo de registro
+            // null = error de red/sesión que ya fue manejado por AuthHandler o ForzarReloginAsync
+            if (cuentas is null)
+                return;
+
+            // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();

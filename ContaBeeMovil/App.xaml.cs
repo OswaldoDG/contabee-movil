@@ -20,6 +20,7 @@ public partial class App : Application
     {
         base.OnResume();
         AppState.Instance.CargarDesdePreferencias();
+        _ = Services.GetRequiredService<IServicioSesion>().VerificarSesionAlReanudarAsync();
 #if IOS
         // Revisar App Group al reanudar — cubre el caso donde el usuario toca
         // la notificación "foto lista" que programa la Share Extension

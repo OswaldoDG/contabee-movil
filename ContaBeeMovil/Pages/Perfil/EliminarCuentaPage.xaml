@@ -42,7 +42,7 @@
                        Margin="0,0,0,8" />
 
                 <!-- Contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="0"
@@ -71,7 +71,7 @@
                 </Border>
 
                 <!-- Confirmar contraseña -->
-                <Border StrokeShape="RoundRectangle 12"
+                <Border StrokeShape="RoundRectangle 10"
                         Stroke="Transparent"
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="0"

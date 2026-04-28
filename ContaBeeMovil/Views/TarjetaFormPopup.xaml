@@ -10,7 +10,7 @@
             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
             VerticalOptions="Center"
             HorizontalOptions="Center"
-            StrokeShape="RoundRectangle 16"
+            StrokeShape="RoundRectangle 10"
             Stroke="{toolkit:AppThemeResource Accent1}"
             StrokeThickness="1"
             Padding="20">

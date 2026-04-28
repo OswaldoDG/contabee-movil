@@ -45,7 +45,7 @@
                    Margin="0,8,0,16" />
 
             <!-- Nueva contraseña -->
-            <Border StrokeShape="RoundRectangle 12"
+            <Border StrokeShape="RoundRectangle 10"
                     Stroke="Transparent"
                     BackgroundColor="Transparent"
                     Padding="0"
@@ -75,7 +75,7 @@
             </Border>
 
             <!-- Confirmar contraseña -->
-            <Border StrokeShape="RoundRectangle 12"
+            <Border StrokeShape="RoundRectangle 10"
                     Stroke="Transparent"
                     BackgroundColor="Transparent"
                     Padding="0"

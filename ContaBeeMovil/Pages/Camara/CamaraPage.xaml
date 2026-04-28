@@ -29,7 +29,7 @@
         </VerticalStackLayout>
 
         <Border Grid.Row="1"
-                StrokeShape="RoundRectangle 16"
+                StrokeShape="RoundRectangle 10"
                 Stroke="{toolkit:AppThemeResource Accent1}"
                 StrokeThickness="1"
                 BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">

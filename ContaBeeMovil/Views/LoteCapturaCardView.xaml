@@ -91,7 +91,7 @@
                            Wrap="Wrap"
                            AlignItems="Center"
                            JustifyContent="SpaceBetween">
-                    <Border StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
@@ -103,7 +103,7 @@
                                VerticalOptions="Center"
                                LineBreakMode="NoWrap" />
                     </Border>
-                    <Border StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
@@ -126,7 +126,7 @@
                 <!-- Fila 2: Badge estado/monto -->
                 <Border BackgroundColor="{Binding Datos, Converter={StaticResource BadgeColor}}"
                         StrokeThickness="0"
-                        StrokeShape="RoundRectangle 8"
+                        StrokeShape="RoundRectangle 10"
                         Padding="16,6"
                         HorizontalOptions="Fill"
                         VerticalOptions="Center">
@@ -141,7 +141,7 @@
                 <!-- Fila 3: UsoCfdi o Motivo + RFC Receptor (apilados verticalmente) -->
                 <VerticalStackLayout Spacing="4">
                     <!-- UsoCFDI o Error -->
-                    <Border StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"
@@ -155,7 +155,7 @@
                     </Border>
 
                     <!-- RFC RfcEmisor -->
-                    <Border StrokeShape="RoundRectangle 8"
+                    <Border StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="Transparent"

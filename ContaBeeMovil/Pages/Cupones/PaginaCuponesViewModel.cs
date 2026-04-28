@@ -166,13 +166,17 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
                 await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
+
+            AppState.Instance.CuponesVersion++;
         }
         finally
         {
             EstaCargando = false;
         }
 
-        await CargarCuponesAsync();
+        await Task.WhenAll(
+            CargarCuponesAsync(),
+            _servicioSesion.GetLicenciaAsync());
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -21,7 +21,7 @@
 
             <Border Stroke="{toolkit:AppThemeResource Accent1}"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
+                    StrokeShape="RoundRectangle 10"
                     BackgroundColor="Transparent"
                     Padding="10">
                 <Editor x:Name="MeGustaEditor"
@@ -50,7 +50,7 @@
 
             <Border Stroke="{toolkit:AppThemeResource Accent1}"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
+                    StrokeShape="RoundRectangle 10"
                     BackgroundColor="Transparent"
                     Padding="10">
                 <Editor x:Name="NoMeGustaEditor"
@@ -79,7 +79,7 @@
 
             <Border Stroke="{toolkit:AppThemeResource Accent1}"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle 12"
+                    StrokeShape="RoundRectangle 10"
                     BackgroundColor="Transparent"
                     Padding="10">
                 <Editor x:Name="MeGustariaEditor"
