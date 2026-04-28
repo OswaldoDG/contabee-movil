@@ -100,7 +100,7 @@
                 <Border x:Name="BtnBuscar"
                         Grid.Column="3"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        StrokeShape="RoundRectangle 10"
+                        StrokeShape="RoundRectangle 20"
                         StrokeThickness="0"
                         HeightRequest="44"
                         WidthRequest="44"
