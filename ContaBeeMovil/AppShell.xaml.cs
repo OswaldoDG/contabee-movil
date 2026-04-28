@@ -278,6 +278,13 @@ namespace ContaBeeMovil
             await Navigation.PushModalAsync(visor);
         }
 
+        private async void OnTerminosServicioClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            var visor = await VisorHtmlPage.DesdeArchivoAsync("Términos del servicio", "tos.html");
+            await Navigation.PushModalAsync(visor);
+        }
+
         private async void OnCompartirClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
