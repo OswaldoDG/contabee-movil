@@ -18,7 +18,7 @@
                      RefreshColor="{toolkit:AppThemeResource Icon}"
                      IsVisible="{Binding MostrarContenido}"
                      Background="{toolkit:AppThemeResource Background}">
-          <ScrollView x:Name="MainScroll">
+          <ScrollView x:Name="MainScroll" VerticalScrollBarVisibility="Never">
             <Grid RowDefinitions="Auto,Auto,Auto,*"
                   RowSpacing="10"
                   Padding="0,5,0,0"
