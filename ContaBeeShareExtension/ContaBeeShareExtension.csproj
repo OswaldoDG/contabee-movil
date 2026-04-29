@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-ios</TargetFramework>
-    <RuntimeIdentifiers>ios-arm64;iossimulator-arm64;iossimulator-x64</RuntimeIdentifiers>
     <OutputType>Library</OutputType>
     <IsAppExtension>true</IsAppExtension>
     <Nullable>enable</Nullable>
