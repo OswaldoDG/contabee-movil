@@ -3,8 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             x:Class="ContaBeeMovil.Pages.Perfil.ConfiguracionPage"
-             Title="Configuración"
+             x:Class="ContaBeeMovil.Pages.Perfil.MiCuentaPage"
+             Title="Mi cuenta"
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              Shell.TitleColor="{toolkit:AppThemeResource PrimaryText}"
@@ -53,7 +53,74 @@
                     </Grid>
                 </Border>
 
-                <!-- Agrega más opciones aquí y se mantendrán arriba -->
+                <!-- ── Legal ── -->
+                <Label Text="Legal"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   Margin="4,8,0,4" />
+
+                <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAvisoPrivacidadClicked" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                        <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                        <Label Grid.Column="1"
+                           Text="{x:Static f:FluentUI.shield_lock_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Aviso de privacidad"
+                               Style="{StaticResource Body1}" />
+                            <Label Text="Consulta cómo manejamos tu información"
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="3"
+                           Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="16"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTerminosServicioClicked" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                        <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                        <Label Grid.Column="1"
+                           Text="{x:Static f:FluentUI.document_24_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Términos del servicio"
+                               Style="{StaticResource Body1}" />
+                            <Label Text="Condiciones de uso de la aplicación"
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="3"
+                           Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                           FontFamily="{x:Static f:FluentUI.FontFamily}"
+                           FontSize="16"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           VerticalOptions="Center" />
+                    </Grid>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>

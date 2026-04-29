@@ -2,10 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- The Mac App Store requires you specify if the app uses encryption. -->
-    <!-- Please consult https://developer.apple.com/documentation/bundleresources/information_property_list/itsappusesnonexemptencryption -->
-    <!-- <key>ITSAppUsesNonExemptEncryption</key> -->
-    <!-- Please indicate <true/> or <false/> here. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 
     <!-- Specify the category for your app here. -->
     <!-- Please consult https://developer.apple.com/documentation/bundleresources/information_property_list/lsapplicationcategorytype -->
@@ -16,7 +14,7 @@
 		<integer>2</integer>
 	</array>
 	<key>LSApplicationCategoryType</key>
-	<string>public.app-category.lifestyle</string>
+	<string>public.app-category.business</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>
@@ -34,7 +32,17 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>CFBundleDisplayName</key>
+	<string>Contabee</string>
+	<key>CFBundleIdentifier</key>
+	<string>mx.contabee.app</string>
 	<key>XSAppIconAssets</key>
 	<string>Assets.xcassets/appicon.appiconset</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ContaBee necesita acceso a la cámara para escanear códigos QR de constancias fiscales y tomar fotos de tickets.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ContaBee necesita acceso a tu galería para adjuntar imágenes de tickets.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ContaBee guarda las fotos de tus tickets y comprobantes fiscales en tu galería para que puedas acceder a ellas fuera de la app.</string>
 </dict>
 </plist>

@@ -12,7 +12,9 @@ public static class DeepLinkHandler
     {
         if (string.IsNullOrWhiteSpace(uri)) return;
 
+#if DEBUG
         System.Diagnostics.Debug.WriteLine($"🔗 Procesando: {uri}");
+#endif
 
         if (!Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri)) return;
 
@@ -27,7 +29,9 @@ public static class DeepLinkHandler
 
         if (link == null)
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"⚠️ Ruta no reconocida: {parsedUri.AbsolutePath}");
+#endif
             return;
         }
 
@@ -35,21 +39,27 @@ public static class DeepLinkHandler
             Navegar(link);
         else
         {
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"⏳ App no lista, guardando link...");
+#endif
             _pendingDeepLink = link;
         }
     }
 
     public static void NotifyAppReady()
     {
+#if DEBUG
         System.Diagnostics.Debug.WriteLine($"✅ App lista!");
+#endif
         _appReady = true;
 
         if (_pendingDeepLink != null)
         {
             var link = _pendingDeepLink;
             _pendingDeepLink = null;
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"▶️ Procesando link pendiente...");
+#endif
             Navegar(link);
         }
     }
@@ -76,7 +86,9 @@ public static class DeepLinkHandler
             }
             catch (Exception ex)
             {
+#if DEBUG
                 System.Diagnostics.Debug.WriteLine($"❌ Error navegando: {ex.Message}");
+#endif
             }
         });
     }

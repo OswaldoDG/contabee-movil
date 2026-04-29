@@ -33,7 +33,7 @@
                                  Spacing="6"
                                  VerticalOptions="Start">
 
-                <!-- Aviso de privacidad (siempre activo, en la parte superior) -->
+                <!-- Aviso de privacidad y Términos del servicio -->
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="2"
                       Margin="2,0,0,0">
@@ -42,53 +42,35 @@
                               IsChecked="{Binding AceptaPrivacidad}"
                               Color="{toolkit:AppThemeResource Primary}"
                               VerticalOptions="Center"/>
-                    <Label Grid.Column="1"
-                           VerticalOptions="Center"
-                           FontSize="12"
-                           LineBreakMode="WordWrap">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="He leído y estoy de acuerdo con el "
-                                      TextColor="{toolkit:AppThemeResource PrimaryText}"/>
-                                <Span Text="aviso de privacidad"
-                                      TextColor="{toolkit:AppThemeResource Primary}"
-                                      FontAttributes="Bold"
-                                      TextDecorations="Underline"/>
-                            </FormattedString>
-                        </Label.FormattedText>
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnAvisoPrivacidadTapped"/>
-                        </Label.GestureRecognizers>
-                    </Label>
+                    <FlexLayout Grid.Column="1"
+                                Wrap="Wrap"
+                                AlignItems="Center">
+                        <Label Text="He leído y acepto el "
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                        <Label Text="aviso de privacidad"
+                               TextColor="{toolkit:AppThemeResource Primary}"
+                               FontAttributes="Bold"
+                               TextDecorations="Underline"
+                               FontSize="12">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnAvisoPrivacidadTapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Text=" y los "
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontSize="12"/>
+                        <Label Text="términos del servicio"
+                               TextColor="{toolkit:AppThemeResource Primary}"
+                               FontAttributes="Bold"
+                               TextDecorations="Underline"
+                               FontSize="12">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnTerminosTapped"/>
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </FlexLayout>
                 </Grid>
-
-                <!-- Términos del servicio (siempre activo, debajo del aviso de privacidad) -->
-                <HorizontalStackLayout Spacing="8"
-                        Margin="4,0,0,0"
-                        VerticalOptions="Center">
-                    <CheckBox x:Name="ChkTerminos"
-                              IsChecked="{Binding AceptaTerminos}"
-                              Color="{toolkit:AppThemeResource Primary}"
-                              VerticalOptions="Center"/>
-                    <Label VerticalOptions="Center"
-                           FontSize="13"
-                           LineBreakMode="WordWrap"
-                           HorizontalOptions="FillAndExpand">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="He leído y acepto los "
-                                      TextColor="{toolkit:AppThemeResource PrimaryText}"/>
-                                <Span Text="términos del servicio"
-                                      TextColor="{toolkit:AppThemeResource Primary}"
-                                      FontAttributes="Bold"
-                                      TextDecorations="Underline"/>
-                            </FormattedString>
-                        </Label.FormattedText>
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnTerminosTapped"/>
-                        </Label.GestureRecognizers>
-                    </Label>
-                </HorizontalStackLayout>
 
                 <!-- Cupón (siempre visible, en la parte superior) -->
                 <Border StrokeShape="RoundRectangle 12"

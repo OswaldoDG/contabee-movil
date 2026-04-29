@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-ios</TargetFramework>
+    <RuntimeIdentifiers>ios-arm64;iossimulator-arm64;iossimulator-x64</RuntimeIdentifiers>
     <OutputType>Library</OutputType>
     <IsAppExtension>true</IsAppExtension>
     <Nullable>enable</Nullable>
@@ -10,6 +11,10 @@
     <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
     <RootNamespace>ContaBeeShareExtension</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <BundleResource Include="PrivacyInfo.xcprivacy" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
