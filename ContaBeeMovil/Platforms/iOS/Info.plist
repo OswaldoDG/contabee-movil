@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIDeviceFamily</key>
@@ -39,7 +41,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>ContaBee necesita acceso a tu galería para adjuntar imágenes de tickets.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>ContaBee necesita permiso para guardar imágenes en tu galería.</string>
+	<string>ContaBee guarda las fotos de tus tickets y comprobantes fiscales en tu galería para que puedas acceder a ellas fuera de la app.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

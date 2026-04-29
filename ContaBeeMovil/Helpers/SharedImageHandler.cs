@@ -35,6 +35,20 @@ public static class SharedImageHandler
     {
         Logs?.Log("[SharedImage] app lista");
         _appReady = true;
+
+#if IOS || MACCATALYST
+        // Permiso pedido aquí (lazy) en lugar de en FinishedLaunching, para que el usuario
+        // tenga contexto de la app antes de ver el diálogo del sistema.
+        // Solo se muestra si el estado aún no fue determinado (primera vez).
+        UserNotifications.UNUserNotificationCenter.Current.GetNotificationSettings(settings =>
+        {
+            if (settings.AuthorizationStatus == UserNotifications.UNAuthorizationStatus.NotDetermined)
+                UserNotifications.UNUserNotificationCenter.Current.RequestAuthorization(
+                    UserNotifications.UNAuthorizationOptions.Alert | UserNotifications.UNAuthorizationOptions.Sound,
+                    (_, _) => { });
+        });
+#endif
+
         if (_pendingFileName != null)
         {
             // Android ya entregó el archivo directamente

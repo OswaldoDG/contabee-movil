@@ -247,7 +247,7 @@ namespace ContaBeeMovil
         private async void OnConfiguracionClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await Shell.Current.GoToAsync(nameof(ConfiguracionPage));
+            await Shell.Current.GoToAsync(nameof(MiCuentaPage));
         }
 
         private async void OnDiagnosticoClicked(object? sender, EventArgs e)
@@ -269,20 +269,6 @@ namespace ContaBeeMovil
             var version = AppInfo.VersionString;
             await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}",
                 verBotonCancelar: false, confirmarText: "OK");
-        }
-
-        private async void OnAvisoPrivacidadClicked(object? sender, EventArgs e)
-        {
-            FlyoutIsPresented = false;
-            var visor = await VisorHtmlPage.DesdeArchivoAsync("Aviso de privacidad", "privacidad.html");
-            await Navigation.PushModalAsync(visor);
-        }
-
-        private async void OnTerminosServicioClicked(object? sender, EventArgs e)
-        {
-            FlyoutIsPresented = false;
-            var visor = await VisorHtmlPage.DesdeArchivoAsync("Términos del servicio", "tos.html");
-            await Navigation.PushModalAsync(visor);
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)
@@ -307,7 +293,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
-            Routing.RegisterRoute(nameof(ConfiguracionPage), typeof(ConfiguracionPage));
+            Routing.RegisterRoute(nameof(MiCuentaPage), typeof(MiCuentaPage));
             Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));

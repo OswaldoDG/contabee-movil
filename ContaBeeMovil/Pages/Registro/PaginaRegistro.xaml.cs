@@ -35,8 +35,7 @@ public partial class PaginaRegistro : ContentPage
                 args.PropertyName == nameof(RegistroViewModel.ConfirmarPassword) ||
                 args.PropertyName == nameof(RegistroViewModel.Nombre) ||
                 args.PropertyName == nameof(RegistroViewModel.Email) ||
-                args.PropertyName == nameof(RegistroViewModel.AceptaPrivacidad) ||
-                args.PropertyName == nameof(RegistroViewModel.AceptaTerminos))
+                args.PropertyName == nameof(RegistroViewModel.AceptaPrivacidad))
                 UpdateButtonColor(_viewModel.PuedeRegistrar);
         };
     }

@@ -78,7 +78,9 @@ public partial class CambiarContrasenaPage : ContentPage
         else
         {
             var mensaje = resultado.Error?.Mensaje ?? "Error al cambiar la contraseña.";
+#if DEBUG
             System.Diagnostics.Debug.WriteLine($"[CambiarContrasena] Error: Codigo={resultado.Error?.Codigo}, Mensaje={resultado.Error?.Mensaje}, HttpCode={resultado.Error?.HttpCode}");
+#endif
             await _servicioToast.MostrarAsync(mensaje, ToastIcono.Error);
         }
 

@@ -1,7 +1,6 @@
 ﻿using ContaBeeMovil.Helpers;
 using Foundation;
 using UIKit;
-using UserNotifications;
 
 namespace ContaBeeMovil;
 
@@ -14,12 +13,6 @@ public class AppDelegate : MauiUIApplicationDelegate
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
     {
         var result = base.FinishedLaunching(application, launchOptions);
-
-        // Solicitar permiso de notificaciones — necesario para que la Share Extension
-        // pueda enviar la notificación "foto lista" cuando openURL falla en iOS 17+
-        UNUserNotificationCenter.Current.RequestAuthorization(
-            UNAuthorizationOptions.Alert | UNAuthorizationOptions.Sound | UNAuthorizationOptions.Badge,
-            (_, _) => { });
 
         if (launchOptions != null)
         {

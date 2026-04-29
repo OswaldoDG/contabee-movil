@@ -52,7 +52,9 @@ public partial class AppState : ObservableObject
         _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
         _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
         _capturasLote            = LeerObjeto<List<CapturaLote>>(PrefsKeys.CapturasLote);
+#if DEBUG
         System.Diagnostics.Debug.WriteLine($"[AppState] CargarDesdePreferencias — CapturasLote cargadas: {_capturasLote?.Count ?? 0}");
+#endif
 
         // Notificar a todos los bindings activos que los valores se recargaron
         OnPropertyChanged(nameof(Perfil));
