@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:f="clr-namespace:Fonts"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.EliminarCuentaPage"
@@ -18,12 +17,11 @@
             <VerticalStackLayout Padding="24" Spacing="12">
 
                 <!-- Ícono de advertencia -->
-                <Label Text="{x:Static f:FluentUI.warning_24_regular}"
-                       FontFamily="{x:Static f:FluentUI.FontFamily}"
-                       FontSize="56"
-                       TextColor="{toolkit:AppThemeResource Error}"
-                       HorizontalOptions="Center"
-                       Margin="0,16,0,0" />
+                <mi:MauiIcon Icon="{mi:Material Icon=Warning}"
+                             IconSize="56"
+                             IconColor="{toolkit:AppThemeResource Error}"
+                             HorizontalOptions="Center"
+                             Margin="0,16,0,0" />
 
                 <!-- Título -->
                 <Label Text="Eliminar cuenta permanentemente"
@@ -56,7 +54,7 @@
                                PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                                FontSize="16"
                                TextChanged="OnCampoTextChanged" />
-                        <mi:MauiIcon x:Name="ToggleContrasena"
+                        <mi:MauiIcon x:Name="ToggleContrasenas"
                                      Grid.Column="1"
                                      Icon="{mi:Material Icon=Visibility}"
                                      IconColor="{toolkit:AppThemeResource Icon}"
@@ -64,7 +62,7 @@
                                      VerticalOptions="Center"
                                      BackgroundColor="Transparent">
                             <mi:MauiIcon.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnToggleContrasenaClicked" />
+                                <TapGestureRecognizer Tapped="OnToggleContrasenasClicked" />
                             </mi:MauiIcon.GestureRecognizers>
                         </mi:MauiIcon>
                     </Grid>
@@ -76,7 +74,7 @@
                         BackgroundColor="{toolkit:AppThemeResource Alternate}"
                         Padding="0"
                         Margin="0,6,0,0">
-                    <Grid ColumnDefinitions="*,Auto" Padding="14">
+                    <Grid ColumnDefinitions="*" Padding="14">
                         <Entry x:Name="ConfirmarContrasenaEntry"
                                Grid.Column="0"
                                Placeholder="Confirmar contraseña"
@@ -85,17 +83,6 @@
                                PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                                FontSize="16"
                                TextChanged="OnCampoTextChanged" />
-                        <mi:MauiIcon x:Name="ToggleConfirmar"
-                                     Grid.Column="1"
-                                     Icon="{mi:Material Icon=Visibility}"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     IconSize="25"
-                                     VerticalOptions="Center"
-                                     BackgroundColor="Transparent">
-                            <mi:MauiIcon.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnToggleConfirmarClicked" />
-                            </mi:MauiIcon.GestureRecognizers>
-                        </mi:MauiIcon>
                     </Grid>
                 </Border>
 

@@ -17,10 +17,13 @@ public partial class DireccionFiscalSelectorPopup : Popup
     {
         var cp = string.IsNullOrWhiteSpace(dir.CodigoPostal) ? "?" : dir.CodigoPostal;
 
-        if (!string.IsNullOrWhiteSpace(dir.Colonia))
-            return $"{cp} – {dir.Colonia}";
+        var partes = new[] { dir.Colonia, dir.Municipio, dir.EntidadFederativa }
+            .Where(v => !string.IsNullOrWhiteSpace(v) && v != "-")
+            .ToList();
 
-        return cp;
+        return partes.Count > 0
+            ? $"{cp} – {string.Join(", ", partes.Take(2))}"
+            : cp;
     }
 
     private void ConstruirLista()

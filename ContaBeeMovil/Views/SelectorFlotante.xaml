@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Views.SelectorFlotante">
 
     <Border x:Name="Trigger"
@@ -21,13 +21,12 @@
                    FontSize="14"
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    LineBreakMode="TailTruncation" />
-            <Label Grid.Column="1"
-                   Text="{x:Static f:FluentUI.chevron_down_20_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="16"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   VerticalOptions="Center"
-                   Margin="1,0,0,0" />
+            <mi:MauiIcon Grid.Column="1"
+                         Icon="{mi:Material Icon=KeyboardArrowDown}"
+                         IconSize="16"
+                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                         VerticalOptions="Center"
+                         Margin="1,0,0,0" />
         </Grid>
     </Border>
 

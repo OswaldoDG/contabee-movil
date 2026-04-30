@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Views.RfcCpBarView">
 
     <Grid x:Name="RootGrid"
@@ -10,17 +10,16 @@
           BackgroundColor="{toolkit:AppThemeResource Primary}"
           Padding="12,6">
 
-        <Label Grid.Column="0"
-               x:Name="IconRfc"
-               Text="{x:Static f:FluentUI.person_24_regular}"
-               FontFamily="{x:Static f:FluentUI.FontFamily}"
-               FontSize="24"
-               TextColor="{StaticResource Black}"
-               VerticalOptions="Center">
-            <Label.GestureRecognizers>
+        <mi:MauiIcon Grid.Column="0"
+                     x:Name="IconRfc"
+                     Icon="{mi:Material Icon=Person}"
+                     IconSize="24"
+                     IconColor="{StaticResource Black}"
+                     VerticalOptions="Center">
+            <mi:MauiIcon.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
-            </Label.GestureRecognizers>
-        </Label>
+            </mi:MauiIcon.GestureRecognizers>
+        </mi:MauiIcon>
 
         <Label Grid.Column="1"
                x:Name="LabelRfcCp"
@@ -31,17 +30,16 @@
                HorizontalOptions="Center"
                VerticalOptions="Center" />
 
-        <Label Grid.Column="2"
-               x:Name="IconCp"
-               Text="{x:Static f:FluentUI.location_24_regular}"
-               FontFamily="{x:Static f:FluentUI.FontFamily}"
-               FontSize="24"
-               TextColor="{StaticResource Black}"
-               VerticalOptions="Center">
-            <Label.GestureRecognizers>
+        <mi:MauiIcon Grid.Column="2"
+                     x:Name="IconCp"
+                     Icon="{mi:Material Icon=LocationOn}"
+                     IconSize="24"
+                     IconColor="{StaticResource Black}"
+                     VerticalOptions="Center">
+            <mi:MauiIcon.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCpButtonTapped" />
-            </Label.GestureRecognizers>
-        </Label>
+            </mi:MauiIcon.GestureRecognizers>
+        </mi:MauiIcon>
 
     </Grid>
 

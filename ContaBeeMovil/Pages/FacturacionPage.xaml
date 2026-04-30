@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             xmlns:f="clr-namespace:Fonts"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
@@ -29,12 +28,11 @@
                 Padding="10,5"
                 Margin="8,2,8,4">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Label Grid.Column="0"
-                       Text="{x:Static f:FluentUI.warning_20_regular}"
-                       FontFamily="FluentUI"
-                       FontSize="18"
-                       TextColor="{toolkit:AppThemeResource Icon}"
-                       VerticalOptions="Center" />
+                        <mi:MauiIcon Grid.Column="0"
+                                     Icon="{mi:Material Icon=Warning}"
+                                     IconSize="18"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     VerticalOptions="Center" />
                         <Label Grid.Column="1"
                        Text="No tienes créditos de captura disponibles."
                        FontSize="13"
@@ -80,16 +78,11 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAbrirCaptura" />
                 </Border.GestureRecognizers>
-                <Label Text="{x:Static f:FluentUI.camera_20_regular}"
-                       FontFamily="FluentUI"
-                       FontSize="20"
-                       TextColor="#1A1A1A"
-                       WidthRequest="44"
-                       HeightRequest="44"
-                       HorizontalTextAlignment="Center"
-                       VerticalTextAlignment="Center"
-                       HorizontalOptions="Fill"
-                       VerticalOptions="Fill" />
+                <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+                             IconSize="20"
+                             IconColor="#1A1A1A"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center" />
             </Border>
 
         </Grid>

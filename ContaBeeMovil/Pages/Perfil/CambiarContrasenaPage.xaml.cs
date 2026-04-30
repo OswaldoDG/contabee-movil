@@ -12,6 +12,8 @@ public partial class CambiarContrasenaPage : ContentPage
     private readonly IServicioToast _servicioToast;
     private readonly IServicioIdentidad _servicioIdentidad;
 
+    private bool _mostrarContrasenas = false;
+
     public CambiarContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad)
     {
         InitializeComponent();
@@ -19,28 +21,13 @@ public partial class CambiarContrasenaPage : ContentPage
         _servicioIdentidad = servicioIdentidad;
     }
 
-    private void OnToggleContrasenaActualClicked(object? sender, TappedEventArgs e)
+    private void OnToggleContrasenasClicked(object? sender, TappedEventArgs e)
     {
-        ContrasenaActualEntry.IsPassword = !ContrasenaActualEntry.IsPassword;
-        ToggleContrasenaActual.Icon(ContrasenaActualEntry.IsPassword
-            ? MaterialIcons.Visibility
-            : MaterialIcons.VisibilityOff);
-    }
-
-    private void OnToggleNuevaContrasenaClicked(object? sender, TappedEventArgs e)
-    {
-        NuevaContrasenaEntry.IsPassword = !NuevaContrasenaEntry.IsPassword;
-        ToggleNuevaContrasena.Icon(NuevaContrasenaEntry.IsPassword
-            ? MaterialIcons.Visibility
-            : MaterialIcons.VisibilityOff);
-    }
-
-    private void OnToggleConfirmarContrasenaClicked(object? sender, TappedEventArgs e)
-    {
-        ConfirmarContrasenaEntry.IsPassword = !ConfirmarContrasenaEntry.IsPassword;
-        ToggleConfirmarContrasena.Icon(ConfirmarContrasenaEntry.IsPassword
-            ? MaterialIcons.Visibility
-            : MaterialIcons.VisibilityOff);
+        _mostrarContrasenas = !_mostrarContrasenas;
+        ContrasenaActualEntry.IsPassword = !_mostrarContrasenas;
+        NuevaContrasenaEntry.IsPassword = !_mostrarContrasenas;
+        ConfirmarContrasenaEntry.IsPassword = !_mostrarContrasenas;
+        ToggleContrasenas.Icon(_mostrarContrasenas ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
     }
 
     private void OnNuevaContrasenaTextChanged(object? sender, TextChangedEventArgs e)

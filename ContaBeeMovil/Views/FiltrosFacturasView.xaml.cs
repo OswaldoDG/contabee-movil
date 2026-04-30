@@ -1,7 +1,7 @@
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Services.Comunes;
 using ContaBeeMovil.Services.Device;
-using Fonts;
+using MauiIcons.Material;
 using Newtonsoft.Json;
 using System.Windows.Input;
 
@@ -215,9 +215,9 @@ public partial class FiltrosFacturasView : ContentView
             if (_ordenAscendente != estado.OrdenAscendente)
             {
                 _ordenAscendente = estado.OrdenAscendente;
-                IconOrden.Text = _ordenAscendente
-                    ? FluentUI.arrow_sort_up_lines_20_regular
-                    : FluentUI.arrow_sort_down_lines_20_regular;
+                IconOrden.Icon = _ordenAscendente
+                    ? MaterialIcons.ArrowUpward
+                    : MaterialIcons.ArrowDownward;
             }
 
             ActualizarPeriodoTexto();
@@ -322,9 +322,9 @@ public partial class FiltrosFacturasView : ContentView
     {
         _expandido = !_expandido;
 
-        IconExpandir.Text = _expandido
-            ? FluentUI.chevron_up_20_regular
-            : FluentUI.chevron_down_20_regular;
+        IconExpandir.Icon = _expandido
+            ? MaterialIcons.KeyboardArrowUp
+            : MaterialIcons.KeyboardArrowDown;
 
         if (_expandido)
         {
@@ -371,20 +371,20 @@ public partial class FiltrosFacturasView : ContentView
     {
         if (TieneFiltrosExtra())
         {
-            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange);
+            IconFiltro.IconColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange);
         }
         else
         {
-            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
+            IconFiltro.IconColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
         }
     }
 
     private void OnToggleOrden(object sender, TappedEventArgs e)
     {
         _ordenAscendente = !_ordenAscendente;
-        IconOrden.Text = _ordenAscendente
-            ? FluentUI.arrow_sort_up_lines_20_regular
-            : FluentUI.arrow_sort_down_lines_20_regular;
+        IconOrden.Icon = _ordenAscendente
+            ? MaterialIcons.ArrowUpward
+            : MaterialIcons.ArrowDownward;
         EjecutarBusqueda(BusquedaActual);
     }
 

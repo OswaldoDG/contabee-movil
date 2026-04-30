@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Views.FiltrosFacturasView">
 
@@ -73,9 +73,9 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleOrden" />
                     </Border.GestureRecognizers>
-                    <Label x:Name="IconOrden"
-                           Style="{StaticResource CircleIconLabel}"
-                           Text="{x:Static f:FluentUI.arrow_sort_down_lines_20_regular}" />
+                    <mi:MauiIcon x:Name="IconOrden"
+                                 Style="{StaticResource CircleIconLabel}"
+                                 Icon="{mi:Material Icon=ArrowDownward}" />
                 </Border>
 
                 <!-- Embudo: limpiar filtros -->
@@ -87,13 +87,12 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
                     </Border.GestureRecognizers>
-                    <Label x:Name="IconFiltro"
-                           Text="{x:Static f:FluentUI.filter_24_regular}"
-                           FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="22"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                    <mi:MauiIcon x:Name="IconFiltro"
+                                 Icon="{mi:Material Icon=FilterList}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
                 </Border>
 
                 <!-- Buscar: se oculta cuando está colapsado -->
@@ -110,12 +109,11 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBuscarTapped" />
                     </Border.GestureRecognizers>
-                    <Label Text="{x:Static f:FluentUI.search_20_regular}"
-                           FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="20"
-                           TextColor="#1A1A1A"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                    <mi:MauiIcon Icon="{mi:Material Icon=Search}"
+                                 IconSize="20"
+                                 IconColor="#1A1A1A"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
                 </Border>
 
                 <Border Grid.Column="4"
@@ -125,9 +123,9 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleExpandir" />
                     </Border.GestureRecognizers>
-                    <Label x:Name="IconExpandir"
-                           Style="{StaticResource CircleIconLabel}"
-                           Text="{x:Static f:FluentUI.chevron_up_20_regular}" />
+                    <mi:MauiIcon x:Name="IconExpandir"
+                                 Style="{StaticResource CircleIconLabel}"
+                                 Icon="{mi:Material Icon=KeyboardArrowUp}" />
                 </Border>
 
             </Grid>

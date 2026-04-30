@@ -71,6 +71,12 @@ public partial class PaginaRegistro : ContentPage
         await Navigation.PushModalAsync(visor);
     }
 
+    protected override bool OnBackButtonPressed()
+    {
+        Navigation.PopAsync();
+        return true;
+    }
+
     void UpdateButtonColor(bool puedeRegistrar)
     {
         var primary = UIHelpers.GetColor("Primary");

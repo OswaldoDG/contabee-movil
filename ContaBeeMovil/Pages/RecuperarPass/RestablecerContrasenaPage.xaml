@@ -6,7 +6,6 @@
              x:Class="ContaBeeMovil.Pages.RecuperarPass.RestablecerContrasenaPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{toolkit:AppThemeResource Background}"
-             xmlns:f="clr-namespace:Fonts"
              Title="Restablecer Contraseña">
     <Grid RowDefinitions="Auto,*">
 
@@ -14,16 +13,15 @@
         <Grid Grid.Row="0"
               BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
               Padding="12,12,12,12">
-            <Label Text="{x:Static f:FluentUI.arrow_left_24_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="24"
-                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   VerticalOptions="Center"
-                   HorizontalOptions="Start">
-                <Label.GestureRecognizers>
+            <mi:MauiIcon Icon="{mi:Material Icon=ArrowBack}"
+                         IconSize="24"
+                         IconColor="{toolkit:AppThemeResource PrimaryText}"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Start">
+                <mi:MauiIcon.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBackClicked" />
-                </Label.GestureRecognizers>
-            </Label>
+                </mi:MauiIcon.GestureRecognizers>
+            </mi:MauiIcon>
         </Grid>
 
     <Grid Grid.Row="1">

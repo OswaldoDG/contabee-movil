@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Perfil.TarjetasPage"
@@ -48,14 +48,8 @@
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
-                                           Invoked="OnEliminarTarjeta">
-                                    <SwipeItem.IconImageSource>
-                                        <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
-                                                         FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                                         Color="White"
-                                                         Size="28"/>
-                                    </SwipeItem.IconImageSource>
-                                </SwipeItem>
+                                           Invoked="OnEliminarTarjeta"
+                                           mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
                             </SwipeItems>
                         </SwipeView.LeftItems>
 

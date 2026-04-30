@@ -1,4 +1,5 @@
 using Contabee.Api.Transcript;
+using MauiIcons.Material;
 using System.Globalization;
 
 namespace ContaBeeMovil.Converters;
@@ -10,12 +11,12 @@ public class TipoProcesoCapturaIconConverter : IValueConverter
         return value is TipoProcesoCaptura tipo
             ? tipo switch
             {
-                TipoProcesoCaptura.FacturaIndividual => Fonts.FluentUI.receipt_20_regular,
-                TipoProcesoCaptura.Comprobacion      => Fonts.FluentUI.arrow_swap_20_regular,
-                TipoProcesoCaptura.Devolucion        => Fonts.FluentUI.group_return_20_regular,
-                _                                    => Fonts.FluentUI.receipt_20_regular
+                TipoProcesoCaptura.FacturaIndividual => MaterialIcons.Receipt,
+                TipoProcesoCaptura.Comprobacion      => MaterialIcons.SwapHoriz,
+                TipoProcesoCaptura.Devolucion        => MaterialIcons.Undo,
+                _                                    => MaterialIcons.Receipt
             }
-            : Fonts.FluentUI.receipt_20_regular;
+            : MaterialIcons.Receipt;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
