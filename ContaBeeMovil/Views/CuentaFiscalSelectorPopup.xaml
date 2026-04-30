@@ -25,10 +25,11 @@
             <Border BackgroundColor="{toolkit:AppThemeResource Alternate}"
                     Stroke="Transparent"
                     StrokeShape="RoundRectangle 10"
-                    Padding="5"
+                    Padding="1"
                     HorizontalOptions="Center"
+                    WidthRequest="160"
                     HeightRequest="50">
-                <Grid ColumnDefinitions="*,*">
+                <Grid ColumnDefinitions="*,*" Padding="0">
                     <Border x:Name="BgRfc"
                             Grid.Column="0"
                             Stroke="Transparent"
@@ -39,6 +40,7 @@
                         <Label x:Name="LblRfc"
                                Text="RFC"
                                HorizontalOptions="Center"
+                               VerticalOptions="Center"
                                FontSize="10" />
                     </Border>
                     <Border x:Name="BgNombre"
@@ -51,6 +53,7 @@
                         <Label x:Name="LblNombre"
                                Text="Nombre"
                                HorizontalOptions="Center"
+                               VerticalOptions="Start"
                                FontSize="10" />
                     </Border>
                 </Grid>
