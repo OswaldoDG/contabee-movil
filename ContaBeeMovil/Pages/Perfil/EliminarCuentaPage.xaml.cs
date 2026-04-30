@@ -12,6 +12,8 @@ public partial class EliminarCuentaPage : ContentPage
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
 
+    private bool _mostrarContrasenas = false;
+
     public EliminarCuentaPage(
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
@@ -23,20 +25,12 @@ public partial class EliminarCuentaPage : ContentPage
         _servicioAlerta = servicioAlerta;
     }
 
-    private void OnToggleContrasenaClicked(object? sender, TappedEventArgs e)
+    private void OnToggleContrasenasClicked(object? sender, TappedEventArgs e)
     {
-        ContrasenaEntry.IsPassword = !ContrasenaEntry.IsPassword;
-        ToggleContrasena.Icon(ContrasenaEntry.IsPassword
-            ? MaterialIcons.Visibility
-            : MaterialIcons.VisibilityOff);
-    }
-
-    private void OnToggleConfirmarClicked(object? sender, TappedEventArgs e)
-    {
-        ConfirmarContrasenaEntry.IsPassword = !ConfirmarContrasenaEntry.IsPassword;
-        ToggleConfirmar.Icon(ConfirmarContrasenaEntry.IsPassword
-            ? MaterialIcons.Visibility
-            : MaterialIcons.VisibilityOff);
+        _mostrarContrasenas = !_mostrarContrasenas;
+        ContrasenaEntry.IsPassword = !_mostrarContrasenas;
+        ConfirmarContrasenaEntry.IsPassword = !_mostrarContrasenas;
+        ToggleContrasenas.Icon(_mostrarContrasenas ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
     }
 
     private void OnCampoTextChanged(object? sender, TextChangedEventArgs e)

@@ -1,3 +1,5 @@
+using MauiIcons.Core;
+using MauiIcons.Material;
 using System.Collections;
 using System.Windows.Input;
 using ContaBeeMovil.Helpers;
@@ -115,12 +117,11 @@ public partial class SelectorFlotante : ContentView
 
             if (seleccionado)
             {
-                itemGrid.Add(new Label
+                itemGrid.Add(new MauiIcon
                 {
-                    Text = Fonts.FluentUI.checkmark_20_regular,
-                    FontFamily = Fonts.FluentUI.FontFamily,
-                    FontSize = 16,
-                    TextColor = UIHelpers.GetColor("PrimaryText"),
+                    Icon = MaterialIcons.Done,
+                    IconSize = 16,
+                    IconColor = UIHelpers.GetColor("PrimaryText"),
                     VerticalOptions = LayoutOptions.Center,
                 }, 1);
             }

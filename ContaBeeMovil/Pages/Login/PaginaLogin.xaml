@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Login.PaginaLogin"
@@ -67,8 +67,8 @@
                                   LeadingViewPosition="Inside"
                                   ShowLeadingView="True">
                 <sf:SfTextInputLayout.LeadingView>
-                    <Label Text="{x:Static f:FluentUI.mail_20_regular}"
-                           Style="{StaticResource InputLeadingIcon}"/>
+                    <mi:MauiIcon Icon="{mi:Material Icon=Email}"
+                                 Style="{StaticResource InputLeadingIcon}" />
                 </sf:SfTextInputLayout.LeadingView>
                 <Entry x:Name="EntryEmail"
                        Text="{Binding Email}"
@@ -86,8 +86,8 @@
                                   LeadingViewPosition="Inside"
                                   ShowLeadingView="True">
                 <sf:SfTextInputLayout.LeadingView>
-                    <Label Text="{x:Static f:FluentUI.lock_closed_20_regular}"
-                           Style="{StaticResource InputLeadingIcon}"/>
+                    <mi:MauiIcon Icon="{mi:Material Icon=Lock}"
+                                 Style="{StaticResource InputLeadingIcon}" />
                 </sf:SfTextInputLayout.LeadingView>
                 <Entry x:Name="EntryPassword"
                        Text="{Binding Password}"
@@ -112,14 +112,8 @@
             <Button Text="Ingresar"
                     Command="{Binding IngresarCommand}"
                     Style="{toolkit:AppThemeResource Primary}"
-                    SemanticProperties.Description="Ingresar">
-                <Button.ImageSource>
-                    <FontImageSource Glyph="{x:Static f:FluentUI.arrow_enter_20_regular}"
-                                     FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                     Color="{toolkit:AppThemeResource PrimaryText}"
-                                     Size="18" />
-                </Button.ImageSource>
-            </Button>
+                    SemanticProperties.Description="Ingresar"
+                    mi:MauiIcon.Value="{mi:Material Icon=Login}" />
 
             <!-- Links -->
             <VerticalStackLayout Spacing="4"
@@ -184,18 +178,18 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding MostrarInfoAppCommand}" />
                 </Border.GestureRecognizers>
-                <Label Text="{x:Static f:FluentUI.people_community_24_regular}"
-                       Style="{StaticResource CircleIconLabel}"
-                       SemanticProperties.Description="Acerca de ContaBee"/>
+                <mi:MauiIcon Icon="{mi:Material Icon=Groups}"
+                             Style="{StaticResource CircleIconLabel}"
+                             SemanticProperties.Description="Acerca de ContaBee" />
             </Border>
 
             <Border Style="{StaticResource CircleIconButton}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding MostrarInfoCommand}" />
                 </Border.GestureRecognizers>
-                <Label Text="{x:Static f:FluentUI.info_24_regular}"
-                       Style="{StaticResource CircleIconLabel}"
-                       SemanticProperties.Description="Informaci&#243;n"/>
+                <mi:MauiIcon Icon="{mi:Material Icon=Info}"
+                             Style="{StaticResource CircleIconLabel}"
+                             SemanticProperties.Description="Informaci&#243;n" />
             </Border>
 
         </HorizontalStackLayout>

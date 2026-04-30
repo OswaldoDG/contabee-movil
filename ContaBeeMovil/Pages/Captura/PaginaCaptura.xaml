@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
              Title="Captura"
@@ -141,11 +141,10 @@
                                      HorizontalOptions="Center"
                                      Spacing="8"
                                      IsVisible="{Binding TieneCapturas, Converter={StaticResource InvertedBoolConverter}}">
-                    <Label Text="{x:Static f:FluentUI.document_multiple_20_regular}"
-                           FontFamily="FluentUI"
-                           FontSize="52"
-                           HorizontalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <mi:MauiIcon Icon="{mi:Material Icon=FileCopy}"
+                                 IconSize="52"
+                                 HorizontalOptions="Center"
+                                 IconColor="{toolkit:AppThemeResource SecondaryText}" />
                     <Label Text="Sin Capturas"
                            FontSize="18"
                            FontAttributes="Bold"
@@ -201,13 +200,12 @@
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
                                                     CommandParameter="{Binding .}" />
                                             </Border.GestureRecognizers>
-                                            <Label Text="{x:Static f:FluentUI.delete_20_regular}"
-                                                   FontFamily="FluentUI"
-                                                   FontSize="20"
-                                                   TextColor="White"
-                                                   HorizontalOptions="Center"
-                                                   VerticalOptions="Center"
-                                                   InputTransparent="True" />
+                                            <mi:MauiIcon Icon="{mi:Material Icon=Delete}"
+                                                         IconSize="20"
+                                                         IconColor="White"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         InputTransparent="True" />
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -299,7 +297,8 @@
                         Padding="14,0"
                         FontSize="15"
                         FontAttributes="Bold"
-                        ContentLayout="Left,6">
+                        ContentLayout="Left,6"
+                        mi:MauiIcon.Value="{mi:Material Icon=Upload}">
                     <Button.Triggers>
                         <DataTrigger TargetType="Button"
                                      Binding="{Binding PuedeEnviar}"
@@ -311,12 +310,6 @@
                     <Button.Shadow>
                         <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
                     </Button.Shadow>
-                    <Button.ImageSource>
-                        <FontImageSource FontFamily="FluentUI"
-                                         Glyph="{x:Static f:FluentUI.arrow_upload_20_regular}"
-                                         Size="18"
-                                         Color="{toolkit:AppThemeResource PrimaryText}" />
-                    </Button.ImageSource>
                 </Button>
 
             </Grid>

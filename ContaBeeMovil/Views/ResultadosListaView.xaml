@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Views.ResultadosListaView">
 
     <Grid RowDefinitions="*,Auto">
@@ -75,12 +75,11 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnAnteriorTapped" />
                             </Border.GestureRecognizers>
-                            <Label Text="{x:Static f:FluentUI.chevron_left_20_regular}"
-                                   FontFamily="FluentUI"
-                                   FontSize="20"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                            <mi:MauiIcon Icon="{mi:Material Icon=ChevronLeft}"
+                                         IconSize="20"
+                                         IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center" />
                         </Border>
 
                         <!-- Página actual con formato "1-[total]" -->
@@ -106,12 +105,11 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnSiguienteTapped" />
                             </Border.GestureRecognizers>
-                            <Label Text="{x:Static f:FluentUI.chevron_right_20_regular}"
-                                   FontFamily="FluentUI"
-                                   FontSize="20"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                            <mi:MauiIcon Icon="{mi:Material Icon=ChevronRight}"
+                                         IconSize="20"
+                                         IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center" />
                         </Border>
 
                     </HorizontalStackLayout>
@@ -133,12 +131,11 @@
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnCapturaTapped" />
                         </Border.GestureRecognizers>
-                        <Label Text="{x:Static f:FluentUI.camera_20_regular}"
-                               FontFamily="FluentUI"
-                               FontSize="22"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                        <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+                                     IconSize="22"
+                                     IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
                     </Border>
 
                 </Grid>

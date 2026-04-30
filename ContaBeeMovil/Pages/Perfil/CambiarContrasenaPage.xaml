@@ -33,7 +33,7 @@
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="16"
                            TextChanged="OnCampoTextChanged" />
-                    <mi:MauiIcon x:Name="ToggleContrasenaActual"
+                    <mi:MauiIcon x:Name="ToggleContrasenas"
                                  Grid.Column="1"
                                  Icon="{mi:Material Icon=Visibility}"
                                  IconColor="{toolkit:AppThemeResource Icon}"
@@ -41,7 +41,7 @@
                                  VerticalOptions="Center"
                                  BackgroundColor="Transparent">
                         <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnToggleContrasenaActualClicked" />
+                            <TapGestureRecognizer Tapped="OnToggleContrasenasClicked" />
                         </mi:MauiIcon.GestureRecognizers>
                     </mi:MauiIcon>
                 </Grid>
@@ -53,7 +53,7 @@
                     BackgroundColor="{toolkit:AppThemeResource Alternate}"
                     Padding="0"
                     Margin="0,6,0,0">
-                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                <Grid ColumnDefinitions="*" Padding="14">
                     <Entry x:Name="NuevaContrasenaEntry"
                            Grid.Column="0"
                            Placeholder="Nueva contraseña"
@@ -62,17 +62,6 @@
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="16"
                            TextChanged="OnNuevaContrasenaTextChanged" />
-                    <mi:MauiIcon x:Name="ToggleNuevaContrasena"
-                                 Grid.Column="1"
-                                 Icon="{mi:Material Icon=Visibility}"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
-                                 IconSize="25"
-                                 VerticalOptions="Center"
-                                 BackgroundColor="Transparent">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnToggleNuevaContrasenaClicked" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
                 </Grid>
             </Border>
 
@@ -82,7 +71,7 @@
                     BackgroundColor="{toolkit:AppThemeResource Alternate}"
                     Padding="0"
                     Margin="0,6,0,0">
-                <Grid ColumnDefinitions="*,Auto" Padding="14">
+                <Grid ColumnDefinitions="*" Padding="14">
                     <Entry x:Name="ConfirmarContrasenaEntry"
                            Grid.Column="0"
                            Placeholder="Confirmar contraseña"
@@ -91,17 +80,6 @@
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="16"
                            TextChanged="OnCampoTextChanged" />
-                    <mi:MauiIcon x:Name="ToggleConfirmarContrasena"
-                                 Grid.Column="1"
-                                 Icon="{mi:Material Icon=Visibility}"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
-                                 IconSize="25"
-                                 VerticalOptions="Center"
-                                 BackgroundColor="Transparent">
-                        <mi:MauiIcon.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnToggleConfirmarContrasenaClicked" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
                 </Grid>
             </Border>
 

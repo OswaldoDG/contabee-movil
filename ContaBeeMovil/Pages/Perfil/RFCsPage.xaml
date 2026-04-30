@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.RFCsPage"
              Title="Mis Cuentas Fiscales"
@@ -19,14 +19,8 @@
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
-                                           Command="{Binding DeleteCommand}">
-                                    <SwipeItem.IconImageSource>
-                                        <FontImageSource Glyph="{x:Static f:FluentUI.delete_24_regular}"
-                                                         FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                                         Color="White"
-                                                         Size="28" />
-                                    </SwipeItem.IconImageSource>
-                                </SwipeItem>
+                                           Command="{Binding DeleteCommand}"
+                                           mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
@@ -47,24 +41,19 @@
                                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                 </VerticalStackLayout>
 
-                                <Border Grid.Column="1"
+                                <!-- <Border Grid.Column="1"
                                         WidthRequest="48"
                                         HeightRequest="48"
                                         StrokeShape="RoundRectangle 10"
                                         StrokeThickness="0"
                                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                                         VerticalOptions="Center">
-                                    <Image WidthRequest="26" HeightRequest="26"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center">
-                                        <Image.Source>
-                                            <FontImageSource Glyph="{x:Static f:FluentUI.contact_card_24_regular}"
-                                                             FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                                             Color="{toolkit:AppThemeResource PrimaryText}"
-                                                             Size="24" />
-                                        </Image.Source>
-                                    </Image>
-                                </Border>
+                                    <mi:MauiIcon Icon="{mi:Material Icon=ContactPage}"
+                                                 IconSize="26"
+                                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center" />
+                                </Border> -->
                             </Grid>
                         </Border>
                     </SwipeView>

@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
              xmlns:transcript="clr-namespace:Contabee.Api.Transcript;assembly=Contabee.Api"
              x:Class="ContaBeeMovil.Views.LoteCapturaCardView"
@@ -65,11 +65,11 @@
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnDescargarImagen" />
                         </Border.GestureRecognizers>
-                        <Label Text="{x:Static f:FluentUI.camera_20_regular}"
-                               Style="{StaticResource CircleIconLabel}"
-                               FontSize="18"
-                               VerticalOptions="Center"
-                               HorizontalOptions="Center" />
+                        <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+                                     Style="{StaticResource CircleIconLabel}"
+                                     IconSize="18"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center" />
                     </Border>
                     <ActivityIndicator x:Name="SpinnerCamaraLeft"
                                        IsVisible="False" IsRunning="False"
@@ -192,10 +192,10 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnDescargarPdf" />
                             </Border.GestureRecognizers>
-                            <Label Text="{x:Static f:FluentUI.document_pdf_20_regular}"
-                                   Style="{StaticResource CircleIconLabel}"
-                                   FontSize="20"
-                                   TextColor="{Binding Datos.TienePdf, Converter={StaticResource BoolToColor}}" />
+                            <mi:MauiIcon Icon="{mi:Material Icon=PictureAsPdf}"
+                                         Style="{StaticResource CircleIconLabel}"
+                                         IconSize="20"
+                                         IconColor="{Binding Datos.TienePdf, Converter={StaticResource BoolToColor}}" />
                         </Border>
                         <ActivityIndicator x:Name="SpinnerPdf"
                                            IsVisible="False" IsRunning="False"
@@ -212,10 +212,10 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnDescargarXml" />
                             </Border.GestureRecognizers>
-                            <Label Text="{x:Static f:FluentUI.document_20_regular}"
-                                   Style="{StaticResource CircleIconLabel}"
-                                   FontSize="20"
-                                   TextColor="{Binding Datos.TieneXml, Converter={StaticResource BoolToColor}}" />
+                            <mi:MauiIcon Icon="{mi:Material Icon=Description}"
+                                         Style="{StaticResource CircleIconLabel}"
+                                         IconSize="20"
+                                         IconColor="{Binding Datos.TieneXml, Converter={StaticResource BoolToColor}}" />
                         </Border>
                         <ActivityIndicator x:Name="SpinnerXml"
                                            IsVisible="False" IsRunning="False"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Dev.LogsPage"
              BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -36,11 +36,10 @@
                 <VerticalStackLayout VerticalOptions="Center"
                                      HorizontalOptions="Center"
                                      Spacing="8">
-                    <Label Text="{x:Static f:FluentUI.document_text_24_regular}"
-                           FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="48"
-                           HorizontalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <mi:MauiIcon Icon="{mi:Material Icon=TextSnippet}"
+                                 IconSize="48"
+                                 HorizontalOptions="Center"
+                                 IconColor="{toolkit:AppThemeResource SecondaryText}" />
                     <Label Text="No hay logs registrados"
                            Style="{StaticResource Body1}"
                            TextColor="{toolkit:AppThemeResource SecondaryText}"
@@ -61,11 +60,8 @@
        Margin="0,0,0,10"/>
 
 <Button Grid.Column="1"
-        Text="{x:Static f:FluentUI.copy_24_regular}"
-        FontFamily="{x:Static f:FluentUI.FontFamily}"
-        FontSize="18"
+        mi:MauiIcon.Value="{mi:Material Icon=ContentCopy}"
         BackgroundColor="Transparent"
-        TextColor="{toolkit:AppThemeResource SecondaryText}"
         Padding="6,0"
         VerticalOptions="Center"
         CommandParameter="{Binding .}"
