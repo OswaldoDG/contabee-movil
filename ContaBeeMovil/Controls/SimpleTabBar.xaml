@@ -3,11 +3,12 @@
     x:Class="ContaBeeMovil.Controls.SimpleTabBar"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:f="clr-namespace:Fonts"
     xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="50">
 
-    <Grid ColumnDefinitions="*,*"
+    <Grid ColumnDefinitions="*,*,*"
           BackgroundColor="{toolkit:AppThemeResource Background}">
 
         <!-- Tab 0: Inicio -->
@@ -42,6 +43,34 @@
 
         <!-- Tab 1: Facturación -->
         <VerticalStackLayout Grid.Column="1"
+                             x:Name="TabDevoluciones"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label x:Name="IconDevoluciones"
+                   Text="{x:Static f:FluentUI.currency_dollar_euro_20_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource Icon}" />
+            <Label x:Name="LblDevoluciones"
+                   Text="Devoluciones"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineDevoluciones"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Column="2"
                              x:Name="TabFacturacion"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
