@@ -129,14 +129,14 @@
 	  <ProjectReference Include="..\ContaBeeShareExtension\ContaBeeShareExtension.csproj">
 	    <IsAppExtension>true</IsAppExtension>
 	    <GlobalPropertiesToRemove>CodesignProvision;CodesignKey;CodesignEntitlements</GlobalPropertiesToRemove>
-	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension Development;CodesignKey=Apple Development: Created via API (489HK3K7TX);CodesignEntitlements=Entitlements.plist</AdditionalProperties>
+	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension Development;CodesignKey=Apple Development: Created via API (489HK3K7TX);CodesignEntitlements=Entitlements.plist;ApplicationDisplayVersion=$(ApplicationDisplayVersion);ApplicationVersion=$(ApplicationVersion)</AdditionalProperties>
 	  </ProjectReference>
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-ios')) AND '$(Configuration)'=='Release'">
 	  <ProjectReference Include="..\ContaBeeShareExtension\ContaBeeShareExtension.csproj">
 	    <IsAppExtension>true</IsAppExtension>
 	    <GlobalPropertiesToRemove>CodesignProvision;CodesignKey;CodesignEntitlements</GlobalPropertiesToRemove>
-	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension AppStore;CodesignKey=Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR);CodesignEntitlements=Entitlements.plist</AdditionalProperties>
+	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension AppStore;CodesignKey=Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR);CodesignEntitlements=Entitlements.plist;ApplicationDisplayVersion=$(ApplicationDisplayVersion);ApplicationVersion=$(ApplicationVersion)</AdditionalProperties>
 	  </ProjectReference>
 	</ItemGroup>
 
