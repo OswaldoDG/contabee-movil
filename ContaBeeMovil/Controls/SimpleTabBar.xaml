@@ -43,6 +43,34 @@
 
         <!-- Tab 1: Facturación -->
         <VerticalStackLayout Grid.Column="1"
+                             x:Name="TabDevoluciones"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label x:Name="IconDevoluciones"
+                   Text="{x:Static f:FluentUI.currency_dollar_euro_20_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource Icon}" />
+            <Label x:Name="LblDevoluciones"
+                   Text="Devoluciones"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineDevoluciones"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Column="2"
                              x:Name="TabFacturacion"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
