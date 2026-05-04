@@ -15,6 +15,7 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Services.Almacenamiento;
@@ -139,6 +140,7 @@ namespace ContaBeeMovil
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
+            builder.Services.AddTransient<PaginaDevoluciones>();
             builder.Services.AddTransient<EquipoPage>();
             builder.Services.AddTransient<MainTabbedPage>();
             builder.Services.AddTransient<PaginaCupones>();
