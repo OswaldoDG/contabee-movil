@@ -21,6 +21,38 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         return result;
     }
 
+    public async Task<ResultadoPaginado_1OfOfDevolucionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaDevoluciones(Busqueda consulta)
+    {
+        Busqueda consultaMap =  Extensiones.MapearA<Busqueda>(consulta);
+        var result = await servicioTranscript.Buscar2Async(consultaMap);
+        return result;
+    }
+
+    public async Task<RespuestaPayload<Devolucion>> CrearDevolucionAsync(
+        CreaDevolucion request, CancellationToken ct = default)
+    {
+        RespuestaPayload<Devolucion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.DevolucionPOSTAsync(request, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-CrearDevolucion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-CrearDevolucion");
+        }
+        return r;
+    }
+
     public async Task<(byte[] Contenido, string TipoContenido)?> DescargarArchivoAsync(
         long id, string? tipo, CancellationToken ct = default)
     {
