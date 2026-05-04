@@ -48,16 +48,16 @@ public class ServicioToast : IServicioToast
                 capaOverlay.Children.Add(toast);
 
                 await Task.WhenAll(
-                    toast.FadeTo(1, 280, Easing.CubicOut),
-                    toast.TranslateTo(0, 0, 280, Easing.CubicOut)
+                    toast.FadeToAsync(1, 280, Easing.CubicOut),
+                    toast.TranslateToAsync(0, 0, 280, Easing.CubicOut)
                 );
 
                 try { await Task.Delay(3000, cts.Token); }
                 catch (TaskCanceledException) { }
 
                 await Task.WhenAll(
-                    toast.FadeTo(0, 220, Easing.CubicIn),
-                    toast.TranslateTo(0, entradaY, 220, Easing.CubicIn)
+                    toast.FadeToAsync(0, 220, Easing.CubicIn),
+                    toast.TranslateToAsync(0, entradaY, 220, Easing.CubicIn)
                 );
 
                 if (capaOverlay.Children.Contains(toast))

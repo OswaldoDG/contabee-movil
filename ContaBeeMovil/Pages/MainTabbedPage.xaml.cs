@@ -73,7 +73,7 @@ public partial class MainTabbedPage : ContentPage
         }
 
         // 4) Fade-in suave del contenido nuevo
-        await PageContainer.FadeTo(1, 140, Easing.CubicOut);
+        await PageContainer.FadeToAsync(1, 140, Easing.CubicOut);
 
         // 5) Carga de datos diferida
         _ = MainThread.InvokeOnMainThreadAsync(() =>
