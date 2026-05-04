@@ -783,15 +783,74 @@
               "schema": {
                 "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                }
               }
-            },
-            "application/*+json": {
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/devolucion/{id}": {
+      "put": {
+        "tags": [
+          "Devolucion"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
+                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
               }
             }
           }
@@ -819,65 +878,6 @@
           },
           "400": {
             "description": "Bad Request"
-          }
-        }
-      }
-    },
-    "/devolucion/{id}": {
-      "put": {
-        "tags": [
-          "Devolucion"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
-                }
-              }
-            }
           },
           "404": {
             "description": "Not Found"
@@ -903,11 +903,11 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "403": {
             "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -946,6 +946,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -975,9 +978,6 @@
           }
         ],
         "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -998,6 +998,9 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Not Found"
           }
@@ -1012,16 +1015,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
               }
@@ -1052,11 +1045,11 @@
           "400": {
             "description": "Bad Request"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -1216,8 +1209,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Created",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1241,6 +1234,9 @@
           },
           "403": {
             "description": "Forbidden"
+          },
+          "402": {
+            "description": "Payment Required"
           },
           "401": {
             "description": "Unauthorized"
@@ -2067,7 +2063,6 @@
           "paginado": {
             "$ref": "#/components/schemas/comunes.busqueda.Paginado",
             "nullable": true
-
           },
           "contar": {
             "type": "boolean"

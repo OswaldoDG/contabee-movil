@@ -9,6 +9,11 @@ public interface IServicioTranscript
 {
     Task<ResultadoPaginado_1OfOfElementoPaginaCapturaDespliegueAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaCapturas(Busqueda consulta);
 
+    Task<ResultadoPaginado_1OfOfDevolucionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaDevoluciones(Busqueda consulta);
+
+    Task<RespuestaPayload<Devolucion>> CrearDevolucionAsync(
+        CreaDevolucion request, CancellationToken ct = default);
+
     Task<(byte[] Contenido, string TipoContenido)?> DescargarArchivoAsync(
         long id, string? tipo, CancellationToken ct = default);
 

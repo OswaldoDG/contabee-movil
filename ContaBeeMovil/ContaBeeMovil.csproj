@@ -142,6 +142,12 @@
 
 
 	<ItemGroup>
+      <MauiXaml Update="Views\CrearDevolucionPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FiltrosDevolucionesView.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
     <MauiXaml Update="Pages\Camara\CamaraPage.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -152,6 +158,9 @@
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Pages\Cupones\PaginaCupones.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+    <MauiXaml Update="Pages\Devoluciones\PaginaDevoluciones.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
     <MauiXaml Update="Pages\Perfil\ManualRegistroPage.xaml">
@@ -171,6 +180,12 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
 	  <MauiXaml Update="Services\Notifications\CustomToast.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CrearDevolucionPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FiltrosDevolucionesView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
