@@ -47,7 +47,7 @@
                  Color="{toolkit:AppThemeResource Accent1}" />
 
         <CollectionView Grid.Row="2"
-                        Margin="16,12,16,16"
+                        Margin="10,10"
                         ItemsSource="{Binding Cupones}"
                         SelectionMode="None">
             <CollectionView.EmptyView>
@@ -59,82 +59,67 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
 
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border StrokeThickness="1.5"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            StrokeShape="RoundRectangle 10"
-                            BackgroundColor="{toolkit:AppThemeResource CardBackground}"
-                            Margin="0,0,0,12"
-                            Padding="16">
+                    <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                        <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
+                            <BoxView Grid.Column="0"
+                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                     WidthRequest="4" CornerRadius="2"
+                                     VerticalOptions="Fill" />
 
-                        <Border.Shadow>
-                            <Shadow Brush="#000000"
-                                    Offset="0,4"
-                                    Radius="8"
-                                    Opacity="0.15" />
-                        </Border.Shadow>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                <Label Text="{Binding Nombre}"
+                                       Style="{StaticResource Body1}"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource Primary}"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="1" />
+                                <Label IsVisible="{Binding Aplicado}"
+                                       Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TextoCuentaFiscalAplicacion}"
+                                       FontSize="13"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource Primary}"
+                                       LineBreakMode="TailTruncation"
+                                       MaxLines="1" />
+                                <Label FontSize="12"
+                                       LineBreakMode="WordWrap"
+                                       MaxLines="2"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Codigo}" />
+                                            <Span Text=" - " />
+                                            <Span Text="{Binding Descripcion, TargetNullValue='Sin descripción'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
 
-                        <VerticalStackLayout Spacing="6">
-
-                            <Label Text="{Binding Nombre}"
-                                   FontSize="17"
-                                   FontAttributes="Bold"
-                                   LineBreakMode="TailTruncation"
-                                   MaxLines="2"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
-
-                            <Label Text="{Binding Descripcion, TargetNullValue='Sin descripción'}"
-                                   FontSize="14"
-                                   LineBreakMode="WordWrap"
-                                   MaxLines="3"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                            <Button Text="Aplicar"
+                            <Button Grid.Column="2"
+                                    Text="Aplicar"
+                                    IsVisible="{Binding Aplicado, Converter={StaticResource InvertedBoolConverter}}"
                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
                                     TextColor="{StaticResource Black}"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AplicarCuponCommand}"
                                     CommandParameter="{Binding .}"
-                                    Padding="20,0,20,0"
-                                    HeightRequest="48"
-                                    CornerRadius="10"
+                                    Padding="16,8"
+                                    CornerRadius="12"
                                     FontAttributes="Bold"
-                                    HorizontalOptions="Center"
-                                    Margin="0,4,0,0">
-                                <Button.Triggers>
-                                    <DataTrigger TargetType="Button"
-                                                 Binding="{Binding Aplicado}"
-                                                 Value="True">
-                                        <Setter Property="IsVisible" Value="False" />
-                                    </DataTrigger>
-                                </Button.Triggers>
-                            </Button>
+                                    VerticalOptions="Center" />
 
-                            <Border IsVisible="{Binding Aplicado}"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    StrokeShape="RoundRectangle 10"
-                                    BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                                    Padding="16,5"
-                                    HorizontalOptions="Center"
-                                    Margin="0,4,0,0">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.TextoCuentaFiscalAplicacion}"
-                                           LineBreakMode="TailTruncation"
-                                           MaxLines="1"
-                                           FontAttributes="Bold"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Fecha, StringFormat='{0:dd/MM/yy}'}"
-                                           FontAttributes="Bold"
-                                           VerticalTextAlignment="Center"
-                                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                                </Grid>
-                            </Border>
-
-                        </VerticalStackLayout>
+                            <Label Grid.Column="2"
+                                   IsVisible="{Binding Aplicado}"
+                                   Text="{Binding Fecha, StringFormat='{0:dd/MM/yy}'}"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   VerticalOptions="Center" />
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

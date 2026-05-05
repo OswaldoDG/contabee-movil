@@ -12,10 +12,13 @@
              Shell.TabBarIsVisible="False">
 
     <Grid>
-        <CollectionView x:Name="ListaCuentas" Margin="12,8">
+        <CollectionView x:Name="ListaCuentas" Margin="10,10">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <SwipeView Margin="0,6">
+                    <SwipeView>
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
@@ -24,36 +27,31 @@
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
-                        <Border Padding="16,14"
-                                StrokeShape="RoundRectangle 10"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                StrokeThickness="1"
-                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
-                                <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
-                                    <Label Text="{Binding Rfc}"
+                        <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                            <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
+                                <BoxView Grid.Column="0"
+                                         BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                         WidthRequest="4" CornerRadius="2"
+                                         VerticalOptions="Fill" />
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding Nombre}"
+                                           Style="{StaticResource Body1}"
                                            FontAttributes="Bold"
-                                           FontSize="18"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                                    <Label Text="{Binding Regimen}"
+                                           IsVisible="{Binding TieneNombre}" />
+                                    <Label Text="{Binding Rfc}"
                                            FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource Primary}" />
+                                    <Label Text="{Binding Regimen}"
+                                           FontSize="12"
                                            LineBreakMode="TailTruncation"
                                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                 </VerticalStackLayout>
-
-                                <!-- <Border Grid.Column="1"
-                                        WidthRequest="48"
-                                        HeightRequest="48"
-                                        StrokeShape="RoundRectangle 10"
-                                        StrokeThickness="0"
-                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                        VerticalOptions="Center">
-                                    <mi:MauiIcon Icon="{mi:Material Icon=ContactPage}"
-                                                 IconSize="26"
-                                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
-                                                 HorizontalOptions="Center"
-                                                 VerticalOptions="Center" />
-                                </Border> -->
+                                <mi:MauiIcon Grid.Column="2"
+                                             Icon="{mi:Material Icon=Person}"
+                                             IconSize="22"
+                                             IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                             VerticalOptions="Center" />
                             </Grid>
                         </Border>
                     </SwipeView>

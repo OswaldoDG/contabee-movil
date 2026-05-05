@@ -47,6 +47,7 @@ public partial class RFCsPage : ContentPage
         var cuentas = AppState.Instance.CuentasFiscales ?? new List<AsociacionCuentaFiscalCompleta>();
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
+            Nombre = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
             Rfc = c.Rfc ?? "—",
             Regimen = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
             DeleteCommand = new Command(async () => await ConfirmarEliminar(c))
@@ -117,8 +118,10 @@ public partial class RFCsPage : ContentPage
 
     private class CuentaItem
     {
+        public string Nombre { get; init; } = "";
         public string Rfc { get; init; } = "";
         public string Regimen { get; init; } = "";
         public ICommand DeleteCommand { get; init; } = null!;
+        public bool TieneNombre => !string.IsNullOrWhiteSpace(Nombre);
     }
 }
