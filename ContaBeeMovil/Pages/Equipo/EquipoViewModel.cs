@@ -1,0 +1,204 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
+using Contabee.Api.Identidad;
+using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Device;
+
+namespace ContaBeeMovil.Pages.Equipo;
+
+public class EquipoUsuarioItem
+{
+    public Guid Id { get; }
+    public string Nombre { get; }
+    public string Email { get; }
+    public string Iniciales { get; }
+    public string EstadoTexto { get; }
+    public Color EstadoColor { get; }
+    public Color EstadoTextColor { get; }
+    public string TipoCuentaTexto { get; }
+    public ICommand? DeleteCommand { get; set; }
+    public double SwipeItemWidth { get; set; }
+
+    public EquipoUsuarioItem(CuentaUsuario u)
+    {
+        Id = u.Id;
+        Nombre = u.Nombre ?? u.UserName ?? u.Email ?? "Sin nombre";
+        Email  = u.Email ?? "";
+
+        var partes = Nombre.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        Iniciales = partes.Length >= 2
+            ? $"{partes[0][0]}{partes[1][0]}".ToUpper()
+            : Nombre.Length >= 2 ? Nombre[..2].ToUpper() : Nombre.ToUpper();
+
+        (EstadoTexto, EstadoColor, EstadoTextColor) = u.Estado switch
+        {
+            EstadoCuenta.Activo                => ("Activo",    Color.FromArgb("#3c8c7b"), Colors.White),
+            EstadoCuenta.PendienteConfirmacion => ("Pendiente", Color.FromArgb("#e5c93d"), Color.FromArgb("#7a5200")),
+            EstadoCuenta.Inactivo              => ("Inactivo",  Color.FromArgb("#6e6e6e"), Colors.White),
+            EstadoCuenta.BajaCliente           => ("Baja",      Color.FromArgb("#d65c5c"), Colors.White),
+            _                                  => (u.Estado.ToString(), Color.FromArgb("#6e6e6e"), Colors.White)
+        };
+
+        TipoCuentaTexto = u.TipoCuenta switch
+        {
+            TipoCuenta.Cliente          => "Propietario",
+            TipoCuenta.Empleado         => "Empleado",
+            TipoCuenta.EmpleadoCliente  => "Empleado / Cliente",
+            TipoCuenta.UsuarioCaptura   => "Captura",
+            TipoCuenta.LoginLessCliente => "Sin contraseña",
+            _                           => "Colaborador"
+        };
+    }
+}
+
+public class EquipoViewModel : INotifyPropertyChanged
+{
+    private readonly AppState _appState;
+    private readonly IServicioSesion _servicioSesion;
+    private readonly IServicioAlerta _servicioAlerta;
+
+    private ObservableCollection<EquipoUsuarioItem> _usuarios = [];
+    private bool _estaCargando;
+    private bool _estaRefrescando;
+    private bool _sinUsuarios;
+    private bool _tieneDatos;
+    private bool _fabExpandido;
+
+    public ICommand PullRefreshCommand { get; }
+    public ICommand ToggleFabCommand { get; }
+    public ICommand AgregarCapturistaCommand { get; }
+    public ICommand AgregarSinCuentaCommand { get; }
+    public ICommand AgregarConCuentaCommand { get; }
+
+    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta)
+    {
+        _appState        = appState;
+        _servicioSesion  = servicioSesion;
+        _servicioAlerta  = servicioAlerta;
+
+        PullRefreshCommand      = new Command(async () => await PullRefreshAsync());
+        ToggleFabCommand        = new Command(() => FabExpandido = !FabExpandido);
+        AgregarCapturistaCommand = new Command(() => FabExpandido = false);
+        AgregarSinCuentaCommand  = new Command(() => FabExpandido = false);
+        AgregarConCuentaCommand  = new Command(() => FabExpandido = false);
+
+        _appState.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.MisUsuarios) or nameof(AppState.CuentaFiscalActual))
+                ActualizarLista();
+        };
+    }
+
+    public ObservableCollection<EquipoUsuarioItem> Usuarios
+    {
+        get => _usuarios;
+        private set { _usuarios = value; OnPropertyChanged(); }
+    }
+
+    public bool EstaCargando
+    {
+        get => _estaCargando;
+        set { _estaCargando = value; OnPropertyChanged(); }
+    }
+
+    public bool EstaRefrescando
+    {
+        get => _estaRefrescando;
+        set { _estaRefrescando = value; OnPropertyChanged(); }
+    }
+
+    public bool SinUsuarios
+    {
+        get => _sinUsuarios;
+        set { _sinUsuarios = value; OnPropertyChanged(); }
+    }
+
+    public bool TieneDatos
+    {
+        get => _tieneDatos;
+        set { _tieneDatos = value; OnPropertyChanged(); }
+    }
+
+    public bool FabExpandido
+    {
+        get => _fabExpandido;
+        set { _fabExpandido = value; OnPropertyChanged(); OnPropertyChanged(nameof(FabColapsado)); }
+    }
+
+    public bool FabColapsado => !_fabExpandido;
+
+    public async Task CargarAsync(bool forzar = false)
+    {
+        if (!forzar && _appState.MisUsuarios is { Count: > 0 })
+        {
+            ActualizarLista();
+            return;
+        }
+
+        EstaCargando = true;
+        try
+        {
+            await _servicioSesion.GetMisUsuariosAsync();
+            ActualizarLista();
+        }
+        finally
+        {
+            EstaCargando = false;
+        }
+    }
+
+    private async Task PullRefreshAsync()
+    {
+        EstaRefrescando = true;
+        try
+        {
+            await _servicioSesion.GetMisUsuariosAsync();
+            ActualizarLista();
+        }
+        finally
+        {
+            EstaRefrescando = false;
+        }
+    }
+
+    private void ActualizarLista()
+    {
+        var info       = DeviceDisplay.MainDisplayInfo;
+        double density = info.Density > 0 ? info.Density : 1;
+        double cardWidth   = (info.Width / density) - 32; // SwipeView Margin="16,6" → 16×2 horizontal
+        double swipeWidth  = cardWidth * 0.75;
+
+        var items = (_appState.MisUsuarios ?? [])
+            .Select(u =>
+            {
+                var item = new EquipoUsuarioItem(u);
+                item.SwipeItemWidth  = swipeWidth;
+                item.DeleteCommand   = new Command(async () => await ConfirmarEliminarAsync(item));
+                return item;
+            })
+            .ToList();
+        Usuarios    = new ObservableCollection<EquipoUsuarioItem>(items);
+        SinUsuarios = Usuarios.Count == 0;
+        TieneDatos  = Usuarios.Count > 0;
+    }
+
+    private async Task ConfirmarEliminarAsync(EquipoUsuarioItem item)
+    {
+        bool confirmar = await _servicioAlerta.MostrarAsync(
+            "Eliminar usuario",
+            $"¿Desea eliminar a {item.Nombre} del equipo?",
+            confirmarText: "Eliminar", cancelarText: "Cancelar");
+
+        if (!confirmar) return;
+
+        Usuarios.Remove(item);
+        SinUsuarios = Usuarios.Count == 0;
+        TieneDatos  = Usuarios.Count > 0;
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+    protected void OnPropertyChanged([CallerMemberName] string? name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+}

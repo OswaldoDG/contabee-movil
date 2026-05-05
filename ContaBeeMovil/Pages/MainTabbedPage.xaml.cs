@@ -4,11 +4,13 @@ public partial class MainTabbedPage : ContentPage
 {
     private readonly DashboardPage   _dashboardPage;
     private readonly FacturacionPage _facturacionPage;
+    private readonly EquipoPage      _equipoPage;
 
     // Guardadas por separado para sobrevivir el single-parent constraint de MAUI.
     // Al extraer Content antes de asignar parent, podemos reasignarla al volver al tab.
     private View? _dashboardView;
     private View? _facturacionView;
+    private View? _equipoView;
 
     private int _currentIndex = -1;
 
@@ -18,9 +20,11 @@ public partial class MainTabbedPage : ContentPage
 
         _dashboardPage   = services.GetRequiredService<DashboardPage>();
         _facturacionPage = services.GetRequiredService<FacturacionPage>();
+        _equipoPage      = services.GetRequiredService<EquipoPage>();
 
         _dashboardView   = _dashboardPage.Content;
         _facturacionView = _facturacionPage.Content;
+        _equipoView      = _equipoPage.Content;
 
         MonthNavBar.BindingContext = _dashboardPage.BindingContext;
         // Sincronizar título cuando cambia el periodo en facturación
@@ -55,7 +59,7 @@ public partial class MainTabbedPage : ContentPage
         PageContainer.Opacity = 0;
 
         MonthNavBar.IsVisible = index == 0;
-        LabelTitulo.IsVisible = index == 1;
+        LabelTitulo.IsVisible = index != 0;
 
         switch (index)
         {
@@ -67,8 +71,13 @@ public partial class MainTabbedPage : ContentPage
             case 1:
                 PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
-                // Solo MES AÑO sin "Comprobantes"
                 LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
+                break;
+
+            case 2:
+                PageContainer.Content = _equipoView;
+                PageContainer.BindingContext = _equipoPage.BindingContext;
+                LabelTitulo.Text = "Equipo";
                 break;
         }
 
@@ -82,6 +91,7 @@ public partial class MainTabbedPage : ContentPage
             {
                 case 0: _dashboardPage.OnTabActivated(); break;
                 case 1: _facturacionPage.OnTabActivated(); break;
+                case 2: _equipoPage.OnTabActivated(); break;
             }
         });
     }
