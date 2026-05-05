@@ -248,7 +248,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {

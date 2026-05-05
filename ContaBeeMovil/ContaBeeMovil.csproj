@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.31</ApplicationDisplayVersion>
-		<ApplicationVersion>31</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.32</ApplicationDisplayVersion>
+		<ApplicationVersion>32</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -46,7 +46,8 @@
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
-			
+		<NoWarn>$(NoWarn);NU1608;NU1902;ASPDEPR001</NoWarn>
+
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios' AND '$(Configuration)'=='Debug'">
@@ -129,14 +130,14 @@
 	  <ProjectReference Include="..\ContaBeeShareExtension\ContaBeeShareExtension.csproj">
 	    <IsAppExtension>true</IsAppExtension>
 	    <GlobalPropertiesToRemove>CodesignProvision;CodesignKey;CodesignEntitlements</GlobalPropertiesToRemove>
-	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension Development;CodesignKey=Apple Development: Created via API (489HK3K7TX);CodesignEntitlements=Entitlements.plist</AdditionalProperties>
+	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension Development;CodesignKey=Apple Development: Created via API (489HK3K7TX);CodesignEntitlements=Entitlements.plist;ApplicationDisplayVersion=$(ApplicationDisplayVersion);ApplicationVersion=$(ApplicationVersion)</AdditionalProperties>
 	  </ProjectReference>
 	</ItemGroup>
 	<ItemGroup Condition="$(TargetFramework.Contains('-ios')) AND '$(Configuration)'=='Release'">
 	  <ProjectReference Include="..\ContaBeeShareExtension\ContaBeeShareExtension.csproj">
 	    <IsAppExtension>true</IsAppExtension>
 	    <GlobalPropertiesToRemove>CodesignProvision;CodesignKey;CodesignEntitlements</GlobalPropertiesToRemove>
-	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension AppStore;CodesignKey=Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR);CodesignEntitlements=Entitlements.plist</AdditionalProperties>
+	    <AdditionalProperties>CodesignProvision=ContaBee ShareExtension AppStore;CodesignKey=Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR);CodesignEntitlements=Entitlements.plist;ApplicationDisplayVersion=$(ApplicationDisplayVersion);ApplicationVersion=$(ApplicationVersion)</AdditionalProperties>
 	  </ProjectReference>
 	</ItemGroup>
 

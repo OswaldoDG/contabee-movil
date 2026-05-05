@@ -73,7 +73,7 @@ public partial class PaginaRegistro : ContentPage
 
     protected override bool OnBackButtonPressed()
     {
-        Navigation.PopAsync();
+        _ = Navigation.PopAsync();
         return true;
     }
 

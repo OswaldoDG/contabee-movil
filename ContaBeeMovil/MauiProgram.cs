@@ -62,7 +62,7 @@ namespace ContaBeeMovil
 #if IOS
                 Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("BorderlessEntry", (handler, view) =>
                 {
-                    handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+                    handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.RoundedRect;
                 });
 #endif
             });
