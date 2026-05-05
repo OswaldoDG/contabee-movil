@@ -420,7 +420,8 @@
     <Style x:Key="ElevatedCard" TargetType="Border">
         <Setter Property="StrokeShape" Value="RoundRectangle 16"/>
         <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
-        <Setter Property="StrokeThickness" Value="0"/>
+        <Setter Property="Stroke" Value="{toolkit:AppThemeResource Accent1}"/>
+        <Setter Property="StrokeThickness" Value="1"/>
         <Setter Property="Padding" Value="10"/>
         <Setter Property="Shadow">
             <Shadow Brush="{toolkit:AppThemeResource ShadowSecondary}"
