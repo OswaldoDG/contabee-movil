@@ -2,21 +2,271 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
              x:Class="ContaBeeMovil.Pages.EquipoPage"
-             Title="Equipo"
+             x:DataType="vm:EquipoViewModel"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*">
 
-        <VerticalStackLayout Grid.Row="0"
-                             VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-            <Label Text="Equipo" Style="{StaticResource Title2}" HorizontalOptions="Center"/>
-            <Label Text="Próximamente" Style="{StaticResource Body1}"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}" HorizontalOptions="Center"/>
+        <ActivityIndicator Grid.Row="0"
+                           IsRunning="{Binding EstaCargando}"
+                           IsVisible="{Binding EstaCargando}"
+                           Color="{toolkit:AppThemeResource Primary}"
+                           HorizontalOptions="Center"
+                           Margin="0,8" />
+
+        <!-- Empty state -->
+        <VerticalStackLayout Grid.Row="1"
+                             IsVisible="{Binding SinUsuarios}"
+                             VerticalOptions="Center"
+                             HorizontalOptions="Center"
+                             Spacing="12">
+            <mi:MauiIcon Icon="{mi:Material Icon=GroupOff}"
+                         IconSize="56"
+                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                         HorizontalOptions="Center" />
+            <Label Text="Sin usuarios vinculados"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   FontSize="15"
+                   HorizontalOptions="Center" />
         </VerticalStackLayout>
 
-        <views:RfcCpBarView Grid.Row="1" />
+        <!-- Lista de usuarios -->
+        <RefreshView Grid.Row="1"
+                     Command="{Binding PullRefreshCommand}"
+                     IsRefreshing="{Binding EstaRefrescando}"
+                     RefreshColor="{toolkit:AppThemeResource Icon}"
+                     Background="{toolkit:AppThemeResource Background}">
+        <CollectionView ItemsSource="{Binding Usuarios}"
+                        Margin="0,4">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:EquipoUsuarioItem">
+                    <SwipeView Margin="16,6">
+                        <SwipeView.LeftItems>
+                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
+                                <SwipeItemView Command="{Binding DeleteCommand}">
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0"
+                                            Padding="5"
+                                            WidthRequest="{Binding SwipeItemWidth}">
+                                        <mi:MauiIcon Icon="{mi:Material Icon=Delete}"
+                                                     IconSize="26"
+                                                     IconColor="White"
+                                                     HorizontalOptions="Start"
+                                                     VerticalOptions="Center" />
+                                    </Border>
+                                </SwipeItemView>
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
+
+                    <Border Margin="0"
+                            Padding="10,5"
+                                StrokeShape="RoundRectangle 10"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                            <Border.Shadow>
+                                <Shadow Brush="Black" Radius="14" Opacity="0.11" Offset="0,5" />
+                            </Border.Shadow>
+
+                            <Grid ColumnDefinitions="5,*">
+
+                                <!-- Barra de acento izquierda según estado -->
+                        <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+
+                                <!-- Contenido de la card -->
+                                <Grid Grid.Column="1"
+                                      Padding="5"   
+                                      ColumnDefinitions="56,*"
+                                      ColumnSpacing="14">
+
+                                    <!-- Avatar con iniciales -->
+                                    <Border Grid.Column="0"
+                                            WidthRequest="48"
+                                            HeightRequest="48"
+                                            StrokeShape="RoundRectangle 24"
+                                            StrokeThickness="0"
+                                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                            VerticalOptions="Center">
+                                        <Label Text="{Binding Iniciales}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center" />
+                                    </Border>
+
+                                    <!-- Datos del usuario -->
+                                    <Grid Grid.Column="1"
+                                          RowDefinitions="Auto,Auto,Auto"
+                                          RowSpacing="3"
+                                          VerticalOptions="Center">
+                                        <Label Grid.Row="0"
+                                               Text="{Binding Nombre}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Grid.Row="1"
+                                               Text="{Binding Email}"
+                                               FontSize="12"
+                                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                               LineBreakMode="TailTruncation" />
+                                        <HorizontalStackLayout Grid.Row="2"
+                                                               Spacing="8"
+                                                               Margin="0,6,0,0">
+                                            <Border StrokeShape="RoundRectangle 10"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="{Binding EstadoColor}"
+                                                    Padding="8,3">
+                                                <Label Text="{Binding EstadoTexto}"
+                                                       FontSize="11"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{Binding EstadoTextColor}"
+                                                       VerticalOptions="Center" />
+                                            </Border>
+                                            <Label Text="{Binding TipoCuentaTexto}"
+                                                   FontSize="12"
+                                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+
+                                </Grid>
+                            </Grid>
+                    </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        </RefreshView>
+
+        <!-- FAB expandible -->
+        <VerticalStackLayout Grid.Row="1"
+                             HorizontalOptions="End"
+                             VerticalOptions="End"
+                             Margin="0,0,16,28"
+                             Spacing="12">
+
+            <!-- Sub-botones (visibles al expandir) -->
+            <VerticalStackLayout x:Name="SubBotonesPanel"
+                                 IsVisible="False"
+                                 Opacity="0"
+                                 Spacing="12"
+                                 HorizontalOptions="End">
+
+                <!-- Capturista -->
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AgregarCapturistaCommand}" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Border WidthRequest="60" HeightRequest="60"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            HorizontalOptions="Center">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
+                        </Border.Shadow>
+                        <mi:MauiIcon Icon="{mi:Material Icon=Keyboard}"
+                                     IconSize="28"
+                                     IconColor="#1e1e1e"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Capturista"
+                           FontSize="11"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Sin cuenta -->
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AgregarSinCuentaCommand}" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Border WidthRequest="60" HeightRequest="60"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            HorizontalOptions="Center">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
+                        </Border.Shadow>
+                        <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
+                                     IconSize="28"
+                                     IconColor="#1e1e1e"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Sin cuenta"
+                           FontSize="11"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <!-- Con Cuenta -->
+                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AgregarConCuentaCommand}" />
+                    </VerticalStackLayout.GestureRecognizers>
+                    <Border WidthRequest="60" HeightRequest="60"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            HorizontalOptions="Center">
+                        <Border.Shadow>
+                            <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
+                        </Border.Shadow>
+                        <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
+                                     IconSize="28"
+                                     IconColor="#1e1e1e"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="Con Cuenta"
+                           FontSize="11"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- Botón FAB principal -->
+            <Border WidthRequest="60" HeightRequest="60"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    HorizontalOptions="End">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Radius="10" Opacity="0.22" Offset="0,4" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleFabCommand}" />
+                </Border.GestureRecognizers>
+                <Grid>
+                    <mi:MauiIcon Icon="{mi:Material Icon=Add}"
+                                 IconSize="30"
+                                 IconColor="#1e1e1e"
+                                 IsVisible="{Binding FabColapsado}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
+                    <mi:MauiIcon Icon="{mi:Material Icon=KeyboardArrowDown}"
+                                 IconSize="30"
+                                 IconColor="#1e1e1e"
+                                 IsVisible="{Binding FabExpandido}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
 
     </Grid>
 

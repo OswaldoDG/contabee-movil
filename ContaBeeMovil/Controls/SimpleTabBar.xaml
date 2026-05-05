@@ -7,7 +7,7 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="50">
 
-    <Grid ColumnDefinitions="*,*"
+    <Grid ColumnDefinitions="*,*,*"
           BackgroundColor="{toolkit:AppThemeResource Background}">
 
         <!-- Tab 0: Inicio -->
@@ -30,7 +30,6 @@
                    FontSize="10"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource Icon}" />
-                   
             <BoxView x:Name="UnderlineInicio"
                      HeightRequest="4"
                      WidthRequest="40"
@@ -59,9 +58,37 @@
                    Text="Facturación"
                    TextColor="{toolkit:AppThemeResource Icon}"
                    FontSize="10"
-                   HorizontalOptions="Center"
-                   />
+                   HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineFacturacion"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <!-- Tab 2: Equipo -->
+        <VerticalStackLayout Grid.Column="2"
+                             x:Name="TabEquipo"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabEquipo_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <mi:MauiIcon x:Name="IconEquipo"
+                         Icon="{mi:Material Icon=Group}"
+                         IconSize="22"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         BackgroundColor="Transparent"
+                         HorizontalOptions="Center" />
+            <Label x:Name="LblEquipo"
+                   Text="Equipo"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineEquipo"
                      HeightRequest="3"
                      WidthRequest="40"
                      Color="{toolkit:AppThemeResource Primary}"

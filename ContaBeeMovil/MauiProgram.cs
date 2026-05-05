@@ -14,6 +14,7 @@ using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Pages.AcercaDe;
@@ -136,6 +137,7 @@ namespace ContaBeeMovil
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
             builder.Services.AddTransient<PaginaCuponesViewModel>();
+            builder.Services.AddTransient<EquipoViewModel>();
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
