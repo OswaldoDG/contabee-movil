@@ -24,7 +24,9 @@ public class AuthHandler : DelegatingHandler
         "/api/identity/connect/token",
         "/cupones/validar/",
         "/api/ecommerce/cupones/validar/",
-        "/connect/token"
+        "/connect/token",
+        "/usuarios/tokenvinculacion/",
+        "/api/identity/usuarios/tokenvinculacion/"
     ];
 
     private readonly IServiceProvider _serviceProvider;

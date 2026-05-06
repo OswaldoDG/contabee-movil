@@ -7,6 +7,7 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
@@ -207,7 +208,7 @@ namespace ContaBeeMovil
         private async void OnVincularmeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await Shell.Current.GoToAsync(nameof(VincularCuentaPage));
+            await Shell.Current.GoToAsync($"{nameof(SolicitudTokenPage)}?enSesion=True");
         }
 
         private async void OnTiendaClicked(object? sender, EventArgs e)
@@ -286,6 +287,8 @@ namespace ContaBeeMovil
         {
             Routing.RegisterRoute("cuenta/confirmar", typeof(ConfirmarCuentaPage));
             Routing.RegisterRoute(nameof(PaginaRegistro), typeof(PaginaRegistro));
+            Routing.RegisterRoute(nameof(VincularPage), typeof(VincularPage));
+            Routing.RegisterRoute(nameof(SolicitudTokenPage), typeof(SolicitudTokenPage));
             Routing.RegisterRoute(nameof(TiendaPage), typeof(TiendaPage));
             Routing.RegisterRoute(nameof(VincularCuentaPage), typeof(VincularCuentaPage));
             Routing.RegisterRoute(nameof(TarjetasPage), typeof(TarjetasPage));

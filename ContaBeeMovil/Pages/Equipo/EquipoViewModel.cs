@@ -2,9 +2,13 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Views;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 
 namespace ContaBeeMovil.Pages.Equipo;
 
@@ -14,9 +18,7 @@ public class EquipoUsuarioItem
     public string Nombre { get; }
     public string Email { get; }
     public string Iniciales { get; }
-    public string EstadoTexto { get; }
-    public Color EstadoColor { get; }
-    public Color EstadoTextColor { get; }
+    public bool TieneEmail { get; }
     public string TipoCuentaTexto { get; }
     public ICommand? DeleteCommand { get; set; }
     public double SwipeItemWidth { get; set; }
@@ -32,14 +34,7 @@ public class EquipoUsuarioItem
             ? $"{partes[0][0]}{partes[1][0]}".ToUpper()
             : Nombre.Length >= 2 ? Nombre[..2].ToUpper() : Nombre.ToUpper();
 
-        (EstadoTexto, EstadoColor, EstadoTextColor) = u.Estado switch
-        {
-            EstadoCuenta.Activo                => ("Activo",    Color.FromArgb("#3c8c7b"), Colors.White),
-            EstadoCuenta.PendienteConfirmacion => ("Pendiente", Color.FromArgb("#e5c93d"), Color.FromArgb("#7a5200")),
-            EstadoCuenta.Inactivo              => ("Inactivo",  Color.FromArgb("#6e6e6e"), Colors.White),
-            EstadoCuenta.BajaCliente           => ("Baja",      Color.FromArgb("#d65c5c"), Colors.White),
-            _                                  => (u.Estado.ToString(), Color.FromArgb("#6e6e6e"), Colors.White)
-        };
+        TieneEmail = !string.IsNullOrWhiteSpace(Email);
 
         TipoCuentaTexto = u.TipoCuenta switch
         {
@@ -58,6 +53,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     private readonly AppState _appState;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioIdentidad _servicioIdentidad;
 
     private ObservableCollection<EquipoUsuarioItem> _usuarios = [];
     private bool _estaCargando;
@@ -72,17 +68,18 @@ public class EquipoViewModel : INotifyPropertyChanged
     public ICommand AgregarSinCuentaCommand { get; }
     public ICommand AgregarConCuentaCommand { get; }
 
-    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta)
+    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad)
     {
-        _appState        = appState;
-        _servicioSesion  = servicioSesion;
-        _servicioAlerta  = servicioAlerta;
+        _appState           = appState;
+        _servicioSesion     = servicioSesion;
+        _servicioAlerta     = servicioAlerta;
+        _servicioIdentidad  = servicioIdentidad;
 
-        PullRefreshCommand      = new Command(async () => await PullRefreshAsync());
-        ToggleFabCommand        = new Command(() => FabExpandido = !FabExpandido);
-        AgregarCapturistaCommand = new Command(() => FabExpandido = false);
-        AgregarSinCuentaCommand  = new Command(() => FabExpandido = false);
-        AgregarConCuentaCommand  = new Command(() => FabExpandido = false);
+        PullRefreshCommand       = new Command(async () => await PullRefreshAsync());
+        ToggleFabCommand         = new Command(() => FabExpandido = !FabExpandido);
+        AgregarCapturistaCommand = new Command(async () => await AgregarCapturistaAsync());
+        AgregarSinCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: false));
+        AgregarConCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: true));
 
         _appState.PropertyChanged += (_, e) =>
         {
@@ -100,7 +97,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     public bool EstaCargando
     {
         get => _estaCargando;
-        set { _estaCargando = value; OnPropertyChanged(); }
+        set { _estaCargando = value; OnPropertyChanged(); OnPropertyChanged(nameof(MostrarVacio)); }
     }
 
     public bool EstaRefrescando
@@ -112,8 +109,10 @@ public class EquipoViewModel : INotifyPropertyChanged
     public bool SinUsuarios
     {
         get => _sinUsuarios;
-        set { _sinUsuarios = value; OnPropertyChanged(); }
+        set { _sinUsuarios = value; OnPropertyChanged(); OnPropertyChanged(nameof(MostrarVacio)); }
     }
+
+    public bool MostrarVacio => !_estaCargando && _sinUsuarios;
 
     public bool TieneDatos
     {
@@ -147,6 +146,27 @@ public class EquipoViewModel : INotifyPropertyChanged
         {
             EstaCargando = false;
         }
+    }
+
+    private async Task AgregarAsync(bool esConCuenta)
+    {
+        FabExpandido = false;
+        await Shell.Current.GoToAsync($"{nameof(VincularPage)}?esConCuenta={esConCuenta}");
+    }
+
+    private async Task AgregarCapturistaAsync()
+    {
+        FabExpandido = false;
+
+        var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
+        if (cfid == null) return;
+
+        bool creado = false;
+        var popup = new CrearCapturistaPopup(_servicioIdentidad, cfid.Value, r => creado = r);
+        await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
+
+        if (creado)
+            await CargarAsync(forzar: true);
     }
 
     private async Task PullRefreshAsync()

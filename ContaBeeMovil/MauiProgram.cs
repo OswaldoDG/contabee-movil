@@ -138,10 +138,14 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<DashboardViewModel>();
             builder.Services.AddTransient<PaginaCuponesViewModel>();
             builder.Services.AddTransient<EquipoViewModel>();
+            builder.Services.AddTransient<VincularViewModel>();
+            builder.Services.AddTransient<SolicitudTokenViewModel>();
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
+            builder.Services.AddTransient<VincularPage>();
+            builder.Services.AddTransient<SolicitudTokenPage>();
             builder.Services.AddTransient<MainTabbedPage>();
             builder.Services.AddTransient<PaginaCupones>();
             builder.Services.AddTransient<RegistroViewModel>();
