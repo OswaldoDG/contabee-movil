@@ -6,6 +6,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
@@ -54,6 +55,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IServicioToast _toast;
 
     private ObservableCollection<EquipoUsuarioItem> _usuarios = [];
     private bool _estaCargando;
@@ -61,6 +63,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     private bool _sinUsuarios;
     private bool _tieneDatos;
     private bool _fabExpandido;
+    private string? _miEmail;
 
     public ICommand PullRefreshCommand { get; }
     public ICommand ToggleFabCommand { get; }
@@ -68,12 +71,13 @@ public class EquipoViewModel : INotifyPropertyChanged
     public ICommand AgregarSinCuentaCommand { get; }
     public ICommand AgregarConCuentaCommand { get; }
 
-    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad)
+    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad, IServicioToast toast)
     {
         _appState           = appState;
         _servicioSesion     = servicioSesion;
         _servicioAlerta     = servicioAlerta;
         _servicioIdentidad  = servicioIdentidad;
+        _toast              = toast;
 
         PullRefreshCommand       = new Command(async () => await PullRefreshAsync());
         ToggleFabCommand         = new Command(() => FabExpandido = !FabExpandido);
@@ -114,6 +118,19 @@ public class EquipoViewModel : INotifyPropertyChanged
 
     public bool MostrarVacio => !_estaCargando && _sinUsuarios;
 
+    public string PerfilInfo
+    {
+        get
+        {
+            var p = _appState.Perfil;
+            return $"[Sesion] Email: {_miEmail ?? "(null)"}\n" +
+                   $"[Sesion] EsLoginLess: {_appState.EsLoginLess}\n" +
+                   $"[Perfil] DisplayName: {p?.DisplayName}\n" +
+                   $"[Perfil] Iniciales: {p?.Iniciales}\n" +
+                   $"[Perfil] CuentaFiscalId: {p?.CuentaFiscalId}";
+        }
+    }
+
     public bool TieneDatos
     {
         get => _tieneDatos;
@@ -130,6 +147,12 @@ public class EquipoViewModel : INotifyPropertyChanged
 
     public async Task CargarAsync(bool forzar = false)
     {
+        if (_miEmail == null && !_appState.EsLoginLess)
+        {
+            _miEmail = await _servicioSesion.LeeEmailAsync();
+            OnPropertyChanged(nameof(PerfilInfo));
+        }
+
         if (!forzar && _appState.MisUsuarios is { Count: > 0 })
         {
             ActualizarLista();
@@ -191,6 +214,7 @@ public class EquipoViewModel : INotifyPropertyChanged
         double swipeWidth  = cardWidth * 0.75;
 
         var items = (_appState.MisUsuarios ?? [])
+            .Where(u => _miEmail == null || !string.Equals(u.Email, _miEmail, StringComparison.OrdinalIgnoreCase))
             .Select(u =>
             {
                 var item = new EquipoUsuarioItem(u);
@@ -213,9 +237,20 @@ public class EquipoViewModel : INotifyPropertyChanged
 
         if (!confirmar) return;
 
-        Usuarios.Remove(item);
-        SinUsuarios = Usuarios.Count == 0;
-        TieneDatos  = Usuarios.Count > 0;
+        var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
+        if (cfid == null) return;
+
+        var resp = await _servicioIdentidad.EliminarVinculoUsuario(cfid.Value, item.Id);
+
+        if (resp.Ok)
+        {
+            await _toast.MostrarAsync("Usuario eliminado del equipo", ToastIcono.Info);
+            await CargarAsync(forzar: true);
+        }
+        else
+        {
+            await _toast.MostrarAsync(resp.Error?.Mensaje ?? "Error al eliminar el usuario", ToastIcono.Error);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
