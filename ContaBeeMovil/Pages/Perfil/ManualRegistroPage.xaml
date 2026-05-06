@@ -10,7 +10,7 @@
     <Grid Padding="10">
         <!-- Tarjeta centrada -->
         <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                VerticalOptions="Center"
+                VerticalOptions="Fill"
                 HorizontalOptions="Fill"
                 StrokeShape="RoundRectangle 10"
                 Stroke="{toolkit:AppThemeResource Accent1}"
@@ -30,7 +30,6 @@
                        HorizontalOptions="Center"
                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
                 <BoxView Style="{StaticResource Divider}" />
-
                 <Entry x:Name="EntryName"
                        Placeholder="Nombre o Razón Social"
                        HeightRequest="44"

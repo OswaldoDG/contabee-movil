@@ -19,6 +19,7 @@ public class ServicioSesion : IServicioSesion
     private const string CLAVE_REFRESH_TOKEN = "RefreshToken";
     private const string CLAVE_EMAIL = "CredencialEmail";
     private const string CLAVE_EXPIRACION = "TokenExpiracion";
+    private const string CLAVE_TOKEN_LOGINLESS = "TokenLoginLess";
     private readonly AppState _appState;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioIdentidad _servicioIdentidad;
@@ -355,6 +356,12 @@ public class ServicioSesion : IServicioSesion
             Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
         });
     }
+
+    public Task GuardaTokenLoginLessAsync(string token)
+        => GuardaContenidoClave(CLAVE_TOKEN_LOGINLESS, token);
+
+    public Task<string?> LeeTokenLoginLessAsync()
+        => LeeContenidoClave(CLAVE_TOKEN_LOGINLESS);
 
     public async Task PostEliminarCuentaAsync()
     {
