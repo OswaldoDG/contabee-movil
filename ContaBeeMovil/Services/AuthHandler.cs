@@ -41,7 +41,7 @@ public class AuthHandler : DelegatingHandler
         HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri?.AbsolutePath ?? "";
-        bool esPublica = _rutasPublicas.Any(r => path.StartsWith(r));
+        bool esPublica = _rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular");
 
         if (esPublica)
             return await base.SendAsync(request, cancellationToken);
