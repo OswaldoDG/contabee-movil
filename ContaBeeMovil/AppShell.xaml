@@ -46,32 +46,6 @@
                 <VerticalStackLayout Padding="16,12" Spacing="8">
 
                     <!-- ─── Cards de perfil ─── -->
-                    <!--<Border Style="{StaticResource ElevatedCard}" Padding="14,12">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnVincularmeClicked" />
-                        </Border.GestureRecognizers>
-                        <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
-                            <BoxView Grid.Column="0"
-                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                     WidthRequest="4" CornerRadius="2"
-                                     VerticalOptions="Fill" />
-                            <Label Grid.Column="1"
-                                   Text="{x:Static f:FluentUI.person_link_24_regular}"
-                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                   FontSize="22"
-                                   TextColor="{toolkit:AppThemeResource Primary}"
-                                   VerticalOptions="Center" />
-                            <Label Grid.Column="2" Text="Vincularme"
-                                   Style="{StaticResource Body1}"
-                                   VerticalOptions="Center" />
-                            <Label Grid.Column="3"
-                                   Text="{x:Static f:FluentUI.chevron_right_20_regular}"
-                                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                                   FontSize="16"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   VerticalOptions="Center" />
-                        </Grid>
-                    </Border>-->
                     <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnTiendaClicked" />
@@ -186,6 +160,30 @@
                                          IconColor="{toolkit:AppThemeResource Icon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Mi cuenta"
+                                   Style="{StaticResource Body1}"
+                                   VerticalOptions="Center" />
+                            <mi:MauiIcon Grid.Column="3"
+                                         Icon="{mi:Material Icon=ChevronRight}"
+                                         IconSize="16"
+                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                         VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                                        <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnVincularmeClicked" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                            <BoxView Grid.Column="0"
+                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                     WidthRequest="4" CornerRadius="2"
+                                     VerticalOptions="Fill" />
+                            <mi:MauiIcon Grid.Column="1"
+                                         Icon="{mi:Material Icon=SpatialAudioOff}"
+                                         IconSize="22"
+                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="Vincularme"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
                             <mi:MauiIcon Grid.Column="3"

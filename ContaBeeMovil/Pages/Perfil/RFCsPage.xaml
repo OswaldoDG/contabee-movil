@@ -22,16 +22,17 @@
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItemView Command="{Binding DeleteCommand}">
-                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
+                                    <Border BackgroundColor="#d65c5c"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="0"
                                             Padding="5"
-                                            WidthRequest="72">
-                                        <mi:MauiIcon Icon="{mi:Material Icon=Delete}"
-                                                     IconSize="26"
-                                                     IconColor="White"
-                                                     HorizontalOptions="Start"
-                                                     VerticalOptions="Center" />
+                                            WidthRequest="{Binding SwipeItemWidth}">
+                                        <Image WidthRequest="26"
+                                               HeightRequest="26"
+                                               HorizontalOptions="Start"
+                                               VerticalOptions="Center"
+                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"
+                                               mi:MauiIcon.IconColor="White" />
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>

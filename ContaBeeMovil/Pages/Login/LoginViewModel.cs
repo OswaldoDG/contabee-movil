@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.AcercaDe;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
@@ -262,7 +263,9 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Vincularme()
     {
-        await _toast.MostrarAsync("La funcionalidad de vinculación estará disponible próximamente.", ToastIcono.Warning, ToastPosicion.Bottom);
+        var page = App.Services.GetRequiredService<SolicitudTokenPage>();
+        page.EnSesion = false;
+        await Application.Current!.Windows[0].Page!.Navigation.PushAsync(page);
     }
 
     private async Task IrARegistro()

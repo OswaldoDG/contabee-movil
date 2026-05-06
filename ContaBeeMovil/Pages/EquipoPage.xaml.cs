@@ -51,6 +51,16 @@ public partial class EquipoPage : ContentPage
         }
     }
 
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _viewModel.FabExpandido = false;
+        SubBotonesPanel.IsVisible = false;
+        SubBotonesPanel.Opacity = 0;
+        SubBotonesPanel.Scale = 1;
+        SubBotonesPanel.TranslationY = 0;
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
