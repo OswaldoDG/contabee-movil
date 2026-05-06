@@ -10,7 +10,22 @@
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Padding="0">
 
-    <Grid BackgroundColor="{toolkit:AppThemeResource Background}">
+    <Grid BackgroundColor="{toolkit:AppThemeResource Background}"
+          RowDefinitions="Auto,*">
+
+        <!-- DEBUG: perfil info -->
+        <Border Grid.Row="0"
+                BackgroundColor="#222"
+                Padding="10,6"
+                Margin="8,4">
+            <Label Text="{Binding PerfilInfo}"
+                   TextColor="#00FF99"
+                   FontSize="11"
+                   FontFamily="Courier New"
+                   LineBreakMode="WordWrap" />
+        </Border>
+
+        <Grid Grid.Row="1">
 
         <!-- Empty state -->
         <VerticalStackLayout IsVisible="{Binding MostrarVacio}"
@@ -262,6 +277,8 @@
             </Border>
 
         </VerticalStackLayout>
+
+        </Grid><!-- /Grid.Row=1 wrapper -->
 
     </Grid>
 

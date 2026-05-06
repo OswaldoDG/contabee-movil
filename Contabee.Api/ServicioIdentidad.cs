@@ -383,4 +383,23 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         return r;
     }
+
+    public async Task<Respuesta> EliminarVinculoUsuario(Guid cfid,Guid usuarioId)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.CuentafiscalAsync(usuarioId,cfid); 
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");
+        }
+
+        return r;
+    }
+
 } 
