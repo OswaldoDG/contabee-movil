@@ -156,11 +156,13 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             var r = await _servicioIdentidad.ValidaTokenVinculacionSinSesion(dispositivoId, _token);
             if (!r.Ok) return;
 
-            // Vinculado — obtener token LoginLess
+            // El backend borra el registro al devolver 200, así que cancelamos
+            // el polling aquí antes de cualquier llamada que pueda fallar.
+            _cts?.Cancel();
+
             var loginlessResult = await _servicioIdentidad.GetTokenLoginLess(dispositivoId);
             if (!loginlessResult.Ok || loginlessResult.Payload?.Token is null)
             {
-                _cts?.Cancel();
                 await _toast.MostrarAsync("Error al obtener acceso LoginLess.", ToastIcono.Error);
                 await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
                 return;
@@ -168,24 +170,19 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
             var loginlessToken = loginlessResult.Payload.Token;
 
-            // Guardar token LoginLess si cambió
             var tokenGuardado = await _servicioSesion.LeeTokenLoginLessAsync();
             if (tokenGuardado != loginlessToken)
                 await _servicioSesion.GuardaTokenLoginLessAsync(loginlessToken);
 
-            // Login normal con credenciales LoginLess
             var loginR = await _servicioIdentidad.IniciarSesion(
                 loginlessToken, "Password", dispositivoId, recordarme: false);
 
             if (!loginR.Ok || loginR.Payload is null)
             {
-                _cts?.Cancel();
                 await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Error);
                 await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
                 return;
             }
-
-            _cts?.Cancel();
 
             await _servicioSesion.GuardaTokenAsync(
                 loginR.Payload.AccessToken,
@@ -206,6 +203,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SolicitudToken:SinSesion] {ex.Message}");
+            await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
+            await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
         }
     }
 

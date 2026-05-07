@@ -425,6 +425,8 @@ FodyWeavers.xsd
 *.msm
 *.msp
 
-#claude Skills
-
+# Graphify
 graphify-out/
+.graphify_*.json
+.graphify_python
+.graphify_manifest.json
