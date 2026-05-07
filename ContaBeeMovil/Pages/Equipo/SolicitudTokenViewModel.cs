@@ -190,7 +190,6 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
             var loginlessToken = loginlessResult.Payload.Token;
 
-            // Guardar token LoginLess si cambió
             var tokenGuardado = await _servicioSesion.LeeTokenLoginLessAsync();
             if (tokenGuardado != loginlessToken)
                 await _servicioSesion.GuardaTokenLoginLessAsync(loginlessToken);
@@ -206,8 +205,6 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
                 _ = _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Error);
                 return;
             }
-
-            _cts?.Cancel();
 
             await _servicioSesion.GuardaTokenAsync(
                 loginR.Payload.AccessToken,
