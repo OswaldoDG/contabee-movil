@@ -3135,6 +3135,10 @@
           },
           "tieneXml": {
             "type": "boolean"
+          },
+          "mensajeError": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

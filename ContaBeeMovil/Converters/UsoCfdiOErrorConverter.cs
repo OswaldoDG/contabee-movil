@@ -20,14 +20,14 @@ public class UsoCfdiOErrorConverter : IValueConverter
         {
             return item.Motivo switch
             {
-                MotivoEstado.ImagenDeficiente => "Error: Deficiente",
-                MotivoEstado.ImagenErronea => "Error: No es ticket",
-                MotivoEstado.Abuso => "Error: Abuso",
-                MotivoEstado.MaximoIntentosSuperado => "Error: No localizable",
-                MotivoEstado.ReprogramacionFueraRango => "Error: No localizable",
-                MotivoEstado.PortalPrivado => "Error: Portal privado",
-                MotivoEstado.Extemporaneo => "Error: Error de Fecha",
-                MotivoEstado.OtroError => "Error: Otro",
+                MotivoEstado.ImagenDeficiente => "Calidad Deficiente",
+                MotivoEstado.ImagenErronea => "No es ticket",
+                MotivoEstado.Abuso => "Abuso detectado",
+                MotivoEstado.MaximoIntentosSuperado => "Máximo de Intentos superado",
+                MotivoEstado.ReprogramacionFueraRango => "Fuera de intervalo",
+                MotivoEstado.PortalPrivado => "El portal requiere subscripción",
+                MotivoEstado.Extemporaneo => "Fuera de intervalo",
+                MotivoEstado.OtroError => $"{item.MensajeError ?? "No pudo procesarse"}",
                 _ => "Error"
             };
         }
