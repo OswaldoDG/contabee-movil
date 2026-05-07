@@ -47,7 +47,7 @@ public class AuthHandler : DelegatingHandler
         HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri?.AbsolutePath ?? "";
-        bool esPublica = (_rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular"))
+        bool esPublica = (_rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular") && !path.EndsWith("/vinculado"))
             || (request.Method == HttpMethod.Get && _rutasPublicasGet.Any(r => path.StartsWith(r)));
 
         if (esPublica)
