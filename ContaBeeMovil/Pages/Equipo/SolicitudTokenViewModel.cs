@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -13,6 +14,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioToast _toast;
+    private readonly IServicioLogs _logs;
     private readonly AppState _appState;
 
     private bool _estaCargando;
@@ -57,11 +59,13 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioToast toast,
+        IServicioLogs logs,
         AppState appState)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion    = servicioSesion;
         _toast             = toast;
+        _logs              = logs;
         _appState          = appState;
 
         CancelarCommand = new Command(async () => await CancelarAsync());
@@ -85,22 +89,27 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         try
         {
             var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+            _logs.Log($"[Vinculación:{(enSesion ? "ConSesion" : "SinSesion")}] Solicitando token. DispositivoId={dispositivoId}");
+
             var resultado = await _servicioIdentidad.GetTokenVinculacion(dispositivoId, enSesion);
 
             if (!resultado.Ok || resultado.Payload?.Token is null)
             {
+                _logs.Log($"[Vinculación] Error al obtener token. Ok={resultado.Ok} Error={resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
                 await _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
                 await NavegaAtrasAsync();
                 return;
             }
 
+            _logs.Log($"[Vinculación] Token obtenido: {resultado.Payload.Token}. Iniciando polling cada 10s.");
             Token        = resultado.Payload.Token;
             MostrarToken = true;
 
             _ = IniciarPollingAsync(dispositivoId, _cts.Token);
         }
-        catch
+        catch (Exception ex)
         {
+            _logs.Log($"[Vinculación] Excepción en IniciarAsync: {ex.GetType().Name} - {ex.Message}");
             await _toast.MostrarAsync("Error al solicitar el token.", ToastIcono.Error);
             await NavegaAtrasAsync();
         }
@@ -133,19 +142,23 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
     private async Task PollearConSesionAsync(string dispositivoId)
     {
+        _logs.Log($"[ConSesion] Poll. Token={_token}");
         try
         {
             var r = await _servicioIdentidad.ValidaTokenVinculacionEnSesion(dispositivoId, _token);
+            _logs.Log($"[ConSesion] Respuesta ValidaToken. Ok={r.Ok} HttpCode={r.HttpCode} Error={r.Error?.Codigo}");
             if (!r.Ok) return;
 
             _cts?.Cancel();
+            _logs.Log("[ConSesion] Vinculación detectada. Actualizando asociaciones fiscales.");
             await _servicioSesion.GetAsociacionesFiscalesAsync();
+            _logs.Log("[ConSesion] Asociaciones actualizadas. Navegando atrás.");
             await _toast.MostrarAsync("¡Vinculación exitosa!", ToastIcono.Info);
             await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SolicitudToken:EnSesion] {ex.Message}");
+            _logs.Log($"[ConSesion] Excepción: {ex.GetType().Name} - {ex.Message}");
             _cts?.Cancel();
             await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
             await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
@@ -154,16 +167,20 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
     private async Task PollearSinSesionAsync(string dispositivoId)
     {
+        _logs.Log($"[SinSesion] Poll. Token={_token}");
         try
         {
             var r = await _servicioIdentidad.ValidaTokenVinculacionSinSesion(dispositivoId, _token);
+            _logs.Log($"[SinSesion] Respuesta ValidaToken. Ok={r.Ok} HttpCode={r.HttpCode} Error={r.Error?.Codigo}");
             if (!r.Ok) return;
 
             // El backend borra el registro al devolver 200, así que cancelamos
             // el polling aquí antes de cualquier llamada que pueda fallar.
             _cts?.Cancel();
 
+            _logs.Log("[SinSesion] Vinculación detectada. Solicitando token LoginLess.");
             var loginlessResult = await _servicioIdentidad.GetTokenLoginLess(dispositivoId);
+            _logs.Log($"[SinSesion] GetTokenLoginLess. Ok={loginlessResult.Ok} Token={loginlessResult.Payload?.Token} Error={loginlessResult.Error?.Codigo}");
             if (!loginlessResult.Ok || loginlessResult.Payload?.Token is null)
             {
                 await _toast.MostrarAsync("Error al obtener acceso LoginLess.", ToastIcono.Error);
@@ -177,9 +194,11 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             if (tokenGuardado != loginlessToken)
                 await _servicioSesion.GuardaTokenLoginLessAsync(loginlessToken);
 
+            _logs.Log("[SinSesion] Iniciando sesión con token LoginLess.");
             var loginR = await _servicioIdentidad.IniciarSesion(
                 loginlessToken, "Password", dispositivoId, recordarme: false);
 
+            _logs.Log($"[SinSesion] IniciarSesion. Ok={loginR.Ok} Error={loginR.Error?.Codigo} - {loginR.Error?.Mensaje}");
             if (!loginR.Ok || loginR.Payload is null)
             {
                 await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Error);
@@ -194,8 +213,10 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             await _servicioSesion.GuardaExpiracionAsync(
                 DateTime.Now.AddSeconds(loginR.Payload.ExpiresIn));
 
+            _logs.Log("[SinSesion] Token guardado. Ejecutando PosLoginAsync.");
             await _servicioSesion.PosLoginAsync();
 
+            _logs.Log("[SinSesion] PosLogin completado. Navegando a AppShell.");
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _appState.EsLoginLess = true;
@@ -205,7 +226,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SolicitudToken:SinSesion] {ex.Message}");
+            _logs.Log($"[SinSesion] Excepción: {ex.GetType().Name} - {ex.Message}");
             await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
             await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
         }

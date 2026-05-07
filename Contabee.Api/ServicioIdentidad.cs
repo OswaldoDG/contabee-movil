@@ -300,6 +300,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
+        catch (ApiException ex) when (ex.StatusCode == 200)
+        {
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Validar token vinculacion sin Sesion");
@@ -319,7 +324,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
-        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        catch (ApiException ex) when (ex.StatusCode == 200)
         {
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;

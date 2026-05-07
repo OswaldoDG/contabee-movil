@@ -29,6 +29,12 @@ public class AuthHandler : DelegatingHandler
         "/api/identity/usuarios/tokenvinculacion/"
     ];
 
+    private static readonly string[] _rutasPublicasGet =
+    [
+        "/usuarios/tokenloginless/",
+        "/api/identity/usuarios/tokenloginless/"
+    ];
+
     private readonly IServiceProvider _serviceProvider;
     private static readonly SemaphoreSlim _refreshLock = new(1, 1);
 
@@ -41,7 +47,8 @@ public class AuthHandler : DelegatingHandler
         HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri?.AbsolutePath ?? "";
-        bool esPublica = _rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular");
+        bool esPublica = (_rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular"))
+            || (request.Method == HttpMethod.Get && _rutasPublicasGet.Any(r => path.StartsWith(r)));
 
         if (esPublica)
             return await base.SendAsync(request, cancellationToken);
