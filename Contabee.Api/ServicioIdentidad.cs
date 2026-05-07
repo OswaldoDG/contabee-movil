@@ -319,6 +319,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
+        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        {
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Validar token vinculacion en Sesion");
@@ -357,6 +362,12 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
+        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        {
+            // Servidor devuelve 200 con body vacío — NSwag lanza excepción pero es éxito
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicitar Vincular Usuario en Sesion");
@@ -373,6 +384,12 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         {
             var res = await servicioIdentidad.TokenloginlessPOSTAsync(cfid,solictud);
             r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        {
+            // Servidor devuelve 200 con body vacío — NSwag lanza excepción pero es éxito
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
