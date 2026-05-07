@@ -1,7 +1,9 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Login;
@@ -47,6 +49,7 @@ public partial class PaginaLogin : ContentPage
         }
 
         _tapCount = 0;
+        LogsButton.IsVisible = AppState.Instance.EsDev;
     }
 
     protected override void OnDisappearing()
@@ -82,8 +85,16 @@ public partial class PaginaLogin : ContentPage
                 FechaActivacion = DateTime.UtcNow.ToString("O")
             };
             await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
+            AppState.Instance.EsDev = true;
+            LogsButton.IsVisible = true;
             await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom);
             _tapCount = 0;
         }
+    }
+
+    private async void OnLogsClicked(object? sender, TappedEventArgs e)
+    {
+        var page = MauiProgram.Services.GetRequiredService<LogsPage>();
+        await Application.Current!.Windows[0].Page!.Navigation.PushAsync(page);
     }
 }
