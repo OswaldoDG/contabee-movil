@@ -146,6 +146,9 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SolicitudToken:EnSesion] {ex.Message}");
+            _cts?.Cancel();
+            await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
+            await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
         }
     }
 
