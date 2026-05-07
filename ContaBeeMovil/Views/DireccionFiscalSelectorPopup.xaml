@@ -21,6 +21,7 @@
                    HorizontalOptions="Center"
                    FontSize="14"
                    TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                   <BoxView Style="{StaticResource Divider}" />
 
             <ScrollView MaximumHeightRequest="340">
                 <VerticalStackLayout x:Name="PanelLista" Spacing="10" />
