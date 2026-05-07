@@ -23,7 +23,7 @@ public class EstadoBadgeTextoConverter : IValueConverter
             5    => item.Total.HasValue
                         ? item.Total.Value.ToString("C2", new CultureInfo("es-MX"))
                         : "Pendiente",
-            6    => "No valida",
+            6    => "Error al procesar",
             _    => string.Empty
         };
     }

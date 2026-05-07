@@ -96,13 +96,13 @@
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.FontAwesome" Version="6.0.0" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="6.0.0" />
 		<PackageReference Include="banditoth.MAUI.DeviceId" Version="1.0.2" />
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.5">
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.7">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
 		<PackageReference Include="SkiaSharp" Version="3.119.2" />
 		<PackageReference Include="ZXing.Net" Version="0.16.11" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.7.4" />
@@ -111,10 +111,10 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Plugin.InAppBilling" Version="10.0.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.51" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.60" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="NSwag.ApiDescription.Client" Version="13.18.2">
+		<PackageReference Include="NSwag.ApiDescription.Client" Version="14.7.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
