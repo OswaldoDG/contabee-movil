@@ -89,6 +89,8 @@ public class EquipoViewModel : INotifyPropertyChanged
         {
             if (e.PropertyName is nameof(AppState.MisUsuarios) or nameof(AppState.CuentaFiscalActual))
                 ActualizarLista();
+            else if (e.PropertyName == nameof(AppState.EsDev))
+                OnPropertyChanged(nameof(EsDev));
         };
     }
 
@@ -117,6 +119,8 @@ public class EquipoViewModel : INotifyPropertyChanged
     }
 
     public bool MostrarVacio => !_estaCargando && _sinUsuarios;
+
+    public bool EsDev => _appState.EsDev;
 
     public string PerfilInfo
     {
@@ -244,7 +248,7 @@ public class EquipoViewModel : INotifyPropertyChanged
 
         if (resp.Ok)
         {
-            await _toast.MostrarAsync("Usuario eliminado del equipo", ToastIcono.Info);
+            _ = _toast.MostrarAsync("Usuario eliminado del equipo", ToastIcono.Info);
             await CargarAsync(forzar: true);
         }
         else

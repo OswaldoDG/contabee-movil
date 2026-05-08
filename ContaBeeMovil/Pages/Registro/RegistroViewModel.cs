@@ -206,12 +206,11 @@ public class RegistroViewModel : INotifyPropertyChanged
                 throw new Exception(respuesta.HttpCode.ToString());
             }
 
-            await _toast.MostrarAsync(
-                "Registro completado. Por favor verifica tu correo electrónico.",
-                ToastIcono.Info, ToastPosicion.Bottom);
-
             PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
+            _ = _toast.MostrarAsync(
+                "Registro completado. Por favor verifica tu correo electrónico.",
+                ToastIcono.Info, ToastPosicion.Bottom);
         }
         catch (ApiException ex)
         {
@@ -222,7 +221,7 @@ public class RegistroViewModel : INotifyPropertyChanged
                 _ => "Error al registrar. Por favor verifica tus datos."
             };
 
-            await _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
+            _ = _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
             MensajeError = mensaje;
         }
         catch (Exception ex)
