@@ -35,16 +35,16 @@ public partial class EquipoPage : ContentPage
             SubBotonesPanel.TranslationY = 16;
             await Task.WhenAll(
                 SubBotonesPanel.FadeTo(1, 200, Easing.CubicOut),
-                SubBotonesPanel.ScaleTo(1.0, 200, Easing.CubicOut),
-                SubBotonesPanel.TranslateTo(0, 0, 200, Easing.CubicOut)
+                SubBotonesPanel.ScaleToAsync(1.0, 200, Easing.CubicOut),
+                SubBotonesPanel.TranslateToAsync(0, 0, 200, Easing.CubicOut)
             );
         }
         else
         {
             await Task.WhenAll(
                 SubBotonesPanel.FadeTo(0, 150, Easing.CubicIn),
-                SubBotonesPanel.ScaleTo(0.88, 150, Easing.CubicIn),
-                SubBotonesPanel.TranslateTo(0, 16, 150, Easing.CubicIn)
+                SubBotonesPanel.ScaleToAsync(0.88, 150, Easing.CubicIn),
+                SubBotonesPanel.TranslateToAsync(0, 16, 150, Easing.CubicIn)
             );
             SubBotonesPanel.IsVisible    = false;
             SubBotonesPanel.TranslationY = 0;

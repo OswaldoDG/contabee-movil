@@ -240,7 +240,7 @@ public class LoginViewModel : INotifyPropertyChanged
         }
         catch
         {
-            await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
+            _ = _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");

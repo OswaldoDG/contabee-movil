@@ -186,8 +186,8 @@ public class VincularViewModel : INotifyPropertyChanged
             {
                 await _servicioSesion.GetMisUsuariosAsync();
                 await _servicioSesion.GetAsociacionesFiscalesAsync();
-                await _toast.MostrarAsync("¡Vinculación completada!", ToastIcono.Info);
                 await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
+                _ = _toast.MostrarAsync("¡Vinculación completada!", ToastIcono.Info);
             }
             else
             {
@@ -234,8 +234,8 @@ public class VincularViewModel : INotifyPropertyChanged
 
             await _servicioSesion.GetMisUsuariosAsync();
             await _servicioSesion.GetAsociacionesFiscalesAsync();
-            await _toast.MostrarAsync("¡Usuario vinculado correctamente!", ToastIcono.Info);
             await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
+            _ = _toast.MostrarAsync("¡Usuario vinculado correctamente!", ToastIcono.Info);
         }
         catch
         {
