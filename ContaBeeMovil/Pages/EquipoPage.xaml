@@ -15,6 +15,7 @@
 
         <!-- DEBUG: perfil info -->
         <Border Grid.Row="0"
+                IsVisible="{Binding EsDev}"
                 BackgroundColor="#222"
                 Padding="10,6"
                 Margin="8,4">
@@ -65,8 +66,7 @@
                                                HeightRequest="26"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"
-                                               mi:MauiIcon.IconColor="White"  />
+                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>

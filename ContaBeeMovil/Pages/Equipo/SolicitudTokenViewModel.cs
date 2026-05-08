@@ -74,8 +74,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     private async Task CancelarAsync()
     {
         _cts?.Cancel();
-        await _toast.MostrarAsync("Vinculación cancelada.", ToastIcono.Warning);
         await NavegaAtrasAsync();
+        _ = _toast.MostrarAsync("Vinculación cancelada.", ToastIcono.Warning);
     }
 
     public async Task IniciarAsync(bool enSesion)
@@ -96,8 +96,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             if (!resultado.Ok || resultado.Payload?.Token is null)
             {
                 _logs.Log($"[Vinculación] Error al obtener token. Ok={resultado.Ok} Error={resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
-                await _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
                 await NavegaAtrasAsync();
+                _ = _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
                 return;
             }
 
@@ -110,8 +110,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             _logs.Log($"[Vinculación] Excepción en IniciarAsync: {ex.GetType().Name} - {ex.Message}");
-            await _toast.MostrarAsync("Error al solicitar el token.", ToastIcono.Error);
             await NavegaAtrasAsync();
+            _ = _toast.MostrarAsync("Error al solicitar el token.", ToastIcono.Error);
         }
         finally
         {
@@ -153,15 +153,15 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             _logs.Log("[ConSesion] Vinculación detectada. Actualizando asociaciones fiscales.");
             await _servicioSesion.GetAsociacionesFiscalesAsync();
             _logs.Log("[ConSesion] Asociaciones actualizadas. Navegando atrás.");
-            await _toast.MostrarAsync("¡Vinculación exitosa!", ToastIcono.Info);
             await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
+            _ = _toast.MostrarAsync("¡Vinculación exitosa!", ToastIcono.Info);
         }
         catch (Exception ex)
         {
             _logs.Log($"[ConSesion] Excepción: {ex.GetType().Name} - {ex.Message}");
             _cts?.Cancel();
-            await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
             await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
+            _ = _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
         }
     }
 
@@ -183,8 +183,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             _logs.Log($"[SinSesion] GetTokenLoginLess. Ok={loginlessResult.Ok} Token={loginlessResult.Payload?.Token} Error={loginlessResult.Error?.Codigo}");
             if (!loginlessResult.Ok || loginlessResult.Payload?.Token is null)
             {
-                await _toast.MostrarAsync("Error al obtener acceso LoginLess.", ToastIcono.Error);
                 await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
+                _ = _toast.MostrarAsync("Error al obtener acceso LoginLess.", ToastIcono.Error);
                 return;
             }
 
@@ -201,8 +201,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             _logs.Log($"[SinSesion] IniciarSesion. Ok={loginR.Ok} Error={loginR.Error?.Codigo} - {loginR.Error?.Mensaje}");
             if (!loginR.Ok || loginR.Payload is null)
             {
-                await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Error);
                 await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
+                _ = _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Error);
                 return;
             }
 
@@ -227,8 +227,8 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         catch (Exception ex)
         {
             _logs.Log($"[SinSesion] Excepción: {ex.GetType().Name} - {ex.Message}");
-            await _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
             await MainThread.InvokeOnMainThreadAsync(NavegaAtrasAsync);
+            _ = _toast.MostrarAsync("Error al completar la vinculación.", ToastIcono.Error);
         }
     }
 
