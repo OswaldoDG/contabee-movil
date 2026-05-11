@@ -78,7 +78,6 @@ public partial class SelectorFlotante : ContentView
     public event EventHandler<int>? IndiceCambiado;
 
     private bool _sincronizando;
-    private bool _dropdownEmbebidoVisible;
 
     public SelectorFlotante()
     {
