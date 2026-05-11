@@ -30,6 +30,9 @@ public partial class SelectorFlotante : ContentView
     public static readonly BindableProperty MaxAltoListaProperty =
         BindableProperty.Create(nameof(MaxAltoLista), typeof(double), typeof(SelectorFlotante), defaultValue: 300.0);
 
+    public static readonly BindableProperty UsarSelectorModalProperty =
+        BindableProperty.Create(nameof(UsarSelectorModal), typeof(bool), typeof(SelectorFlotante), defaultValue: false);
+
     public string Titulo
     {
         get => (string)GetValue(TituloProperty);
@@ -66,9 +69,16 @@ public partial class SelectorFlotante : ContentView
         set => SetValue(MaxAltoListaProperty, value);
     }
 
+    public bool UsarSelectorModal
+    {
+        get => (bool)GetValue(UsarSelectorModalProperty);
+        set => SetValue(UsarSelectorModalProperty, value);
+    }
+
     public event EventHandler<int>? IndiceCambiado;
 
     private bool _sincronizando;
+    private bool _dropdownEmbebidoVisible;
 
     public SelectorFlotante()
     {
@@ -76,14 +86,190 @@ public partial class SelectorFlotante : ContentView
         ActualizarTexto();
     }
 
-    private void OnTriggerTapped(object? sender, TappedEventArgs e)
+    private async void OnTriggerTapped(object? sender, TappedEventArgs e)
     {
+        if (UsarSelectorModal)
+        {
+            await MostrarSelectorModalAsync();
+            return;
+        }
+
+        if (EstaDentroDePopup())
+        {
+            await ToggleDropdownEmbebidoAsync();
+            return;
+        }
+
         if (OverlayFlotante.EstaVisible)
         {
             OverlayFlotante.Ocultar();
             return;
         }
+
+        if (IndiceSeleccionado < 0
+            && Elementos is { Count: > 0 })
+        {
+            SeleccionarIndice(0);
+        }
+
         _ = MostrarDropdown();
+    }
+
+    private async Task ToggleDropdownEmbebidoAsync()
+    {
+        if (_dropdownEmbebidoVisible)
+        {
+            await OcultarDropdownEmbebidoAsync();
+            return;
+        }
+
+        await MostrarDropdownEmbebidoAsync();
+    }
+
+    private async Task MostrarDropdownEmbebidoAsync()
+    {
+        var elementos = Elementos;
+        if (elementos is null || elementos.Count == 0)
+            return;
+
+        ListaOpciones.Children.Clear();
+
+        for (int i = 0; i < elementos.Count; i++)
+        {
+            var indice = i;
+            var texto = elementos[i]?.ToString() ?? string.Empty;
+            bool seleccionado = i == IndiceSeleccionado;
+
+            var itemGrid = new Grid
+            {
+                ColumnDefinitions = [new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto)],
+                Padding = new Thickness(14, 12),
+                BackgroundColor = seleccionado ? UIHelpers.GetColor("Primary") : Colors.Transparent,
+            };
+
+            itemGrid.Add(new Label
+            {
+                Text = texto,
+                FontSize = 14,
+                TextColor = UIHelpers.GetColor("PrimaryText"),
+                FontAttributes = seleccionado ? FontAttributes.Bold : FontAttributes.None,
+                VerticalOptions = LayoutOptions.Center,
+            });
+
+            if (seleccionado)
+            {
+                itemGrid.Add(new Label
+                {
+                    Text = Fonts.FluentUI.checkmark_20_regular,
+                    FontFamily = Fonts.FluentUI.FontFamily,
+                    FontSize = 16,
+                    TextColor = UIHelpers.GetColor("PrimaryText"),
+                    VerticalOptions = LayoutOptions.Center,
+                }, 1);
+            }
+
+            var tap = new TapGestureRecognizer();
+            tap.Tapped += async (_, _) =>
+            {
+                SeleccionarIndice(indice);
+                await OcultarDropdownEmbebidoAsync();
+            };
+            itemGrid.GestureRecognizers.Add(tap);
+
+            ListaOpciones.Children.Add(itemGrid);
+        }
+
+        const double altoItem = 42;
+        var altoTotal = elementos.Count * altoItem;
+        var altoMaximo = Math.Max(84, MaxAltoLista);
+        ScrollOpciones.HeightRequest = Math.Min(altoTotal, altoMaximo);
+
+        PanelOpciones.IsVisible = true;
+        await PanelOpciones.FadeToAsync(1, 120, Easing.CubicOut);
+        _dropdownEmbebidoVisible = true;
+    }
+
+    private async Task OcultarDropdownEmbebidoAsync()
+    {
+        if (!_dropdownEmbebidoVisible)
+            return;
+
+        await PanelOpciones.FadeToAsync(0, 100, Easing.CubicIn);
+        PanelOpciones.IsVisible = false;
+        _dropdownEmbebidoVisible = false;
+    }
+
+    private bool EstaDentroDePopup()
+    {
+        Element? actual = this;
+        while (actual is not null)
+        {
+            if (actual is CommunityToolkit.Maui.Views.Popup)
+                return true;
+            actual = actual.Parent;
+        }
+
+        return false;
+    }
+
+    private async Task MostrarSelectorModalAsync()
+    {
+        if (Elementos is null || Elementos.Count == 0)
+            return;
+
+        if (Elementos.Count == 1)
+        {
+            SeleccionarIndice(0);
+            return;
+        }
+
+        var pagina = ObtenerPaginaActiva() ?? this.ObtenerPagina();
+        if (pagina is null)
+        {
+            if (IndiceSeleccionado < 0)
+                SeleccionarIndice(0);
+            return;
+        }
+
+        var opciones = new string[Elementos.Count];
+        for (int i = 0; i < Elementos.Count; i++)
+            opciones[i] = Elementos[i]?.ToString() ?? string.Empty;
+
+        string? seleccionado;
+        try
+        {
+            seleccionado = await MainThread.InvokeOnMainThreadAsync(() =>
+                pagina.DisplayActionSheet(Titulo, "Cancelar", null, opciones));
+        }
+        catch
+        {
+            if (IndiceSeleccionado < 0)
+                SeleccionarIndice(0);
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(seleccionado) || seleccionado == "Cancelar")
+            return;
+
+        var indice = Array.IndexOf(opciones, seleccionado);
+        if (indice >= 0)
+            SeleccionarIndice(indice);
+    }
+
+    private static Page? ObtenerPaginaActiva()
+    {
+        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
+
+        if (page is Shell shell)
+            page = shell.CurrentPage;
+
+        if (page is NavigationPage navigationPage)
+            page = navigationPage.CurrentPage;
+
+        if (page is TabbedPage tabbedPage)
+            page = tabbedPage.CurrentPage;
+
+        return page;
     }
 
     private async Task MostrarDropdown()

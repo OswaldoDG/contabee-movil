@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Windows.Input;
 using ContaBeeMovil.Config;
+using Microsoft.Maui.Controls;
 
 namespace ContaBeeMovil.Views;
 
@@ -115,6 +116,15 @@ public partial class ResultadosListaView : ContentView
         set => SetValue(MostrarBotonCapturaProperty, value);
     }
 
+    public static readonly BindableProperty ItemTapCommandProperty =
+        BindableProperty.Create(nameof(ItemTapCommand), typeof(ICommand), typeof(ResultadosListaView));
+
+    public ICommand? ItemTapCommand
+    {
+        get => (ICommand?)GetValue(ItemTapCommandProperty);
+        set => SetValue(ItemTapCommandProperty, value);
+    }
+
     // ── Constructor ──────────────────────────────────────────────────────────────
 
     public ResultadosListaView()
@@ -141,6 +151,16 @@ public partial class ResultadosListaView : ContentView
     {
         if (CapturaCommand?.CanExecute(null) == true)
             CapturaCommand.Execute(null);
+    }
+
+    private void OnItemSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selected = e.CurrentSelection?.FirstOrDefault();
+        if (selected is not null && ItemTapCommand?.CanExecute(selected) == true)
+            ItemTapCommand.Execute(selected);
+
+        if (sender is CollectionView cv)
+            cv.SelectedItem = null;
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────

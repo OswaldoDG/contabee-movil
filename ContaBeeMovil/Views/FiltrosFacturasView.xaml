@@ -27,7 +27,7 @@
                                             Titulo="Estado" />
                     <views:SelectorFlotante x:Name="SelectorCreador"
                                             Grid.Column="1"
-                                            Titulo="Creador" />
+                                            Titulo="Destinatarios" />
                 </Grid>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">

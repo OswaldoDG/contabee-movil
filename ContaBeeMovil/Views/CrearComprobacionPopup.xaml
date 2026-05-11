@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:views="clr-namespace:ContaBeeMovil.Views"
+               x:Class="ContaBeeMovil.Views.CrearComprobacionPopup"
+               BackgroundColor="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border x:Name="CardBorder"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            StrokeShape="RoundRectangle 10"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            Padding="20"
+            Margin="20,16"
+            MaximumWidthRequest="520"
+            MaximumHeightRequest="680">
+        <Border.Shadow>
+            <Shadow Brush="#5e000000"
+                    Offset="0,4"
+                    Radius="16"
+                    Opacity="0.4" />
+        </Border.Shadow>
+
+        <Grid>
+            <VerticalStackLayout Spacing="8">
+            <Label Text="Crear Comprobación"
+                   FontAttributes="Bold"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="TailTruncation"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="2">
+                <Label Grid.Row="0"
+                       Grid.Column="0"
+                       Text="Creación:"
+                       FontSize="14"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                <Label Grid.Row="1"
+                       Grid.Column="0"
+                       x:Name="LblCreacion"
+                       FontSize="14"
+                       Margin="0,7,0,0"
+                       VerticalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                <Label Grid.Row="0"
+                       Grid.Column="1"
+                       Text="Vence"
+                       FontSize="14"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                <DatePicker Grid.Row="1"
+                            Grid.Column="1"
+                            x:Name="PickerCierre"
+                            Format="dd/MM/yyyy"
+                            MinimumDate="2000-01-01"
+                            VerticalOptions="Center" />
+            </Grid>
+
+            <views:SelectorFlotante x:Name="SelectorDestinatario"
+                                    Titulo="Destinatario"
+                                    MaxAltoLista="240" />
+
+            <Grid ColumnDefinitions="Auto,Auto,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="8"
+                  RowSpacing="6">
+                <Label Grid.Row="0"
+                       Grid.Column="0"
+                       Text="Depositado:"
+                       VerticalOptions="Center"
+                       FontSize="16"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Grid.Row="0"
+                       Grid.Column="1"
+                       Text="$"
+                       VerticalOptions="Center"
+                       FontSize="20"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Entry x:Name="EntryMonto"
+                       Grid.Row="0"
+                       Grid.Column="2"
+                       Keyboard="Numeric"
+                       Placeholder="0.00"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Label Grid.Row="1"
+                       Grid.Column="0"
+                       Text="A comprobar:"
+                       VerticalOptions="Center"
+                       FontSize="16"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Grid.Row="1"
+                       Grid.Column="1"
+                       Text="%"
+                       VerticalOptions="Center"
+                       FontSize="20"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Entry x:Name="EntryPorcentaje"
+                       Grid.Row="1"
+                       Grid.Column="2"
+                       Keyboard="Numeric"
+                       Placeholder="1-100"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+            </Grid>
+
+            <Editor x:Name="EntryDescripcion"
+                    Placeholder="ISR"
+                    AutoSize="TextChanges"
+                    HeightRequest="72"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button Text="Cancelar"
+                            BackgroundColor="Transparent"
+                            BorderColor="{toolkit:AppThemeResource Accent1}"
+                            BorderWidth="1"
+                            TextColor="{toolkit:AppThemeResource PrimaryText}"
+                            CornerRadius="10"
+                            HeightRequest="44"
+                            Clicked="OnCancelar" />
+
+                    <Button Grid.Column="1"
+                            Text="Crear"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            TextColor="{toolkit:AppThemeResource PrimaryText}"
+                            CornerRadius="10"
+                            HeightRequest="44"
+                            Clicked="OnCrear" />
+                    </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+
+</toolkit:Popup>

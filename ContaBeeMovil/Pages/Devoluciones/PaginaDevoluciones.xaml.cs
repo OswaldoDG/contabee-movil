@@ -5,6 +5,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using Contabee.Api;
 using ContaBeeMovil.Config;
+using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -14,6 +15,8 @@ namespace ContaBeeMovil.Pages.Devoluciones;
 
 public partial class PaginaDevoluciones : ContentPage
 {
+    internal static bool PendienteActualizarListado { get; set; }
+
 	private readonly IServicioTranscript _servicioTranscript;
 	private readonly IServicioAlerta _servicioAlerta;
 	private readonly IServicioLogs _logs;
@@ -32,6 +35,20 @@ public partial class PaginaDevoluciones : ContentPage
 	{
 		get => _estaCargando;
 		private set { _estaCargando = value; OnPropertyChanged(); }
+	}
+
+	private bool _mostrarOverlayCarga;
+	public bool MostrarOverlayCarga
+	{
+		get => _mostrarOverlayCarga;
+		private set { _mostrarOverlayCarga = value; OnPropertyChanged(); }
+	}
+
+	private string _textoOverlayCarga = "Cargando devoluciones...";
+	public string TextoOverlayCarga
+	{
+		get => _textoOverlayCarga;
+		private set { _textoOverlayCarga = value; OnPropertyChanged(); }
 	}
 
 	private IEnumerable<ItemConConsecutivo>? _elementos;
@@ -74,6 +91,7 @@ public partial class PaginaDevoluciones : ContentPage
 	public ICommand BuscarDevolucionesCommand { get; }
 	public ICommand PaginaAnteriorCommand { get; }
 	public ICommand PaginaSiguienteCommand { get; }
+	public ICommand AbrirDetalleCommand { get; }
 
 	public FiltrosDevolucionesView Filtros => PanelFiltros;
 
@@ -89,6 +107,7 @@ public partial class PaginaDevoluciones : ContentPage
 		BuscarDevolucionesCommand = new Command<Busqueda>(async b => await OnBuscarDevoluciones(b));
 		PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
 		PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
+		AbrirDetalleCommand = new Command<ItemConConsecutivo>(async item => await AbrirDetalleAsync(item));
 
       InitializeComponent();
 		BindingContext = this;
@@ -97,15 +116,48 @@ public partial class PaginaDevoluciones : ContentPage
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-       if (!ConsultaEjecutada)
+     if (!ConsultaEjecutada)
 		{
 			_ = OnBuscarDevoluciones(PanelFiltros.BusquedaActual);
+           return;
 		}
+
+		if (PendienteActualizarListado)
+		{
+			PendienteActualizarListado = false;
+			_ = RecargarConUltimosFiltrosAsync();
+		}
+	}
+
+	private async Task RecargarConUltimosFiltrosAsync()
+	{
+		if (_ultimaBusqueda is null)
+		{
+			await OnBuscarDevoluciones(PanelFiltros.BusquedaActual);
+			return;
+		}
+
+		await EjecutarBusqueda(Math.Max(1, PaginaActual));
+	}
+
+	private async Task AbrirDetalleAsync(ItemConConsecutivo? item)
+	{
+		if (item is null) return;
+
+		await Shell.Current.GoToAsync(nameof(DetalleDevolucionPage),
+			new Dictionary<string, object>
+			{
+				["devolucionId"] = item.Datos.Id,
+				["rfc"] = item.CuentaFiscalRfc
+			});
 	}
 
 	public void OnTabActivated()
 	{
-        Dispatcher.Dispatch(() => { });
+     if (!PendienteActualizarListado) return;
+
+		PendienteActualizarListado = false;
+		_ = RecargarConUltimosFiltrosAsync();
 	}
 
 	private async Task OnBuscarDevoluciones(Busqueda busqueda)
@@ -136,7 +188,7 @@ public partial class PaginaDevoluciones : ContentPage
 			: string.Join(" | ", _ultimaBusqueda.Filtros.Select(f =>
 				$"{f.Propiedad}:{f.Operador}=[{string.Join(",", f.Valores ?? [])}]"));
 
-		EstaCargando = true;
+        EstaCargando = true;
 		try
 		{
           _logs.Log($"[PaginaDevoluciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}");
@@ -184,7 +236,7 @@ public partial class PaginaDevoluciones : ContentPage
 		}
 	}
 
-  private async void OnCrearDevolucionClicked(object sender, EventArgs e)
+  private async void OnCrearDevolucionClicked(object sender, TappedEventArgs e)
 	{
       if (_abriendoPopup) return;
 		_abriendoPopup = true;
@@ -208,15 +260,18 @@ public partial class PaginaDevoluciones : ContentPage
 
             if (descripcion is null) return;
 
-			var request = new CreaDevolucion
+            var request = new CreaDevolucion
 			{
 				CuentaFiscalId = AppState.Instance.CuentaFiscalActual.CuentaFiscalId,
 				Descripcion = descripcion
 			};
 
+            TextoOverlayCarga = "Creando devolución...";
+			MostrarOverlayCarga = true;
 			var respuesta = await _servicioTranscript.CrearDevolucionAsync(request);
 			if (!respuesta.Ok)
 			{
+             MostrarOverlayCarga = false;
 				await _servicioAlerta.MostrarAsync(
 					"Error",
 					respuesta.Error?.Mensaje ?? "No se pudo crear la devolución.",
@@ -225,9 +280,13 @@ public partial class PaginaDevoluciones : ContentPage
 				return;
 			}
 
+            PanelFiltros.SeleccionarPeriodoActual();
 			if (_ultimaBusqueda is null)
 				_ultimaBusqueda = PanelFiltros.BusquedaActual;
+			else
+				_ultimaBusqueda = PanelFiltros.BusquedaActual;
 
+          MostrarOverlayCarga = false;
 			await EjecutarBusqueda(1);
 		}
         catch (Exception ex)
@@ -241,6 +300,7 @@ public partial class PaginaDevoluciones : ContentPage
 		}
        finally
 		{
+         MostrarOverlayCarga = false;
 			_abriendoPopup = false;
 		}
 	}

@@ -4,7 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             x:Class="ContaBeeMovil.Views.FiltrosDevolucionesView">
+             x:Class="ContaBeeMovil.Views.FiltrosComprobacionesView">
 
     <Border Style="{StaticResource FiltersStyle}" Padding="8">
         <VerticalStackLayout Spacing="8">
@@ -26,6 +26,20 @@
                     <views:SelectorFlotante x:Name="SelectorDestinatario"
                                             Grid.Column="1"
                                             Titulo="Destinatario" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" VerticalOptions="Center">
+                    <Label Grid.Column="0"
+                           Text="Cumplimiento"
+                           HeightRequest="40"
+                           VerticalOptions="Center"
+                           VerticalTextAlignment="Center"
+                           Margin="6,0,0,0"
+                           Style="{StaticResource Body2Strong}" />
+                    <views:SelectorFlotante x:Name="SelectorCumplimiento"
+                                            Grid.Column="1"
+                                            Titulo="%"
+                                            HorizontalOptions="Fill" />
                 </Grid>
             </VerticalStackLayout>
 

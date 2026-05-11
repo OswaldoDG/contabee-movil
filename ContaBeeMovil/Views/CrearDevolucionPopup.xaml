@@ -21,7 +21,8 @@
                     Opacity="0.4" />
         </Border.Shadow>
 
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="12"
+                             MinimumWidthRequest="280">
             <Label Text="Crear Devolución"
                    FontAttributes="Bold"
                    FontSize="20"
@@ -48,7 +49,7 @@
                 <Button Grid.Column="1"
                         Text="Crear"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="#1A1A1A"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="10"
                         HeightRequest="44"
                         Clicked="OnCrear" />

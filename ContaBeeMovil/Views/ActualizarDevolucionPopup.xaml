@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.ActualizarDevolucionPopup"
+               BackgroundColor="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border x:Name="CardBorder"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            StrokeShape="RoundRectangle 16"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            Padding="16"
+            MinimumWidthRequest="280"
+            MaximumWidthRequest="560">
+        <Border.Shadow>
+            <Shadow Brush="#5e000000"
+                    Offset="0,4"
+                    Radius="16"
+                    Opacity="0.4" />
+        </Border.Shadow>
+
+        <ScrollView x:Name="PopupScroll"
+                    HorizontalScrollBarVisibility="Never">
+            <Grid WidthRequest="{Binding Source={x:Reference PopupScroll}, Path=Width}">
+                <VerticalStackLayout Spacing="12">
+            <Label Text="Editar"
+                   FontAttributes="Bold"
+                   FontSize="24"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+            <BoxView HeightRequest="1" Color="{toolkit:AppThemeResource Accent1}" Opacity="0.35" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Estado" Style="{StaticResource Caption1}" />
+                    <Label x:Name="LblEstado" Style="{StaticResource Body2Strong}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label Text="Creación" Style="{StaticResource Caption1}" />
+                    <Label x:Name="LblCreacion" Style="{StaticResource Body2Strong}" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <VerticalStackLayout Spacing="2">
+                <Label x:Name="LblRfc"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       LineBreakMode="TailTruncation" />
+            </VerticalStackLayout>
+
+            <Label Text="Descripción" FontSize="16" TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}" Stroke="{toolkit:AppThemeResource Accent1}" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,10">
+                <Editor x:Name="EntryDescripcion"
+                        Placeholder="Descripción"
+                        AutoSize="TextChanges"
+                        HeightRequest="90"
+                        FontSize="16"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        BackgroundColor="Transparent"
+                        BorderColor="{toolkit:AppThemeResource Accent1}"
+                        BorderWidth="1"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="46"
+                        Clicked="OnCancelar" />
+
+                <Button Grid.Column="1"
+                        Text="Guardar"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        FontAttributes="Bold"
+                        CornerRadius="12"
+                        HeightRequest="46"
+                        Clicked="OnGuardar" />
+            </Grid>
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Border>
+
+</toolkit:Popup>
