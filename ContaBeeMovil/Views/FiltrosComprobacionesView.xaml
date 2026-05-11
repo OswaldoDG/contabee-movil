@@ -4,14 +4,12 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             x:Class="ContaBeeMovil.Views.FiltrosFacturasView">
+             x:Class="ContaBeeMovil.Views.FiltrosComprobacionesView">
 
     <Border Style="{StaticResource FiltersStyle}" Padding="8">
-
         <VerticalStackLayout Spacing="8">
 
             <VerticalStackLayout x:Name="PanelFiltros" Spacing="8">
-
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <views:SelectorFlotante x:Name="SelectorAnio"
                                             Grid.Column="0"
@@ -25,39 +23,27 @@
                     <views:SelectorFlotante x:Name="SelectorEstado"
                                             Grid.Column="0"
                                             Titulo="Estado" />
-                    <views:SelectorFlotante x:Name="SelectorCreador"
+                    <views:SelectorFlotante x:Name="SelectorDestinatario"
                                             Grid.Column="1"
-                                            Titulo="Destinatarios" />
+                                            Titulo="Destinatario" />
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <views:SelectorFlotante x:Name="SelectorEnvio"
-                                            Grid.Column="0"
-                                            Titulo="Envío" />
-                    <views:SelectorFlotante x:Name="SelectorTipo"
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" VerticalOptions="Center">
+                    <Label Grid.Column="0"
+                           Text="Cumplimiento"
+                           HeightRequest="40"
+                           VerticalOptions="Center"
+                           VerticalTextAlignment="Center"
+                           Margin="6,0,0,0"
+                           Style="{StaticResource Body2Strong}" />
+                    <views:SelectorFlotante x:Name="SelectorCumplimiento"
                                             Grid.Column="1"
-                                            Titulo="Tipo" />
+                                            Titulo="%"
+                                            HorizontalOptions="Fill" />
                 </Grid>
-
-                <Border BackgroundColor="{toolkit:AppThemeResource Background}"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="1"
-                        Stroke="{toolkit:AppThemeResource Accent1}"
-                        Padding="12,0">
-                    <Entry x:Name="EntryRfc"
-                           Placeholder="rfc contiene"
-                           FontSize="14"
-                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           BackgroundColor="Transparent"
-                           HeightRequest="44"
-                           Keyboard="Text"
-                         />
-                </Border>
-
             </VerticalStackLayout>
 
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   ColumnSpacing="8"
                   VerticalOptions="Center">
 
@@ -78,27 +64,8 @@
                            Text="{x:Static f:FluentUI.arrow_sort_down_lines_20_regular}" />
                 </Border>
 
-                <!-- Embudo: limpiar filtros -->
-                <Border x:Name="BtnFiltroActivo"
-                        Grid.Column="2"
-                        Style="{StaticResource CircleIconButton}"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
-                    </Border.GestureRecognizers>
-                    <Label x:Name="IconFiltro"
-                           Text="{x:Static f:FluentUI.filter_24_regular}"
-                           FontFamily="{x:Static f:FluentUI.FontFamily}"
-                           FontSize="22"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-                </Border>
-
-                <!-- Buscar: se oculta cuando está colapsado -->
                 <Border x:Name="BtnBuscar"
-                        Grid.Column="3"
+                        Grid.Column="2"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         StrokeShape="RoundRectangle 20"
                         StrokeThickness="0"
@@ -118,7 +85,7 @@
                            VerticalOptions="Center" />
                 </Border>
 
-                <Border Grid.Column="4"
+                <Border Grid.Column="3"
                         Style="{StaticResource CircleIconButton}"
                         HorizontalOptions="Center"
                         VerticalOptions="Center">
@@ -129,11 +96,9 @@
                            Style="{StaticResource CircleIconLabel}"
                            Text="{x:Static f:FluentUI.chevron_up_20_regular}" />
                 </Border>
-
             </Grid>
 
         </VerticalStackLayout>
-
     </Border>
 
 </ContentView>

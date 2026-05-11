@@ -234,7 +234,16 @@ public partial class FiltrosFacturasView : ContentView
         {
             var filtros = new List<Filtro>();
 
-            var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+            Guid? cuentaFiscalIdSeleccionada = null;
+            if (SelectorCreador.IndiceSeleccionado > 0
+                && CreadoresIds is not null
+                && SelectorCreador.IndiceSeleccionado < CreadoresIds.Count
+                && Guid.TryParse(CreadoresIds[SelectorCreador.IndiceSeleccionado], out var cfidDestino))
+            {
+                cuentaFiscalIdSeleccionada = cfidDestino;
+            }
+
+            var cuentaFiscalId = cuentaFiscalIdSeleccionada ?? AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
             if (cuentaFiscalId.HasValue)
                 filtros.Add(new Filtro { Propiedad = "CuentaFiscalId", Operador = Operador.Igual, Valores = [cuentaFiscalId.Value.ToString()] });
 
@@ -250,11 +259,6 @@ public partial class FiltrosFacturasView : ContentView
             if (SelectorEstado.IndiceSeleccionado > 0 && SelectorEstado.ElementoSeleccionado is string estado
                 && _estadoEnum.TryGetValue(estado, out string? estadoVal))
                 filtros.Add(new Filtro { Propiedad = "Estado", Operador = Operador.Igual, Valores = [estadoVal] });
-
-            if (SelectorCreador.IndiceSeleccionado > 0
-                && CreadoresIds is not null
-                && SelectorCreador.IndiceSeleccionado < CreadoresIds.Count)
-                filtros.Add(new Filtro { Propiedad = "creador", Operador = Operador.Igual, Valores = [CreadoresIds[SelectorCreador.IndiceSeleccionado]] });
 
             if (SelectorEnvio.IndiceSeleccionado > 0 && SelectorEnvio.ElementoSeleccionado is string envio)
                 filtros.Add(new Filtro { Propiedad = "TipoRecepcion", Operador = Operador.Igual, Valores = [envio] });
@@ -294,14 +298,21 @@ public partial class FiltrosFacturasView : ContentView
         filtros.Add(new Filtro { Propiedad = "FechaCreacion", Operador = Operador.Entre, Valores = [inicio, fin] });
 
         SelectorEstado.IndiceSeleccionado  = 0;
-        SelectorCreador.IndiceSeleccionado = -1;
+        SelectorCreador.IndiceSeleccionado = 0;
         SelectorEnvio.IndiceSeleccionado   = 0;
         SelectorTipo.IndiceSeleccionado    = 0;
         EntryRfc.Text                      = string.Empty;
 
         ActualizarPeriodoTexto();
         ActualizarIndicadorFiltros();
-        var busqueda = new Busqueda { Filtros = filtros, Paginado = new Paginado { Pagina = 1, TamanoPagina = 10 }, Contar = true };
+        var busqueda = new Busqueda
+        {
+            Filtros = filtros,
+            OrdernarDesc = !_ordenAscendente,
+            OrdenarPropiedad = MapearCampoOrden(SelectorOrden.ElementoSeleccionado as string ?? "Creacion"),
+            Paginado = new Paginado { Pagina = 1, TamanoPagina = 10 },
+            Contar = true
+        };
         EjecutarBusqueda(busqueda);
     }
 
@@ -348,7 +359,7 @@ public partial class FiltrosFacturasView : ContentView
         SelectorMes.IndiceSeleccionado = hoy.Month - 1;
 
         SelectorEstado.IndiceSeleccionado  = 0;
-        SelectorCreador.IndiceSeleccionado = -1;
+        SelectorCreador.IndiceSeleccionado = 0;
         SelectorEnvio.IndiceSeleccionado   = 0;
         SelectorTipo.IndiceSeleccionado    = 0;
         EntryRfc.Text                      = string.Empty;
@@ -394,7 +405,7 @@ public partial class FiltrosFacturasView : ContentView
         {
             view.SelectorCreador.Elementos = (newValue as IList<string>)?.ToList();
             if (view.SelectorCreador.Elementos?.Count > 0)
-                view.SelectorCreador.IndiceSeleccionado = -1;
+                view.SelectorCreador.IndiceSeleccionado = 0;
         }
     }
 

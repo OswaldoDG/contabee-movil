@@ -18,7 +18,9 @@ public partial class FacturacionPage : ContentPage
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
-    private Busqueda? _ultimaBusqueda;
+    private Contabee.Api.Transcript.Busqueda? _ultimaBusqueda;
+    internal static Guid? ProcesoAsociadoFiltroId { get; set; }
+    internal static TipoProcesoCaptura? ProcesoAsociadoFiltroTipo { get; set; }
 
     // ── Propiedades observables ──────────────────────────────────────────────────
 
@@ -87,7 +89,7 @@ public partial class FacturacionPage : ContentPage
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
-        BuscarFacturasCommand = new Command<Busqueda>(async b => await OnBuscarFacturas(b));
+        BuscarFacturasCommand = new Command<Contabee.Api.Transcript.Busqueda>(async b => await OnBuscarFacturas(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
         PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
         InitializeComponent();
@@ -110,9 +112,45 @@ public partial class FacturacionPage : ContentPage
     private void ActualizarCreadores()
     {
         var usuarios = AppState.Instance.MisUsuarios ?? [];
-        PanelFiltros.Creadores  = ["Creador",  .. usuarios.Select(u => u.Nombre ?? u.Email ?? u.Id.ToString())];
-        PanelFiltros.CreadoresIds = ["todos", .. usuarios.Select(u => u.Id.ToString())];
+        var secundarios = usuarios
+            .Where(u => EsCuentaSecundaria(u.TipoCuenta) && u.CuentaFiscalId.HasValue)
+            .Select(u => new
+            {
+                Usuario = u,
+                CuentaFiscalId = u.CuentaFiscalId!.Value
+            })
+            .GroupBy(x => x.CuentaFiscalId)
+            .Select(g => g.First().Usuario)
+            .ToList();
+
+        if (secundarios.Count == 0)
+        {
+            PanelFiltros.Creadores = ["Destinatarios"];
+            PanelFiltros.CreadoresIds = [string.Empty];
+            return;
+        }
+
+        PanelFiltros.Creadores =
+        [
+            "Destinatarios",
+            .. secundarios.Select(u =>
+            {
+                var nombreUsuario = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
+                return $"{nombreUsuario} (Secundaria)";
+            })
+        ];
+
+        PanelFiltros.CreadoresIds =
+        [
+            string.Empty,
+            .. secundarios.Select(u => u.CuentaFiscalId!.Value.ToString())
+        ];
     }
+
+    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
+            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
+            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
 
     internal static bool PendienteActualizarFacturas { get; set; }
 
@@ -121,10 +159,61 @@ public partial class FacturacionPage : ContentPage
         base.OnAppearing();
         ActualizarCreadores();
         PanelFiltros.RestaurarEstado();
+
+        if (ProcesoAsociadoFiltroId.HasValue)
+        {
+            var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
+            ProcesoAsociadoFiltroId = null;
+            ProcesoAsociadoFiltroTipo = null;
+            await OnBuscarFacturas(busquedaProceso);
+            return;
+        }
+
         if (!PendienteActualizarFacturas) return;
         PendienteActualizarFacturas = false;
         await Task.Delay(250);
         PanelFiltros.IrARecientes();
+    }
+
+    private static Contabee.Api.Transcript.Busqueda CrearBusquedaPorProceso(Guid procesoId, TipoProcesoCaptura? tipo)
+    {
+        var filtros = new List<Contabee.Api.Transcript.Filtro>();
+        var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        if (cuentaFiscalId.HasValue)
+        {
+            filtros.Add(new Contabee.Api.Transcript.Filtro
+            {
+                Propiedad = "CuentaFiscalId",
+                Operador = Operador.Igual,
+                Valores = [cuentaFiscalId.Value.ToString()]
+            });
+        }
+
+        filtros.Add(new Contabee.Api.Transcript.Filtro
+        {
+            Propiedad = "ProcesoAsociadoId",
+            Operador = Operador.Igual,
+            Valores = [procesoId.ToString()]
+        });
+
+        if (tipo.HasValue)
+        {
+            filtros.Add(new Contabee.Api.Transcript.Filtro
+            {
+                Propiedad = "Tipo",
+                Operador = Operador.Igual,
+                Valores = [tipo.Value.ToString()]
+            });
+        }
+
+        return new Contabee.Api.Transcript.Busqueda
+        {
+            Filtros = filtros,
+            OrdernarDesc = true,
+            OrdenarPropiedad = "FechaCreacion",
+            Paginado = new Contabee.Api.Transcript.Paginado { Pagina = 1, TamanoPagina = AppSettings.Consulta.TamanoPagina },
+            Contar = true
+        };
     }
 
     public void OnTabActivated()
@@ -146,7 +235,7 @@ public partial class FacturacionPage : ContentPage
     }
 
 
-    private async Task OnBuscarFacturas(Busqueda busqueda)
+    private async Task OnBuscarFacturas(Contabee.Api.Transcript.Busqueda busqueda)
     {
         if (AppState.Instance.CuentaFiscalActual is null)
         {
@@ -162,7 +251,7 @@ public partial class FacturacionPage : ContentPage
     {
         if (_ultimaBusqueda is null) return;
 
-        _ultimaBusqueda.Paginado = new Paginado { Pagina = pagina, TamanoPagina = AppSettings.Consulta.TamanoPagina };
+        _ultimaBusqueda.Paginado = new Contabee.Api.Transcript.Paginado { Pagina = pagina, TamanoPagina = AppSettings.Consulta.TamanoPagina };
 
         EstaCargando = true;
         try

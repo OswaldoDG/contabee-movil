@@ -5,30 +5,44 @@
              xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Views.SelectorFlotante">
 
-    <Border x:Name="Trigger"
-            BackgroundColor="{toolkit:AppThemeResource Background}"
-            StrokeShape="RoundRectangle 10"
-            StrokeThickness="1"
-            Stroke="{toolkit:AppThemeResource Accent1}"
-            Padding="5,0"
-            HeightRequest="40">
-        <Border.GestureRecognizers>
-            <TapGestureRecognizer Tapped="OnTriggerTapped" />
-        </Border.GestureRecognizers>
-        <Grid ColumnDefinitions="*,Auto">
-            <Label x:Name="LabelTexto"
-                   VerticalOptions="Center"
-                   FontSize="14"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   LineBreakMode="TailTruncation" />
-            <Label Grid.Column="1"
-                   Text="{x:Static f:FluentUI.chevron_down_20_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="16"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   VerticalOptions="Center"
-                   Margin="1,0,0,0" />
-        </Grid>
-    </Border>
+    <VerticalStackLayout Spacing="2">
+        <Border x:Name="Trigger"
+                BackgroundColor="{toolkit:AppThemeResource Background}"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="1"
+                Stroke="{toolkit:AppThemeResource Accent1}"
+                Padding="5,0"
+                HeightRequest="40">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTriggerTapped" />
+            </Border.GestureRecognizers>
+            <Grid ColumnDefinitions="*,Auto">
+                <Label x:Name="LabelTexto"
+                       VerticalOptions="Center"
+                       FontSize="14"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       LineBreakMode="TailTruncation" />
+                <Label Grid.Column="1"
+                       Text="{x:Static f:FluentUI.chevron_down_20_regular}"
+                       FontFamily="{x:Static f:FluentUI.FontFamily}"
+                       FontSize="16"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       VerticalOptions="Center"
+                       Margin="1,0,0,0" />
+            </Grid>
+        </Border>
+
+        <Border x:Name="PanelOpciones"
+                IsVisible="False"
+                Opacity="0"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="1"
+                Stroke="{toolkit:AppThemeResource Accent1}"
+                BackgroundColor="{toolkit:AppThemeResource Background}">
+            <ScrollView x:Name="ScrollOpciones">
+                <VerticalStackLayout x:Name="ListaOpciones" Spacing="0" />
+            </ScrollView>
+        </Border>
+    </VerticalStackLayout>
 
 </ContentView>

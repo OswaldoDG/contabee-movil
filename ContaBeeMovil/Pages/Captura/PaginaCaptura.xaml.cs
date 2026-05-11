@@ -4,6 +4,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
@@ -94,6 +95,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             _capturas.Clear();
         }
 
+        _procesoAsociadoId = null;
+        if (query.TryGetValue("procesoId", out var procesoObj))
+        {
+            if (procesoObj is Guid procesoGuid)
+                _procesoAsociadoId = procesoGuid;
+            else if (procesoObj is string procesoTxt && Guid.TryParse(procesoTxt, out var parsedGuid))
+                _procesoAsociadoId = parsedGuid;
+        }
+
         _pendienteVerificarFotos = true;
         ActualizarUsoCfdi();
     }
@@ -132,6 +142,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         base.OnDisappearing();
         SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        MainThread.BeginInvokeOnMainThread(async () => await CancelarAsync());
+        return true;
     }
 
     private void OnImagenCompartidaRecibida(string fileName)
@@ -215,6 +231,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Parámetro de navegación ──────────────────────────────────────────────
 
     private TipoProcesoCaptura _tipoCaptura;
+    private Guid? _procesoAsociadoId;
+
     public TipoProcesoCaptura TipoCaptura
     {
         get => _tipoCaptura;
@@ -740,7 +758,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     }
 
     private async Task CancelarAsync()
-        => await Shell.Current.GoToAsync("..");
+    {
+        await Shell.Current.GoToAsync("..");
+    }
 
     // ── Drawable: círculo de progreso ─────────────────────────────────────────
 

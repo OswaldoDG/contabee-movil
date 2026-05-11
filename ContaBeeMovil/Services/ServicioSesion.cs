@@ -7,6 +7,7 @@ using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Storage;
 
@@ -305,6 +306,9 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PosLoginAsync()
     {
+        FiltrosDevolucionesView.LimpiarEstadoPersistido();
+        FiltrosComprobacionesView.LimpiarEstadoPersistido();
+
         _posLoginAbortado = false;
 
         await GetPerfilAsync();
@@ -338,6 +342,9 @@ public class ServicioSesion : IServicioSesion
 
     public async Task CerrarSesionAsync()
     {
+        FiltrosDevolucionesView.LimpiarEstadoPersistido();
+        FiltrosComprobacionesView.LimpiarEstadoPersistido();
+
         await LimpiaTokensAsync();
         SecureStorage.Remove(CLAVE_EXPIRACION);
 
@@ -358,6 +365,9 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PostEliminarCuentaAsync()
     {
+        FiltrosDevolucionesView.LimpiarEstadoPersistido();
+        FiltrosComprobacionesView.LimpiarEstadoPersistido();
+
         // Borrar tarjetas del usuario del SecureStorage
         var email = await LeeEmailAsync();
         if (!string.IsNullOrEmpty(email))
