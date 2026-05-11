@@ -3,7 +3,9 @@ namespace ContaBeeMovil.Pages;
 public partial class MainTabbedPage : ContentPage
 {
     private readonly DashboardPage   _dashboardPage;
+    private readonly FacturacionPage _facturacionPage;
     private readonly Devoluciones.PaginaDevoluciones _devolucionesPage;
+    private readonly Comprobaciones.PaginaComprobaciones _comprobacionesPage;
     private readonly FacturacionPage _facturacionPage;
     private readonly Devoluciones.PaginaDevoluciones _devolucionesPage;
     private readonly Comprobaciones.PaginaComprobaciones _comprobacionesPage;
@@ -11,7 +13,9 @@ public partial class MainTabbedPage : ContentPage
     // Guardadas por separado para sobrevivir el single-parent constraint de MAUI.
     // Al extraer Content antes de asignar parent, podemos reasignarla al volver al tab.
     private View? _dashboardView;
+    private View? _facturacionView;
     private View? _devolucionesView;
+    private View? _comprobacionesView;
     private View? _facturacionView;
     private View? _devolucionesView;
     private View? _comprobacionesView;
@@ -23,13 +27,17 @@ public partial class MainTabbedPage : ContentPage
         InitializeComponent();
 
         _dashboardPage   = services.GetRequiredService<DashboardPage>();
+        _facturacionPage = services.GetRequiredService<FacturacionPage>();
         _devolucionesPage = services.GetRequiredService<Devoluciones.PaginaDevoluciones>();
+        _comprobacionesPage = services.GetRequiredService<Comprobaciones.PaginaComprobaciones>();
         _facturacionPage = services.GetRequiredService<FacturacionPage>();
         _devolucionesPage = services.GetRequiredService<Devoluciones.PaginaDevoluciones>();
         _comprobacionesPage = services.GetRequiredService<Comprobaciones.PaginaComprobaciones>();
 
         _dashboardView   = _dashboardPage.Content;
+        _facturacionView = _facturacionPage.Content;
         _devolucionesView = _devolucionesPage.Content;
+        _comprobacionesView = _comprobacionesPage.Content;
         _facturacionView = _facturacionPage.Content;
         _devolucionesView = _devolucionesPage.Content;
         _comprobacionesView = _comprobacionesPage.Content;
@@ -84,6 +92,12 @@ public partial class MainTabbedPage : ContentPage
                 break;
 
             case 1:
+                PageContainer.Content = _facturacionView;
+                PageContainer.BindingContext = _facturacionPage.BindingContext;
+                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
+                break;
+
+            case 2:
                 PageContainer.Content = _devolucionesView;
                 PageContainer.BindingContext = _devolucionesPage.BindingContext;
                 LabelTitulo.Text = "Devoluciones";
