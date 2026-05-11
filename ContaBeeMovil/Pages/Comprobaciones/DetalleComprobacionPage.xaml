@@ -25,8 +25,8 @@
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid>
-        <ScrollView>
+    <Grid RowDefinitions="Auto,*">
+        <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="10" Spacing="8">
                 <Border Style="{StaticResource ElevatedCard}" Padding="10,8">
                     <VerticalStackLayout Spacing="6">
@@ -93,33 +93,26 @@
                                     HeightRequest="44" />
                         </Grid>
 
-                        <VerticalStackLayout Spacing="6"
-                                             Margin="0,8,0,0">
-                            <Label Text="Capturas"
-                                   Style="{StaticResource Caption1}" />
-                            <Label Text="Sin Resultados"
-                                   Style="{StaticResource Body2Strong}"
-                                   HorizontalOptions="Center"
-                                   IsVisible="{Binding TieneCapturasRelacionadas, Converter={StaticResource InvertedBoolConverter}}" />
-                            <Label Text="¡Vaya! Parece que no hay nada aquí"
-                                   Style="{StaticResource Body2}"
-                                   HorizontalOptions="Center"
-                                   IsVisible="{Binding TieneCapturasRelacionadas, Converter={StaticResource InvertedBoolConverter}}" />
-
-                            <VerticalStackLayout IsVisible="{Binding TieneCapturasRelacionadas}"
-                                                 Spacing="4"
-                                                 BindableLayout.ItemsSource="{Binding CapturasRelacionadas}">
-                                <BindableLayout.ItemTemplate>
-                                    <DataTemplate>
-                                        <views:LoteCapturaCardView />
-                                    </DataTemplate>
-                                </BindableLayout.ItemTemplate>
-                            </VerticalStackLayout>
-                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
         </ScrollView>
+
+        <views:ResultadosListaView Grid.Row="1"
+                                   EstaCargando="{Binding EstaCargando}"
+                                   Elementos="{Binding CapturasRelacionadas}"
+                                   TotalEncontrados="{Binding TotalCapturasEncontradas}"
+                                   PaginaActual="{Binding PaginaCapturasActual}"
+                                   TotalPaginas="{Binding TotalPaginasCapturas}"
+                                   ConsultaEjecutada="{Binding ConsultaCapturasEjecutada}"
+                                   AnteriorCommand="{Binding PaginaCapturasAnteriorCommand}"
+                                   SiguienteCommand="{Binding PaginaCapturasSiguienteCommand}">
+            <views:ResultadosListaView.PlantillaItem>
+                <DataTemplate>
+                    <views:LoteCapturaCardView />
+                </DataTemplate>
+            </views:ResultadosListaView.PlantillaItem>
+        </views:ResultadosListaView>
 
         <Border WidthRequest="44"
                 HeightRequest="44"
@@ -129,7 +122,8 @@
                 BackgroundColor="{toolkit:AppThemeResource Primary}"
                 HorizontalOptions="End"
                 VerticalOptions="End"
-                Margin="0,0,8,8">
+                Margin="0,0,8,8"
+                Grid.RowSpan="2">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding IrCapturaCommand}" />
             </Border.GestureRecognizers>
@@ -145,14 +139,5 @@
                    VerticalOptions="Fill" />
         </Border>
 
-        <Grid IsVisible="{Binding EstaCargando}"
-              BackgroundColor="#66000000"
-              InputTransparent="False"
-              ZIndex="20">
-            <ActivityIndicator IsRunning="True"
-                               Color="{toolkit:AppThemeResource Primary}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-        </Grid>
     </Grid>
 </ContentPage>

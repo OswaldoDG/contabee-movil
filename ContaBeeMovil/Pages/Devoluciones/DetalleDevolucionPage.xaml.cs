@@ -3,6 +3,7 @@ using System.Windows.Input;
 using CommunityToolkit.Maui.Extensions;
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
+using ContaBeeMovil.Config;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages;
 using ContaBeeMovil.Services;
@@ -32,17 +33,23 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     private bool _estaCargando;
 
     public string Rfc => _rfc;
-    public string EstadoTexto => _devolucion?.Estado switch
-    {
-        EstadoDevolucion.Admitida => "Abrir",
-        _ => _devolucion?.Estado.ToString() ?? "-"
-    };
+    public string EstadoTexto => _devolucion is null ? "-" : ObtenerEstadoTexto(_devolucion.Estado);
     public string MontoTexto => (_devolucion?.Monto ?? 0d).ToString("C2");
     public string CreacionTexto => _devolucion?.Creacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-";
     public string DescripcionTexto => string.IsNullOrWhiteSpace(_devolucion?.Descripcion) ? "Sin descripción" : _devolucion!.Descripcion!;
 
     public bool PuedeActualizarEstado => EsUsuarioPrimario && EstadosDisponibles.Count > 0;
-    public bool EsUsuarioPrimario => AppState.Instance.CuentaFiscalActual?.TipoCuenta == Contabee.Api.Crm.TipoCuenta.Primaria;
+    public bool EsUsuarioPrimario
+    {
+        get
+        {
+            var cuentaActual = AppState.Instance.CuentaFiscalActual;
+            if (cuentaActual is null)
+                return true;
+
+            return !EsCuentaSecundaria(cuentaActual.TipoCuenta.ToString());
+        }
+    }
 
     public ObservableCollection<string> EstadosDisponibles { get; } = [];
 
@@ -55,6 +62,34 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
     public bool TieneCapturasRelacionadas => CapturasRelacionadas?.Any() == true;
 
+    public long TotalCapturasEncontradas
+    {
+        get => _totalCapturasEncontradas;
+        private set { _totalCapturasEncontradas = value; OnPropertyChanged(); }
+    }
+    private long _totalCapturasEncontradas;
+
+    public int PaginaCapturasActual
+    {
+        get => _paginaCapturasActual;
+        private set { _paginaCapturasActual = value; OnPropertyChanged(); }
+    }
+    private int _paginaCapturasActual = 1;
+
+    public int TotalPaginasCapturas
+    {
+        get => _totalPaginasCapturas;
+        private set { _totalPaginasCapturas = value; OnPropertyChanged(); }
+    }
+    private int _totalPaginasCapturas = 1;
+
+    public bool ConsultaCapturasEjecutada
+    {
+        get => _consultaCapturasEjecutada;
+        private set { _consultaCapturasEjecutada = value; OnPropertyChanged(); }
+    }
+    private bool _consultaCapturasEjecutada;
+
     public string? EstadoSeleccionado
     {
         get => _estadoSeleccionado;
@@ -64,6 +99,8 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
     public ICommand ActualizarEstadoCommand { get; }
     public ICommand IrCapturaCommand { get; }
+    public ICommand PaginaCapturasAnteriorCommand { get; }
+    public ICommand PaginaCapturasSiguienteCommand { get; }
 
     public DetalleDevolucionPage(
         IServicioTranscript servicioTranscript,
@@ -78,6 +115,8 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
         ActualizarEstadoCommand = new Command(async () => await ActualizarEstadoAsync());
         IrCapturaCommand = new Command(async () => await IrCapturaAsync());
+        PaginaCapturasAnteriorCommand = new Command(async () => await CargarCapturasRelacionadasAsync(PaginaCapturasActual - 1));
+        PaginaCapturasSiguienteCommand = new Command(async () => await CargarCapturasRelacionadasAsync(PaginaCapturasActual + 1));
 
         BindingContext = this;
     }
@@ -133,7 +172,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
             _devolucion = res.Payload;
             ConfigurarEstadosDisponibles();
-            await CargarCapturasRelacionadasAsync();
+            await CargarCapturasRelacionadasAsync(1);
             RefrescarBindings();
         }
         finally
@@ -161,12 +200,16 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             return;
         }
 
-        if (_devolucion.Estado == EstadoDevolucion.Admitida)
+        if (EsEstado(_devolucion.Estado, "Admitida", "Abierta", "Abrir"))
         {
             EstadosDisponibles.Add("Aceptar");
             EstadosDisponibles.Add("Declinar");
         }
-        else if (_devolucion.Estado is EstadoDevolucion.Aceptada or EstadoDevolucion.Declinada)
+        else if (EsEstado(_devolucion.Estado, "Creada"))
+        {
+            EstadosDisponibles.Add("Abrir");
+        }
+        else if (EsEstado(_devolucion.Estado, "Aceptada", "Aceptado", "Declinada", "Declinado"))
         {
             EstadosDisponibles.Add("Abrir");
         }
@@ -174,31 +217,26 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         EstadoSeleccionado = EstadosDisponibles.FirstOrDefault();
     }
 
-    private async Task CargarCapturasRelacionadasAsync()
+    private async Task CargarCapturasRelacionadasAsync(int pagina)
     {
+        const int tamanoPaginaCapturas = 5;
+
         if (_devolucion is null)
         {
             CapturasRelacionadas = [];
+            TotalCapturasEncontradas = 0;
+            PaginaCapturasActual = 1;
+            TotalPaginasCapturas = 1;
+            ConsultaCapturasEjecutada = true;
             return;
         }
 
+        if (pagina < 1)
+            return;
+
         try
         {
-            var filtros = new List<Filtro>
-            {
-                new()
-                {
-                    Propiedad = "ProcesoAsociadoId",
-                    Operador = Operador.Igual,
-                    Valores = [_devolucion.Id.ToString()]
-                },
-                new()
-                {
-                    Propiedad = "Tipo",
-                    Operador = Operador.Igual,
-                    Valores = [Contabee.Api.Transcript.TipoProcesoCaptura.Devolucion.ToString()]
-                }
-            };
+            var filtros = new List<Filtro>();
 
             var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
             if (cuentaFiscalId.HasValue)
@@ -211,24 +249,45 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                 });
             }
 
+            filtros.Add(new Filtro
+            {
+                Propiedad = "ProcesoAsociadoId",
+                Operador = Operador.Igual,
+                Valores = [_devolucion.Id.ToString()]
+            });
+
             var busqueda = new Busqueda
             {
                 Filtros = filtros,
                 OrdernarDesc = true,
                 OrdenarPropiedad = "FechaCreacion",
-                Paginado = new Paginado { Pagina = 1, TamanoPagina = 50 },
-                Contar = true
+                Paginado = new Paginado { Pagina = pagina, TamanoPagina = tamanoPaginaCapturas },
+                Contar = false
             };
+
+            _logs.Log($"[DetalleDevolucionPage] BusquedaCapturas filtros={string.Join(" | ", filtros.Select(f => $"{f.Propiedad}:{f.Operador}=[{string.Join(",", f.Valores ?? [])}]"))}");
 
             var resultado = await _servicioTranscript.BusquedaCapturas(busqueda);
             CapturasRelacionadas = resultado.Elementos?
-                .Select((e, i) => new FacturacionPage.ItemConConsecutivo(i + 1, e))
+                .Select((e, i) => new FacturacionPage.ItemConConsecutivo(((pagina - 1) * tamanoPaginaCapturas) + i + 1, e))
                 .ToList() ?? [];
+
+            var total = resultado.Total > 0 ? resultado.Total : CapturasRelacionadas.Count();
+            TotalCapturasEncontradas = total;
+            PaginaCapturasActual = pagina;
+            TotalPaginasCapturas = (int)Math.Ceiling((double)total / Math.Max(1, tamanoPaginaCapturas));
+            if (TotalPaginasCapturas < 1)
+                TotalPaginasCapturas = 1;
+            ConsultaCapturasEjecutada = true;
         }
         catch (Exception ex)
         {
             _logs.Log($"[DetalleDevolucionPage] Error cargando capturas relacionadas: {ex.Message}");
             CapturasRelacionadas = [];
+            TotalCapturasEncontradas = 0;
+            PaginaCapturasActual = 1;
+            TotalPaginasCapturas = 1;
+            ConsultaCapturasEjecutada = true;
         }
     }
 
@@ -321,7 +380,8 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     private async Task ActualizarEstadoAsync()
     {
         if (_devolucion is null || string.IsNullOrWhiteSpace(EstadoSeleccionado)) return;
-        if (!Enum.TryParse<EstadoDevolucion>(EstadoSeleccionado, out var estadoNuevo)) return;
+
+        if (!TryResolverEstadoSeleccionado(EstadoSeleccionado, out var estadoNuevo)) return;
 
         EstaCargando = true;
         try
@@ -343,6 +403,57 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             EstaCargando = false;
         }
     }
+
+    private static string ObtenerEstadoTexto(EstadoDevolucion estado)
+    {
+        if (EsEstado(estado, "Admitida", "Abierta", "Abrir"))
+            return "Admitida";
+
+        if (EsEstado(estado, "Creada"))
+            return "Creada";
+
+        return estado.ToString();
+    }
+
+    private static bool EsEstado(EstadoDevolucion estado, params string[] estados)
+    {
+        var valor = estado.ToString();
+        return estados.Any(e => string.Equals(e, valor, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static bool TryResolverEstadoSeleccionado(string seleccionado, out EstadoDevolucion estado)
+    {
+        estado = default;
+        switch (seleccionado)
+        {
+            case "Aceptar":
+                return TryParseEstado("Aceptada", out estado)
+                    || TryParseEstado("Aceptado", out estado);
+
+            case "Declinar":
+                return TryParseEstado("Declinada", out estado)
+                    || TryParseEstado("Declinado", out estado);
+
+            case "Abrir":
+                return TryParseEstado("Admitida", out estado)
+                    || TryParseEstado("Abierta", out estado)
+                    || TryParseEstado("Abrir", out estado)
+                    || TryParseEstado("Creada", out estado);
+
+            default:
+                return false;
+        }
+    }
+
+    private static bool TryParseEstado(string valor, out EstadoDevolucion estado)
+        => Enum.TryParse(valor, ignoreCase: true, out estado);
+
+    private static bool EsCuentaSecundaria(string? tipoCuenta)
+        => string.Equals(tipoCuenta, "Secundaria", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Secondary", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Empleado", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "EmpleadoCliente", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "UsuarioCaptura", StringComparison.OrdinalIgnoreCase);
 
     private async Task IrCapturaAsync()
     {

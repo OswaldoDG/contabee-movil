@@ -80,7 +80,7 @@
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
             <Label x:Name="IconDevoluciones"
-                   Text="{x:Static f:FluentUI.currency_dollar_euro_20_regular}"
+                   Text="{x:Static f:FluentUI.money_hand_20_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                    FontSize="22"
                    HorizontalOptions="Center"

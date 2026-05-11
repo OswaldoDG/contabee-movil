@@ -17,13 +17,13 @@ public partial class ActualizarComprobacionPopup : Popup
         var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
         var screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
         CardBorder.WidthRequest = Math.Min(screenWidth - 40, 560);
-        CardBorder.MaximumHeightRequest = Math.Max(screenHeight - 80, 320);
+        CardBorder.MaximumHeightRequest = Math.Min(screenHeight - 80, 540);
 
         LblCreacion.Text = comprobacion.Creacion.ToLocalTime().ToString("dd/MM/yyyy");
         PickerCierre.Date = (comprobacion.Cierre ?? DateTime.Today).Date;
         LblRfc.Text = string.IsNullOrWhiteSpace(rfc) ? "RFC no disponible" : rfc;
         EntryMonto.Text = comprobacion.Monto.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
-        LblComprobado.Text = comprobacion.MontoComprobado.ToString("C2");
+        LblComprobado.Text = comprobacion.MontoComprobado.ToString("0.00");
         EntryPorcentaje.Text = comprobacion.PorcentajeCompropbar.ToString();
         EntryDescripcion.Text = comprobacion.Descripcion ?? string.Empty;
     }
