@@ -176,7 +176,7 @@ public partial class ResultadosListaView : ContentView
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;
         BtnAnterior.IsEnabled = anteriorActivo;
 
-        bool hayMasDeUnaPagina = TotalEncontrados > AppSettings.Consulta.TamanoPagina;
+        bool hayMasDeUnaPagina = TotalPaginas > 1;
         bool siguienteActivo = hayMasDeUnaPagina && PaginaActual < TotalPaginas;
         BtnSiguiente.Opacity = siguienteActivo ? 1.0 : 0.3;
         BtnSiguiente.IsEnabled = siguienteActivo;

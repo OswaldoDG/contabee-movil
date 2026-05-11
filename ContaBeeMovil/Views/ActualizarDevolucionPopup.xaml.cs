@@ -17,10 +17,10 @@ public partial class ActualizarDevolucionPopup : Popup
         var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
         var screenHeight = DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
         CardBorder.WidthRequest = Math.Min(screenWidth - 40, 520);
-        CardBorder.MaximumHeightRequest = Math.Max(screenHeight - 80, 300);
+        CardBorder.MaximumHeightRequest = Math.Min(screenHeight - 80, 420);
 
         LblEstado.Text = devolucion.Estado.ToString();
-        LblCreacion.Text = devolucion.Creacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+        LblCreacion.Text = devolucion.Creacion.ToLocalTime().ToString("dd/MM/yyyy");
         LblRfc.Text = string.IsNullOrWhiteSpace(rfc) ? "RFC no disponible" : rfc;
         EntryDescripcion.Text = devolucion.Descripcion ?? string.Empty;
     }

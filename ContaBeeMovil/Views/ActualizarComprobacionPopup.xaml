@@ -100,14 +100,18 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="12,4"
+                                HorizontalOptions="Fill"
                                 VerticalOptions="Center">
                             <Entry x:Name="EntryMonto"
                                    Keyboard="Numeric"
                                    Placeholder="0.00"
+                                   HorizontalOptions="Fill"
                                    HorizontalTextAlignment="End"
+                                   FlowDirection="LeftToRight"
                                    VerticalTextAlignment="Center"
                                    HeightRequest="32"
                                    FontSize="16"
+                                   Margin="0"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
                         </Border>
@@ -132,12 +136,15 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="12,4"
+                                HorizontalOptions="Fill"
                                 VerticalOptions="Center">
                             <Label x:Name="LblComprobado"
                                    FontSize="16"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                    HorizontalOptions="FillAndExpand"
                                    HorizontalTextAlignment="End"
                                    VerticalTextAlignment="Center"
+                                   Margin="0"
                                    HeightRequest="32" />
                         </Border>
 
@@ -149,7 +156,7 @@
                                VerticalTextAlignment="Center" />
                         <Label Grid.Row="2"
                                Grid.Column="1"
-                               Text="$"
+                               Text="%"
                                FontSize="16"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
                                VerticalTextAlignment="Center"
@@ -161,14 +168,18 @@
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="12,4"
+                                HorizontalOptions="Fill"
                                 VerticalOptions="Center">
                             <Entry x:Name="EntryPorcentaje"
                                    Keyboard="Numeric"
                                    Placeholder="0-100"
+                                   HorizontalOptions="Fill"
                                    HorizontalTextAlignment="End"
+                                   FlowDirection="LeftToRight"
                                    VerticalTextAlignment="Center"
                                    HeightRequest="32"
                                    FontSize="16"
+                                   Margin="0"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
                         </Border>
@@ -187,7 +198,7 @@
                             <Editor x:Name="EntryDescripcion"
                                     Placeholder="Escribe el motivo"
                                     AutoSize="TextChanges"
-                                    HeightRequest="80"
+                                    HeightRequest="56"
                                     FontSize="16"
                                     TextColor="{toolkit:AppThemeResource PrimaryText}"
                                     PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
