@@ -29,8 +29,9 @@ public partial class SimpleTabBar : ContentView
     }
 
     private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)      => SelectTab(0);
-    private void OnTabDevoluciones_Tapped(object? sender, TappedEventArgs e) => SelectTab(1);
-    private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e) => SelectTab(2);
+    private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e)   => SelectTab(1);
+    private void OnTabDevoluciones_Tapped(object? sender, TappedEventArgs e)  => SelectTab(2);
+    private void OnTabComprobaciones_Tapped(object? sender, TappedEventArgs e) => SelectTab(3);
 
     private void SelectTab(int index)
     {
@@ -48,7 +49,8 @@ public partial class SimpleTabBar : ContentView
         // IconFacturacion.IconColor = index == 1 ? activeColor : inactiveColor;
 
         UnderlineInicio.IsVisible = index == 0;
-        UnderlineDevoluciones.IsVisible = index == 1;
-        UnderlineFacturacion.IsVisible = index == 2;
+        UnderlineFacturacion.IsVisible = index == 1;
+        UnderlineDevoluciones.IsVisible = index == 2;
+        UnderlineComprobaciones.IsVisible = index == 3;
     }
 }

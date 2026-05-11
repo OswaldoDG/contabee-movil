@@ -4,9 +4,9 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              xmlns:f="clr-namespace:Fonts"
-             x:Class="ContaBeeMovil.Pages.Devoluciones.PaginaDevoluciones"
+             x:Class="ContaBeeMovil.Pages.Comprobaciones.PaginaComprobaciones"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
-             Title="Devoluciones">
+             Title="Comprobaciones">
 
     <Grid>
         <Border Grid.Row="0"
@@ -15,8 +15,8 @@
                 StrokeShape="RoundRectangle 1,1,0,0">
             <Grid RowDefinitions="Auto,*">
 
-                <views:FiltrosDevolucionesView x:Name="PanelFiltros"
-                                               BuscarCommand="{Binding BuscarDevolucionesCommand}" />
+                <views:FiltrosComprobacionesView x:Name="PanelFiltros"
+                                                 BuscarCommand="{Binding BuscarComprobacionesCommand}" />
 
                 <Grid Grid.Row="1">
                     <views:ResultadosListaView
@@ -36,15 +36,10 @@
                                         Padding="12,10"
                                         Shadow="{x:Null}">
                                     <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
-                                        <Label Grid.Row="0"
-                                               Text="{Binding Datos.Creacion, StringFormat='Fecha: {0:d/M/yyyy HH:mm}'}"
-                                               Style="{StaticResource Caption1}" />
-
-                                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
                                             <Label Grid.Column="0"
-                                                   Text="{Binding CuentaFiscalRfc, StringFormat='RFC: {0}'}"
-                                                   Style="{StaticResource Body2Strong}"
-                                                   LineBreakMode="TailTruncation" />
+                                                   Text="{Binding Datos.Creacion, StringFormat='{0:d/M/yyyy HH:mm}'}"
+                                                   Style="{StaticResource Caption1}" />
 
                                             <Border Grid.Column="1"
                                                     StrokeShape="RoundRectangle 8"
@@ -56,9 +51,27 @@
                                             </Border>
                                         </Grid>
 
-                                        <Label Grid.Row="2"
-                                               Text="{Binding Datos.Monto, StringFormat='Monto: {0:C2}'}"
-                                               Style="{StaticResource Body2Strong}" />
+                                        <Label Grid.Row="1"
+                                               Text="{Binding CuentaFiscalRfc, StringFormat='RFC: {0}'}"
+                                               Style="{StaticResource Body2Strong}"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="0">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Datos.Monto, StringFormat='{0:C2}'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="Start" />
+
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Datos.MontoComprobado, StringFormat='{0:C2}'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="Center" />
+
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Datos.PorcentajeCompropbar, StringFormat='{0}%'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="End" />
+                                        </Grid>
 
                                         <Label Grid.Row="3"
                                                Text="{Binding Datos.Descripcion}"
@@ -81,7 +94,7 @@
                             Margin="0,0,8,8"
                             ZIndex="10">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnCrearDevolucionClicked" />
+                            <TapGestureRecognizer Tapped="OnCrearComprobacionClicked" />
                         </Border.GestureRecognizers>
                         <Label Text="{x:Static f:FluentUI.add_20_regular}"
                                FontFamily="FluentUI"

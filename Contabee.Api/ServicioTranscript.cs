@@ -21,6 +21,13 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         return result;
     }
 
+    public async Task<ResultadoPaginado_1OfOfComprobacionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaComprobaciones(Busqueda consulta)
+    {
+        Busqueda consultaMap =  Extensiones.MapearA<Busqueda>(consulta);
+        var result = await servicioTranscript.BuscarAsync(consultaMap);
+        return result;
+    }
+
     public async Task<ResultadoPaginado_1OfOfDevolucionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaDevoluciones(Busqueda consulta)
     {
         Busqueda consultaMap =  Extensiones.MapearA<Busqueda>(consulta);
@@ -53,6 +60,231 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         return r;
     }
 
+    public async Task<RespuestaPayload<Comprobacion>> ObtenerComprobacionAsync(
+        Guid id, CancellationToken ct = default)
+    {
+        RespuestaPayload<Comprobacion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.ComprobacionGETAsync(id, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ObtenerComprobacion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ObtenerComprobacion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Devolucion>> ObtenerDevolucionAsync(
+        Guid id, CancellationToken ct = default)
+    {
+        RespuestaPayload<Devolucion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.DevolucionGETAsync(id, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ObtenerDevolucion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ObtenerDevolucion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Comprobacion>> ActualizarComprobacionAsync(
+        Guid id, ActualizaComprobacion request, CancellationToken ct = default)
+    {
+        RespuestaPayload<Comprobacion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.ComprobacionPUTAsync(id, request, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ActualizarComprobacion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ActualizarComprobacion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Devolucion>> ActualizarDevolucionAsync(
+        Guid id, ActualizaDevolucion request, CancellationToken ct = default)
+    {
+        RespuestaPayload<Devolucion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.DevolucionPUTAsync(id, request, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ActualizarDevolucion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ActualizarDevolucion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Comprobacion>> ActualizarEstadoComprobacionAsync(
+        Guid id, EstadoComprobacion estado, CancellationToken ct = default)
+    {
+        RespuestaPayload<Comprobacion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.EstadoPUTAsync(id, estado, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ActualizarEstadoComprobacion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ActualizarEstadoComprobacion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Devolucion>> ActualizarEstadoDevolucionAsync(
+        Guid id, EstadoDevolucion estado, CancellationToken ct = default)
+    {
+        RespuestaPayload<Devolucion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.EstadoPUT2Async(id, estado, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ActualizarEstadoDevolucion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ActualizarEstadoDevolucion");
+        }
+        return r;
+    }
+
+    public async Task<Respuesta> EliminarComprobacionAsync(
+        Guid id, CancellationToken ct = default)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioTranscript.ComprobacionDELETEAsync(id, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-EliminarComprobacion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-EliminarComprobacion");
+        }
+        return r;
+    }
+
+    public async Task<Respuesta> EliminarDevolucionAsync(
+        Guid id, CancellationToken ct = default)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioTranscript.DevolucionDELETEAsync(id, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-EliminarDevolucion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-EliminarDevolucion");
+        }
+        return r;
+    }
+
+    public async Task<RespuestaPayload<Comprobacion>> CrearComprobacionAsync(
+        CreaComprobacion request, CancellationToken ct = default)
+    {
+        RespuestaPayload<Comprobacion> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.ComprobacionPOSTAsync(request, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-CrearComprobacion"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-CrearComprobacion");
+        }
+        return r;
+    }
+
     public async Task<(byte[] Contenido, string TipoContenido)?> DescargarArchivoAsync(
         long id, string? tipo, CancellationToken ct = default)
     {
@@ -75,7 +307,7 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
 
         try
         {
-            var res = await servicioTranscript.CuentafiscalAsync(cfid,anio,mes);
+            var res = await servicioTranscript.CuentafiscalAsync(cfid, null, anio, mes);
             if (res != null)
             {
                 r.Payload = res;
