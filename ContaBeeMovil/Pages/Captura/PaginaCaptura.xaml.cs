@@ -651,7 +651,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 ClaveFormaPago = formaPago.Codigo,
                 TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
                 Comentario = NotasAdicionales,
-                DesglosarIEPS = DesglosarIeps
+                DesglosarIEPS = DesglosarIeps,
+                ProcesoAsociadoId = _procesoAsociadoId
             };
 
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);

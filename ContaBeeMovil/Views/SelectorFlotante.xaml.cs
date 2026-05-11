@@ -78,7 +78,6 @@ public partial class SelectorFlotante : ContentView
     public event EventHandler<int>? IndiceCambiado;
 
     private bool _sincronizando;
-    private bool _dropdownEmbebidoVisible;
 
     public SelectorFlotante()
     {
@@ -117,86 +116,17 @@ public partial class SelectorFlotante : ContentView
 
     private async Task ToggleDropdownEmbebidoAsync()
     {
-        if (_dropdownEmbebidoVisible)
-        {
-            await OcultarDropdownEmbebidoAsync();
-            return;
-        }
-
-        await MostrarDropdownEmbebidoAsync();
+        await MostrarSelectorModalAsync();
     }
 
     private async Task MostrarDropdownEmbebidoAsync()
     {
-        var elementos = Elementos;
-        if (elementos is null || elementos.Count == 0)
-            return;
-
-        ListaOpciones.Children.Clear();
-
-        for (int i = 0; i < elementos.Count; i++)
-        {
-            var indice = i;
-            var texto = elementos[i]?.ToString() ?? string.Empty;
-            bool seleccionado = i == IndiceSeleccionado;
-
-            var itemGrid = new Grid
-            {
-                ColumnDefinitions = [new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto)],
-                Padding = new Thickness(14, 12),
-                BackgroundColor = seleccionado ? UIHelpers.GetColor("Primary") : Colors.Transparent,
-            };
-
-            itemGrid.Add(new Label
-            {
-                Text = texto,
-                FontSize = 14,
-                TextColor = UIHelpers.GetColor("PrimaryText"),
-                FontAttributes = seleccionado ? FontAttributes.Bold : FontAttributes.None,
-                VerticalOptions = LayoutOptions.Center,
-            });
-
-            if (seleccionado)
-            {
-                itemGrid.Add(new Label
-                {
-                    Text = Fonts.FluentUI.checkmark_20_regular,
-                    FontFamily = Fonts.FluentUI.FontFamily,
-                    FontSize = 16,
-                    TextColor = UIHelpers.GetColor("PrimaryText"),
-                    VerticalOptions = LayoutOptions.Center,
-                }, 1);
-            }
-
-            var tap = new TapGestureRecognizer();
-            tap.Tapped += async (_, _) =>
-            {
-                SeleccionarIndice(indice);
-                await OcultarDropdownEmbebidoAsync();
-            };
-            itemGrid.GestureRecognizers.Add(tap);
-
-            ListaOpciones.Children.Add(itemGrid);
-        }
-
-        const double altoItem = 42;
-        var altoTotal = elementos.Count * altoItem;
-        var altoMaximo = Math.Max(84, MaxAltoLista);
-        ScrollOpciones.HeightRequest = Math.Min(altoTotal, altoMaximo);
-
-        PanelOpciones.IsVisible = true;
-        await PanelOpciones.FadeToAsync(1, 120, Easing.CubicOut);
-        _dropdownEmbebidoVisible = true;
+        await MostrarSelectorModalAsync();
     }
 
     private async Task OcultarDropdownEmbebidoAsync()
     {
-        if (!_dropdownEmbebidoVisible)
-            return;
-
-        await PanelOpciones.FadeToAsync(0, 100, Easing.CubicIn);
-        PanelOpciones.IsVisible = false;
-        _dropdownEmbebidoVisible = false;
+        await Task.CompletedTask;
     }
 
     private bool EstaDentroDePopup()

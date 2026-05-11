@@ -1,6 +1,6 @@
 using System.Windows.Input;
 using ContaBeeMovil.Services.Device;
-using Fonts;
+using MauiIcons.Material;
 using Busqueda = Contabee.Api.Transcript.Busqueda;
 using Filtro = Contabee.Api.Transcript.Filtro;
 using Operador = Contabee.Api.Transcript.Operador;
@@ -132,9 +132,9 @@ public partial class FiltrosDevolucionesView : ContentView
             SelectorOrden.IndiceSeleccionado = estado.OrdenIndex;
 
         _ordenAscendente = estado.OrdenAscendente;
-        IconOrden.Text = _ordenAscendente
-            ? FluentUI.arrow_sort_up_lines_20_regular
-            : FluentUI.arrow_sort_down_lines_20_regular;
+        IconOrden.Icon = _ordenAscendente
+            ? MaterialIcons.ArrowUpward
+            : MaterialIcons.ArrowDownward;
     }
 
     private void GuardarEstado()
@@ -257,9 +257,9 @@ public partial class FiltrosDevolucionesView : ContentView
     {
         _expandido = !_expandido;
 
-        IconExpandir.Text = _expandido
-            ? FluentUI.chevron_up_20_regular
-            : FluentUI.chevron_down_20_regular;
+        IconExpandir.Icon = _expandido
+            ? MaterialIcons.KeyboardArrowUp
+            : MaterialIcons.KeyboardArrowDown;
 
         if (_expandido)
         {
@@ -278,9 +278,9 @@ public partial class FiltrosDevolucionesView : ContentView
     private void OnToggleOrden(object sender, TappedEventArgs e)
     {
         _ordenAscendente = !_ordenAscendente;
-        IconOrden.Text = _ordenAscendente
-            ? FluentUI.arrow_sort_up_lines_20_regular
-            : FluentUI.arrow_sort_down_lines_20_regular;
+        IconOrden.Icon = _ordenAscendente
+            ? MaterialIcons.ArrowUpward
+            : MaterialIcons.ArrowDownward;
         EjecutarBusqueda(BusquedaActual);
     }
 
