@@ -9,10 +9,39 @@ public interface IServicioTranscript
 {
     Task<ResultadoPaginado_1OfOfElementoPaginaCapturaDespliegueAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaCapturas(Busqueda consulta);
 
+    Task<ResultadoPaginado_1OfOfComprobacionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaComprobaciones(Busqueda consulta);
+
     Task<ResultadoPaginado_1OfOfDevolucionAndTranscriptAnd_0AndCulture_neutralAndPublicKeyToken_null> BusquedaDevoluciones(Busqueda consulta);
+
+    Task<RespuestaPayload<Comprobacion>> CrearComprobacionAsync(
+        CreaComprobacion request, CancellationToken ct = default);
 
     Task<RespuestaPayload<Devolucion>> CrearDevolucionAsync(
         CreaDevolucion request, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Comprobacion>> ObtenerComprobacionAsync(
+        Guid id, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Devolucion>> ObtenerDevolucionAsync(
+        Guid id, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Comprobacion>> ActualizarComprobacionAsync(
+        Guid id, ActualizaComprobacion request, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Devolucion>> ActualizarDevolucionAsync(
+        Guid id, ActualizaDevolucion request, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Comprobacion>> ActualizarEstadoComprobacionAsync(
+        Guid id, EstadoComprobacion estado, CancellationToken ct = default);
+
+    Task<RespuestaPayload<Devolucion>> ActualizarEstadoDevolucionAsync(
+        Guid id, EstadoDevolucion estado, CancellationToken ct = default);
+
+    Task<Respuesta> EliminarComprobacionAsync(
+        Guid id, CancellationToken ct = default);
+
+    Task<Respuesta> EliminarDevolucionAsync(
+        Guid id, CancellationToken ct = default);
 
     Task<(byte[] Contenido, string TipoContenido)?> DescargarArchivoAsync(
         long id, string? tipo, CancellationToken ct = default);

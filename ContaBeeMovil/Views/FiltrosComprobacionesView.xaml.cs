@@ -8,7 +8,7 @@ using Paginado = Contabee.Api.Transcript.Paginado;
 
 namespace ContaBeeMovil.Views;
 
-public partial class FiltrosDevolucionesView : ContentView
+public partial class FiltrosComprobacionesView : ContentView
 {
     public static string PrefijoPreferencias => PrefsKeyFiltros;
 
@@ -33,23 +33,26 @@ public partial class FiltrosDevolucionesView : ContentView
     };
 
     private static readonly List<string> _estados =
-        ["Todos", "Creada", "Admitida", "Aceptada", "Declinada"];
+        ["Todos", "Abierta", "Cerrada", "Cancelada"];
 
     private static readonly List<string> _estadosFiltroTodos =
-        ["Creada", "Admitida", "Aceptada", "Declinada"];
+        ["Abierta", "Cerrada", "Cancelada"];
+
+    private static readonly List<string> _cumplimiento =
+        ["10 %", "20 %", "30 %", "40 %", "50 %", "60 %", "70 %", "80 %", "90 %", "100 %"];
 
     private static readonly List<string> _camposOrden =
-        ["Apertura", "Monto"];
+        ["Apertura", "Cierre", "Monto", "% cumplimiento"];
 
     private bool _expandido = true;
     private bool _ordenAscendente;
-    private const string PrefsKeyFiltros = "FiltrosDevoluciones_UltimaConsulta";
+    private const string PrefsKeyFiltros = "FiltrosComprobaciones_UltimaConsulta";
 
     public static readonly BindableProperty BuscarCommandProperty =
         BindableProperty.Create(
             nameof(BuscarCommand),
             typeof(ICommand),
-            typeof(FiltrosDevolucionesView));
+            typeof(FiltrosComprobacionesView));
 
     public ICommand? BuscarCommand
     {
@@ -61,7 +64,7 @@ public partial class FiltrosDevolucionesView : ContentView
         BindableProperty.Create(
             nameof(PeriodoTexto),
             typeof(string),
-            typeof(FiltrosDevolucionesView),
+            typeof(FiltrosComprobacionesView),
             defaultValue: string.Empty);
 
     public string PeriodoTexto
@@ -70,7 +73,7 @@ public partial class FiltrosDevolucionesView : ContentView
         set => SetValue(PeriodoTextoProperty, value);
     }
 
-    public FiltrosDevolucionesView()
+    public FiltrosComprobacionesView()
     {
         InitializeComponent();
         InicializarSelectores();
@@ -90,6 +93,9 @@ public partial class FiltrosDevolucionesView : ContentView
         SelectorEstado.IndiceSeleccionado = -1;
 
         CargarDestinatarios();
+
+        SelectorCumplimiento.Elementos = _cumplimiento;
+        SelectorCumplimiento.IndiceSeleccionado = 9;
 
         SelectorOrden.Elementos = _camposOrden;
         SelectorOrden.IndiceSeleccionado = 0;
@@ -128,6 +134,11 @@ public partial class FiltrosDevolucionesView : ContentView
             && estado.DestinatarioIndex < d.Count)
             SelectorDestinatarioView.IndiceSeleccionado = estado.DestinatarioIndex;
 
+        if (estado.CumplimientoIndex >= 0
+            && SelectorCumplimiento.Elementos is { Count: > 0 } c
+            && estado.CumplimientoIndex < c.Count)
+            SelectorCumplimiento.IndiceSeleccionado = estado.CumplimientoIndex;
+
         if (estado.OrdenIndex >= 0 && SelectorOrden.Elementos is { Count: > 0 } o && estado.OrdenIndex < o.Count)
             SelectorOrden.IndiceSeleccionado = estado.OrdenIndex;
 
@@ -147,6 +158,7 @@ public partial class FiltrosDevolucionesView : ContentView
             SelectorMes.IndiceSeleccionado,
             SelectorEstado.IndiceSeleccionado,
             SelectorDestinatarioView?.IndiceSeleccionado ?? -1,
+            SelectorCumplimiento.IndiceSeleccionado,
             SelectorOrden.IndiceSeleccionado,
             _ordenAscendente);
 
@@ -210,6 +222,21 @@ public partial class FiltrosDevolucionesView : ContentView
             Valores = estados
         });
 
+            if (SelectorCumplimiento.IndiceSeleccionado > 0
+                && SelectorCumplimiento.ElementoSeleccionado is string cumplimientoSeleccionado)
+            {
+                var valor = new string(cumplimientoSeleccionado.Where(char.IsDigit).ToArray());
+                if (!string.IsNullOrWhiteSpace(valor))
+                {
+                    filtros.Add(new Filtro
+                    {
+                        Propiedad = "PorcentajeCompropbar",
+                        Operador = Operador.Igual,
+                        Valores = [valor]
+                    });
+                }
+            }
+
             return new Busqueda
             {
                 Filtros = filtros,
@@ -237,6 +264,8 @@ public partial class FiltrosDevolucionesView : ContentView
     private static string MapearCampoOrden(string campo) => campo switch
     {
         "Apertura" => "Creacion",
+        "Cierre" => "Cierre",
+        "% cumplimiento" => "PorcentajeCompropbar",
         _ => campo
     };
 
@@ -307,6 +336,11 @@ public partial class FiltrosDevolucionesView : ContentView
     {
         var usuarios = AppState.Instance.MisUsuarios ?? [];
         var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+
+        _destinatariosIds.Clear();
+
+        if (SelectorDestinatarioView is null) return;
+
         var secundarios = usuarios
             .Where(u => EsCuentaSecundaria(u.TipoCuenta)
                 && u.CuentaFiscalId.HasValue
@@ -320,9 +354,6 @@ public partial class FiltrosDevolucionesView : ContentView
             .Select(g => g.First().Usuario)
             .ToList();
 
-        _destinatariosIds.Clear();
-        if (SelectorDestinatarioView is null) return;
-
         var elementosDestinatario = new List<string>();
 
         if (cuentaFiscalActualId.HasValue)
@@ -331,14 +362,17 @@ public partial class FiltrosDevolucionesView : ContentView
             _destinatariosIds.Add(cuentaFiscalActualId.Value.ToString());
         }
 
-        elementosDestinatario.AddRange(secundarios.Select(u =>
+        if (secundarios.Count > 0)
         {
-            var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-            return $"{nombre} (Secundaria)";
-        }));
-        SelectorDestinatarioView.Elementos = elementosDestinatario;
+            elementosDestinatario.AddRange(secundarios.Select(u =>
+            {
+                var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
+                return $"{nombre} (Secundaria)";
+            }));
+            _destinatariosIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
+        }
 
-        _destinatariosIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
+        SelectorDestinatarioView.Elementos = elementosDestinatario;
         SelectorDestinatarioView.IndiceSeleccionado = -1;
     }
 
@@ -376,6 +410,7 @@ public partial class FiltrosDevolucionesView : ContentView
         int MesIndex,
         int EstadoIndex,
         int DestinatarioIndex,
+        int CumplimientoIndex,
         int OrdenIndex,
         bool OrdenAscendente
     );

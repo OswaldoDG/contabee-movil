@@ -10,7 +10,9 @@
         <!-- Lista de resultados -->
         <CollectionView x:Name="Lista"
                         Grid.Row="0"
-                        BackgroundColor="{toolkit:AppThemeResource Accent1}"/>
+                        BackgroundColor="{toolkit:AppThemeResource Accent1}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnItemSelectionChanged"/>
 
         <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"
@@ -58,7 +60,7 @@
 
                     <!-- Controles de paginación centrados -->
                     <HorizontalStackLayout Grid.Column="1"
-                                          Spacing="10"
+                                          Spacing="4"
                                           HorizontalOptions="Center"
                                           VerticalOptions="Center">
 
@@ -90,7 +92,7 @@
                             VerticalOptions="Center"
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center"
-                            WidthRequest="40" />
+                            WidthRequest="24" />
 
                         <!-- Botón página siguiente -->
                         <Border x:Name="BtnSiguiente"
