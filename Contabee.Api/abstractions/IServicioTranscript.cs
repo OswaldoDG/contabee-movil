@@ -34,5 +34,5 @@ public interface IServicioTranscript
     /// Cierra el ciclo del lote. Debe llamarse siempre que el lote fue creado,
     /// independientemente de si los pasos anteriores tuvieron éxito o no.
     /// </summary>
-    Task<Respuesta> CompletarLoteAsync(long loteId, CancellationToken ct = default);
+    Task<Respuesta> CompletarLoteAsync(long loteId, DtoCierreLote? lote = null, CancellationToken ct = default);
 }
