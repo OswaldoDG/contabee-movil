@@ -1,6 +1,7 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using StatusBar = CommunityToolkit.Maui.Core.Platform.StatusBar;
+using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
@@ -266,9 +267,7 @@ namespace ContaBeeMovil
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            var version = AppInfo.VersionString;
-            await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}",
-                verBotonCancelar: false, confirmarText: "OK");
+            await Shell.Current.GoToAsync(nameof(AcercaDePage));
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)
@@ -300,6 +299,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
             Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
+            Routing.RegisterRoute(nameof(AcercaDePage), typeof(AcercaDePage));
         }
     }
 }
