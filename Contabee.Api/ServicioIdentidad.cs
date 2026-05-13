@@ -40,13 +40,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                 ["client_id"] = "contabee-password",
                 ["username"] = email,
                 ["password"] = password,
-                ["scope"] = recordarme ? "offline_access" : null!,
                 ["dispositivoid"] = dispositivoId
             };
 
+            if (recordarme)
+                formData["scope"] = "offline_access";
 
             var content = new FormUrlEncodedContent(formData);
-            
+
             var httpResponse = await httpClient.PostAsync("/connect/token", content);
 
             var json = await httpResponse.Content.ReadAsStringAsync();
@@ -67,7 +68,6 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
             }
-            await servicioIdentidad.TokenAsync();
         }
         catch (Exception ex)
         {

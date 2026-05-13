@@ -1,3 +1,5 @@
+using ContaBeeMovil.Services.Device;
+
 namespace ContaBeeMovil.Pages;
 
 public partial class MainTabbedPage : ContentPage
@@ -13,6 +15,8 @@ public partial class MainTabbedPage : ContentPage
     private View? _equipoView;
 
     private int _currentIndex = -1;
+
+    internal static event Action? EquipoRequested;
 
     public MainTabbedPage(IServiceProvider services)
     {
@@ -34,7 +38,28 @@ public partial class MainTabbedPage : ContentPage
                 LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
         };
 
+        EquipoRequested += ForceEquipoTab;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppState.EsLoginLess))
+                MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
+        };
+
+        ActualizarVisibilidadEquipo();
         SwitchToTab(0);
+    }
+
+    private void ActualizarVisibilidadEquipo()
+    {
+        TabBar.SetEquipoVisible(!AppState.Instance.EsLoginLess);
+    }
+
+    private void ForceEquipoTab()
+    {
+        if (AppState.Instance.EsLoginLess) return;
+        _currentIndex = -1;
+        SwitchToTab(2);
     }
 
     protected override void OnAppearing()
@@ -49,6 +74,7 @@ public partial class MainTabbedPage : ContentPage
 
     private async void SwitchToTab(int index)
     {
+        if (index == 2 && AppState.Instance.EsLoginLess) return;
         if (_currentIndex == index) return;
         _currentIndex = index;
 

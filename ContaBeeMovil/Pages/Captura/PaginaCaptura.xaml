@@ -28,7 +28,7 @@
                 <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
                        FontSize="12"
                        FontAttributes="Bold"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       TextColor="{StaticResource Black}"
                        VerticalOptions="Center" />
             </Border>
         </Grid>
