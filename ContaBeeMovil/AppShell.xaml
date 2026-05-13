@@ -46,7 +46,8 @@
                 <VerticalStackLayout Padding="16,12" Spacing="8">
 
                     <!-- ─── Cards de perfil ─── -->
-                    <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    <Border x:Name="TiendaCard"
+                            Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnTiendaClicked" />
                         </Border.GestureRecognizers>
@@ -169,7 +170,8 @@
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
-                                        <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    
+                    <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnVincularmeClicked" />
                         </Border.GestureRecognizers>
@@ -318,7 +320,8 @@
                 </Grid>
 
                 <!-- Botón Cerrar Sesión -->
-                <Button Text="Cerrar Sesion"
+                <Button x:Name="BtnCerrarSesion"
+                        Text="Cerrar Sesion"
                         Style="{StaticResource PrimaryButton}"
                         Clicked="OnCerrarSesionClicked" />
                         </VerticalStackLayout>

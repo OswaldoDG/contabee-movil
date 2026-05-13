@@ -77,6 +77,8 @@ public class ServicioSesion : IServicioSesion
         SecureStorage.Remove(CLAVE_ACCESS_TOKEN);
         SecureStorage.Remove(CLAVE_REFRESH_TOKEN);
         SecureStorage.Remove(CLAVE_EXPIRACION);
+        SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
+        _appState.EsLoginLess = false;
         Preferences.Set("TieneSesion", false);
         return Task.CompletedTask;
     }
@@ -307,6 +309,8 @@ public class ServicioSesion : IServicioSesion
     public async Task PosLoginAsync()
     {
         _posLoginAbortado = false;
+
+        _appState.EsLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
 
         await GetPerfilAsync();
         if (_posLoginAbortado) return;
