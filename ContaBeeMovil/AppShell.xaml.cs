@@ -41,6 +41,7 @@ namespace ContaBeeMovil
             RegisterRoutes();
             _ = CargarNombreUsuarioAsync();
             _ = servicioSesion.GetTarjetasAsync();
+            _ = RestaurarEsLoginLessAsync();
 
             ActualizarVisibilidadLogs();
 
@@ -50,7 +51,11 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
                 else if (e.PropertyName == nameof(AppState.EsDev))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
+                else if (e.PropertyName == nameof(AppState.EsLoginLess))
+                    MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLoginLess);
             };
+
+            ActualizarVisibilidadLoginLess();
 
             Navigated += (_, _) => AplicarEstiloIconosConDelay();
             Loaded += (_, _) => AplicarEstiloIconosConDelay();
@@ -144,6 +149,12 @@ namespace ContaBeeMovil
 
         // ── Header: nombre de usuario ─────────────────────────────────────
 
+        private async Task RestaurarEsLoginLessAsync()
+        {
+            var token = await _servicioSesion.LeeTokenLoginLessAsync();
+            AppState.Instance.EsLoginLess = !string.IsNullOrEmpty(token);
+        }
+
         private async Task CargarNombreUsuarioAsync()
         {
             _emailUsuario = AppState.Instance.Perfil?.DisplayName;
@@ -156,6 +167,13 @@ namespace ContaBeeMovil
         {
             if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
                 logs.IsVisible = AppState.Instance.EsDev;
+        }
+
+        private void ActualizarVisibilidadLoginLess()
+        {
+            var esLoginLess = AppState.Instance.EsLoginLess;
+            TiendaCard.IsVisible = !esLoginLess;
+            BtnCerrarSesion.IsVisible = !esLoginLess;
         }
 
         private void ActualizarNombreLabel()
@@ -208,7 +226,8 @@ namespace ContaBeeMovil
         private async void OnVincularmeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await Shell.Current.GoToAsync($"{nameof(SolicitudTokenPage)}?enSesion=True");
+            var enSesion = !AppState.Instance.EsLoginLess;
+            await Shell.Current.GoToAsync($"{nameof(SolicitudTokenPage)}?enSesion={enSesion}");
         }
 
         private async void OnTiendaClicked(object? sender, EventArgs e)

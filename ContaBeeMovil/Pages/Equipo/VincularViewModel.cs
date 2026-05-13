@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
+using ContaBeeMovil.Pages;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
@@ -129,8 +130,11 @@ public class VincularViewModel : INotifyPropertyChanged
 
     public bool PuedeVincular => !_estaCargando && !string.IsNullOrWhiteSpace(_nombre);
 
+    public event EventHandler? VinculacionSinCuentaExitosa;
+
     public ICommand VincularCommand { get; }
     public ICommand CancelarCargaCommand { get; }
+    public ICommand CancelarFormularioCommand { get; }
 
     public VincularViewModel(
         IServicioIdentidad servicioIdentidad,
@@ -143,8 +147,9 @@ public class VincularViewModel : INotifyPropertyChanged
         _toast             = toast;
         _appState          = appState;
 
-        VincularCommand      = new Command(async () => await VincularPasoDosAsync());
-        CancelarCargaCommand = new Command(CancelarCarga);
+        VincularCommand          = new Command(async () => await VincularPasoDosAsync());
+        CancelarCargaCommand     = new Command(CancelarCarga);
+        CancelarFormularioCommand = new Command(CancelarFormulario);
     }
 
     private void CancelarCarga()
@@ -152,6 +157,16 @@ public class VincularViewModel : INotifyPropertyChanged
         _cancelado = true;
         EstaCargando   = false;
         TokenIngresado = string.Empty;
+    }
+
+    private void CancelarFormulario()
+    {
+        _tokenValidado = string.Empty;
+        Nombre         = string.Empty;
+        Email          = string.Empty;
+        Telefono       = string.Empty;
+        TokenIngresado = string.Empty;
+        MostrarFormulario = false;
     }
 
     private async Task VincularPasoUnoAsync()
@@ -186,7 +201,10 @@ public class VincularViewModel : INotifyPropertyChanged
             {
                 await _servicioSesion.GetMisUsuariosAsync();
                 await _servicioSesion.GetAsociacionesFiscalesAsync();
-                await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    await Shell.Current.GoToAsync("..");
+                });
                 _ = _toast.MostrarAsync("¡Vinculación completada!", ToastIcono.Info);
             }
             else
@@ -234,8 +252,8 @@ public class VincularViewModel : INotifyPropertyChanged
 
             await _servicioSesion.GetMisUsuariosAsync();
             await _servicioSesion.GetAsociacionesFiscalesAsync();
-            await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(".."));
             _ = _toast.MostrarAsync("¡Usuario vinculado correctamente!", ToastIcono.Info);
+            VinculacionSinCuentaExitosa?.Invoke(this, EventArgs.Empty);
         }
         catch
         {

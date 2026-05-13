@@ -37,6 +37,12 @@ public partial class SimpleTabBar : ContentView
         TabChanged?.Invoke(this, index);
     }
 
+    public void SetEquipoVisible(bool visible)
+    {
+        TabEquipo.IsVisible = visible;
+        TabsGrid.ColumnDefinitions[2].Width = visible ? GridLength.Star : new GridLength(0);
+    }
+
     private void UpdateVisualState(int index)
     {
         UnderlineInicio.IsVisible      = index == 0;

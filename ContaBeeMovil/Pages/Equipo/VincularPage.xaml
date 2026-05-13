@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Equipo.VincularPage"
              x:DataType="vm:VincularViewModel"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
@@ -111,9 +112,9 @@
                 <VerticalStackLayout IsVisible="{Binding NoCargando}" Spacing="0">
 
                     <!-- Descripción: Con Cuenta -->
-                    <Border Margin="16,0"
-                            Padding="16"
-                            StrokeShape="RoundRectangle 12"
+                    <Border Margin="12,0"
+                            Padding="10"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
@@ -121,48 +122,181 @@
                         <Border.Shadow>
                             <Shadow Brush="Black" Radius="10" Opacity="0.08" Offset="0,4" />
                         </Border.Shadow>
-                        <VerticalStackLayout Spacing="10">
-                            <Label Text="Para vincular un usuario con cuenta"
-                                   FontSize="15"
-                                   FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            <Label Text="1. La otra persona debe haber ingresado a la aplicación con su email y contraseña."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="2. La otra persona debe activar el menú de la app, presionar sobre la opción Vincular y dejar su pantalla activa durante el resto del proceso."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Button Text="Vincularme"
-                                    IsEnabled="False"
-                                    BackgroundColor="Transparent"
-                                    BorderColor="{toolkit:AppThemeResource Accent1}"
-                                    BorderWidth="1"
-                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                    CornerRadius="20"
-                                    HorizontalOptions="Center"
-                                    HeightRequest="40"
-                                    Padding="28,0" />
-                            <Label Text="3. A la otra persona deben aparecerle 4 letras que deberá comunicarle y que usted debe capturar en esta pantalla."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="4. Cuando termine de ingresar las letras y se valide la vinculación el otro usuario debe esperar un máximo de 1 minuto para que su activación ocurra."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="5. Si después de este tiempo en el dispositivo de la otra persona no desaparece la pantalla con las 4 letras algo salió mal y debe reiniciarse el proceso."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
+                        <VerticalStackLayout Spacing="15">
+
+                            <!-- Título con badge de icono -->
+                            <Grid ColumnDefinitions="42,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="36" HeightRequest="36"
+                                        StrokeShape="RoundRectangle 8"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Start"
+                                        Padding="1">
+                                    <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
+                                                 IconSize="20"
+                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Para vincular un usuario con cuenta"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       VerticalOptions="Center" />
+                            </Grid>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="{toolkit:AppThemeResource Accent1}"
+                                     Opacity="0.25" />
+
+                            <!-- Paso 1 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="1" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="La otra persona debe haber ingresado a la aplicación con su email y contraseña."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 2 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="2" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="La otra persona debe activar el menú de la app, presionar sobre la opción Vincular y dejar su pantalla activa durante el resto del proceso."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Referencia visual: opción Vincularme en el menú -->
+                            <Border Style="{StaticResource ElevatedCard}" Padding="14,12" Margin="32,0,0,0">
+                                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="12">
+                                    <BoxView Grid.Column="0"
+                                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                             WidthRequest="4" CornerRadius="2"
+                                             VerticalOptions="Fill"
+                                             HorizontalOptions="Center"/>
+                                    <mi:MauiIcon Grid.Column="1"
+                                                 Icon="{mi:Material Icon=SpatialAudioOff}"
+                                                 IconSize="22"
+                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                                 VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Text="Vincularme"
+                                           Style="{StaticResource Body1}"
+                                           VerticalOptions="Center" />
+                                    <mi:MauiIcon Grid.Column="3"
+                                                 Icon="{mi:Material Icon=ChevronRight}"
+                                                 IconSize="16"
+                                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                                 VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+
+                            <!-- Paso 3 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="3" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="A la otra persona deben aparecerle 4 letras que deberá comunicarle y que usted debe capturar en esta pantalla."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 4 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="4" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Cuando termine de ingresar las letras y se valide la vinculación el otro usuario debe esperar un máximo de 1 minuto para que su activación ocurra."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 5 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="5" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Si después de este tiempo en el dispositivo de la otra persona no desaparece la pantalla con las 4 letras algo salió mal y debe reiniciarse el proceso."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
                         </VerticalStackLayout>
                     </Border>
 
                     <!-- Descripción: Sin Cuenta -->
-                    <Border Margin="16,0"
-                            Padding="16"
-                            StrokeShape="RoundRectangle 12"
+                    <Border Margin="10,0"
+                            Padding="10"
+                            StrokeShape="RoundRectangle 10"
                             StrokeThickness="1"
                             Stroke="{toolkit:AppThemeResource Accent1}"
                             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
@@ -170,39 +304,168 @@
                         <Border.Shadow>
                             <Shadow Brush="Black" Radius="10" Opacity="0.08" Offset="0,4" />
                         </Border.Shadow>
-                        <VerticalStackLayout Spacing="10">
-                            <Label Text="Para vincular un usuario sin cuenta"
-                                   FontSize="15"
-                                   FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            <Label Text="1. La otra persona debe estar en la pantalla de acceso, la que pide el email y contraseña."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="2. La otra persona debe presionar sobre el botón Vincular y dejar su pantalla activa durante el resto del proceso."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Button Text="Vincularme"
-                                    IsEnabled="False"
+                        <VerticalStackLayout Spacing="15">
+
+                            <!-- Título con badge de icono -->
+                            <Grid ColumnDefinitions="42,*" ColumnSpacing="10" >
+                                <Border Grid.Column="0"
+                                        WidthRequest="42" HeightRequest="42"
+                                        StrokeShape="RoundRectangle 10"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Start"
+                                        Padding="1">
+                                    <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
+                                                 IconSize="20"
+                                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                                 HorizontalOptions="Center"
+                                                 VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Para vincular un usuario sin cuenta"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       VerticalOptions="Center" />
+                            </Grid>
+
+                            <BoxView HeightRequest="1"
+                                     BackgroundColor="{toolkit:AppThemeResource Accent1}"
+                                     Opacity="0.25" />
+
+                            <!-- Paso 1 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="1" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="La otra persona debe estar en la pantalla de acceso, la que pide el email y contraseña."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 2 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="2" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="La otra persona debe presionar sobre el botón Vincular y dejar su pantalla activa durante el resto del proceso."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Referencia visual: botón Vincularme -->
+                            <Border StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    TextColor="White"
-                                    CornerRadius="20"
+                                    Padding="14,10"
                                     HorizontalOptions="Center"
-                                    HeightRequest="40"
-                                    Padding="28,0" />
-                            <Label Text="3. A la otra persona deben aparecerle 4 letras que deberá comunicarle y que usted debe capturar en esta pantalla."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="4. Cuando termine de ingresar las letras y se valide la vinculación el otro usuario debe esperar un máximo de 1 minuto para que su activación ocurra."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
-                            <Label Text="5. Si después de este tiempo en el dispositivo de la otra persona no desaparece la pantalla con las 4 letras algo salió mal y debe reiniciarse el proceso."
-                                   FontSize="13"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                   LineBreakMode="WordWrap" />
+                                    Margin="32,0,0,0">
+                                <HorizontalStackLayout Spacing="8">
+                                    <mi:MauiIcon Icon="{mi:Material Icon=SpatialAudioOff}"
+                                                 IconSize="18"
+                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                                 VerticalOptions="Center" />
+                                    <Label Text="Vincularme"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </Border>
+
+                            <!-- Paso 3 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="3" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="A la otra persona deben aparecerle 4 letras que deberá comunicarle y que usted debe capturar en esta pantalla."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 4 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="4" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Cuando termine de ingresar las letras y se valide la vinculación el otro usuario debe esperar un máximo de 1 minuto para que su activación ocurra."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
+                            <!-- Paso 5 -->
+                            <Grid ColumnDefinitions="32,*" ColumnSpacing="10">
+                                <Border Grid.Column="0"
+                                        WidthRequest="26" HeightRequest="26"
+                                        StrokeShape="RoundRectangle 13"
+                                        Stroke="Transparent"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Start"
+                                        Margin="0,1,0,0"
+                                        Padding="1">
+                                    <Label Text="5" FontSize="11" FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           HorizontalOptions="Fill" VerticalOptions="Fill"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                </Border>
+                                <Label Grid.Column="1"
+                                       Text="Si después de este tiempo en el dispositivo de la otra persona no desaparece la pantalla con las 4 letras algo salió mal y debe reiniciarse el proceso."
+                                       FontSize="13"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="WordWrap" />
+                            </Grid>
+
                         </VerticalStackLayout>
                     </Border>
 
@@ -210,92 +473,6 @@
 
             </VerticalStackLayout>
         </ScrollView>
-
-        <!-- ═══ PASO 2: Formulario (solo para Sin Cuenta) ═══ -->
-        <Grid RowDefinitions="*,Auto"
-              IsVisible="{Binding MostrarFormulario}">
-
-            <ScrollView Grid.Row="0">
-                <VerticalStackLayout Spacing="0" Padding="16,24">
-
-                    <Border Padding="20,24"
-                            StrokeShape="RoundRectangle 16"
-                            StrokeThickness="1"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                        <Border.Shadow>
-                            <Shadow Brush="Black" Radius="12" Opacity="0.08" Offset="0,4" />
-                        </Border.Shadow>
-                        <VerticalStackLayout Spacing="16">
-
-                            <Label Text="Vincular usuario"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
-
-                            <BoxView HeightRequest="1"
-                                     BackgroundColor="{toolkit:AppThemeResource Accent1}"
-                                     Opacity="0.3" />
-
-                            <Border StrokeShape="RoundRectangle 10"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    BackgroundColor="{toolkit:AppThemeResource Background}"
-                                    Padding="4,0">
-                                <Entry Placeholder="Nombre"
-                                       Text="{Binding Nombre}"
-                                       BackgroundColor="Transparent"
-                                       FontSize="15"
-                                       HeightRequest="48" />
-                            </Border>
-
-                            <Border StrokeShape="RoundRectangle 10"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    BackgroundColor="{toolkit:AppThemeResource Background}"
-                                    Padding="4,0">
-                                <Entry Placeholder="Correo Electrónico Opcional"
-                                       Text="{Binding Email}"
-                                       Keyboard="Email"
-                                       BackgroundColor="Transparent"
-                                       FontSize="15"
-                                       HeightRequest="48" />
-                            </Border>
-
-                            <Border StrokeShape="RoundRectangle 10"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    BackgroundColor="{toolkit:AppThemeResource Background}"
-                                    Padding="4,0">
-                                <Entry Placeholder="Teléfono Opcional"
-                                       Text="{Binding Telefono}"
-                                       Keyboard="Telephone"
-                                       BackgroundColor="Transparent"
-                                       FontSize="15"
-                                       HeightRequest="48" />
-                            </Border>
-
-                        </VerticalStackLayout>
-                    </Border>
-
-                </VerticalStackLayout>
-            </ScrollView>
-
-            <!-- Sticky Vincular button -->
-            <Button Grid.Row="1"
-                    Text="Vincular"
-                    Command="{Binding VincularCommand}"
-                    IsEnabled="{Binding PuedeVincular}"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="White"
-                    CornerRadius="10"
-                    HeightRequest="50"
-                    Margin="24,12,24,32"
-                    FontAttributes="Bold"
-                    FontSize="16" />
-
-        </Grid>
 
     </Grid>
 
