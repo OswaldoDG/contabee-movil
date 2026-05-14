@@ -485,16 +485,6 @@
               "schema": {
                 "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.CreaComprobacion"
-              }
             }
           }
         },
@@ -520,10 +510,44 @@
             }
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -550,16 +574,6 @@
               "schema": {
                 "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
               }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.ActualizaComprobacion"
-              }
             }
           }
         },
@@ -585,13 +599,64 @@
             }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           }
         }
       },
@@ -615,10 +680,44 @@
             "description": "OK"
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           }
         }
       },
@@ -657,6 +756,29 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       }
@@ -669,16 +791,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
               }
@@ -707,13 +819,64 @@
             }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "401": {
-            "description": "Unauthorized"
+            "description": "Unauthorized",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -748,26 +911,60 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.Devolucion"
+                  "$ref": "#/components/schemas/contabee.model.transcript.comprobaciones.Comprobacion"
                 }
               }
             }
           },
           "404": {
-            "description": "Not Found"
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           },
           "403": {
-            "description": "Forbidden"
+            "description": "Forbidden",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Microsoft.AspNetCore.Mvc.ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -780,16 +977,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
-              }
-            },
-            "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.CreaDevolucion"
               }
@@ -818,7 +1005,24 @@
             }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -842,16 +1046,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
-              }
-            },
-            "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/contabee.model.transcript.devoluciones.ActualizaDevolucion"
               }
@@ -879,6 +1073,9 @@
               }
             }
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "404": {
             "description": "Not Found"
           }
@@ -903,11 +1100,11 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "403": {
             "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -946,6 +1143,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -975,9 +1175,6 @@
           }
         ],
         "responses": {
-          "403": {
-            "description": "Forbidden"
-          },
           "200": {
             "description": "OK",
             "content": {
@@ -998,6 +1195,9 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden"
+          },
           "404": {
             "description": "Not Found"
           }
@@ -1012,16 +1212,6 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
-              }
-            },
-            "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/comunes.busqueda.Busqueda"
               }
@@ -1052,11 +1242,11 @@
           "400": {
             "description": "Bad Request"
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "401": {
             "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       }
@@ -1112,6 +1302,13 @@
             "schema": {
               "type": "string",
               "format": "uuid"
+            }
+          },
+          {
+            "name": "redo",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
             }
           },
           {
@@ -1216,8 +1413,8 @@
           }
         },
         "responses": {
-          "200": {
-            "description": "OK",
+          "201": {
+            "description": "Created",
             "content": {
               "text/plain": {
                 "schema": {
@@ -1242,6 +1439,9 @@
           "403": {
             "description": "Forbidden"
           },
+          "402": {
+            "description": "Payment Required"
+          },
           "401": {
             "description": "Unauthorized"
           }
@@ -1264,6 +1464,25 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoCierreLote"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoCierreLote"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.lotes.DtoCierreLote"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -1858,6 +2077,33 @@
   },
   "components": {
     "schemas": {
+      "Microsoft.AspNetCore.Mvc.ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
       "System.Net.HttpStatusCode": {
         "enum": [
           "Continue",
@@ -2278,7 +2524,8 @@
         "enum": [
           "FacturaIndividual",
           "Comprobacion",
-          "Devolucion"
+          "Devolucion",
+          "Evidencia"
         ],
         "type": "string"
       },
@@ -2809,6 +3056,23 @@
           "desglosarIEPS": {
             "type": "boolean",
             "nullable": true
+          },
+          "capturaRemota": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.lotes.DtoCierreLote": {
+        "type": "object",
+        "properties": {
+          "montos": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2881,6 +3145,9 @@
             "$ref": "#/components/schemas/contabee.model.transcript.FuenteCaptura"
           },
           "desglosarIEPS": {
+            "type": "boolean"
+          },
+          "capturaRemota": {
             "type": "boolean"
           },
           "creditosDisponibles": {
@@ -2962,6 +3229,9 @@
             "$ref": "#/components/schemas/contabee.model.transcript.FuenteCaptura"
           },
           "desglosarIEPS": {
+            "type": "boolean"
+          },
+          "capturaRemota": {
             "type": "boolean"
           }
         },
@@ -3135,6 +3405,10 @@
           },
           "tieneXml": {
             "type": "boolean"
+          },
+          "mensajeError": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
