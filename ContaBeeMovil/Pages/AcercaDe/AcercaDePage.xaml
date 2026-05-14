@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             x:Class="ContaBeeMovil.Pages.AcercaDe.AcercaDePage"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.NavBarIsVisible="False"
+             NavigationPage.HasNavigationBar="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ── Barra superior personalizada ── -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,Auto,*"
+              ColumnSpacing="16"
+              BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+              Padding="12,12">
+            <Label x:Name="BtnMenu"
+                   Grid.Column="0"
+                   Text="{x:Static f:FluentUI.navigation_24_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="24"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center"
+                   IsVisible="False">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMenuTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="1"
+                   Text="{x:Static f:FluentUI.arrow_left_24_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="24"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAtrasTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+            <Label Grid.Column="2"
+                   Text="Acerca de"
+                   Style="{StaticResource Body1Strong}"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   VerticalOptions="Center" />
+        </Grid>
+
+        <!-- ── Tarjetas ── -->
+        <VerticalStackLayout Grid.Row="1" Padding="10" Spacing="8">
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Grid ColumnDefinitions="4,Auto,*" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <Image Grid.Column="1"
+                           Source="logo512.png"
+                           WidthRequest="40"
+                           HeightRequest="40"
+                           VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Contabee"
+                               Style="{StaticResource Body1}"
+                               FontAttributes="Bold" />
+                        <Label x:Name="LabelVersion"
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <mi:MauiIcon Grid.Column="1"
+                                 Icon="{mi:Material Icon=Wifi}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="Conectado a internet"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <mi:MauiIcon x:Name="IconoInternet"
+                                 Grid.Column="3"
+                                 Icon="{mi:Material Icon=CheckCircle}"
+                                 IconSize="22"
+                                 VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <mi:MauiIcon Grid.Column="1"
+                                 Icon="{mi:Material Icon=Cloud}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="Servicios Contabee"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <Label x:Name="LoaderServicios"
+                           Grid.Column="3"
+                           Text="..."
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource Primary}"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           WidthRequest="28" />
+                    <mi:MauiIcon x:Name="IconoServicios"
+                                 Grid.Column="3"
+                                 Icon="{mi:Material Icon=CheckCircle}"
+                                 IconSize="22"
+                                 VerticalOptions="Center"
+                                 IsVisible="False" />
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+
+    </Grid>
+
+</ContentPage>

@@ -16,6 +16,7 @@ using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.SinConexion;
+using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
@@ -91,6 +92,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
+            builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddTransient<AuthHandler>();
 
 
@@ -158,6 +160,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<EliminarCuentaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
             builder.Services.AddTransient<SugerenciasPage>();
+            builder.Services.AddTransient<AcercaDePage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
             builder.Services.AddTransient<VisorImagenPage>();
