@@ -26,10 +26,9 @@
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,*">
-        <ScrollView Grid.Row="0">
-            <VerticalStackLayout Padding="12" Spacing="10">
-                <Border Style="{StaticResource ElevatedCard}" Padding="12">
-                    <VerticalStackLayout Spacing="10">
+        <VerticalStackLayout Grid.Row="0" Padding="12" Spacing="10">
+            <Border Style="{StaticResource ElevatedCard}" Padding="12">
+                <VerticalStackLayout Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="RFC" Style="{StaticResource Caption1}" />
@@ -84,10 +83,9 @@
                                     HeightRequest="44" />
                         </Grid>
 
-                    </VerticalStackLayout>
-                </Border>
-            </VerticalStackLayout>
-        </ScrollView>
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
 
         <views:ResultadosListaView Grid.Row="1"
                                    EstaCargando="{Binding EstaCargando}"
