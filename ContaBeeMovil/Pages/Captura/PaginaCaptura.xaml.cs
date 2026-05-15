@@ -727,6 +727,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
                 CapturaRemota = SoloEvidencia && CapturaRemota
+                ProcesoAsociadoId = _procesoAsociadoId
             };
 
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);
