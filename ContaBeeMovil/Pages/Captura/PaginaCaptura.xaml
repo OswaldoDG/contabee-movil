@@ -208,8 +208,10 @@
                 </VerticalStackLayout>
 
                 <!-- Lista horizontal de capturas -->
-                <CarouselView ItemsSource="{Binding Capturas}"
+                <CarouselView x:Name="CarruselCapturas"
+                              ItemsSource="{Binding Capturas}"
                               Grid.Row="0"
+                              Loop="False"
                               CurrentItem="{Binding CapturaSeleccionada, Mode=TwoWay}"
                               IsVisible="{Binding TieneCapturas}">
                     <CarouselView.ItemTemplate>
