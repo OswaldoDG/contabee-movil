@@ -91,18 +91,6 @@ public partial class MainTabbedPage : ContentPage
                 LabelTitulo.Text = "Devoluciones";
                 break;
 
-            case 2:
-                PageContainer.Content = _facturacionView;
-                PageContainer.BindingContext = _facturacionPage.BindingContext;
-                LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
-                break;
-
-            case 2:
-                PageContainer.Content = _devolucionesView;
-                PageContainer.BindingContext = _devolucionesPage.BindingContext;
-                LabelTitulo.Text = "Devoluciones";
-                break;
-
             case 3:
                 PageContainer.Content = _comprobacionesView;
                 PageContainer.BindingContext = _comprobacionesPage.BindingContext;
