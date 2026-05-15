@@ -30,9 +30,6 @@ public partial class SelectorFlotante : ContentView
     public static readonly BindableProperty MaxAltoListaProperty =
         BindableProperty.Create(nameof(MaxAltoLista), typeof(double), typeof(SelectorFlotante), defaultValue: 300.0);
 
-    public static readonly BindableProperty UsarSelectorModalProperty =
-        BindableProperty.Create(nameof(UsarSelectorModal), typeof(bool), typeof(SelectorFlotante), defaultValue: false);
-
     public string Titulo
     {
         get => (string)GetValue(TituloProperty);
@@ -69,12 +66,6 @@ public partial class SelectorFlotante : ContentView
         set => SetValue(MaxAltoListaProperty, value);
     }
 
-    public bool UsarSelectorModal
-    {
-        get => (bool)GetValue(UsarSelectorModalProperty);
-        set => SetValue(UsarSelectorModalProperty, value);
-    }
-
     public event EventHandler<int>? IndiceCambiado;
 
     private bool _sincronizando;
@@ -85,121 +76,14 @@ public partial class SelectorFlotante : ContentView
         ActualizarTexto();
     }
 
-    private async void OnTriggerTapped(object? sender, TappedEventArgs e)
+    private void OnTriggerTapped(object? sender, TappedEventArgs e)
     {
-        if (UsarSelectorModal)
-        {
-            await MostrarSelectorModalAsync();
-            return;
-        }
-
-        if (EstaDentroDePopup())
-        {
-            await ToggleDropdownEmbebidoAsync();
-            return;
-        }
-
         if (OverlayFlotante.EstaVisible)
         {
             OverlayFlotante.Ocultar();
             return;
         }
-
-        if (IndiceSeleccionado < 0
-            && Elementos is { Count: > 0 })
-        {
-            SeleccionarIndice(0);
-        }
-
         _ = MostrarDropdown();
-    }
-
-    private async Task ToggleDropdownEmbebidoAsync()
-    {
-        await MostrarSelectorModalAsync();
-    }
-
-    private async Task MostrarDropdownEmbebidoAsync()
-    {
-        await MostrarSelectorModalAsync();
-    }
-
-    private async Task OcultarDropdownEmbebidoAsync()
-    {
-        await Task.CompletedTask;
-    }
-
-    private bool EstaDentroDePopup()
-    {
-        Element? actual = this;
-        while (actual is not null)
-        {
-            if (actual is CommunityToolkit.Maui.Views.Popup)
-                return true;
-            actual = actual.Parent;
-        }
-
-        return false;
-    }
-
-    private async Task MostrarSelectorModalAsync()
-    {
-        if (Elementos is null || Elementos.Count == 0)
-            return;
-
-        if (Elementos.Count == 1)
-        {
-            SeleccionarIndice(0);
-            return;
-        }
-
-        var pagina = ObtenerPaginaActiva() ?? this.ObtenerPagina();
-        if (pagina is null)
-        {
-            if (IndiceSeleccionado < 0)
-                SeleccionarIndice(0);
-            return;
-        }
-
-        var opciones = new string[Elementos.Count];
-        for (int i = 0; i < Elementos.Count; i++)
-            opciones[i] = Elementos[i]?.ToString() ?? string.Empty;
-
-        string? seleccionado;
-        try
-        {
-            seleccionado = await MainThread.InvokeOnMainThreadAsync(() =>
-                pagina.DisplayActionSheet(Titulo, "Cancelar", null, opciones));
-        }
-        catch
-        {
-            if (IndiceSeleccionado < 0)
-                SeleccionarIndice(0);
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(seleccionado) || seleccionado == "Cancelar")
-            return;
-
-        var indice = Array.IndexOf(opciones, seleccionado);
-        if (indice >= 0)
-            SeleccionarIndice(indice);
-    }
-
-    private static Page? ObtenerPaginaActiva()
-    {
-        Page? page = Application.Current?.Windows.FirstOrDefault()?.Page;
-
-        if (page is Shell shell)
-            page = shell.CurrentPage;
-
-        if (page is NavigationPage navigationPage)
-            page = navigationPage.CurrentPage;
-
-        if (page is TabbedPage tabbedPage)
-            page = tabbedPage.CurrentPage;
-
-        return page;
     }
 
     private async Task MostrarDropdown()

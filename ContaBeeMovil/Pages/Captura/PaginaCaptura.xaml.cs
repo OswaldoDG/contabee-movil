@@ -726,7 +726,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
-                CapturaRemota = SoloEvidencia && CapturaRemota
+                CapturaRemota = SoloEvidencia && CapturaRemota,
                 ProcesoAsociadoId = _procesoAsociadoId
             };
 
