@@ -23,12 +23,26 @@ public class ServicioCamara : IServicioCamara
         var status = await Permissions.RequestAsync<Permissions.Camera>();
 
         if (status != PermissionStatus.Granted)
+        {
+            await _servicioAlerta.MostrarAsync(
+                "Permiso de cámara",
+                $"La app no tiene permiso para usar la cámara (estado: {status}). Revisa los permisos del sistema e inténtalo nuevamente.",
+                verBotonCancelar: false,
+                confirmarText: "OK");
             return string.Empty;
+        }
 
         try
         {
             if (!MediaPicker.Default.IsCaptureSupported)
+            {
+                await _servicioAlerta.MostrarAsync(
+                    "Cámara no disponible",
+                    "Este dispositivo no permite capturar fotos desde la aplicación.",
+                    verBotonCancelar: false,
+                    confirmarText: "OK");
                 return string.Empty;
+            }
 
             var photo = await MediaPicker.Default.CapturePhotoAsync();
 
@@ -49,8 +63,16 @@ public class ServicioCamara : IServicioCamara
         }
         catch (Exception ex)
         {
-            _logs.Log($"[ServicioCamara] {ex.GetType().Name}: {ex.Message}");
-            await _servicioAlerta.MostrarAsync("Error cámara", "No se pudo acceder a la cámara. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
+            var detalleError = string.IsNullOrWhiteSpace(ex.Message)
+                ? ex.GetType().Name
+                : $"{ex.GetType().Name}: {ex.Message}";
+
+            _logs.Log($"[ServicioCamara] Error al tomar foto: {ex}");
+            await _servicioAlerta.MostrarAsync(
+                "Error cámara",
+                $"No fue posible abrir la cámara.\n\nDetalle: {detalleError}",
+                verBotonCancelar: false,
+                confirmarText: "OK");
             return string.Empty;
         }
     }
