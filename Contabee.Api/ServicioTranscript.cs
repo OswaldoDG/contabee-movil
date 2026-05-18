@@ -43,7 +43,7 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
 
         try
         {
-            var res = await servicioTranscript.CuentafiscalAsync(cfid,anio,mes);
+            var res = await servicioTranscript.CuentafiscalAsync(cfid,null,anio,mes);
             if (res != null)
             {
                 r.Payload = res;
@@ -186,12 +186,12 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         return new Respuesta { Ok = true };
     }
 
-    public async Task<Respuesta> CompletarLoteAsync(long loteId, CancellationToken ct = default)
+    public async Task<Respuesta> CompletarLoteAsync(long loteId, DtoCierreLote? lote = null, CancellationToken ct = default)
     {
         Respuesta r = new();
         try
         {
-            await servicioTranscript.Completar2Async(loteId, ct);
+            await servicioTranscript.Completar2Async(loteId, lote ?? new DtoCierreLote());
             r.Ok = true;
         }
         catch (ApiException ex)

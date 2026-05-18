@@ -24,7 +24,15 @@ public class AuthHandler : DelegatingHandler
         "/api/identity/connect/token",
         "/cupones/validar/",
         "/api/ecommerce/cupones/validar/",
-        "/connect/token"
+        "/connect/token",
+        "/usuarios/tokenvinculacion/",
+        "/api/identity/usuarios/tokenvinculacion/"
+    ];
+
+    private static readonly string[] _rutasPublicasGet =
+    [
+        "/usuarios/tokenloginless/",
+        "/api/identity/usuarios/tokenloginless/"
     ];
 
     private readonly IServiceProvider _serviceProvider;
@@ -39,7 +47,8 @@ public class AuthHandler : DelegatingHandler
         HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var path = request.RequestUri?.AbsolutePath ?? "";
-        bool esPublica = _rutasPublicas.Any(r => path.StartsWith(r));
+        bool esPublica = (_rutasPublicas.Any(r => path.StartsWith(r)) && !path.EndsWith("/vincular") && !path.EndsWith("/vinculado"))
+            || (request.Method == HttpMethod.Get && _rutasPublicasGet.Any(r => path.StartsWith(r)));
 
         if (esPublica)
             return await base.SendAsync(request, cancellationToken);
