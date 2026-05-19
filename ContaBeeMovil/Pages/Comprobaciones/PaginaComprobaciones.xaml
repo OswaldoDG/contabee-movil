@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:f="clr-namespace:Fonts"
+             x:Class="ContaBeeMovil.Pages.Comprobaciones.PaginaComprobaciones"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+             Title="Comprobaciones">
+
+    <Grid>
+        <Border Grid.Row="0"
+                Padding="0"
+                BackgroundColor="{toolkit:AppThemeResource Accent1}"
+                StrokeShape="RoundRectangle 1,1,0,0">
+            <Grid RowDefinitions="Auto,*">
+
+                <views:FiltrosComprobacionesView x:Name="PanelFiltros"
+                                                 BuscarCommand="{Binding BuscarComprobacionesCommand}" />
+
+                <Grid Grid.Row="1">
+                    <views:ResultadosListaView
+                        EstaCargando="{Binding EstaCargando}"
+                        Elementos="{Binding Elementos}"
+                        TotalEncontrados="{Binding TotalEncontrados}"
+                        PaginaActual="{Binding PaginaActual}"
+                        TotalPaginas="{Binding TotalPaginas}"
+                        ConsultaEjecutada="{Binding ConsultaEjecutada}"
+                        AnteriorCommand="{Binding PaginaAnteriorCommand}"
+                        SiguienteCommand="{Binding PaginaSiguienteCommand}"
+                        ItemTapCommand="{Binding AbrirDetalleCommand}">
+                        <views:ResultadosListaView.PlantillaItem>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ElevatedCard}"
+                                        Margin="6,4"
+                                        Padding="12,10"
+                                        Shadow="{x:Null}">
+                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+                                        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Datos.Creacion, StringFormat='{0:d/M/yyyy HH:mm}'}"
+                                                   Style="{StaticResource Caption1}" />
+
+                                            <Border Grid.Column="1"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                                                    Padding="8,2">
+                                                <Label Text="{Binding Datos.Estado}"
+                                                       Style="{StaticResource Caption1}" />
+                                            </Border>
+                                        </Grid>
+
+                                        <Label Grid.Row="1"
+                                               Text="{Binding CuentaFiscalRfc, StringFormat='RFC: {0}'}"
+                                               Style="{StaticResource Body2Strong}"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="0">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Datos.Monto, StringFormat='{0:C2}'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="Start" />
+
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Datos.MontoComprobado, StringFormat='{0:C2}'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="Center" />
+
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Datos.PorcentajeCompropbar, StringFormat='{0}%'}"
+                                                   Style="{StaticResource Body2Strong}"
+                                                   HorizontalOptions="End" />
+                                        </Grid>
+
+                                        <Label Grid.Row="3"
+                                               Text="{Binding Datos.Descripcion}"
+                                               Style="{StaticResource Body2}"
+                                               LineBreakMode="WordWrap"
+                                               MaxLines="2" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </views:ResultadosListaView.PlantillaItem>
+                    </views:ResultadosListaView>
+
+                    <Border WidthRequest="44" HeightRequest="44"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            Padding="0"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            HorizontalOptions="End"
+                            VerticalOptions="End"
+                            Margin="0,0,8,8"
+                            ZIndex="10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCrearComprobacionClicked" />
+                        </Border.GestureRecognizers>
+                        <Label Text="{x:Static f:FluentUI.add_20_regular}"
+                               FontFamily="FluentUI"
+                               FontSize="20"
+                               TextColor="#1A1A1A"
+                               WidthRequest="44"
+                               HeightRequest="44"
+                               HorizontalTextAlignment="Center"
+                               VerticalTextAlignment="Center"
+                               HorizontalOptions="Fill"
+                               VerticalOptions="Fill" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <Grid IsVisible="{Binding MostrarOverlayCarga}"
+              BackgroundColor="#66000000"
+              InputTransparent="False"
+              ZIndex="20">
+            <VerticalStackLayout VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="10">
+                <ActivityIndicator IsRunning="True"
+                                   Color="{toolkit:AppThemeResource Primary}"
+                                   WidthRequest="42"
+                                   HeightRequest="42" />
+                <Label Text="{Binding TextoOverlayCarga}"
+                       FontAttributes="Bold"
+                       FontSize="14"
+                       TextColor="White"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

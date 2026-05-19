@@ -7,6 +7,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
@@ -94,6 +95,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             _capturas.Clear();
         }
 
+        _procesoAsociadoId = null;
+        if (query.TryGetValue("procesoId", out var procesoObj))
+        {
+            if (procesoObj is Guid procesoGuid)
+                _procesoAsociadoId = procesoGuid;
+            else if (procesoObj is string procesoTxt && Guid.TryParse(procesoTxt, out var parsedGuid))
+                _procesoAsociadoId = parsedGuid;
+        }
+
         _pendienteVerificarFotos = true;
         ActualizarUsoCfdi();
     }
@@ -122,7 +132,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (string.IsNullOrEmpty(sharedFileName)) return;
 
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
+        CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
         await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
@@ -134,10 +145,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
     }
 
+    protected override bool OnBackButtonPressed()
+    {
+        MainThread.BeginInvokeOnMainThread(async () => await CancelarAsync());
+        return true;
+    }
+
     private void OnImagenCompartidaRecibida(string fileName)
     {
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
+        CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
         _ = _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
@@ -164,6 +182,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
 
         capturasGuardadas = capturasGuardadas.Where(c => File.Exists(c.Path)).ToList();
+        capturasGuardadas = capturasGuardadas
+            .OrderByDescending(c => File.GetLastWriteTimeUtc(c.Path))
+            .ToList();
         _logs.Log($"[PaginaCaptura] VerificarFotos — con archivo en disco={capturasGuardadas.Count}");
 
         if (capturasGuardadas.Count == 0) return;
@@ -180,6 +201,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             foreach (var c in capturasGuardadas)
                 _capturas.Add(c);
+
+            if (_capturas.Count > 0)
+                CapturaSeleccionada = _capturas[0];
         }
         else
         {
@@ -215,6 +239,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Parámetro de navegación ──────────────────────────────────────────────
 
     private TipoProcesoCaptura _tipoCaptura;
+    private Guid? _procesoAsociadoId;
+
     public TipoProcesoCaptura TipoCaptura
     {
         get => _tipoCaptura;
@@ -595,7 +621,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
         _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
         CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
@@ -708,7 +734,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
-                CapturaRemota = SoloEvidencia && CapturaRemota
+                CapturaRemota = SoloEvidencia && CapturaRemota,
+                ProcesoAsociadoId = _procesoAsociadoId
             };
 
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);
@@ -768,6 +795,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
                         // ── Punto 5: Subir archivos al Blob Storage ──────────
                         var rutas = _capturas
+                            .Reverse()
                             .Take(cantidadAEnviar)
                             .Select(c => c.Path)
                             .ToList();
@@ -828,9 +856,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         montos = [];
         mensajeError = string.Empty;
 
-        for (var i = 0; i < _capturas.Count; i++)
+        var capturasEnOrdenDeEnvio = _capturas.Reverse().ToList();
+
+        for (var i = 0; i < capturasEnOrdenDeEnvio.Count; i++)
         {
-            var captura = _capturas[i];
+            var captura = capturasEnOrdenDeEnvio[i];
             var textoMonto = (captura.MontoTexto ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(textoMonto))
@@ -859,7 +889,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     }
 
     private async Task CancelarAsync()
-        => await Shell.Current.GoToAsync("..");
+    {
+        await Shell.Current.GoToAsync("..");
+    }
 
     private void OnCapturasCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
@@ -897,8 +929,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void ActualizarTitulosMontos()
     {
-        for (var i = 0; i < _capturas.Count; i++)
-            _capturas[i].MontoTitulo = $"Monto ticket {i + 1}";
+        var total = _capturas.Count;
+        for (var i = 0; i < total; i++)
+            _capturas[i].MontoTitulo = $"Monto ticket {total - i}";
     }
 
     // ── Drawable: círculo de progreso ─────────────────────────────────────────

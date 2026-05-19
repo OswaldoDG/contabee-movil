@@ -2313,7 +2313,6 @@
           "paginado": {
             "$ref": "#/components/schemas/comunes.busqueda.Paginado",
             "nullable": true
-
           },
           "contar": {
             "type": "boolean"

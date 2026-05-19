@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>1.0.32</ApplicationDisplayVersion>
-		<ApplicationVersion>32</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.36</ApplicationDisplayVersion>
+		<ApplicationVersion>36</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -76,7 +76,7 @@
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" ForegroundScale="0.6" Color="#fcfcfc" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#fcfcfc" BaseSize="1000,1000" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#fcfcfc" BaseSize="300,300" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -96,13 +96,13 @@
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.FontAwesome" Version="6.0.0" />
 		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="6.0.0" />
 		<PackageReference Include="banditoth.MAUI.DeviceId" Version="1.0.2" />
-		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.5">
+		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.7">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.5" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.5" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="10.0.7" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.60" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.7" />
 		<PackageReference Include="SkiaSharp" Version="3.119.2" />
 		<PackageReference Include="ZXing.Net" Version="0.16.11" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.7.4" />
@@ -111,10 +111,10 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Plugin.InAppBilling" Version="10.0.0" />
-		<PackageReference Include="CommunityToolkit.Maui" Version="12.3.0" />
-		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.51" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
+		<PackageReference Include="Microsoft.Maui.Essentials" Version="10.0.60" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="NSwag.ApiDescription.Client" Version="13.18.2">
+		<PackageReference Include="NSwag.ApiDescription.Client" Version="14.7.1">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -143,6 +143,33 @@
 
 
 	<ItemGroup>
+      <MauiXaml Update="Pages\Comprobaciones\DetalleComprobacionPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Pages\Comprobaciones\PaginaComprobaciones.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Pages\Devoluciones\DetalleDevolucionPage.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Views\ActualizarComprobacionPopup.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Views\ActualizarDevolucionPopup.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Views\CrearComprobacionPopup.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+      <MauiXaml Update="Views\CrearDevolucionPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+      <MauiXaml Update="Views\FiltrosComprobacionesView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </MauiXaml>
+	  <MauiXaml Update="Views\FiltrosDevolucionesView.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
     <MauiXaml Update="Pages\Camara\CamaraPage.xaml">
 		<Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -155,6 +182,18 @@
     <MauiXaml Update="Pages\Cupones\PaginaCupones.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
+    <MauiXaml Update="Pages\Devoluciones\PaginaDevoluciones.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </MauiXaml>
+      <MauiXaml Update="Pages\Devoluciones\DetalleDevolucionPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+      <MauiXaml Update="Pages\Comprobaciones\PaginaComprobaciones.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+      <MauiXaml Update="Pages\Comprobaciones\DetalleComprobacionPage.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
     <MauiXaml Update="Pages\Perfil\ManualRegistroPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </MauiXaml>
@@ -172,6 +211,18 @@
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
 	  <MauiXaml Update="Services\Notifications\CustomToast.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\CrearDevolucionPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+      <MauiXaml Update="Views\ActualizarDevolucionPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ActualizarComprobacionPopup.xaml">
+		<Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\FiltrosDevolucionesView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

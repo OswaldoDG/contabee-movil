@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Windows.Input;
 using ContaBeeMovil.Config;
+using Microsoft.Maui.Controls;
 
 namespace ContaBeeMovil.Views;
 
@@ -115,6 +116,15 @@ public partial class ResultadosListaView : ContentView
         set => SetValue(MostrarBotonCapturaProperty, value);
     }
 
+    public static readonly BindableProperty ItemTapCommandProperty =
+        BindableProperty.Create(nameof(ItemTapCommand), typeof(ICommand), typeof(ResultadosListaView));
+
+    public ICommand? ItemTapCommand
+    {
+        get => (ICommand?)GetValue(ItemTapCommandProperty);
+        set => SetValue(ItemTapCommandProperty, value);
+    }
+
     // ── Constructor ──────────────────────────────────────────────────────────────
 
     public ResultadosListaView()
@@ -143,6 +153,16 @@ public partial class ResultadosListaView : ContentView
             CapturaCommand.Execute(null);
     }
 
+    private void OnItemSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selected = e.CurrentSelection?.FirstOrDefault();
+        if (selected is not null && ItemTapCommand?.CanExecute(selected) == true)
+            ItemTapCommand.Execute(selected);
+
+        if (sender is CollectionView cv)
+            cv.SelectedItem = null;
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────────
 
     private void ActualizarPaginacion()
@@ -156,7 +176,7 @@ public partial class ResultadosListaView : ContentView
         BtnAnterior.Opacity = anteriorActivo ? 1.0 : 0.3;
         BtnAnterior.IsEnabled = anteriorActivo;
 
-        bool hayMasDeUnaPagina = TotalEncontrados > AppSettings.Consulta.TamanoPagina;
+        bool hayMasDeUnaPagina = TotalPaginas > 1;
         bool siguienteActivo = hayMasDeUnaPagina && PaginaActual < TotalPaginas;
         BtnSiguiente.Opacity = siguienteActivo ? 1.0 : 0.3;
         BtnSiguiente.IsEnabled = siguienteActivo;

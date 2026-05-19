@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.CrearDevolucionPopup"
+               BackgroundColor="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border x:Name="CardBorder"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            StrokeShape="RoundRectangle 10"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            Padding="20">
+        <Border.Shadow>
+            <Shadow Brush="#5e000000"
+                    Offset="0,4"
+                    Radius="16"
+                    Opacity="0.4" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="12"
+                             MinimumWidthRequest="280">
+            <Label Text="Crear Devolución"
+                   FontAttributes="Bold"
+                   FontSize="20"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+            <Editor x:Name="EntryDescripcion"
+                    Placeholder="Descripción"
+                    AutoSize="TextChanges"
+                    HeightRequest="90"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        BackgroundColor="Transparent"
+                        BorderColor="{toolkit:AppThemeResource Accent1}"
+                        BorderWidth="1"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="10"
+                        HeightRequest="44"
+                        Clicked="OnCancelar" />
+
+                <Button Grid.Column="1"
+                        Text="Crear"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="10"
+                        HeightRequest="44"
+                        Clicked="OnCrear" />
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             x:Class="ContaBeeMovil.Pages.Devoluciones.DetalleDevolucionPage"
+             Title="Detalle"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Clicked="OnEditarClicked" Order="Primary" Priority="0">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FluentUI"
+                                 Glyph="{x:Static f:FluentUI.edit_20_regular}"
+                                 Color="{toolkit:AppThemeResource PrimaryText}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+        <ToolbarItem Clicked="OnEliminarClicked" Order="Primary" Priority="1">
+            <ToolbarItem.IconImageSource>
+                <FontImageSource FontFamily="FluentUI"
+                                 Glyph="{x:Static f:FluentUI.delete_20_regular}"
+                                 Color="{toolkit:AppThemeResource PrimaryText}" />
+            </ToolbarItem.IconImageSource>
+        </ToolbarItem>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Grid.Row="0" Padding="12" Spacing="10">
+            <Border Style="{StaticResource ElevatedCard}" Padding="12">
+                <VerticalStackLayout Spacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="RFC" Style="{StaticResource Caption1}" />
+                                <Label Text="{Binding Rfc}"
+                                       Style="{StaticResource Body1Strong}"
+                                       LineBreakMode="TailTruncation" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                                    Padding="8,3"
+                                    VerticalOptions="Start">
+                                <Label Text="{Binding EstadoTexto}"
+                                       Style="{StaticResource Caption1}" />
+                            </Border>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Monto" Style="{StaticResource Caption1}" />
+                                <Label Text="{Binding MontoTexto}" Style="{StaticResource Body2Strong}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="Creación" Style="{StaticResource Caption1}" />
+                                <Label Text="{Binding CreacionTexto}" Style="{StaticResource Body2Strong}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Motivo" Style="{StaticResource Caption1}" />
+                            <Label Text="{Binding DescripcionTexto}"
+                                   Style="{StaticResource Body2}"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+
+                        <Grid IsVisible="{Binding PuedeActualizarEstado}"
+                              ColumnDefinitions="*,Auto"
+                              ColumnSpacing="8"
+                              Margin="0,6,0,0">
+                            <views:SelectorFlotante x:Name="SelectorEstado"
+                                                    Grid.Column="0"
+                                                    Titulo="Estado"
+                                                    Elementos="{Binding EstadosDisponibles}"
+                                                    ElementoSeleccionado="{Binding EstadoSeleccionado}" />
+                            <Button Grid.Column="1"
+                                    Text="Actualizar"
+                                    Command="{Binding ActualizarEstadoCommand}"
+                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                    CornerRadius="10"
+                                    HeightRequest="44" />
+                        </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+
+        <views:ResultadosListaView Grid.Row="1"
+                                   EstaCargando="{Binding EstaCargando}"
+                                   Elementos="{Binding CapturasRelacionadas}"
+                                   TotalEncontrados="{Binding TotalCapturasEncontradas}"
+                                   PaginaActual="{Binding PaginaCapturasActual}"
+                                   TotalPaginas="{Binding TotalPaginasCapturas}"
+                                   ConsultaEjecutada="{Binding ConsultaCapturasEjecutada}"
+                                   AnteriorCommand="{Binding PaginaCapturasAnteriorCommand}"
+                                   SiguienteCommand="{Binding PaginaCapturasSiguienteCommand}">
+            <views:ResultadosListaView.PlantillaItem>
+                <DataTemplate>
+                    <views:LoteCapturaCardView />
+                </DataTemplate>
+            </views:ResultadosListaView.PlantillaItem>
+        </views:ResultadosListaView>
+
+        <Border WidthRequest="44"
+                HeightRequest="44"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="0"
+                Padding="0"
+                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="0,0,8,8"
+                Grid.RowSpan="2">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding IrCapturaCommand}" />
+            </Border.GestureRecognizers>
+            <Label Text="{x:Static f:FluentUI.camera_20_regular}"
+                   FontFamily="FluentUI"
+                   FontSize="20"
+                   TextColor="#1A1A1A"
+                   WidthRequest="44"
+                   HeightRequest="44"
+                   HorizontalTextAlignment="Center"
+                   VerticalTextAlignment="Center"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill" />
+        </Border>
+
+    </Grid>
+</ContentPage>

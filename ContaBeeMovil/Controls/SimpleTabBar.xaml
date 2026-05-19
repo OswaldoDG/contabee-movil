@@ -3,11 +3,12 @@
     x:Class="ContaBeeMovil.Controls.SimpleTabBar"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:f="clr-namespace:Fonts"
     xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="50">
 
-    <Grid ColumnDefinitions="*,*"
+    <Grid ColumnDefinitions="*,*,*,*"
           BackgroundColor="{toolkit:AppThemeResource Background}">
 
         <!-- Tab 0: Inicio -->
@@ -50,18 +51,76 @@
                 <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
             <mi:MauiIcon x:Name="IconFacturacion"
-                         Icon="{mi:Material Icon=Receipt}"
-                         IconSize="22"
-                         IconColor="{toolkit:AppThemeResource Icon}"
-                         BackgroundColor="Transparent"
-                         HorizontalOptions="Center" />
+                   Icon="{mi:Material Icon=Receipt}"
+                   IconSize="22"
+                   HorizontalOptions="Center"
+                   BackgroundColor="Transparent"
+                   IconColor="{toolkit:AppThemeResource Icon}" />
             <Label x:Name="LblFacturacion"
                    Text="Facturación"
                    TextColor="{toolkit:AppThemeResource Icon}"
                    FontSize="10"
-                   HorizontalOptions="Center"
-                   />
+                   HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineFacturacion"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <!-- Tab 2: Devoluciones -->
+        <VerticalStackLayout Grid.Column="2"
+                             x:Name="TabDevoluciones"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label x:Name="IconDevoluciones"
+                   Text="{x:Static f:FluentUI.money_hand_20_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   />
+            <Label x:Name="LblDevoluciones"
+                   Text="Devoluciones"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineDevoluciones"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <!-- Tab 3: Comprobaciones -->
+        <VerticalStackLayout Grid.Column="3"
+                             x:Name="TabComprobaciones"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label x:Name="IconComprobaciones"
+                   Text="{x:Static f:FluentUI.checkmark_circle_20_regular}"
+                   FontFamily="{x:Static f:FluentUI.FontFamily}"
+                   FontSize="22"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource Icon}" />
+            <Label x:Name="LblComprobaciones"
+                   Text="Comprobaciones"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineComprobaciones"
                      HeightRequest="3"
                      WidthRequest="40"
                      Color="{toolkit:AppThemeResource Primary}"

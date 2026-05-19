@@ -7,6 +7,8 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.Devoluciones;
+using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
@@ -296,6 +298,8 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));
             Routing.RegisterRoute(nameof(SugerenciasPage), typeof(SugerenciasPage));
             Routing.RegisterRoute(nameof(PaginaCaptura), typeof(PaginaCaptura));
+            Routing.RegisterRoute(nameof(DetalleDevolucionPage), typeof(DetalleDevolucionPage));
+            Routing.RegisterRoute(nameof(DetalleComprobacionPage), typeof(DetalleComprobacionPage));
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
             Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));

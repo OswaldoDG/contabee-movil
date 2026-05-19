@@ -20,6 +20,8 @@ public partial class SimpleTabBar : ContentView
         set => SetValue(SelectedIndexProperty, value);
     }
 
+    public bool ResaltarSoloTabsPrincipales { get; set; } = false;
+
     public SimpleTabBar()
     {
         InitializeComponent();
@@ -27,7 +29,9 @@ public partial class SimpleTabBar : ContentView
     }
 
     private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)      => SelectTab(0);
-    private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e) => SelectTab(1);
+    private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e)   => SelectTab(1);
+    private void OnTabDevoluciones_Tapped(object? sender, TappedEventArgs e)  => SelectTab(2);
+    private void OnTabComprobaciones_Tapped(object? sender, TappedEventArgs e) => SelectTab(3);
 
     private void SelectTab(int index)
     {
@@ -44,7 +48,9 @@ public partial class SimpleTabBar : ContentView
         // IconInicio.IconColor      = index == 0 ? activeColor : inactiveColor;
         // IconFacturacion.IconColor = index == 1 ? activeColor : inactiveColor;
 
-        UnderlineInicio.IsVisible      = index == 0;
+        UnderlineInicio.IsVisible = index == 0;
         UnderlineFacturacion.IsVisible = index == 1;
+        UnderlineDevoluciones.IsVisible = index == 2;
+        UnderlineComprobaciones.IsVisible = index == 3;
     }
 }

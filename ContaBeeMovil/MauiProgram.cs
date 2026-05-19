@@ -15,6 +15,8 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.Devoluciones;
+using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Services.Almacenamiento;
@@ -30,6 +32,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
 using ContaBee.Pages.Cupones;
+using ContaBee.Services;
+using ContaBee.Models.Configuracion;
 
 
 namespace ContaBeeMovil
@@ -93,33 +97,43 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddTransient<AuthHandler>();
 
+
+            var appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.Produccion);
+
+#if WINDOWS && DEBUG
+    appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.DebugLocal);
+#endif
+
+
             // Cliente sin AuthHandler para el endpoint de refresh token
             builder.Services.AddHttpClient("IdentityToken", client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity/");
+                client.BaseAddress = new Uri(appConfig.UrlIdentityToken);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             });
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/identity/");
+                client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/crm/");
+                client.BaseAddress = new Uri(appConfig.UrlCrm);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/transcript/");
+                client.BaseAddress = new Uri(appConfig.UrlTranscript);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioEcommerce, ServicioEcommerce>(client =>
             {
-                client.BaseAddress = new Uri("https://api.contabee.mx/api/ecommerce/");
+                client.BaseAddress = new Uri(appConfig.UrlEcommerce);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
             }).AddHttpMessageHandler<AuthHandler>();
+
+
 
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
@@ -127,6 +141,10 @@ namespace ContaBeeMovil
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
+            builder.Services.AddTransient<PaginaDevoluciones>();
+            builder.Services.AddTransient<PaginaComprobaciones>();
+            builder.Services.AddTransient<DetalleDevolucionPage>();
+            builder.Services.AddTransient<DetalleComprobacionPage>();
             builder.Services.AddTransient<EquipoPage>();
             builder.Services.AddTransient<MainTabbedPage>();
             builder.Services.AddTransient<PaginaCupones>();
