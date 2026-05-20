@@ -6,6 +6,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Logging;
 using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Storage;
@@ -25,9 +26,11 @@ public class ServicioSesion : IServicioSesion
     private readonly IServicioAlmacenamiento _almacenamiento;
     private readonly IServiceProvider _serviceProvider;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _appLogger;
+    private readonly LogContextService _logContextService;
     private bool _posLoginAbortado;
 
-    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs)
+    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs, IAppLogger appLogger, LogContextService logContextService)
     {
         _appState = appState;
         _servicioCrm = servicioCrm;
@@ -35,6 +38,8 @@ public class ServicioSesion : IServicioSesion
         _almacenamiento = almacenamiento;
         _serviceProvider = serviceProvider;
         _logs = logs;
+        _appLogger = appLogger;
+        _logContextService = logContextService;
     }
 
     public async Task<string> LeeIdDeDispositivo()
@@ -113,6 +118,10 @@ public class ServicioSesion : IServicioSesion
 
     private async Task ForzarReloginAsync(string mensaje)
     {
+        var context = _logContextService.BuildCommonContext();
+        context["Reason"] = mensaje;
+        _appLogger.Warning("Auth.ForcedRelogin", "Se forzó relogin por estado de sesión o error de APIs de bootstrap.", context);
+
         _posLoginAbortado = true;
         await LimpiaTokensAsync();
         _appState.Perfil = null;
@@ -267,6 +276,22 @@ public class ServicioSesion : IServicioSesion
         {
             var usuarios = await _servicioIdentidad.MisUsuarios(cfid.Value);
             _appState.MisUsuarios = usuarios.Ok ? usuarios.Payload : [];
+
+            if (usuarios.Ok && usuarios.Payload is { Count: > 0 })
+            {
+                var emailActual = await LeeEmailAsync();
+                if (!string.IsNullOrWhiteSpace(emailActual))
+                {
+                    var usuarioActual = usuarios.Payload.FirstOrDefault(u =>
+                        string.Equals(u.Email, emailActual, StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(u.UserName, emailActual, StringComparison.OrdinalIgnoreCase));
+
+                    if (usuarioActual is not null)
+                    {
+                        _logContextService.SetCurrentUserId(usuarioActual.Id.ToString());
+                    }
+                }
+            }
         }
     }
 
@@ -305,6 +330,7 @@ public class ServicioSesion : IServicioSesion
 
     public async Task PosLoginAsync()
     {
+        _appLogger.Info("Auth.PostLoginStarted", "Inicio de carga de estado post-login.", _logContextService.BuildCommonContext());
         _posLoginAbortado = false;
 
         await GetPerfilAsync();
@@ -317,6 +343,7 @@ public class ServicioSesion : IServicioSesion
         if (_posLoginAbortado) return;
 
         await GetLicenciaAsync();
+        _appLogger.Info("Auth.PostLoginCompleted", "Carga de estado post-login finalizada.", _logContextService.BuildCommonContext());
     }
 
     public async Task VerificarSesionAlReanudarAsync()

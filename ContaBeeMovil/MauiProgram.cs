@@ -30,6 +30,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
 using ContaBee.Pages.Cupones;
+using ContaBeeMovil.Services.Logging;
+using Serilog;
+using Serilog.Events;
+using Serilog.Filters;
 
 
 namespace ContaBeeMovil
@@ -41,6 +45,23 @@ namespace ContaBeeMovil
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+
+            var logsDirectory = Path.Combine(FileSystem.Current.AppDataDirectory, "logs");
+            Directory.CreateDirectory(logsDirectory);
+
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Is(LogEventLevel.Information)
+                .Enrich.FromLogContext()
+                .Filter.ByIncludingOnly(Matching.WithProperty("EventName"))
+                .WriteTo.File(
+                    path: Path.Combine(logsDirectory, "contabee-.txt"),
+                    rollingInterval: RollingInterval.Day,
+                    rollOnFileSizeLimit: true,
+                    fileSizeLimitBytes: 5_242_880,
+                    retainedFileCountLimit: 3,
+                    shared: true,
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj} | Event={EventName} Session={SessionId} Correlation={CorrelationId} Screen={Screen} UserId={UserId} Device={Device} AppVersion={AppVersion} Platform={Platform} OS={OSVersion}{NewLine}{Exception}")
+                .CreateLogger();
 
             builder.UseMauiApp<App>();
             builder.UseMaterialMauiIcons();
@@ -81,6 +102,8 @@ namespace ContaBeeMovil
             builder.Services.AddLogging(configure => configure.AddDebug());
 #endif
 
+            builder.Logging.AddSerilog(Log.Logger, dispose: true);
+
             builder.Services.AddSingleton<IServicioToast, ServicioToast>();
             builder.Services.AddSingleton<IServicioAlmacenamiento, ServicioAlmacenamiento>();
             builder.Services.AddSingleton<DeviceService>();
@@ -91,6 +114,8 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
+            builder.Services.AddSingleton<LogContextService>();
+            builder.Services.AddSingleton<IAppLogger, AppLogger>();
             builder.Services.AddTransient<AuthHandler>();
 
             // Cliente sin AuthHandler para el endpoint de refresh token
