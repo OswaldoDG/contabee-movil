@@ -212,7 +212,7 @@
     </Style>
     <Style TargetType="Border" x:Key="FiltersStyle">
         <Setter Property="StrokeShape" Value="RoundRectangle 0,0,10,10"/>
-        <Setter Property="Background" Value="{toolkit:AppThemeResource SecondaryBackground}"/>
+        <Setter Property="Background" Value="{toolkit:AppThemeResource AppBarPrimary}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="{OnIdiom 15, Desktop=20}"/>
     </Style>

@@ -24,19 +24,23 @@
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <views:SelectorFlotante x:Name="SelectorEstado"
                                             Grid.Column="0"
-                                            Titulo="Estado" />
+                                            Titulo="Estado"
+                                            IndicePlaceholder="0" />
                     <views:SelectorFlotante x:Name="SelectorCreador"
                                             Grid.Column="1"
-                                            Titulo="Destinatarios" />
+                                            Titulo="Creador"
+                                            IndicePlaceholder="0" />
                 </Grid>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <views:SelectorFlotante x:Name="SelectorEnvio"
                                             Grid.Column="0"
-                                            Titulo="Envío" />
+                                            Titulo="Envío"
+                                            IndicePlaceholder="0" />
                     <views:SelectorFlotante x:Name="SelectorTipo"
                                             Grid.Column="1"
-                                            Titulo="Tipo" />
+                                            Titulo="Tipo"
+                                            IndicePlaceholder="0" />
                 </Grid>
 
                 <Border BackgroundColor="{toolkit:AppThemeResource Background}"

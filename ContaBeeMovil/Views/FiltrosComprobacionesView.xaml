@@ -22,10 +22,12 @@
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <views:SelectorFlotante x:Name="SelectorEstado"
                                             Grid.Column="0"
-                                            Titulo="Estado" />
+                                            Titulo="Estado"
+                                            IndicePlaceholder="0" />
                     <views:SelectorFlotante x:Name="SelectorDestinatario"
                                             Grid.Column="1"
-                                            Titulo="Destinatario" />
+                                            Titulo="Destinatario"
+                                            IndicePlaceholder="0" />
                 </Grid>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8" VerticalOptions="Center">

@@ -87,7 +87,7 @@ public partial class FiltrosDevolucionesView : ContentView
         SelectorMes.IndiceSeleccionado = DateTime.Now.Month - 1;
 
         SelectorEstado.Elementos = _estados;
-        SelectorEstado.IndiceSeleccionado = -1;
+        SelectorEstado.IndiceSeleccionado = 0;
 
         CargarDestinatarios();
 
@@ -323,7 +323,8 @@ public partial class FiltrosDevolucionesView : ContentView
         _destinatariosIds.Clear();
         if (SelectorDestinatarioView is null) return;
 
-        var elementosDestinatario = new List<string>();
+        var elementosDestinatario = new List<string> { "Todos" };
+        _destinatariosIds.Add(string.Empty);
 
         if (cuentaFiscalActualId.HasValue)
         {
@@ -339,7 +340,7 @@ public partial class FiltrosDevolucionesView : ContentView
         SelectorDestinatarioView.Elementos = elementosDestinatario;
 
         _destinatariosIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
-        SelectorDestinatarioView.IndiceSeleccionado = -1;
+        SelectorDestinatarioView.IndiceSeleccionado = 0;
     }
 
     private static string ObtenerEtiquetaUsuarioSesion()

@@ -26,7 +26,7 @@
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,*">
-        <VerticalStackLayout Grid.Row="0" Padding="12" Spacing="10">
+        <VerticalStackLayout Grid.Row="0" Padding="10" Spacing="8">
             <Border Style="{StaticResource ElevatedCard}" Padding="12">
                 <VerticalStackLayout Spacing="10">
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">

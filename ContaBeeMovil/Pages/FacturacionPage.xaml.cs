@@ -102,62 +102,16 @@ public partial class FacturacionPage : ContentPage
                 OnPropertyChanged(nameof(TieneCreditos));
                 OnPropertyChanged(nameof(SinCreditos));
             }
-            if (e.PropertyName is nameof(AppState.MisUsuarios))
-                ActualizarCreadores();
         };
     }
 
     // ── Ciclo de vida ─────────────────────────────────────────────────────────────
-
-    private void ActualizarCreadores()
-    {
-        var usuarios = AppState.Instance.MisUsuarios ?? [];
-        var secundarios = usuarios
-            .Where(u => EsCuentaSecundaria(u.TipoCuenta) && u.CuentaFiscalId.HasValue)
-            .Select(u => new
-            {
-                Usuario = u,
-                CuentaFiscalId = u.CuentaFiscalId!.Value
-            })
-            .GroupBy(x => x.CuentaFiscalId)
-            .Select(g => g.First().Usuario)
-            .ToList();
-
-        if (secundarios.Count == 0)
-        {
-            PanelFiltros.Creadores = ["Destinatarios"];
-            PanelFiltros.CreadoresIds = [string.Empty];
-            return;
-        }
-
-        PanelFiltros.Creadores =
-        [
-            "Destinatarios",
-            .. secundarios.Select(u =>
-            {
-                var nombreUsuario = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-                return $"{nombreUsuario} (Secundaria)";
-            })
-        ];
-
-        PanelFiltros.CreadoresIds =
-        [
-            string.Empty,
-            .. secundarios.Select(u => u.CuentaFiscalId!.Value.ToString())
-        ];
-    }
-
-    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
-            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
-            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
 
     internal static bool PendienteActualizarFacturas { get; set; }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        ActualizarCreadores();
         PanelFiltros.RestaurarEstado();
 
         if (ProcesoAsociadoFiltroId.HasValue)
@@ -220,7 +174,6 @@ public partial class FacturacionPage : ContentPage
     {
         Dispatcher.Dispatch(() =>
         {
-            ActualizarCreadores();
             PanelFiltros.RestaurarEstado();
         });
     }

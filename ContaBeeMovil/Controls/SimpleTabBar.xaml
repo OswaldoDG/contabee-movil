@@ -28,7 +28,7 @@
                          HorizontalOptions="Center" />
             <Label x:Name="LblInicio"
                    Text="Inicio"
-                   FontSize="10"
+                   FontSize="8"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource Icon}" />
                    
@@ -59,7 +59,7 @@
             <Label x:Name="LblFacturacion"
                    Text="Facturación"
                    TextColor="{toolkit:AppThemeResource Icon}"
-                   FontSize="10"
+                   FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineFacturacion"
                      HeightRequest="3"
@@ -79,17 +79,23 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <Label x:Name="IconDevoluciones"
+            <!--<Label x:Name="IconDevoluciones"
                    Text="{x:Static f:FluentUI.money_hand_20_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                    FontSize="22"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource Icon}"
-                   />
+                   />-->
+            <mi:MauiIcon x:Name="IconDevoluciones"
+                   Icon="{mi:Material Icon=CurrencyExchange}"
+                   IconSize="22"
+                   HorizontalOptions="Center"
+                   BackgroundColor="Transparent"
+                   IconColor="{toolkit:AppThemeResource Icon}" />
             <Label x:Name="LblDevoluciones"
                    Text="Devoluciones"
                    TextColor="{toolkit:AppThemeResource Icon}"
-                   FontSize="10"
+                   FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineDevoluciones"
                      HeightRequest="3"
@@ -109,16 +115,22 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <Label x:Name="IconComprobaciones"
+            <!--<Label x:Name="IconComprobaciones"
                    Text="{x:Static f:FluentUI.checkmark_circle_20_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                    FontSize="22"
                    HorizontalOptions="Center"
-                   TextColor="{toolkit:AppThemeResource Icon}" />
+                   TextColor="{toolkit:AppThemeResource Icon}" />-->
+            <mi:MauiIcon x:Name="IconComprobaciones"
+                   Icon="{mi:Material Icon=FactCheck}"
+                   IconSize="22"
+                   HorizontalOptions="Center"
+                   BackgroundColor="Transparent"
+                   IconColor="{toolkit:AppThemeResource Icon}" />
             <Label x:Name="LblComprobaciones"
                    Text="Comprobaciones"
                    TextColor="{toolkit:AppThemeResource Icon}"
-                   FontSize="10"
+                   FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineComprobaciones"
                      HeightRequest="3"

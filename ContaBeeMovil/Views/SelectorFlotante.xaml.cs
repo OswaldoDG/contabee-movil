@@ -30,6 +30,10 @@ public partial class SelectorFlotante : ContentView
     public static readonly BindableProperty MaxAltoListaProperty =
         BindableProperty.Create(nameof(MaxAltoLista), typeof(double), typeof(SelectorFlotante), defaultValue: 300.0);
 
+    public static readonly BindableProperty IndicePlaceholderProperty =
+        BindableProperty.Create(nameof(IndicePlaceholder), typeof(int), typeof(SelectorFlotante),
+            defaultValue: -1, propertyChanged: OnAparienciaChanged);
+
     public string Titulo
     {
         get => (string)GetValue(TituloProperty);
@@ -64,6 +68,12 @@ public partial class SelectorFlotante : ContentView
     {
         get => (double)GetValue(MaxAltoListaProperty);
         set => SetValue(MaxAltoListaProperty, value);
+    }
+
+    public int IndicePlaceholder
+    {
+        get => (int)GetValue(IndicePlaceholderProperty);
+        set => SetValue(IndicePlaceholderProperty, value);
     }
 
     public event EventHandler<int>? IndiceCambiado;
@@ -178,7 +188,7 @@ public partial class SelectorFlotante : ContentView
         var elementos = Elementos;
         var indice = IndiceSeleccionado;
 
-        if (elementos is not null && indice >= 0 && indice < elementos.Count)
+        if (elementos is not null && indice >= 0 && indice < elementos.Count && indice != IndicePlaceholder)
         {
             LabelTexto.Text = elementos[indice]?.ToString() ?? string.Empty;
             LabelTexto.SetDynamicResource(Label.TextColorProperty, "PrimaryText");

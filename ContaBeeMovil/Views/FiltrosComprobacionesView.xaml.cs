@@ -90,7 +90,7 @@ public partial class FiltrosComprobacionesView : ContentView
         SelectorMes.IndiceSeleccionado = DateTime.Now.Month - 1;
 
         SelectorEstado.Elementos = _estados;
-        SelectorEstado.IndiceSeleccionado = -1;
+        SelectorEstado.IndiceSeleccionado = 0;
 
         CargarDestinatarios();
 
@@ -354,7 +354,8 @@ public partial class FiltrosComprobacionesView : ContentView
             .Select(g => g.First().Usuario)
             .ToList();
 
-        var elementosDestinatario = new List<string>();
+        var elementosDestinatario = new List<string> { "Todos" };
+        _destinatariosIds.Add(string.Empty);
 
         if (cuentaFiscalActualId.HasValue)
         {
@@ -373,7 +374,7 @@ public partial class FiltrosComprobacionesView : ContentView
         }
 
         SelectorDestinatarioView.Elementos = elementosDestinatario;
-        SelectorDestinatarioView.IndiceSeleccionado = -1;
+        SelectorDestinatarioView.IndiceSeleccionado = 0;
     }
 
     private static string ObtenerEtiquetaUsuarioSesion()

@@ -26,7 +26,7 @@ public partial class FiltrosFacturasView : ContentView
     };
 
     private static readonly List<string> _estados =
-        ["Estado", "Nuevos", "En Proceso", "Reprogramados", "Finalizados", "Error"];
+        ["Todos", "Nuevos", "En Proceso", "Reprogramados", "Finalizados", "Error"];
 
     private static readonly Dictionary<string, string> _estadoEnum = new()
     {
@@ -38,10 +38,10 @@ public partial class FiltrosFacturasView : ContentView
     };
 
     private static readonly List<string> _envios =
-        ["Envio", "Foto", "Email"];
+        ["Todos", "Foto", "Email"];
 
     private static readonly List<string> _tipos =
-        ["Tipo", "Captura individual", "Comprobaçión", "Devolucion"];
+        ["Todos", "Captura individual", "Comprobaçión", "Devolucion"];
 
     private static readonly Dictionary<string, string> _tipoEnum = new()
     {
@@ -53,38 +53,13 @@ public partial class FiltrosFacturasView : ContentView
     private static readonly List<string> _camposOrden =
         ["Creacion", "Monto",];
 
+    private readonly List<string> _creadoresIds = [];
+
     private bool _expandido = true;
     private bool _ordenAscendente = false;
     private bool _restaurando;
 
     private const string PrefsKeyFiltros = "FiltrosFacturas_UltimaConsulta";
-
-    public static readonly BindableProperty CreadoresProperty =
-        BindableProperty.Create(
-            nameof(Creadores),
-            typeof(IList<string>),
-            typeof(FiltrosFacturasView),
-            defaultValue: null,
-            propertyChanged: OnCreadoresChanged);
-
-    public IList<string>? Creadores
-    {
-        get => (IList<string>?)GetValue(CreadoresProperty);
-        set => SetValue(CreadoresProperty, value);
-    }
-
-    public static readonly BindableProperty CreadoresIdsProperty =
-        BindableProperty.Create(
-            nameof(CreadoresIds),
-            typeof(IList<string>),
-            typeof(FiltrosFacturasView),
-            defaultValue: null);
-
-    public IList<string>? CreadoresIds
-    {
-        get => (IList<string>?)GetValue(CreadoresIdsProperty);
-        set => SetValue(CreadoresIdsProperty, value);
-    }
 
     public static readonly BindableProperty BuscarCommandProperty =
         BindableProperty.Create(
@@ -145,6 +120,8 @@ public partial class FiltrosFacturasView : ContentView
         SelectorEstado.Elementos = _estados;
         SelectorEstado.IndiceSeleccionado = 0;
 
+        CargarCreadores();
+
         SelectorEnvio.Elementos = _envios;
         SelectorEnvio.IndiceSeleccionado = 0;
 
@@ -178,6 +155,8 @@ public partial class FiltrosFacturasView : ContentView
 
     public void RestaurarEstado()
     {
+        CargarCreadores();
+
         var json = Preferences.Default.Get(PrefsKeyFiltros, string.Empty);
         if (string.IsNullOrEmpty(json)) return;
 
@@ -235,10 +214,10 @@ public partial class FiltrosFacturasView : ContentView
             var filtros = new List<Filtro>();
 
             Guid? cuentaFiscalIdSeleccionada = null;
-            if (SelectorCreador.IndiceSeleccionado > 0
-                && CreadoresIds is not null
-                && SelectorCreador.IndiceSeleccionado < CreadoresIds.Count
-                && Guid.TryParse(CreadoresIds[SelectorCreador.IndiceSeleccionado], out var cfidDestino))
+            var indiceCreador = SelectorCreador.IndiceSeleccionado;
+            if (indiceCreador > 0
+                && indiceCreador < _creadoresIds.Count
+                && Guid.TryParse(_creadoresIds[indiceCreador], out var cfidDestino))
             {
                 cuentaFiscalIdSeleccionada = cfidDestino;
             }
@@ -399,15 +378,77 @@ public partial class FiltrosFacturasView : ContentView
         EjecutarBusqueda(BusquedaActual);
     }
 
-    private static void OnCreadoresChanged(BindableObject bindable, object oldValue, object newValue)
+    private void CargarCreadores()
     {
-        if (bindable is FiltrosFacturasView view)
+        var usuarios = AppState.Instance.MisUsuarios ?? [];
+        var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+
+        _creadoresIds.Clear();
+
+        var secundarios = usuarios
+            .Where(u => EsCuentaSecundaria(u.TipoCuenta)
+                && u.CuentaFiscalId.HasValue
+                && u.CuentaFiscalId.Value != cuentaFiscalActualId)
+            .Select(u => new
+            {
+                Usuario = u,
+                CuentaFiscalId = u.CuentaFiscalId!.Value
+            })
+            .GroupBy(x => x.CuentaFiscalId)
+            .Select(g => g.First().Usuario)
+            .ToList();
+
+        var elementosCreador = new List<string> { "Todos" };
+        _creadoresIds.Add(string.Empty);
+
+        if (cuentaFiscalActualId.HasValue)
         {
-            view.SelectorCreador.Elementos = (newValue as IList<string>)?.ToList();
-            if (view.SelectorCreador.Elementos?.Count > 0)
-                view.SelectorCreador.IndiceSeleccionado = 0;
+            elementosCreador.Add(ObtenerEtiquetaUsuarioSesion());
+            _creadoresIds.Add(cuentaFiscalActualId.Value.ToString());
         }
+
+        if (secundarios.Count > 0)
+        {
+            elementosCreador.AddRange(secundarios.Select(u =>
+            {
+                var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
+                return $"{nombre} (Secundaria)";
+            }));
+            _creadoresIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
+        }
+
+        SelectorCreador.Elementos = elementosCreador;
+        SelectorCreador.IndiceSeleccionado = 0;
     }
+
+    private static string ObtenerEtiquetaUsuarioSesion()
+    {
+        var nombre = AppState.Instance.Perfil?.DisplayName;
+
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+            var usuarioSesion = (AppState.Instance.MisUsuarios ?? [])
+                .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
+                ?? (AppState.Instance.MisUsuarios ?? []).FirstOrDefault(u => !u.EsCaptura)
+                ?? (AppState.Instance.MisUsuarios ?? []).FirstOrDefault();
+
+            nombre = usuarioSesion?.Nombre ?? usuarioSesion?.UserName ?? usuarioSesion?.Email;
+        }
+
+        if (string.IsNullOrWhiteSpace(nombre))
+            nombre = "Yo";
+
+        if (nombre.Contains('@'))
+            nombre = nombre[..nombre.IndexOf('@')];
+
+        return $"{nombre} (Yo)";
+    }
+
+    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
+            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
+            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
 
     private static string MapearCampoOrden(string campo) => campo switch
     {
