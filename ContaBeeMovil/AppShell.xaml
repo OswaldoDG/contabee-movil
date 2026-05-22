@@ -280,19 +280,32 @@
                            VerticalOptions="Center" />
                 </Grid>
 
-                <!-- Logs (solo visible en modo desarrollador) -->
-                <Grid x:Name="LogsMenuItem"
-                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10"
+                <!-- Control de nivel de logs (solo visible en modo desarrollador) -->
+                <Grid x:Name="DebugLoggingMenuItem"
+                      ColumnDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnSpacing="10" Padding="4,10"
                       IsVisible="False">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLogsClicked" />
-                    </Grid.GestureRecognizers>
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=BugReport}"
                                  IconSize="22"
                                  IconColor="{toolkit:AppThemeResource Icon}"
                                  VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="Logs"
+                    <Label Grid.Column="1" Text="Debug"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <Switch Grid.Column="2"
+                            x:Name="DebugLoggingSwitch"
+                            HorizontalOptions="Center"
+                            FlowDirection="RightToLeft"
+                            ThumbColor="{toolkit:AppThemeResource Primary}"
+                            OnColor="{toolkit:AppThemeResource Alternate}"
+                            VerticalOptions="Center"
+                            Toggled="OnDebugLoggingSwitchToggled" />
+                    <mi:MauiIcon Grid.Column="3"
+                                 Icon="{mi:Material Icon=Description}"
+                                 IconSize="20"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="4" Text="Info"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
                 </Grid>

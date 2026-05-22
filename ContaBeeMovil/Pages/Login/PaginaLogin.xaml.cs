@@ -2,8 +2,10 @@ using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Logging;
 using ContaBeeMovil.Services.Notifications;
+using System.Globalization;
 
 namespace ContaBeeMovil.Pages.Login;
 
@@ -15,6 +17,9 @@ public partial class PaginaLogin : ContentPage
     private readonly IAppLogger _logger;
     private readonly LogContextService _logContextService;
     private const string ClaveMododDev = "ModoDeveloper";
+    private const int TapThreshold = 10;
+    private readonly object _tapSync = new();
+    private bool _modoDevActivo;
     private int _tapCount = 0;
 
     public static bool LimpiarAlNavegar { get; set; }
@@ -42,57 +47,91 @@ public partial class PaginaLogin : ContentPage
         LogoImage.Scale = 1;
         HeaderContainer.IsVisible = true;
 
-        EntryEmail.Focused += OnEntryFocused;
-        EntryPassword.Focused += OnEntryFocused;
-        EntryEmail.Unfocused += OnEntryUnfocused;
-        EntryPassword.Unfocused += OnEntryUnfocused;
-
         if (LimpiarAlNavegar)
         {
             LimpiarAlNavegar = false;
             _viewModel.LimpiarCampos();
         }
 
+        _modoDevActivo = AppState.Instance.EsDev;
         _tapCount = 0;
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
-
-        EntryEmail.Focused -= OnEntryFocused;
-        EntryPassword.Focused -= OnEntryFocused;
-        EntryEmail.Unfocused -= OnEntryUnfocused;
-        EntryPassword.Unfocused -= OnEntryUnfocused;
-    }
-
-    private void OnEntryFocused(object? sender, FocusEventArgs e)
-    {
-        HeaderContainer.IsVisible = false;
-    }
-
-    private void OnEntryUnfocused(object? sender, FocusEventArgs e)
-    {
-        if (!EntryEmail.IsFocused && !EntryPassword.IsFocused)
-            HeaderContainer.IsVisible = true;
     }
 
     private async void OnLogoTapped(object? sender, TappedEventArgs e)
     {
-        _tapCount++;
-        _logger.Debug("Login.LogoTapped", "Logo de login presionado.", _logContextService.BuildCommonContext("PaginaLogin"));
+        var faltan = 0;
+        var accion = string.Empty;
+        var debeCambiarEstado = false;
+        var nuevoEstado = false;
 
-        if (_tapCount >= 10)
+        lock (_tapSync)
         {
+            _tapCount++;
+            faltan = TapThreshold - _tapCount;
+
+            if (faltan <= 0)
+            {
+                _tapCount = 0;
+                _modoDevActivo = !_modoDevActivo;
+                nuevoEstado = _modoDevActivo;
+                debeCambiarEstado = true;
+            }
+            else
+            {
+                accion = _modoDevActivo ? "desactivar" : "activar";
+            }
+        }
+
+        if (faltan > 0)
+        {
+            _ = _servicioToast.MostrarAsync(
+                $"Faltan {faltan} toques para {accion} el modo desarrollador",
+                ToastIcono.Info,
+                ToastPosicion.Bottom,
+                duracionMs: 550,
+                reemplazarAnteriores: true);
+            return;
+        }
+
+        if (debeCambiarEstado)
+        {
+            var debugLoggingEnabled = Preferences.Get("DebugLoggingEnabled", false);
             var dto = new ModoDeveloperDto
             {
-                EsDev = true,
-                FechaActivacion = DateTime.UtcNow.ToString("O")
+                EsDev = nuevoEstado,
+                FechaActivacion = DateTime.UtcNow.ToString("O"),
+                DebugLoggingEnabled = debugLoggingEnabled
             };
+
             await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
-            await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom);
-            _logger.Info("Login.DeveloperModeEnabled", "Modo desarrollador activado desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
-            _tapCount = 0;
+
+            AppState.Instance.EsDev = nuevoEstado;
+
+            if (nuevoEstado)
+            {
+                await _servicioToast.MostrarAsync(
+                    "Modo Desarrollador activado",
+                    ToastIcono.Info,
+                    ToastPosicion.Bottom,
+                    duracionMs: 550,
+                    reemplazarAnteriores: true);
+                _logger.Info("Login.DeveloperModeEnabled", "Modo desarrollador activado desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
+            }
+            else
+            {
+                await _servicioToast.MostrarAsync(
+                    "Modo Desarrollador desactivado",
+                    ToastIcono.Info,
+                    ToastPosicion.Bottom,
+                    duracionMs: 550,
+                    reemplazarAnteriores: true);
+                _logger.Info("Login.DeveloperModeDisabled", "Modo desarrollador desactivado desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
+            }
         }
     }
 }

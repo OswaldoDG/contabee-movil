@@ -120,7 +120,7 @@ public class ServicioSesion : IServicioSesion
     {
         var context = _logContextService.BuildCommonContext();
         context["Reason"] = mensaje;
-        _appLogger.Warning("Auth.ForcedRelogin", "Se forzó relogin por estado de sesión o error de APIs de bootstrap.", context);
+        _appLogger.Info("Auth.ForcedRelogin", "Se forzó relogin por estado de sesión o error de APIs de bootstrap.", context);
 
         _posLoginAbortado = true;
         await LimpiaTokensAsync();
@@ -344,6 +344,12 @@ public class ServicioSesion : IServicioSesion
 
         await GetLicenciaAsync();
         _appLogger.Info("Auth.PostLoginCompleted", "Carga de estado post-login finalizada.", _logContextService.BuildCommonContext());
+
+        var postLoginDebugContext = _logContextService.BuildCommonContext();
+        postLoginDebugContext["TienePerfil"] = _appState.Perfil is not null;
+        postLoginDebugContext["CuentasFiscalesCount"] = _appState.CuentasFiscales?.Count ?? 0;
+        postLoginDebugContext["TieneLicenciamiento"] = _appState.Licenciamiento is not null;
+        _appLogger.Debug("Auth.PostLoginSummary", "Resumen técnico del estado post-login.", postLoginDebugContext);
     }
 
     public async Task VerificarSesionAlReanudarAsync()

@@ -11,18 +11,110 @@ public interface IServicioToast
     Task MostrarAsync(
         string mensaje,
         ToastIcono icono = ToastIcono.Info,
-        ToastPosicion posicion = ToastPosicion.Bottom);
+        ToastPosicion posicion = ToastPosicion.Bottom,
+        int duracionMs = 3000,
+        bool reemplazarAnteriores = false);
 }
 
 public class ServicioToast : IServicioToast
 {
     private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly object _reemplazoLock = new();
+    private CancellationTokenSource? _ctsReemplazo;
+    private Grid? _toastReemplazoActivo;
+    private Grid? _overlayReemplazoActivo;
 
     public async Task MostrarAsync(
         string mensaje,
         ToastIcono icono = ToastIcono.Info,
-        ToastPosicion posicion = ToastPosicion.Bottom)
+        ToastPosicion posicion = ToastPosicion.Bottom,
+        int duracionMs = 3000,
+        bool reemplazarAnteriores = false)
     {
+        if (reemplazarAnteriores)
+        {
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var pagina = ObtenerPaginaActual();
+                if (pagina == null) return;
+
+                CancellationTokenSource cts;
+                CancellationToken token;
+                CancellationTokenSource? ctsAnterior;
+                lock (_reemplazoLock)
+                {
+                    ctsAnterior = _ctsReemplazo;
+                    _ctsReemplazo?.Cancel();
+                    _ctsReemplazo = new CancellationTokenSource();
+                    cts = _ctsReemplazo;
+                    token = cts.Token;
+
+                    if (_overlayReemplazoActivo != null && _toastReemplazoActivo != null && _overlayReemplazoActivo.Children.Contains(_toastReemplazoActivo))
+                        _overlayReemplazoActivo.Children.Remove(_toastReemplazoActivo);
+
+                    _toastReemplazoActivo = null;
+                    _overlayReemplazoActivo = null;
+                }
+
+                ctsAnterior?.Dispose();
+
+                var capaOverlay = ObtenerOCrearOverlay(pagina);
+                var toast = ConstruirVista(mensaje, icono, posicion, cts);
+
+                double entradaY = posicion switch
+                {
+                    ToastPosicion.Top => -80,
+                    ToastPosicion.Bottom => 80,
+                    _ => 0
+                };
+
+                toast.Opacity = 0;
+                toast.TranslationY = entradaY;
+                toast.InputTransparent = false;
+                capaOverlay.Children.Add(toast);
+
+                lock (_reemplazoLock)
+                {
+                    _toastReemplazoActivo = toast;
+                    _overlayReemplazoActivo = capaOverlay;
+                }
+
+                await Task.WhenAll(
+                    toast.FadeToAsync(1, 120, Easing.CubicOut),
+                    toast.TranslateToAsync(0, 0, 120, Easing.CubicOut)
+                );
+
+                try { await Task.Delay(Math.Max(duracionMs, 150), token); }
+                catch (TaskCanceledException) { }
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                await Task.WhenAll(
+                    toast.FadeToAsync(0, 100, Easing.CubicIn),
+                    toast.TranslateToAsync(0, entradaY, 100, Easing.CubicIn)
+                );
+
+                if (capaOverlay.Children.Contains(toast))
+                    capaOverlay.Children.Remove(toast);
+
+                lock (_reemplazoLock)
+                {
+                    if (ReferenceEquals(_toastReemplazoActivo, toast))
+                    {
+                        _toastReemplazoActivo = null;
+                        _overlayReemplazoActivo = null;
+                        if (ReferenceEquals(_ctsReemplazo, cts))
+                            _ctsReemplazo = null;
+                    }
+                }
+
+                cts.Dispose();
+            });
+
+            return;
+        }
+
         await _semaphore.WaitAsync();
         try
         {
@@ -52,7 +144,7 @@ public class ServicioToast : IServicioToast
                     toast.TranslateToAsync(0, 0, 280, Easing.CubicOut)
                 );
 
-                try { await Task.Delay(3000, cts.Token); }
+                try { await Task.Delay(Math.Max(duracionMs, 150), cts.Token); }
                 catch (TaskCanceledException) { }
 
                 await Task.WhenAll(
