@@ -13,6 +13,7 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Logging;
 using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;
 using ContaBee.Pages.Cupones;
@@ -23,8 +24,9 @@ namespace ContaBeeMovil
     {
         private readonly IServicioSesion _servicioSesion;
         private readonly IServicioAlerta _servicioAlerta;
+        private readonly ILogLevelControlService _logLevelControlService;
 
-        public AppShell(IServicioSesion servicioSesion, IServicioAlerta servicioAlerta)
+        public AppShell(IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, ILogLevelControlService logLevelControlService)
         {
             // ANTES de InitializeComponent para que DynamicResource
             // tenga el valor correcto desde el primer frame
@@ -36,6 +38,7 @@ namespace ContaBeeMovil
 
             _servicioSesion = servicioSesion;
             _servicioAlerta = servicioAlerta;
+            _logLevelControlService = logLevelControlService;
 
             var currentTheme = Application.Current!.RequestedTheme;
             ThemeSwitch.IsToggled = currentTheme == AppTheme.Dark;
@@ -44,6 +47,7 @@ namespace ContaBeeMovil
             _ = servicioSesion.GetTarjetasAsync();
 
             ActualizarVisibilidadLogs();
+            DebugLoggingSwitch.IsToggled = _logLevelControlService.IsDebugEnabled();
 
             AppState.Instance.PropertyChanged += (_, e) =>
             {
@@ -155,8 +159,13 @@ namespace ContaBeeMovil
 
         private void ActualizarVisibilidadLogs()
         {
-            if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
+            if (this.FindByName<Grid>("DebugLoggingMenuItem") is { } logs)
                 logs.IsVisible = AppState.Instance.EsDev;
+        }
+
+        private void OnDebugLoggingSwitchToggled(object? sender, ToggledEventArgs e)
+        {
+            _logLevelControlService.SetDebugEnabled(e.Value);
         }
 
         private void ActualizarNombreLabel()

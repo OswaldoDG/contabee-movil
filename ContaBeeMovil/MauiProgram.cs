@@ -36,6 +36,7 @@ using ContaBee.Services;
 using ContaBee.Models.Configuracion;
 using ContaBeeMovil.Services.Logging;
 using Serilog;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Filters;
 
@@ -45,18 +46,23 @@ namespace ContaBeeMovil
     public static class MauiProgram
     {
         public static IServiceProvider Services { get; private set; } = null!;
+        public static LoggingLevelSwitch LogLevelSwitch { get; } = new(LogEventLevel.Information);
 
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
 
+            var debugLoggingEnabled = Preferences.Get("DebugLoggingEnabled", true);
+            LogLevelSwitch.MinimumLevel = debugLoggingEnabled ? LogEventLevel.Debug : LogEventLevel.Information;
+
             var logsDirectory = Path.Combine(FileSystem.Current.AppDataDirectory, "logs");
             Directory.CreateDirectory(logsDirectory);
 
             Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Is(LogEventLevel.Information)
+                .MinimumLevel.ControlledBy(LogLevelSwitch)
                 .Enrich.FromLogContext()
                 .Filter.ByIncludingOnly(Matching.WithProperty("EventName"))
+                .Filter.ByIncludingOnly(logEvent => logEvent.Level == LogLevelSwitch.MinimumLevel)
                 .WriteTo.File(
                     path: Path.Combine(logsDirectory, "contabee-.txt"),
                     rollingInterval: RollingInterval.Day,
@@ -120,6 +126,8 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddSingleton<LogContextService>();
             builder.Services.AddSingleton<IAppLogger, AppLogger>();
+            builder.Services.AddSingleton(LogLevelSwitch);
+            builder.Services.AddSingleton<ILogLevelControlService, LogLevelControlService>();
             builder.Services.AddTransient<AuthHandler>();
 
 

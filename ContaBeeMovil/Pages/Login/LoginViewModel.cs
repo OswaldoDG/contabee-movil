@@ -1,8 +1,8 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using System.Diagnostics;
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.AcercaDe;
@@ -176,8 +176,7 @@ public class LoginViewModel : INotifyPropertyChanged
     private async Task Ingresar()
     {
         var correlationId = _logContextService.NewCorrelationId();
-        var submitContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-        _logger.Info("Login.SubmitStarted", "Inicio de intento de login.", submitContext);
+        _logger.Info("Login.SubmitStarted", "Inicio de intento de login.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
 
         _emailTocado = true;
         _passwordTocado = true;
@@ -186,10 +185,12 @@ public class LoginViewModel : INotifyPropertyChanged
 
         if (EmailRequerido || PasswordRequerido)
         {
-            var validationContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-            validationContext["EmailRequerido"] = EmailRequerido;
-            validationContext["PasswordRequerido"] = PasswordRequerido;
-            _logger.Warning("Login.ValidationFailed", "Validación de login falló por campos requeridos.", validationContext);
+            _logger.Info("Login.ValidationFailed", "No se pudo continuar con login por datos incompletos.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+
+            var validationDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
+            validationDebugContext["EmailRequerido"] = EmailRequerido;
+            validationDebugContext["PasswordRequerido"] = PasswordRequerido;
+            _logger.Debug("Login.ValidationFailed.Details", "Detalle de validación de campos requeridos.", validationDebugContext);
             return;
         }
 
@@ -201,7 +202,7 @@ public class LoginViewModel : INotifyPropertyChanged
             var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
             var authStartContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
             authStartContext["Recordarme"] = Recordarme;
-            _logger.Info("Login.AuthRequestStarted", "Iniciando autenticación contra API de identidad.", authStartContext);
+            _logger.Debug("Login.AuthRequestStarted", "Iniciando autenticación contra API de identidad.", authStartContext);
 
             var resultado = await _servicioIdentidad.IniciarSesion(Email, Password, dispositivoId, Recordarme);
 
@@ -212,11 +213,13 @@ public class LoginViewModel : INotifyPropertyChanged
                     ? "El correo o la contraseña son incorrectos."
                     : "Ha ocurrido un error al iniciar sesión.";
 
-                var failedContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-                failedContext["HttpCode"] = (int?)resultado.HttpCode;
-                failedContext["Codigo"] = resultado.Error?.Codigo;
-                failedContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
-                _logger.Warning("Login.AuthRequestFailed", "La autenticación no fue exitosa.", failedContext);
+                _logger.Info("Login.AuthRequestFailed", "No fue posible autenticar al usuario.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+
+                var failedDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
+                failedDebugContext["HttpCode"] = (int?)resultado.HttpCode;
+                failedDebugContext["Codigo"] = resultado.Error?.Codigo;
+                failedDebugContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
+                _logger.Debug("Login.AuthRequestFailed.Details", "Detalle técnico de autenticación fallida.", failedDebugContext);
 
                 await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
                 return;
@@ -226,10 +229,12 @@ public class LoginViewModel : INotifyPropertyChanged
             var userId = _logContextService.ExtractUserIdFromAccessToken(resultado.Payload.AccessToken);
             _logContextService.SetCurrentUserId(userId);
 
-            var authSuccessContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-            authSuccessContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
-            authSuccessContext["UserIdResolved"] = !string.IsNullOrWhiteSpace(userId);
-            _logger.Info("Login.AuthRequestSucceeded", "Autenticación exitosa, guardando sesión.", authSuccessContext);
+            _logger.Info("Login.AuthRequestSucceeded", "Autenticación exitosa.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+
+            var authSuccessDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
+            authSuccessDebugContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
+            authSuccessDebugContext["UserIdResolved"] = !string.IsNullOrWhiteSpace(userId);
+            _logger.Debug("Login.AuthRequestSucceeded.Details", "Detalle técnico de autenticación exitosa.", authSuccessDebugContext);
 
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,
@@ -266,22 +271,21 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (cuentas.Count > 0)
             {
-                _logger.Info("Login.NavigationToAppShell", "Navegación a AppShell después de login exitoso.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+                _logger.Debug("Login.NavigationToAppShell", "Navegación a AppShell después de login exitoso.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
                 var shell = MauiProgram.Services.GetRequiredService<AppShell>();
                 Application.Current!.Windows[0].Page = shell;
             }
             else
             {
-                _logger.Info("Login.NavigationToRegisterRfc", "Usuario sin cuentas fiscales, navegación a registro RFC.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+                _logger.Debug("Login.NavigationToRegisterRfc", "Usuario sin cuentas fiscales, navegación a registro RFC.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
                 // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
                 registrarPage.FromLogin = true;
                 Application.Current!.Windows[0].Page = registrarPage;
             }
         }
-        catch (Exception ex)
+        catch
         {
-            _logger.Error("Login.UnhandledException", "Excepción no controlada durante login.", ex, _logContextService.BuildCommonContext("PaginaLogin", correlationId));
             await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
             var page = Application.Current?.Windows[0].Page as ContentPage;
@@ -310,14 +314,14 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task IrARegistro()
     {
-        _logger.Info("Login.RegisterTapped", "Navegación a registro desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
+        _logger.Debug("Login.RegisterTapped", "Navegación a registro desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
         var paginaRegistro = App.Services.GetRequiredService<PaginaRegistro>();
         await Application.Current!.Windows[0].Page!.Navigation.PushAsync(paginaRegistro);
     }
 
     private void RecuperarContrasena()
     {
-        _logger.Info("Login.ForgotPasswordTapped", "Navegación a recuperar contraseña desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
+        _logger.Debug("Login.ForgotPasswordTapped", "Navegación a recuperar contraseña desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
         var pagina = App.Services.GetRequiredService<RecuperarPassPage>();
         _ = Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
     }
