@@ -14,23 +14,11 @@
 
         <!-- ── Barra superior personalizada ── -->
         <Grid Grid.Row="0"
-              ColumnDefinitions="Auto,Auto,*"
+              ColumnDefinitions="Auto,*"
               ColumnSpacing="16"
               BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
               Padding="12,12">
-            <Label x:Name="BtnMenu"
-                   Grid.Column="0"
-                   Text="{x:Static f:FluentUI.navigation_24_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="24"
-                   TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   VerticalOptions="Center"
-                   IsVisible="False">
-                <Label.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnMenuTapped" />
-                </Label.GestureRecognizers>
-            </Label>
-            <Label Grid.Column="1"
+            <Label Grid.Column="0"
                    Text="{x:Static f:FluentUI.arrow_left_24_regular}"
                    FontFamily="{x:Static f:FluentUI.FontFamily}"
                    FontSize="24"
@@ -40,7 +28,7 @@
                     <TapGestureRecognizer Tapped="OnAtrasTapped" />
                 </Label.GestureRecognizers>
             </Label>
-            <Label Grid.Column="2"
+            <Label Grid.Column="1"
                    Text="Acerca de"
                    Style="{StaticResource Body1Strong}"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"

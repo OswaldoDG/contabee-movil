@@ -2,12 +2,36 @@
   "permissions": {
     "allow": [
       "Bash(dotnet build *)",
+      "Bash(Get-ChildItem -Path . -Recurse -Filter \"*.csproj\")",
+      "Bash(Select-Object -First 5)",
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\" -Recurse -Filter \"*CuentaUsuario*\" -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 20)",
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\\\\ContaBeeMovil\" -Recurse -Filter \"*.xaml\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\" -Recurse -Directory | Select-Object -First 20 | ForEach-Object { $_.FullName })",
+      "Bash(Get-Content \"c:\\\\dev\\\\contabee\\\\contabee-movil\\\\Contabee.Api\\\\obj\\\\ServicioTranscriptClient.cs\" -TotalCount 2000)",
+      "Bash(Select-String -Pattern \"BuscarAsync|TrabajosAsync\" -Context 2,20)",
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\\\\ContaBeeMovil\\\\Pages\" -Filter \"*.xaml.cs\" -Recurse)",
+      "PowerShell(head -10)"
+    ],
+    "additionalDirectories": [
+      "c:\\dev\\contabee\\contabee-movil\\ContaBeeMovil\\Pages",
       "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\" -Filter \"RegistroViewModel.cs\" -Recurse -ErrorAction SilentlyContinue)",
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(Get-ChildItem -Path . -Recurse -Filter \"*.cs\")",
       "Bash(Measure-Object)",
       "Bash(Select-Object -ExpandProperty Count)",
-      "Bash(grep -v \"//\")"
+      "Bash(grep -v \"//\")",
+      "Bash(xargs grep -l \"class RespuestaPayload\\\\|class Respuesta\\\\|interface RespuestaPayload\")",
+      "Bash(xargs grep -l \"ControllerUsoInterno\\\\|class.*ControllerUsoInterno\")",
+      "PowerShell(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\" -Force | Select-Object Name, @{Name=\"Type\";Expression={if\\($_.PSIsContainer\\){\"Directory\"}else{\"File\"}}})",
+      "Bash(Select-Object Name)",
+      "PowerShell(git -C \"c:\\\\dev\\\\contabee\\\\contabee-movil\" log --oneline -20)",
+      "Read(//c/Users/BetoDevContabee/.claude/projects/c--dev-contabee-contabee-movil/memory/**)",
+      "PowerShell($env:PATH = \"$env:USERPROFILE\\\\.dotnet\\\\tools;$env:PATH\"; Set-Location \"c:\\\\dev\\\\contabee\\\\contabee-transcript-backend\\\\src\\\\pods\\\\identity\\\\contabee.services.identity\"; dotnet ef migrations list --startup-project \"..\\\\contabee.api.identity\" 2>&1 | Select-String -Pattern \"^\\\\d{14}|pending|applied\" | Select-Object -Last 5)",
+      "PowerShell($env:PATH = \"$env:USERPROFILE\\\\.dotnet\\\\tools;$env:PATH\"; Set-Location \"c:\\\\dev\\\\contabee\\\\contabee-transcript-backend\\\\src\\\\pods\\\\identity\\\\contabee.services.identity\"; dotnet ef database update 20260115010537_IdentityCopunBienvenida --startup-project \"..\\\\contabee.api.identity\" 2>&1 | Select-String -Pattern \"Reverting|Applying|Done|Error|error\")",
+      "PowerShell(Set-Location \"c:\\\\dev\\\\contabee\\\\contabee-transcript-backend\\\\src\\\\pods\\\\identity\\\\contabee.api.identity\"; dotnet build 2>&1 | Select-String -Pattern \" error | Error \" | Where-Object { $_ -notmatch \"warning|Warning|SA\\\\d|S\\\\d{4}\" } | Select-Object -Last 10)",
+      "Bash(Get-ChildItem -Path \"c:\\\\dev\\\\contabee\\\\contabee-movil\\\\Contabee.Api\\\\\" -Recurse -Filter \"*.cs\" | Select-Object -ExpandProperty FullName | head -30)"
     ]
   }
 }

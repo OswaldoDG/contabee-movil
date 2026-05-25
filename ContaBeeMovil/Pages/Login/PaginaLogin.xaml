@@ -109,11 +109,21 @@
             </HorizontalStackLayout>
 
             <!-- Buttons -->
-            <Button Text="Ingresar"
-                    Command="{Binding IngresarCommand}"
-                    Style="{toolkit:AppThemeResource Primary}"
-                    SemanticProperties.Description="Ingresar"
-                    mi:MauiIcon.Value="{mi:Material Icon=Login}" />
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Grid.Column="0"
+                        Text="Vincularme"
+                        Command="{Binding VincularmeCommand}"
+                        Style="{toolkit:AppThemeResource Primary}"
+                        SemanticProperties.Description="Vincularme"
+                        mi:MauiIcon.Value="{mi:Material Icon=SpatialAudioOff}" />
+                <Button Grid.Column="1"
+                        Text="Ingresar"
+                        Command="{Binding IngresarCommand}"
+                        Style="{toolkit:AppThemeResource Primary}"
+                        SemanticProperties.Description="Ingresar"
+                        mi:MauiIcon.Value="{mi:Material Icon=Login}" />
+
+            </Grid>
 
             <!-- Links -->
             <VerticalStackLayout Spacing="4"
@@ -190,6 +200,17 @@
                 <mi:MauiIcon Icon="{mi:Material Icon=Info}"
                              Style="{StaticResource CircleIconLabel}"
                              SemanticProperties.Description="Informaci&#243;n" />
+            </Border>
+
+            <Border x:Name="LogsButton"
+                    Style="{StaticResource CircleIconButton}"
+                    IsVisible="False">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLogsClicked" />
+                </Border.GestureRecognizers>
+                <mi:MauiIcon Icon="{mi:Material Icon=BugReport}"
+                             Style="{StaticResource CircleIconLabel}"
+                             SemanticProperties.Description="Logs" />
             </Border>
 
         </HorizontalStackLayout>

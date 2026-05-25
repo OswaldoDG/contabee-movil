@@ -11,4 +11,6 @@ public interface IServicioCrm
     Task<Respuesta> EliminarAsociacionFiscal(long id);
     Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request);
     Task<RespuestaPayload<DtoLicenciamiento2>> GetLicenciamiento(Guid cfid);
+    Task<RespuestaPayload<List<TarjetaUsuario>>> MisTarjetasUsuario();
+    Task<Respuesta> GuardarMisTarjetasUsuario(List<TarjetaUsuario> tarjetas);
 }

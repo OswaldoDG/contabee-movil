@@ -1,6 +1,7 @@
 using System.Net;
 using CommunityToolkit.Maui.Core.Extensions;
 using Contabee.Api.abstractions;
+using TarjetaDto = Contabee.Api.Crm.TarjetaUsuario;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
@@ -20,6 +21,7 @@ public class ServicioSesion : IServicioSesion
     private const string CLAVE_REFRESH_TOKEN = "RefreshToken";
     private const string CLAVE_EMAIL = "CredencialEmail";
     private const string CLAVE_EXPIRACION = "TokenExpiracion";
+    private const string CLAVE_TOKEN_LOGINLESS = "TokenLoginLess";
     private readonly AppState _appState;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioIdentidad _servicioIdentidad;
@@ -77,6 +79,8 @@ public class ServicioSesion : IServicioSesion
         SecureStorage.Remove(CLAVE_ACCESS_TOKEN);
         SecureStorage.Remove(CLAVE_REFRESH_TOKEN);
         SecureStorage.Remove(CLAVE_EXPIRACION);
+        SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
+        _appState.EsLoginLess = false;
         Preferences.Set("TieneSesion", false);
         return Task.CompletedTask;
     }
@@ -276,19 +280,35 @@ public class ServicioSesion : IServicioSesion
         var email = await LeeEmailAsync();
         if (string.IsNullOrEmpty(email)) return;
 
-        var usuario = email.Split('@')[0];
-        var clave = $"CLAVE_{usuario}";
+        var clave = $"CLAVE_{email.Split('@')[0]}";
+        var respuesta = await _servicioCrm.MisTarjetasUsuario();
 
-        try
+        if (respuesta.Ok)
         {
-            _appState.Tarjetas = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave) ?? [];
+            var tarjetas = respuesta.Payload?.Select(FromDto).ToList() ?? [];
+
+            // Migración silenciosa: backend vacío pero hay datos locales → subir
+            if (tarjetas.Count == 0)
+            {
+                var locales = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave);
+                if (locales?.Count > 0)
+                {
+                    var migracion = await _servicioCrm.GuardarMisTarjetasUsuario(locales.Select(ToDto).ToList());
+                    tarjetas = migracion.Ok ? locales : [];
+                }
+            }
+
+            _appState.Tarjetas = tarjetas;
+            await _almacenamiento.GuardarSeguroAsync(clave, tarjetas);
         }
-        catch
+        else
         {
-            _appState.Tarjetas = [];
+            try { _appState.Tarjetas = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave) ?? []; }
+            catch { _appState.Tarjetas = []; }
+
             var toast = _serviceProvider.GetRequiredService<IServicioToast>();
             await MainThread.InvokeOnMainThreadAsync(() =>
-                toast.MostrarAsync("No se pudieron cargar tus tarjetas", ToastIcono.Warning, ToastPosicion.Bottom));
+                toast.MostrarAsync("No se pudieron sincronizar tus tarjetas", ToastIcono.Warning, ToastPosicion.Bottom));
         }
     }
 
@@ -297,8 +317,15 @@ public class ServicioSesion : IServicioSesion
         var email = await LeeEmailAsync();
         if (string.IsNullOrEmpty(email)) return;
 
-        var usuario = email.Split('@')[0];
-        var clave = $"CLAVE_{usuario}";
+        var clave = $"CLAVE_{email.Split('@')[0]}";
+
+        var respuesta = await _servicioCrm.GuardarMisTarjetasUsuario(tarjetas.Select(ToDto).ToList());
+        if (!respuesta.Ok)
+        {
+            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                toast.MostrarAsync("No se pudieron guardar tus tarjetas en la nube", ToastIcono.Warning, ToastPosicion.Bottom));
+        }
 
         await _almacenamiento.GuardarSeguroAsync(clave, tarjetas);
         _appState.Tarjetas = [.. tarjetas];
@@ -310,6 +337,8 @@ public class ServicioSesion : IServicioSesion
         FiltrosComprobacionesView.LimpiarEstadoPersistido();
 
         _posLoginAbortado = false;
+
+        _appState.EsLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
 
         await GetPerfilAsync();
         if (_posLoginAbortado) return;
@@ -363,6 +392,12 @@ public class ServicioSesion : IServicioSesion
         });
     }
 
+    public Task GuardaTokenLoginLessAsync(string token)
+        => GuardaContenidoClave(CLAVE_TOKEN_LOGINLESS, token);
+
+    public Task<string?> LeeTokenLoginLessAsync()
+        => LeeContenidoClave(CLAVE_TOKEN_LOGINLESS);
+
     public async Task PostEliminarCuentaAsync()
     {
         FiltrosDevolucionesView.LimpiarEstadoPersistido();
@@ -398,4 +433,12 @@ public class ServicioSesion : IServicioSesion
             Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
         });
     }
+
+    // ── Helpers de mapeo TarjetaModel ↔ TarjetaUsuario (DTO de API) ───────────
+
+    private static TarjetaDto ToDto(TarjetaModel m) =>
+        new() { Id = Guid.Parse(m.Id), Alias = m.Alias, UltimosDigitos = m.UltimosDigitos };
+
+    private static TarjetaModel FromDto(TarjetaDto d) =>
+        new() { Id = d.Id.ToString(), Alias = d.Alias ?? string.Empty, UltimosDigitos = d.UltimosDigitos ?? string.Empty };
 }

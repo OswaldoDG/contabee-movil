@@ -1,7 +1,6 @@
 using ContaBeeMovil.Helpers;
 namespace ContaBeeMovil.Controls;
 
-
 public partial class SimpleTabBar : ContentView
 {
     public event EventHandler<int>? TabChanged;
@@ -28,10 +27,11 @@ public partial class SimpleTabBar : ContentView
         UpdateVisualState(0);
     }
 
-    private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)      => SelectTab(0);
+    private void OnTabInicio_Tapped(object? sender, TappedEventArgs e)        => SelectTab(0);
     private void OnTabFacturacion_Tapped(object? sender, TappedEventArgs e)   => SelectTab(1);
     private void OnTabDevoluciones_Tapped(object? sender, TappedEventArgs e)  => SelectTab(2);
     private void OnTabComprobaciones_Tapped(object? sender, TappedEventArgs e) => SelectTab(3);
+    private void OnTabEquipo_Tapped(object? sender, TappedEventArgs e)        => SelectTab(4);
 
     private void SelectTab(int index)
     {
@@ -40,17 +40,18 @@ public partial class SimpleTabBar : ContentView
         TabChanged?.Invoke(this, index);
     }
 
+    public void SetEquipoVisible(bool visible)
+    {
+        TabEquipo.IsVisible = visible;
+        TabsGrid.ColumnDefinitions[4].Width = visible ? GridLength.Star : new GridLength(0);
+    }
+
     private void UpdateVisualState(int index)
     {
-        // var activeColor   = UIHelpers.GetColor("Primary");
-        // var inactiveColor = UIHelpers.GetColor("Icon");
-
-        // IconInicio.IconColor      = index == 0 ? activeColor : inactiveColor;
-        // IconFacturacion.IconColor = index == 1 ? activeColor : inactiveColor;
-
-        UnderlineInicio.IsVisible = index == 0;
-        UnderlineFacturacion.IsVisible = index == 1;
-        UnderlineDevoluciones.IsVisible = index == 2;
+        UnderlineInicio.IsVisible         = index == 0;
+        UnderlineFacturacion.IsVisible    = index == 1;
+        UnderlineDevoluciones.IsVisible   = index == 2;
         UnderlineComprobaciones.IsVisible = index == 3;
+        UnderlineEquipo.IsVisible         = index == 4;
     }
 }

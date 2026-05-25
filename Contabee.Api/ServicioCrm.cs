@@ -1,6 +1,5 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
-using Contabee.Api.Identidad;
 using System.Net.Http.Json;
 
 
@@ -149,6 +148,39 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Get Licenciamiento");
         }
 
+        return r;
+    }
+
+    public async Task<RespuestaPayload<List<TarjetaUsuario>>> MisTarjetasUsuario()
+    {
+        RespuestaPayload<List<TarjetaUsuario>> r = new();
+        try
+        {
+            var res = await servicioCrm.TarjetasAllAsync();
+            r.Payload = res?.ToList() ?? [];
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-MisTarjetasUsuario");
+        }
+        return r;
+    }
+
+    public async Task<Respuesta> GuardarMisTarjetasUsuario(List<TarjetaUsuario> tarjetas)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioCrm.TarjetasAsync(tarjetas);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-GuardarMisTarjetasUsuario");
+        }
         return r;
     }
 }

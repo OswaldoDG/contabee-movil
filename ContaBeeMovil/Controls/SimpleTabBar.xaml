@@ -8,7 +8,8 @@
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="50">
 
-    <Grid ColumnDefinitions="*,*,*,*"
+    <Grid x:Name="TabsGrid"
+          ColumnDefinitions="*,*,*,*,*"
           BackgroundColor="{toolkit:AppThemeResource Background}">
 
         <!-- Tab 0: Inicio -->
@@ -31,7 +32,6 @@
                    FontSize="8"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource Icon}" />
-                   
             <BoxView x:Name="UnderlineInicio"
                      HeightRequest="4"
                      WidthRequest="40"
@@ -79,13 +79,6 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <!--<Label x:Name="IconDevoluciones"
-                   Text="{x:Static f:FluentUI.money_hand_20_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="22"
-                   HorizontalOptions="Center"
-                   TextColor="{toolkit:AppThemeResource Icon}"
-                   />-->
             <mi:MauiIcon x:Name="IconDevoluciones"
                    Icon="{mi:Material Icon=CurrencyExchange}"
                    IconSize="22"
@@ -115,12 +108,6 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <!--<Label x:Name="IconComprobaciones"
-                   Text="{x:Static f:FluentUI.checkmark_circle_20_regular}"
-                   FontFamily="{x:Static f:FluentUI.FontFamily}"
-                   FontSize="22"
-                   HorizontalOptions="Center"
-                   TextColor="{toolkit:AppThemeResource Icon}" />-->
             <mi:MauiIcon x:Name="IconComprobaciones"
                    Icon="{mi:Material Icon=FactCheck}"
                    IconSize="22"
@@ -133,6 +120,35 @@
                    FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineComprobaciones"
+                     HeightRequest="3"
+                     WidthRequest="40"
+                     Color="{toolkit:AppThemeResource Primary}"
+                     HorizontalOptions="Center"
+                     Margin="0,2,0,0"
+                     IsVisible="False" />
+        </VerticalStackLayout>
+
+        <!-- Tab 4: Equipo -->
+        <VerticalStackLayout Grid.Column="4"
+                             x:Name="TabEquipo"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTabEquipo_Tapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <mi:MauiIcon x:Name="IconEquipo"
+                         Icon="{mi:Material Icon=Group}"
+                         IconSize="22"
+                         IconColor="{toolkit:AppThemeResource Icon}"
+                         BackgroundColor="Transparent"
+                         HorizontalOptions="Center" />
+            <Label x:Name="LblEquipo"
+                   Text="Equipo"
+                   TextColor="{toolkit:AppThemeResource Icon}"
+                   FontSize="10"
+                   HorizontalOptions="Center" />
+            <BoxView x:Name="UnderlineEquipo"
                      HeightRequest="3"
                      WidthRequest="40"
                      Color="{toolkit:AppThemeResource Primary}"

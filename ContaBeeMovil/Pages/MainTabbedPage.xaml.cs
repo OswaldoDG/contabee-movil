@@ -1,3 +1,5 @@
+using ContaBeeMovil.Services.Device;
+
 namespace ContaBeeMovil.Pages;
 
 public partial class MainTabbedPage : ContentPage
@@ -6,32 +8,35 @@ public partial class MainTabbedPage : ContentPage
     private readonly FacturacionPage _facturacionPage;
     private readonly Devoluciones.PaginaDevoluciones _devolucionesPage;
     private readonly Comprobaciones.PaginaComprobaciones _comprobacionesPage;
+    private readonly EquipoPage      _equipoPage;
 
-    // Guardadas por separado para sobrevivir el single-parent constraint de MAUI.
-    // Al extraer Content antes de asignar parent, podemos reasignarla al volver al tab.
     private View? _dashboardView;
     private View? _facturacionView;
     private View? _devolucionesView;
     private View? _comprobacionesView;
+    private View? _equipoView;
 
     private int _currentIndex = -1;
+
+    internal static event Action? EquipoRequested;
 
     public MainTabbedPage(IServiceProvider services)
     {
         InitializeComponent();
 
-        _dashboardPage   = services.GetRequiredService<DashboardPage>();
-        _facturacionPage = services.GetRequiredService<FacturacionPage>();
-        _devolucionesPage = services.GetRequiredService<Devoluciones.PaginaDevoluciones>();
+        _dashboardPage      = services.GetRequiredService<DashboardPage>();
+        _facturacionPage    = services.GetRequiredService<FacturacionPage>();
+        _devolucionesPage   = services.GetRequiredService<Devoluciones.PaginaDevoluciones>();
         _comprobacionesPage = services.GetRequiredService<Comprobaciones.PaginaComprobaciones>();
+        _equipoPage         = services.GetRequiredService<EquipoPage>();
 
-        _dashboardView   = _dashboardPage.Content;
-        _facturacionView = _facturacionPage.Content;
-        _devolucionesView = _devolucionesPage.Content;
+        _dashboardView      = _dashboardPage.Content;
+        _facturacionView    = _facturacionPage.Content;
+        _devolucionesView   = _devolucionesPage.Content;
         _comprobacionesView = _comprobacionesPage.Content;
+        _equipoView         = _equipoPage.Content;
 
         MonthNavBar.BindingContext = _dashboardPage.BindingContext;
-        // Sincronizar título cuando cambia el periodo en facturación
         _facturacionPage.Filtros.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(Views.FiltrosFacturasView.PeriodoTexto) && _currentIndex == 1)
@@ -44,14 +49,33 @@ public partial class MainTabbedPage : ContentPage
                 LabelTitulo.Text = "Comprobaciones";
         };
 
+        EquipoRequested += ForceEquipoTab;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppState.EsLoginLess))
+                MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
+        };
+
+        ActualizarVisibilidadEquipo();
         SwitchToTab(0);
+    }
+
+    private void ActualizarVisibilidadEquipo()
+    {
+        TabBar.SetEquipoVisible(!AppState.Instance.EsLoginLess);
+    }
+
+    private void ForceEquipoTab()
+    {
+        if (AppState.Instance.EsLoginLess) return;
+        _currentIndex = -1;
+        SwitchToTab(4);
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Re-activa lógica del tab actual al volver desde una página empujada
-        // (detalle, captura, tienda, etc.) aunque el índice no cambie.
         if (_currentIndex >= 0)
             ActivarTabActual();
     }
@@ -60,17 +84,16 @@ public partial class MainTabbedPage : ContentPage
 
     private async void SwitchToTab(int index)
     {
+        if (index == 4 && AppState.Instance.EsLoginLess) return;
         if (_currentIndex == index) return;
         _currentIndex = index;
 
-        // 1) Actualizar indicador de pestaña
         TabBar.SelectedIndex = index;
 
-        // 2) Swap directo del contenido — SIN fade-out (nada de espacio vacío)
         PageContainer.Opacity = 0;
 
         MonthNavBar.IsVisible = index == 0;
-        LabelTitulo.IsVisible = index is 1 or 2 or 3;
+        LabelTitulo.IsVisible = index != 0;
 
         switch (index)
         {
@@ -96,12 +119,16 @@ public partial class MainTabbedPage : ContentPage
                 PageContainer.BindingContext = _comprobacionesPage.BindingContext;
                 LabelTitulo.Text = "Comprobaciones";
                 break;
+
+            case 4:
+                PageContainer.Content = _equipoView;
+                PageContainer.BindingContext = _equipoPage.BindingContext;
+                LabelTitulo.Text = "Equipo";
+                break;
         }
 
-        // 4) Fade-in suave del contenido nuevo
         await PageContainer.FadeToAsync(1, 140, Easing.CubicOut);
 
-        // 5) Carga de datos diferida
         _ = MainThread.InvokeOnMainThreadAsync(() =>
         {
             switch (index)
@@ -110,6 +137,7 @@ public partial class MainTabbedPage : ContentPage
                 case 1: _facturacionPage.OnTabActivated(); break;
                 case 2: _devolucionesPage.OnTabActivated(); break;
                 case 3: _comprobacionesPage.OnTabActivated(); break;
+                case 4: _equipoPage.OnTabActivated(); break;
             }
         });
     }
@@ -124,6 +152,7 @@ public partial class MainTabbedPage : ContentPage
                 case 1: _facturacionPage.OnTabActivated(); break;
                 case 2: _devolucionesPage.OnTabActivated(); break;
                 case 3: _comprobacionesPage.OnTabActivated(); break;
+                case 4: _equipoPage.OnTabActivated(); break;
             }
         });
     }

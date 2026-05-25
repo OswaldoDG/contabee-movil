@@ -29,6 +29,7 @@
                    FontSize="20"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                   <BoxView Style="{StaticResource Divider}" />
 
             <Entry x:Name="EntryAlias"
                    Placeholder="Alias"
