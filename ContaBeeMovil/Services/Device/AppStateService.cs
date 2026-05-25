@@ -288,4 +288,17 @@ public partial class AppState : ObservableObject
                 Preferences.Set(PrefsKeys.EsDev, value);
         }
     }
+
+    // ── EsLoginLess ────────────────────────────────────────────────────────────
+    private bool _esLoginLess;
+
+    /// <summary>
+    /// Indica que la sesión activa corresponde a una cuenta LoginLess.
+    /// Se establece al completar el flujo de vinculación sin cuenta. No persiste entre sesiones.
+    /// </summary>
+    public bool EsLoginLess
+    {
+        get => _esLoginLess;
+        set => SetProperty(ref _esLoginLess, value);
+    }
 }

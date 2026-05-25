@@ -18,7 +18,6 @@ public partial class AcercaDePage : ContentPage
         InitializeComponent();
         _servicioSalud = servicioSalud;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
-        BtnMenu.IsVisible = UsuarioLogueado;
     }
 
     protected override async void OnAppearing()
@@ -42,12 +41,6 @@ public partial class AcercaDePage : ContentPage
             await Shell.Current.GoToAsync("..");
         else
             await Navigation.PopAsync();
-    }
-
-    private void OnMenuTapped(object? sender, TappedEventArgs e)
-    {
-        if (Shell.Current is not null)
-            Shell.Current.FlyoutIsPresented = true;
     }
 
     private void OnConectividadCambiada(object? sender, ConnectivityChangedEventArgs e)

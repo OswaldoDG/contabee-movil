@@ -2156,6 +2156,45 @@
           }
         }
       }
+    },
+    "/tarjetas": {
+      "get": {
+        "tags": [ "Tarjetas" ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Internal Server Error" }
+        }
+      },
+      "put": {
+        "tags": [ "Tarjetas" ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "OK" },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "500": { "description": "Internal Server Error" }
+        }
+      }
     }
   },
   "components": {
@@ -3594,6 +3633,24 @@
             "items": {
               "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoCuentaFiscal"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.usuarios.TarjetaUsuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "alias": {
+            "type": "string",
+            "nullable": true
+          },
+          "ultimosDigitos": {
+            "type": "string",
             "nullable": true
           }
         },
