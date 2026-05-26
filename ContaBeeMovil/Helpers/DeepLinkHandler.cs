@@ -1,4 +1,4 @@
-using ContaBeeMovil.Pages.Confirmar;
+﻿using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.RecuperarPass;
 
 namespace ContaBeeMovil.Helpers;
@@ -13,7 +13,7 @@ public static class DeepLinkHandler
         if (string.IsNullOrWhiteSpace(uri)) return;
 
 #if DEBUG
-        System.Diagnostics.Debug.WriteLine($"?? Procesando: {uri}");
+        System.Diagnostics.Debug.WriteLine($"🔗 Procesando: {uri}");
 #endif
 
         if (!Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri)) return;
@@ -30,7 +30,7 @@ public static class DeepLinkHandler
         if (link == null)
         {
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine($"?? Ruta no reconocida: {parsedUri.AbsolutePath}");
+            System.Diagnostics.Debug.WriteLine($"⚠️ Ruta no reconocida: {parsedUri.AbsolutePath}");
 #endif
             return;
         }
@@ -40,7 +40,7 @@ public static class DeepLinkHandler
         else
         {
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine($"? App no lista, guardando link...");
+            System.Diagnostics.Debug.WriteLine($"⏳ App no lista, guardando link...");
 #endif
             _pendingDeepLink = link;
         }
@@ -49,7 +49,7 @@ public static class DeepLinkHandler
     public static void NotifyAppReady()
     {
 #if DEBUG
-        System.Diagnostics.Debug.WriteLine($"? App lista!");
+        System.Diagnostics.Debug.WriteLine($"✅ App lista!");
 #endif
         _appReady = true;
 
@@ -58,7 +58,7 @@ public static class DeepLinkHandler
             var link = _pendingDeepLink;
             _pendingDeepLink = null;
 #if DEBUG
-            System.Diagnostics.Debug.WriteLine($"?? Procesando link pendiente...");
+            System.Diagnostics.Debug.WriteLine($"▶️ Procesando link pendiente...");
 #endif
             Navegar(link);
         }
@@ -70,7 +70,7 @@ public static class DeepLinkHandler
         {
             try
             {
-                // Obtiene la p�gina seg�n el tipo de link
+                // Obtiene la página según el tipo de link
                 Page? page = link.Tipo switch
                 {
                     TipoLink.ConfirmarCuenta => CrearPagina<ConfirmarCuentaPage>(
@@ -87,7 +87,7 @@ public static class DeepLinkHandler
             catch (Exception ex)
             {
 #if DEBUG
-                System.Diagnostics.Debug.WriteLine($"? Error navegando: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ Error navegando: {ex.Message}");
 #endif
             }
         });
@@ -95,10 +95,10 @@ public static class DeepLinkHandler
 
     private static Page CrearPagina<T>(string parametros) where T : Page
     {
-        // Obtiene la p�gina con inyecci�n de dependencias
+        // Obtiene la página con inyección de dependencias
         var page = App.Services.GetRequiredService<T>();
 
-        // Si tiene QueryProperty, le pasamos los par�metros manualmente
+        // Si tiene QueryProperty, le pasamos los parámetros manualmente
         if (page is ConfirmarCuentaPage confirmar &&
             parametros.Contains("token="))
         {
@@ -138,7 +138,7 @@ public static class DeepLinkHandler
 //    {
 //        if (string.IsNullOrWhiteSpace(uri)) return;
 
-//        System.Diagnostics.Debug.WriteLine($"?? Procesando: {uri}");
+//        System.Diagnostics.Debug.WriteLine($"🔗 Procesando: {uri}");
 
 //        if (!Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri)) return;
 
@@ -154,7 +154,7 @@ public static class DeepLinkHandler
 
 //        if (route == null)
 //        {
-//            System.Diagnostics.Debug.WriteLine($"?? Ruta no reconocida: {parsedUri.AbsolutePath}");
+//            System.Diagnostics.Debug.WriteLine($"⚠️ Ruta no reconocida: {parsedUri.AbsolutePath}");
 //            return;
 //        }
 
@@ -162,22 +162,22 @@ public static class DeepLinkHandler
 //            NavigateTo(route);
 //        else
 //        {
-//            System.Diagnostics.Debug.WriteLine($"? Shell no lista, guardando link...");
+//            System.Diagnostics.Debug.WriteLine($"⏳ Shell no lista, guardando link...");
 //            _pendingDeepLink = route;
 //        }
 //    }
 
-//    // Llama este cuando la Shell est� lista
+//    // Llama este cuando la Shell esté lista
 //    public static void NotifyShellReady()
 //    {
-//        System.Diagnostics.Debug.WriteLine($"? Shell lista!");
+//        System.Diagnostics.Debug.WriteLine($"✅ Shell lista!");
 //        _shellReady = true;
 
 //        if (_pendingDeepLink != null)
 //        {
 //            var route = _pendingDeepLink;
 //            _pendingDeepLink = null;
-//            System.Diagnostics.Debug.WriteLine($"?? Procesando link pendiente: {route}");
+//            System.Diagnostics.Debug.WriteLine($"▶️ Procesando link pendiente: {route}");
 //            NavigateTo(route);
 //        }
 //    }
@@ -192,7 +192,7 @@ public static class DeepLinkHandler
 //            }
 //            catch (Exception ex)
 //            {
-//                System.Diagnostics.Debug.WriteLine($"? Error navegando: {ex.Message}");
+//                System.Diagnostics.Debug.WriteLine($"❌ Error navegando: {ex.Message}");
 //            }
 //        });
 //    }
