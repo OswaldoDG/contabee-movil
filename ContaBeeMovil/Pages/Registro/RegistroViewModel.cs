@@ -6,6 +6,7 @@ using ContaBeeMovil;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 using CommunityToolkit.Maui.Views;
@@ -31,14 +32,16 @@ public class RegistroViewModel : INotifyPropertyChanged
     private readonly IServicioToast _toast;
     private readonly DeviceService _deviceService;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
-    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IServicioToast servicioToast, DeviceService deviceService, IServicioLogs logs)
+    public RegistroViewModel(IServicioIdentidad servicioIdentidad, IServicioEcommerce servicioEcommerce, IServicioToast servicioToast, DeviceService deviceService, IServicioLogs logs, IAppLogger logger)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioEcommerce = servicioEcommerce;
         _toast = servicioToast;
         _deviceService = deviceService;
         _logs = logs;
+        _logger = logger;
         RegistrarCommand = new Command(async () => await Registrar(), () => PuedeRegistrar);
         IrALoginCommand = new Command(async () => await IrALogin());
     }
@@ -151,6 +154,7 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     private async Task Registrar()
     {
+        _logger.Info("Registro.Registrar", "Inicio de registro de usuario.");
         try
         {
             EstaCargando = true;
@@ -166,6 +170,7 @@ public class RegistroViewModel : INotifyPropertyChanged
 
             if (!string.IsNullOrWhiteSpace(CuponRegistro))
             {
+                _logger.Debug("Registro.RegistrarCupon", "Validando cupón de registro.");
                 var cuponResult = await _servicioEcommerce.AplicarCupon(CuponRegistro, new ActivacionCuponDto
                 {
                     Codigo = CuponRegistro,
@@ -203,8 +208,16 @@ public class RegistroViewModel : INotifyPropertyChanged
 
             if (!respuesta.Ok)
             {
+                _logger.Debug("Registro.RegistrarError", "La API devolvió error al registrar usuario.", new Dictionary<string, object?>
+                {
+                    ["HttpCode"] = (int?)respuesta.HttpCode,
+                    ["Codigo"] = respuesta.Error?.Codigo,
+                    ["Mensaje"] = respuesta.Error?.Mensaje
+                });
                 throw new Exception(respuesta.HttpCode.ToString());
             }
+
+            _logger.Info("Registro.RegistrarExitoso", "Registro completado correctamente.");
 
             await _toast.MostrarAsync(
                 "Registro completado. Por favor verifica tu correo electrónico.",
@@ -215,6 +228,11 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
         catch (ApiException ex)
         {
+            _logger.Debug("Registro.RegistrarApiException", "Error de API durante el registro.", new Dictionary<string, object?>
+            {
+                ["StatusCode"] = ex.StatusCode,
+                ["Mensaje"] = ex.Message
+            });
             var mensaje = ex.StatusCode switch
             {
                 409 => "El correo electrónico ya está registrado.",
@@ -227,6 +245,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
+            _logger.Debug("Registro.RegistrarException", "Excepción no controlada durante el registro.", ex);
             _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
             await _toast.MostrarAsync(
                 "Ocurrió un error inesperado. Intenta de nuevo.",
@@ -240,12 +259,32 @@ public class RegistroViewModel : INotifyPropertyChanged
 
     private async Task<string> ObtenerDispositivoId()
     {
-        return await _deviceService.GetDeviceIdAsync();
+        try
+        {
+            _logger.Info("Registro.ObtenerDispositivoId", "Inicio de obtención de identificador de dispositivo.");
+            var id = await _deviceService.GetDeviceIdAsync();
+            _logger.Info("Registro.ObtenerDispositivoIdExitoso", "Obtención de identificador de dispositivo completada.");
+            return id;
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Registro.ObtenerDispositivoIdException", "Excepción no controlada al obtener identificador de dispositivo.", ex);
+            throw;
+        }
     }
 
     private async Task IrALogin()
     {
-        await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
+        try
+        {
+            _logger.Info("Registro.IrALogin", "Inicio de navegación a login desde registro.");
+            await Application.Current!.Windows[0].Page!.Navigation.PopAsync();
+            _logger.Info("Registro.IrALoginExitoso", "Navegación a login desde registro completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Registro.IrALoginException", "Excepción no controlada al navegar a login desde registro.", ex);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

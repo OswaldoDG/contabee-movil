@@ -1,4 +1,4 @@
-namespace ContaBeeMovil.Services.Logging;
+namespace Contabee.Api.Logging;
 
 public interface IAppLogger
 {

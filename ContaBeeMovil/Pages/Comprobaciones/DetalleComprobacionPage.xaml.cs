@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Dev;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Comprobaciones;
@@ -18,6 +19,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     private Guid _comprobacionId;
     private string _rfc = "RFC no disponible";
@@ -116,12 +118,14 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
     public DetalleComprobacionPage(
         IServicioTranscript servicioTranscript,
         IServicioAlerta servicioAlerta,
-        IServicioLogs logs)
+        IServicioLogs logs,
+        IAppLogger logger)
     {
         InitializeComponent();
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
 
         ActualizarEstadoCommand = new Command(async () => await ActualizarEstadoAsync());
         IrCapturaCommand = new Command(async () => await IrCapturaAsync());
@@ -159,9 +163,16 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleComprobacion.CargarDetalle", "Inicio de carga del detalle de comprobación.");
             var res = await _servicioTranscript.ObtenerComprobacionAsync(_comprobacionId);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleComprobacion.CargarDetalleError", "La API devolvió error al obtener detalle de comprobación.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 if (EsEntidadNoEncontrada(res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
@@ -178,6 +189,13 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             await CargarCapturasRelacionadasAsync(1);
             RefrescarBindings();
+            _logger.Info("DetalleComprobacion.CargarDetalleExitoso", "Detalle de comprobación cargado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleComprobacion.CargarDetalleException", "Excepción no controlada al cargar detalle de comprobación.", ex);
+            _logs.Log($"[DetalleComprobacionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo cargar la comprobación.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -239,6 +257,10 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
 
         try
         {
+            _logger.Info("DetalleComprobacion.CargarCapturas", "Inicio de carga de capturas relacionadas.", new Dictionary<string, object?>
+            {
+                ["Pagina"] = pagina
+            });
             var filtros = new List<Filtro>();
 
             var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
@@ -282,9 +304,15 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             if (TotalPaginasCapturas < 1)
                 TotalPaginasCapturas = 1;
             ConsultaCapturasEjecutada = true;
+            _logger.Info("DetalleComprobacion.CargarCapturasExitoso", "Capturas relacionadas cargadas correctamente.", new Dictionary<string, object?>
+            {
+                ["TotalEncontradas"] = TotalCapturasEncontradas,
+                ["PaginaActual"] = PaginaCapturasActual
+            });
         }
         catch (Exception ex)
         {
+            _logger.Debug("DetalleComprobacion.CargarCapturasException", "Excepción no controlada al cargar capturas relacionadas.", ex);
             _logs.Log($"[DetalleComprobacionPage] Error cargando capturas relacionadas: {ex.Message}");
             CapturasRelacionadas = [];
             TotalCapturasEncontradas = 0;
@@ -305,6 +333,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleComprobacion.Editar", "Inicio de actualización de comprobación.");
             var req = new ActualizaComprobacion
             {
                 Id = _comprobacion.Id,
@@ -319,6 +348,12 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             var res = await _servicioTranscript.ActualizarComprobacionAsync(_comprobacion.Id, req);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleComprobacion.EditarError", "La API devolvió error al actualizar comprobación.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar la comprobación.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -326,6 +361,13 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             _comprobacion = res.Payload;
             RefrescarBindings();
             PaginaComprobaciones.PendienteActualizarListado = true;
+            _logger.Info("DetalleComprobacion.EditarExitoso", "Comprobación actualizada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleComprobacion.EditarException", "Excepción no controlada al actualizar comprobación.", ex);
+            _logs.Log($"[DetalleComprobacionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo actualizar la comprobación.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -348,9 +390,16 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleComprobacion.Eliminar", "Inicio de eliminación de comprobación.");
             var res = await _servicioTranscript.EliminarComprobacionAsync(_comprobacion.Id);
             if (!res.Ok)
             {
+                _logger.Debug("DetalleComprobacion.EliminarError", "La API devolvió error al eliminar comprobación.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo eliminar la comprobación.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -359,6 +408,13 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             _navegandoTrasEliminacion = true;
             _detalleNoDisponible = true;
             await Shell.Current.GoToAsync("..");
+            _logger.Info("DetalleComprobacion.EliminarExitoso", "Comprobación eliminada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleComprobacion.EliminarException", "Excepción no controlada al eliminar comprobación.", ex);
+            _logs.Log($"[DetalleComprobacionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo eliminar la comprobación.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -415,9 +471,19 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleComprobacion.ActualizarEstado", "Inicio de actualización de estado de comprobación.", new Dictionary<string, object?>
+            {
+                ["EstadoSeleccionado"] = EstadoSeleccionado
+            });
             var res = await _servicioTranscript.ActualizarEstadoComprobacionAsync(_comprobacion.Id, estadoNuevo);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleComprobacion.ActualizarEstadoError", "La API devolvió error al actualizar estado de comprobación.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar el estado.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -426,6 +492,13 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
             PaginaComprobaciones.PendienteActualizarListado = true;
+            _logger.Info("DetalleComprobacion.ActualizarEstadoExitoso", "Estado de comprobación actualizado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleComprobacion.ActualizarEstadoException", "Excepción no controlada al actualizar estado de comprobación.", ex);
+            _logs.Log($"[DetalleComprobacionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo actualizar el estado de la comprobación.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {

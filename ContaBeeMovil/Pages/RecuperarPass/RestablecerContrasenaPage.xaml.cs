@@ -2,6 +2,7 @@ using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
@@ -14,15 +15,17 @@ public partial class RestablecerContrasenaPage : ContentPage
     private readonly IServicioToast _servicioToast;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     public string Token { get; set; } = string.Empty;
 
-    public RestablecerContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad, IServicioLogs logs)
+    public RestablecerContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         _servicioToast = servicioToast;
         _servicioIdentidad = servicioIdentidad;
         _logs = logs;
+        _logger = logger;
     }
 
     private void OnToggleNuevaContrasenaClicked(object? sender, TappedEventArgs e)
@@ -74,10 +77,12 @@ public partial class RestablecerContrasenaPage : ContentPage
 
         try
         {
+            _logger.Info("RestablecerContrasena.Restablecer", "Inicio de solicitud para restablecer contraseña.");
             var resultado = await _servicioIdentidad.RestablecerContrasena(nueva, Token);
 
             if (resultado.Ok)
             {
+                _logger.Info("RestablecerContrasena.RestablecerExitoso", "Restablecimiento de contraseña completado correctamente.");
                 await _servicioToast.MostrarAsync("Contraseña restablecida correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
 
                 var paginaLogin = MauiProgram.Services.GetRequiredService<PaginaLogin>();
@@ -85,12 +90,19 @@ public partial class RestablecerContrasenaPage : ContentPage
             }
             else
             {
+                _logger.Debug("RestablecerContrasena.RestablecerError", "La API devolvió error al restablecer contraseña.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = resultado.Error?.Codigo,
+                    ["Mensaje"] = resultado.Error?.Mensaje,
+                    ["HttpCode"] = (int?)resultado.Error?.HttpCode
+                });
                 _logs.Log($"[RestablecerContrasenaPage] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
                 await _servicioToast.MostrarAsync("Error al restablecer la contraseña.", ToastIcono.Error, ToastPosicion.Bottom);
             }
         }
         catch (Exception ex)
         {
+            _logger.Debug("RestablecerContrasena.RestablecerException", "Excepción no controlada al restablecer contraseña.", ex);
             _logs.Log($"[RestablecerContrasenaPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioToast.MostrarAsync("Error al restablecer la contraseña.", ToastIcono.Error, ToastPosicion.Bottom);
         }

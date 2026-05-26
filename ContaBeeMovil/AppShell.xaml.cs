@@ -13,6 +13,7 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Logging;
 using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;

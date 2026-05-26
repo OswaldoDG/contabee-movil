@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Comprobaciones;
@@ -21,6 +22,7 @@ public partial class PaginaComprobaciones : ContentPage
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
     private Busqueda? _ultimaBusqueda;
     private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
     private bool _abriendoPopup;
@@ -100,12 +102,14 @@ public partial class PaginaComprobaciones : ContentPage
         IServicioTranscript servicioTranscript,
         IServicioAlerta servicioAlerta,
         IServicioSesion servicioSesion,
-        IServicioLogs logs)
+        IServicioLogs logs,
+        IAppLogger logger)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _servicioSesion = servicioSesion;
         _logs = logs;
+        _logger = logger;
 
         BuscarComprobacionesCommand = new Command<Busqueda>(async b => await OnBuscarComprobaciones(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
@@ -194,6 +198,7 @@ public partial class PaginaComprobaciones : ContentPage
         EstaCargando = true;
         try
         {
+            _logger.Info("Comprobaciones.EjecutarBusqueda", "Inicio de búsqueda de comprobaciones.");
             _logs.Log($"[PaginaComprobaciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}");
             var resultado = await _servicioTranscript.BusquedaComprobaciones(_ultimaBusqueda);
 
@@ -212,9 +217,15 @@ public partial class PaginaComprobaciones : ContentPage
             TotalPaginas = (int)Math.Ceiling((double)resultado.Total / divisorPaginas);
             if (TotalPaginas < 1) TotalPaginas = 1;
             ConsultaEjecutada = true;
+            _logger.Info("Comprobaciones.EjecutarBusquedaExitoso", "Búsqueda de comprobaciones completada.");
         }
         catch (ApiException ex)
         {
+            _logger.Debug("Comprobaciones.EjecutarBusquedaApiException", "La API devolvió error en búsqueda de comprobaciones.", new Dictionary<string, object?>
+            {
+                ["StatusCode"] = ex.StatusCode,
+                ["Mensaje"] = ex.Message
+            });
             _logs.Log($"[PaginaComprobaciones] ApiException Status={ex.StatusCode} Body={ex.Response}");
             await _servicioAlerta.MostrarAsync(
                 "Error",
@@ -226,6 +237,7 @@ public partial class PaginaComprobaciones : ContentPage
         }
         catch (Exception ex)
         {
+            _logger.Debug("Comprobaciones.EjecutarBusquedaException", "Excepción no controlada al buscar comprobaciones.", ex);
             _logs.Log($"[PaginaComprobaciones] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync(
                 "Error",
@@ -246,6 +258,7 @@ public partial class PaginaComprobaciones : ContentPage
 
         try
         {
+            _logger.Info("Comprobaciones.Crear", "Inicio del flujo de creación de comprobación.");
             var hostPage = ObtenerPaginaActivaParaPopup() ?? this;
             _logs.Log($"[PaginaComprobaciones-Crear] HostPage={hostPage.GetType().Name}");
 
@@ -298,6 +311,12 @@ public partial class PaginaComprobaciones : ContentPage
             var respuesta = await _servicioTranscript.CrearComprobacionAsync(request);
             if (!respuesta.Ok)
             {
+                _logger.Debug("Comprobaciones.CrearError", "La API devolvió error al crear comprobación.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = respuesta.Error?.Codigo,
+                    ["Mensaje"] = respuesta.Error?.Mensaje,
+                    ["HttpCode"] = (int?)respuesta.Error?.HttpCode
+                });
                 MostrarOverlayCarga = false;
                 await _servicioAlerta.MostrarAsync(
                     "Error",
@@ -312,9 +331,11 @@ public partial class PaginaComprobaciones : ContentPage
 
             MostrarOverlayCarga = false;
             await EjecutarBusqueda(1);
+            _logger.Info("Comprobaciones.CrearExitoso", "Comprobación creada correctamente.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("Comprobaciones.CrearException", "Excepción no controlada al crear comprobación.", ex);
             _logs.Log($"[PaginaComprobaciones-Crear] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync(
                 "Error",

@@ -1,5 +1,6 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
@@ -11,14 +12,16 @@ public partial class CambiarContrasenaPage : ContentPage
 {
     private readonly IServicioToast _servicioToast;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IAppLogger _logger;
 
     private bool _mostrarContrasenas = false;
 
-    public CambiarContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad)
+    public CambiarContrasenaPage(IServicioToast servicioToast, IServicioIdentidad servicioIdentidad, IAppLogger logger)
     {
         InitializeComponent();
         _servicioToast = servicioToast;
         _servicioIdentidad = servicioIdentidad;
+        _logger = logger;
     }
 
     private void OnToggleContrasenasClicked(object? sender, TappedEventArgs e)
@@ -54,24 +57,40 @@ public partial class CambiarContrasenaPage : ContentPage
         }
 
         BtnActualizar.IsEnabled = false;
-
-        var resultado = await _servicioIdentidad.CambiarContrasena(actual, nueva);
-
-        if (resultado.Ok)
+        _logger.Info("CambiarContrasena.Actualizar", "Inicio de solicitud para cambiar contraseña.");
+        try
         {
-            await _servicioToast.MostrarAsync("Contraseña actualizada correctamente.", ToastIcono.Info);
-            await Shell.Current.GoToAsync("..");
-        }
-        else
-        {
+            var resultado = await _servicioIdentidad.CambiarContrasena(actual, nueva);
+
+            if (resultado.Ok)
+            {
+                _logger.Info("CambiarContrasena.ActualizarExitoso", "Cambio de contraseña completado correctamente.");
+                await _servicioToast.MostrarAsync("Contraseña actualizada correctamente.", ToastIcono.Info);
+                await Shell.Current.GoToAsync("..");
+                return;
+            }
+
             var mensaje = resultado.Error?.Mensaje ?? "Error al cambiar la contraseña.";
+            _logger.Debug("CambiarContrasena.ActualizarError", "La API devolvió un error al cambiar contraseña.", new Dictionary<string, object?>
+            {
+                ["Codigo"] = resultado.Error?.Codigo,
+                ["Mensaje"] = resultado.Error?.Mensaje,
+                ["HttpCode"] = (int?)resultado.Error?.HttpCode
+            });
 #if DEBUG
             System.Diagnostics.Debug.WriteLine($"[CambiarContrasena] Error: Codigo={resultado.Error?.Codigo}, Mensaje={resultado.Error?.Mensaje}, HttpCode={resultado.Error?.HttpCode}");
 #endif
             await _servicioToast.MostrarAsync(mensaje, ToastIcono.Error);
         }
-
-        ActualizarEstadoBoton();
+        catch (Exception ex)
+        {
+            _logger.Debug("CambiarContrasena.ActualizarException", "Excepción no controlada al cambiar contraseña.", ex);
+            await _servicioToast.MostrarAsync("Error al cambiar la contraseña.", ToastIcono.Error);
+        }
+        finally
+        {
+            ActualizarEstadoBoton();
+        }
     }
 
     private void ActualizarIconosValidacion(string pwd)

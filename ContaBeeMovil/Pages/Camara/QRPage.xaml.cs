@@ -4,6 +4,7 @@ using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 
@@ -14,15 +15,17 @@ public partial class QRPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
     private bool _isProcessing;
 
-    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         BindingContext = pageModel;
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
 
         BarcodeReader.Options = new BarcodeReaderOptions
         {
@@ -128,34 +131,53 @@ public partial class QRPage : ContentPage
         };
 
         LoadingOverlay.IsVisible = true;
-
-        var respuesta = await _servicioCrm.EnviarUrlCuentaFiscal(request);
-
-        if (respuesta.Ok)
+        _logger.Info("Qr.ProcessQrResult", "Inicio de registro de cuenta fiscal por QR.");
+        try
         {
-            var cuentas = await _servicioCrm.GetAsociacionesFiscales();
-            if (cuentas.Ok && cuentas.Payload != null)
+            var respuesta = await _servicioCrm.EnviarUrlCuentaFiscal(request);
+
+            if (respuesta.Ok)
             {
-                AppState.Instance.CuentasFiscales = cuentas.Payload;
-                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+                _logger.Info("Qr.ProcessQrResultExitoso", "Registro de cuenta fiscal por QR completado.");
+                var cuentas = await _servicioCrm.GetAsociacionesFiscales();
+                if (cuentas.Ok && cuentas.Payload != null)
+                {
+                    AppState.Instance.CuentasFiscales = cuentas.Payload;
+                    AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+                }
+
+                LoadingOverlay.IsVisible = false;
+                await Navigation.PopModalAsync();
+
+                if (Shell.Current != null)
+                    await Shell.Current.GoToAsync("..");
+                else
+                {
+                    var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                    Application.Current!.Windows[0].Page = shell;
+                }
             }
-
-            LoadingOverlay.IsVisible = false;
-            await Navigation.PopModalAsync();
-
-            if (Shell.Current != null)
-                await Shell.Current.GoToAsync("..");
             else
             {
-                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-                Application.Current!.Windows[0].Page = shell;
+                _logger.Debug("Qr.ProcessQrResultError", "La API devolvió error al registrar cuenta fiscal por QR.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = respuesta.Error?.Codigo,
+                    ["Mensaje"] = respuesta.Error?.Mensaje,
+                    ["HttpCode"] = (int?)respuesta.Error?.HttpCode
+                });
+                LoadingOverlay.IsVisible = false;
+                var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta fiscal.";
+                await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+                _isProcessing = false;
+                BarcodeReader.IsDetecting = true;
             }
         }
-        else
+        catch (Exception ex)
         {
+            _logger.Debug("Qr.ProcessQrResultException", "Excepción no controlada al registrar cuenta fiscal por QR.", ex);
             LoadingOverlay.IsVisible = false;
-            var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta fiscal.";
-            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[QRPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "Error al registrar la cuenta fiscal.", verBotonCancelar: false, confirmarText: "OK");
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;
         }
@@ -164,6 +186,7 @@ public partial class QRPage : ContentPage
     private async Task RegistrarRfcDemoAsync()
     {
         LoadingOverlay.IsVisible = true;
+        _logger.Info("Qr.RegistrarRfcDemo", "Inicio de registro de RFC demo.");
 
         var modelo = new CuentaFiscalMinima
         {
@@ -175,33 +198,52 @@ public partial class QRPage : ContentPage
             ClaveRegimenFiscal = "612"
         };
 
-        var respuesta = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
-
-        if (respuesta.Ok)
+        try
         {
-            var cuentas = await _servicioCrm.GetAsociacionesFiscales();
-            if (cuentas.Ok && cuentas.Payload != null)
+            var respuesta = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
+
+            if (respuesta.Ok)
             {
-                AppState.Instance.CuentasFiscales = cuentas.Payload;
-                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+                _logger.Info("Qr.RegistrarRfcDemoExitoso", "Registro de RFC demo completado.");
+                var cuentas = await _servicioCrm.GetAsociacionesFiscales();
+                if (cuentas.Ok && cuentas.Payload != null)
+                {
+                    AppState.Instance.CuentasFiscales = cuentas.Payload;
+                    AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
+                }
+
+                LoadingOverlay.IsVisible = false;
+                await Navigation.PopModalAsync();
+
+                if (Shell.Current != null)
+                    await Shell.Current.GoToAsync("..");
+                else
+                {
+                    var shell = MauiProgram.Services.GetRequiredService<AppShell>();
+                    Application.Current!.Windows[0].Page = shell;
+                }
             }
-
-            LoadingOverlay.IsVisible = false;
-            await Navigation.PopModalAsync();
-
-            if (Shell.Current != null)
-                await Shell.Current.GoToAsync("..");
             else
             {
-                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-                Application.Current!.Windows[0].Page = shell;
+                _logger.Debug("Qr.RegistrarRfcDemoError", "La API devolvió error al registrar RFC demo.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = respuesta.Error?.Codigo,
+                    ["Mensaje"] = respuesta.Error?.Mensaje,
+                    ["HttpCode"] = (int?)respuesta.Error?.HttpCode
+                });
+                LoadingOverlay.IsVisible = false;
+                var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta demo.";
+                await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+                _isProcessing = false;
+                BarcodeReader.IsDetecting = true;
             }
         }
-        else
+        catch (Exception ex)
         {
+            _logger.Debug("Qr.RegistrarRfcDemoException", "Excepción no controlada al registrar RFC demo.", ex);
             LoadingOverlay.IsVisible = false;
-            var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta demo.";
-            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[QRPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "Error al registrar la cuenta demo.", verBotonCancelar: false, confirmarText: "OK");
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;
         }

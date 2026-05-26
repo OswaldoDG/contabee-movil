@@ -7,6 +7,7 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 using System.Windows.Input;
 using CommunityToolkit.Maui.Extensions;
@@ -18,6 +19,7 @@ public partial class FacturacionPage : ContentPage
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
     private Contabee.Api.Transcript.Busqueda? _ultimaBusqueda;
     internal static Guid? ProcesoAsociadoFiltroId { get; set; }
     internal static TipoProcesoCaptura? ProcesoAsociadoFiltroTipo { get; set; }
@@ -84,11 +86,12 @@ public partial class FacturacionPage : ContentPage
 
     // ── Constructor ──────────────────────────────────────────────────────────────
 
-    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioLogs logs, IAppLogger logger)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
         BuscarFacturasCommand = new Command<Contabee.Api.Transcript.Busqueda>(async b => await OnBuscarFacturas(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
         PaginaSiguienteCommand = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
@@ -112,21 +115,32 @@ public partial class FacturacionPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        PanelFiltros.RestaurarEstado();
-
-        if (ProcesoAsociadoFiltroId.HasValue)
+        try
         {
-            var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
-            ProcesoAsociadoFiltroId = null;
-            ProcesoAsociadoFiltroTipo = null;
-            await OnBuscarFacturas(busquedaProceso);
-            return;
-        }
+            _logger.Info("Facturacion.OnAppearing", "Inicio de carga de pantalla de facturación.");
+            PanelFiltros.RestaurarEstado();
 
-        if (!PendienteActualizarFacturas) return;
-        PendienteActualizarFacturas = false;
-        await Task.Delay(250);
-        PanelFiltros.IrARecientes();
+            if (ProcesoAsociadoFiltroId.HasValue)
+            {
+                var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
+                ProcesoAsociadoFiltroId = null;
+                ProcesoAsociadoFiltroTipo = null;
+                await OnBuscarFacturas(busquedaProceso);
+                _logger.Info("Facturacion.OnAppearingExitoso", "Carga de pantalla de facturación completada con filtro de proceso asociado.");
+                return;
+            }
+
+            if (!PendienteActualizarFacturas) return;
+            PendienteActualizarFacturas = false;
+            await Task.Delay(250);
+            PanelFiltros.IrARecientes();
+            _logger.Info("Facturacion.OnAppearingExitoso", "Carga de pantalla de facturación completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Facturacion.OnAppearingException", "Excepción no controlada al cargar pantalla de facturación.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo cargar la pantalla de facturación.", verBotonCancelar: false, confirmarText: "OK");
+        }
     }
 
     private static Contabee.Api.Transcript.Busqueda CrearBusquedaPorProceso(Guid procesoId, TipoProcesoCaptura? tipo)
@@ -183,8 +197,18 @@ public partial class FacturacionPage : ContentPage
     private async void OnAbrirCaptura(object sender, TappedEventArgs e)
     {
         if (!TieneCreditos) return;
-        await Shell.Current.GoToAsync(nameof(PaginaCaptura),
-            new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
+        try
+        {
+            _logger.Info("Facturacion.AbrirCaptura", "Inicio de navegación a pantalla de captura.");
+            await Shell.Current.GoToAsync(nameof(PaginaCaptura),
+                new Dictionary<string, object> { ["tipo"] = TipoProcesoCaptura.FacturaIndividual });
+            _logger.Info("Facturacion.AbrirCapturaExitoso", "Navegación a pantalla de captura completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Facturacion.AbrirCapturaException", "Excepción no controlada al navegar a captura.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo abrir la pantalla de captura.", verBotonCancelar: false, confirmarText: "OK");
+        }
     }
 
 
@@ -192,6 +216,7 @@ public partial class FacturacionPage : ContentPage
     {
         if (AppState.Instance.CuentaFiscalActual is null)
         {
+            _logger.Info("Facturacion.SeleccionarCuentaFiscal", "No hay cuenta fiscal activa, se mostrará selector.");
             await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
             return;
         }
@@ -209,6 +234,7 @@ public partial class FacturacionPage : ContentPage
         EstaCargando = true;
         try
         {
+            _logger.Info("Facturacion.EjecutarBusqueda", "Inicio de búsqueda de capturas/facturas.");
             var resultado = await _servicioTranscript.BusquedaCapturas(_ultimaBusqueda);
 
             int offset = (pagina - 1) * AppSettings.Consulta.TamanoPagina;
@@ -220,10 +246,12 @@ public partial class FacturacionPage : ContentPage
             TotalPaginas = (int)Math.Ceiling((double)resultado.Total / AppSettings.Consulta.TamanoPagina);
             if (TotalPaginas < 1) TotalPaginas = 1;
             ConsultaEjecutada = true;
+            _logger.Info("Facturacion.EjecutarBusquedaExitoso", "Búsqueda de capturas/facturas completada.");
 
         }
         catch (Exception ex)
         {
+            _logger.Debug("Facturacion.EjecutarBusquedaException", "Excepción no controlada al buscar capturas/facturas.", ex);
             _logs.Log($"[FacturacionPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }

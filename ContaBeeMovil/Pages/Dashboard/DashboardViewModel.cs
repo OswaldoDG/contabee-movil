@@ -11,6 +11,7 @@ using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using Newtonsoft.Json;
 
 namespace ContaBeeMovil.Pages.Dashboard;
@@ -20,6 +21,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioEcommerce _servicioEcommerce;
+    private readonly IAppLogger _logger;
 
     private const string CacheDataKey        = "Dashboard_Actividad_Data";
     private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
@@ -40,11 +42,12 @@ public class DashboardViewModel : INotifyPropertyChanged
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
-    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce)
+    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce, IAppLogger logger)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _servicioEcommerce = servicioEcommerce;
+        _logger = logger;
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
 
@@ -208,8 +211,17 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     private async Task CargarCuponBienvenidaAsync()
     {
-        var cupones = await _servicioEcommerce.CuponesUsuario();
-        TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
+        try
+        {
+            _logger.Info("Dashboard.CargarCuponBienvenida", "Inicio de carga de cupones para dashboard.");
+            var cupones = await _servicioEcommerce.CuponesUsuario();
+            TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
+            _logger.Info("Dashboard.CargarCuponBienvenidaExitoso", "Carga de cupones para dashboard completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Dashboard.CargarCuponBienvenidaException", "Excepción no controlada al cargar cupones en dashboard.", ex);
+        }
     }
 
     private async Task PullRefreshAsync()
@@ -217,10 +229,16 @@ public class DashboardViewModel : INotifyPropertyChanged
         EstaRefrescando = true;
         try
         {
+            _logger.Info("Dashboard.PullRefresh", "Inicio de actualización manual de dashboard.");
             LimpiarCache();
             await Task.WhenAll(
                 CargarEstadisticasAsync(forzarActualizacion: true),
                 CargarCuponBienvenidaAsync());
+            _logger.Info("Dashboard.PullRefreshExitoso", "Actualización manual de dashboard completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Dashboard.PullRefreshException", "Excepción no controlada durante actualización manual de dashboard.", ex);
         }
         finally
         {
@@ -230,27 +248,48 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     private async Task ReiniciarAlMesActualAsync()
     {
-        _mes = DateTime.Now.Month;
-        _anio = DateTime.Now.Year;
-        OnPropertyChanged(nameof(MesAnioTexto));
-        OnPropertyChanged(nameof(MesNombreTexto));
-        OnPropertyChanged(nameof(UltimoDiaMes));
-        OnPropertyChanged(nameof(MaximoEjeX));
-        ((Command)MesSiguienteCommand).ChangeCanExecute();
-        await CargarEstadisticasAsync(forzarActualizacion: true);
+        try
+        {
+            _logger.Info("Dashboard.ReiniciarMesActual", "Inicio de reinicio de periodo al mes actual.");
+            _mes = DateTime.Now.Month;
+            _anio = DateTime.Now.Year;
+            OnPropertyChanged(nameof(MesAnioTexto));
+            OnPropertyChanged(nameof(MesNombreTexto));
+            OnPropertyChanged(nameof(UltimoDiaMes));
+            OnPropertyChanged(nameof(MaximoEjeX));
+            ((Command)MesSiguienteCommand).ChangeCanExecute();
+            await CargarEstadisticasAsync(forzarActualizacion: true);
+            _logger.Info("Dashboard.ReiniciarMesActualExitoso", "Reinicio de periodo al mes actual completado.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Dashboard.ReiniciarMesActualException", "Excepción no controlada al reiniciar periodo al mes actual.", ex);
+        }
     }
 
     private async Task NavegaMesAsync(int delta)
     {
-        var fecha = new DateTime(_anio, _mes, 1).AddMonths(delta);
-        _mes = fecha.Month;
-        _anio = fecha.Year;
-        OnPropertyChanged(nameof(MesAnioTexto));
-        OnPropertyChanged(nameof(MesNombreTexto));
-        OnPropertyChanged(nameof(UltimoDiaMes));
-        OnPropertyChanged(nameof(MaximoEjeX));
-        ((Command)MesSiguienteCommand).ChangeCanExecute();
-        await CargarEstadisticasAsync();
+        try
+        {
+            _logger.Info("Dashboard.NavegaMes", "Inicio de navegación de periodo en dashboard.", new Dictionary<string, object?>
+            {
+                ["Delta"] = delta
+            });
+            var fecha = new DateTime(_anio, _mes, 1).AddMonths(delta);
+            _mes = fecha.Month;
+            _anio = fecha.Year;
+            OnPropertyChanged(nameof(MesAnioTexto));
+            OnPropertyChanged(nameof(MesNombreTexto));
+            OnPropertyChanged(nameof(UltimoDiaMes));
+            OnPropertyChanged(nameof(MaximoEjeX));
+            ((Command)MesSiguienteCommand).ChangeCanExecute();
+            await CargarEstadisticasAsync();
+            _logger.Info("Dashboard.NavegaMesExitoso", "Navegación de periodo en dashboard completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Dashboard.NavegaMesException", "Excepción no controlada al navegar periodo en dashboard.", ex);
+        }
     }
 
     private async Task CargarEstadisticasAsync(bool forzarActualizacion = false)
@@ -300,6 +339,7 @@ public class DashboardViewModel : INotifyPropertyChanged
         EstaCargando = true;
         try
         {
+            _logger.Info("Dashboard.CargarEstadisticas", "Inicio de carga de estadísticas del dashboard.");
             var resultado = await _servicioTranscript.GetEstadisticas(cfid.Value, _anio, _mes);
             if (!resultado.Ok || resultado.Payload == null)
             {
@@ -333,9 +373,11 @@ public class DashboardViewModel : INotifyPropertyChanged
                 GuardarCache(resultado.Payload);
                 Preferences.Default.Remove(CacheSinActividadKey);
             }
+            _logger.Info("Dashboard.CargarEstadisticasExitoso", "Carga de estadísticas del dashboard completada.");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.Debug("Dashboard.CargarEstadisticasException", "Excepción no controlada al cargar estadísticas del dashboard.", ex);
             TieneError   = true;
             MensajeError = "Ocurrió un error inesperado.\nIntenta de nuevo.";
         }

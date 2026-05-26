@@ -34,6 +34,7 @@ using Syncfusion.Maui.Toolkit.Hosting;
 using ContaBee.Pages.Cupones;
 using ContaBee.Services;
 using ContaBee.Models.Configuracion;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Logging;
 using Serilog;
 using Serilog.Core;
@@ -124,8 +125,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
-            builder.Services.AddSingleton<LogContextService>();
-            builder.Services.AddSingleton<IAppLogger, AppLogger>();
+            builder.Services.AddSingleton<IAppLogger, ApiAppLogger>();
             builder.Services.AddSingleton(LogLevelSwitch);
             builder.Services.AddSingleton<ILogLevelControlService, LogLevelControlService>();
             builder.Services.AddTransient<AuthHandler>();

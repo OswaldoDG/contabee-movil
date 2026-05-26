@@ -2,12 +2,14 @@
 using System.Text.Json;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
+using Contabee.Api.Logging;
 
 namespace Contabee.Api;
 
-public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
+public class ServicioIdentidad(HttpClient httpClient, IAppLogger logger) : IServicioIdentidad
 {
     private readonly ServicioIdentidadClient servicioIdentidad = new (httpClient.BaseAddress!.ToString(), httpClient);
+    private readonly IAppLogger _logger = logger;
 
 
 
@@ -17,11 +19,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
 		{
+         _logger.Info("ServicioIdentidad.Registrar", "Inicio de registro de usuario.");
 			await servicioIdentidad.RegistroAsync(true, request);
             r.Ok = true;
+        _logger.Info("ServicioIdentidad.RegistrarExitoso", "Registro de usuario completado.");
         }
 		catch (Exception ex)
 		{
+         _logger.Debug("ServicioIdentidad.RegistrarException", "Excepción no controlada al registrar usuario.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Registrar");
 		}
 
@@ -34,6 +39,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.IniciarSesion", "Inicio de autenticación.");
             var formData = new Dictionary<string, string>
             {
                 ["grant_type"] = "password",
@@ -55,6 +61,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             {
                 respuesta.Payload = JsonSerializer.Deserialize<RespuestaToken>(json);
                 respuesta.HttpCode = System.Net.HttpStatusCode.OK;
+                _logger.Info("ServicioIdentidad.IniciarSesionExitoso", "Autenticación completada correctamente.");
             }
             else
             {
@@ -66,11 +73,17 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     Origen = "ServicioIdentidad-IniciarSesion",
                     HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
+                _logger.Debug("ServicioIdentidad.IniciarSesionError", "Error de autenticación.", new Dictionary<string, object?>
+                {
+                    ["HttpCode"] = (int)httpResponse.StatusCode,
+                    ["Codigo"] = respuesta.Error.Codigo
+                });
             }
             servicioIdentidad.TokenAsync();
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.IniciarSesionException", "Excepción no controlada al autenticar usuario.", ex);
             respuesta.Error = ex.ErrorGenerico("ServicioIdentidad-IniciarSesion");
         }
 
@@ -82,11 +95,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.ConfirmarCuenta", "Inicio de confirmación de cuenta.");
             await servicioIdentidad.ConfirmarPOSTAsync(token);
             r.Ok = true;
+            _logger.Info("ServicioIdentidad.ConfirmarCuentaExitoso", "Confirmación de cuenta completada.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.ConfirmarCuentaException", "Excepción no controlada al confirmar cuenta.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Confirmar Cuenta");
         }
 
@@ -99,11 +115,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.RecuperarPassword", "Inicio de recuperación de contraseña.");
             await servicioIdentidad.RecuperarAsync(email);
             r.Ok = true;
+            _logger.Info("ServicioIdentidad.RecuperarPasswordExitoso", "Solicitud de recuperación completada.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.RecuperarPasswordException", "Excepción no controlada al recuperar contraseña.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Rescuperar Password");
         }
 
@@ -116,6 +135,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.GetPerfil", "Inicio de consulta de perfil.");
             var res = await servicioIdentidad.MiGETAsync();
             if(res != null)
             {
@@ -129,9 +149,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                 };
             }
             r.Ok = true;
+            _logger.Info("ServicioIdentidad.GetPerfilExitoso", "Consulta de perfil completada.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.GetPerfilException", "Excepción no controlada al obtener perfil.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Get Perfil");
         }
 
@@ -145,6 +167,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.RestablecerContrasena", "Inicio de restablecimiento de contraseña.");
             var body = new RecuperacionContrasena
             {
                 Password = password,
@@ -153,9 +176,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             await servicioIdentidad.RestablecerAsync(body);
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
+            _logger.Info("ServicioIdentidad.RestablecerContrasenaExitoso", "Restablecimiento de contraseña completado.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.RestablecerContrasenaException", "Excepción no controlada al restablecer contraseña.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-RestablecerContrasena");
         }
 
@@ -168,6 +193,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.CambiarContrasena", "Inicio de cambio de contraseña.");
             var body = new { actual, nueva };
             var json = JsonSerializer.Serialize(body);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -180,6 +206,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             {
                 r.Ok = true;
                 r.HttpCode = System.Net.HttpStatusCode.OK;
+                _logger.Info("ServicioIdentidad.CambiarContrasenaExitoso", "Cambio de contraseña completado.");
             }
             else
             {
@@ -206,10 +233,16 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     Origen = "ServicioIdentidad-CambiarContrasena",
                     HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
+                _logger.Debug("ServicioIdentidad.CambiarContrasenaError", "Error al cambiar contraseña.", new Dictionary<string, object?>
+                {
+                    ["HttpCode"] = (int)httpResponse.StatusCode,
+                    ["Codigo"] = codigo
+                });
             }
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.CambiarContrasenaException", "Excepción no controlada al cambiar contraseña.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-CambiarContrasena");
         }
 
@@ -222,11 +255,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
+            _logger.Info("ServicioIdentidad.EliminarCuenta", "Inicio de eliminación de cuenta.");
             await servicioIdentidad.MiDELETEAsync(new DTOEliminarUsuario { Contrasena = password});
             r.Ok = true;
+            _logger.Info("ServicioIdentidad.EliminarCuentaExitoso", "Eliminación de cuenta completada.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.EliminarCuentaException", "Excepción no controlada al eliminar cuenta.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-EliminarCuenta");
         }
 
@@ -238,13 +274,17 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         RespuestaPayload<List<CuentaUsuario>> r = new();
 
         try
-        {   var res= await servicioIdentidad.ObtieneUsuariosCuentaFiscalAsync(cfid);
+        {
+            _logger.Info("ServicioIdentidad.MisUsuarios", "Inicio de consulta de usuarios por cuenta fiscal.");
+            var res= await servicioIdentidad.ObtieneUsuariosCuentaFiscalAsync(cfid);
             r.Payload = res.ToList();
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
+            _logger.Info("ServicioIdentidad.MisUsuariosExitoso", "Consulta de usuarios completada.");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ServicioIdentidad.MisUsuariosException", "Excepción no controlada al obtener usuarios de cuenta fiscal.", ex);
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Obtener Usuarios");
         }
 

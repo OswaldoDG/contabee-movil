@@ -1,8 +1,9 @@
-ï»¿using Contabee.Api.abstractions;
+using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using Contabee.Api.Ecommerce;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -15,6 +16,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
     private readonly IServicioEcommerce _servicioEcommerce;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IAppLogger _logger;
 
     private bool _estaCargando;
     private string _codigoCupon = string.Empty;
@@ -59,11 +61,13 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
     public PaginaCuponesViewModel(
         IServicioEcommerce servicioEcommerce,
         IServicioSesion servicioSesion,
-        IServicioAlerta servicioAlerta)
+        IServicioAlerta servicioAlerta,
+        IAppLogger logger)
     {
         _servicioEcommerce = servicioEcommerce;
         _servicioSesion = servicioSesion;
         _servicioAlerta = servicioAlerta;
+        _logger = logger;
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
@@ -86,12 +90,19 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         EstaCargando = true;
         try
         {
+            _logger.Info("Cupones.CargarCupones", "Inicio de carga de cupones del usuario.");
             _ = await _servicioSesion.LeeIdDeDispositivo();
             var cupones = await _servicioEcommerce.CuponesUsuario();
 
             Cupones.Clear();
             foreach (var item in cupones ?? [])
                 Cupones.Add(item);
+            _logger.Info("Cupones.CargarCuponesExitoso", "Carga de cupones del usuario completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Cupones.CargarCuponesException", "Excepción no controlada al cargar cupones.", ex);
+            await _servicioAlerta.MostrarAsync("Cupón", "No se pudieron cargar los cupones.", confirmarText: "OK", verBotonCancelar: false);
         }
         finally
         {
@@ -106,13 +117,14 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         var codigo = CodigoCupon?.Trim();
         if (string.IsNullOrWhiteSpace(codigo))
         {
-            await _servicioAlerta.MostrarAsync("CupÃ³n", "Captura un cÃ³digo.", confirmarText: "OK", verBotonCancelar: false);
+            await _servicioAlerta.MostrarAsync("Cupón", "Captura un código.", confirmarText: "OK", verBotonCancelar: false);
             return;
         }
 
         EstaCargando = true;
         try
-        {            
+        {
+            _logger.Info("Cupones.RegistrarCuponPorCodigo", "Inicio de registro de cupón por código.");
             var registrado = await _servicioEcommerce.AplicarCupon(codigo, new ActivacionCuponDto
             {
                 Codigo = codigo,
@@ -121,11 +133,17 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             if (registrado.Codigo is null || registrado.Aplicado)
             {
-                await _servicioAlerta.MostrarAsync("CupÃ³n", "No se pudo registrar el cupÃ³n.", confirmarText: "OK", verBotonCancelar: false);
+                await _servicioAlerta.MostrarAsync("Cupón", "No se pudo registrar el cupón.", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
 
             CodigoCupon = string.Empty;
+            _logger.Info("Cupones.RegistrarCuponPorCodigoExitoso", "Registro de cupón por código completado.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Cupones.RegistrarCuponPorCodigoException", "Excepción no controlada al registrar cupón.", ex);
+            await _servicioAlerta.MostrarAsync("Cupón", "No se pudo registrar el cupón.", confirmarText: "OK", verBotonCancelar: false);
         }
         finally
         {
@@ -133,6 +151,17 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         }
 
         await CargarCuponesAsync();
+
+        try
+        {
+            _logger.Info("Cupones.RefrescarLicencia", "Inicio de actualización de licencia tras registro de cupón.");
+            await _servicioSesion.GetLicenciaAsync();
+            _logger.Info("Cupones.RefrescarLicenciaExitoso", "Actualización de licencia tras registro de cupón completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Cupones.RefrescarLicenciaException", "Excepción no controlada al actualizar licencia después de registrar cupón.", ex);
+        }
     }
 
     private async Task AplicarCuponAsync(CuponUsuario? item)
@@ -145,6 +174,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         EstaCargando = true;
         try
         {
+            _logger.Info("Cupones.AplicarCupon", "Inicio de activación de cupón.");
             _ = await _servicioSesion.LeeIdDeDispositivo();
 
             var payload = new ActivacionCuponDto
@@ -163,20 +193,40 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             if (activacion is null || !activacion.Aplicado)
             {
-                await _servicioAlerta.MostrarAsync("CupÃ³n", "No se pudo activar el cupÃ³n.", confirmarText: "OK", verBotonCancelar: false);
+                _logger.Debug("Cupones.AplicarCuponError", "La API devolvió error al activar cupón.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = activacion?.Codigo,
+                    ["Mensaje"] = activacion?.Descripcion
+                });
+                await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
 
             AppState.Instance.CuponesVersion++;
+            _logger.Info("Cupones.AplicarCuponExitoso", "Activación de cupón completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Cupones.AplicarCuponException", "Excepción no controlada al activar cupón.", ex);
+            await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
         }
         finally
         {
             EstaCargando = false;
         }
 
-        await Task.WhenAll(
-            CargarCuponesAsync(),
-            _servicioSesion.GetLicenciaAsync());
+        try
+        {
+            _logger.Info("Cupones.RefrescarDatos", "Inicio de actualización de cupones y licencia.");
+            await Task.WhenAll(
+                CargarCuponesAsync(),
+                _servicioSesion.GetLicenciaAsync());
+            _logger.Info("Cupones.RefrescarDatosExitoso", "Actualización de cupones y licencia completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Cupones.RefrescarDatosException", "Excepción no controlada al actualizar cupones/licencia.", ex);
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

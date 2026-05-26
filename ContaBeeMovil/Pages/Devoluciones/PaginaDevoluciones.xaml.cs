@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Devoluciones;
@@ -20,6 +21,7 @@ public partial class PaginaDevoluciones : ContentPage
 	private readonly IServicioTranscript _servicioTranscript;
 	private readonly IServicioAlerta _servicioAlerta;
 	private readonly IServicioLogs _logs;
+  private readonly IAppLogger _logger;
 	private Busqueda? _ultimaBusqueda;
 	private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
 	private bool _abriendoPopup;
@@ -98,11 +100,13 @@ public partial class PaginaDevoluciones : ContentPage
 	public PaginaDevoluciones(
 		IServicioTranscript servicioTranscript,
 		IServicioAlerta servicioAlerta,
-		IServicioLogs logs)
+     IServicioLogs logs,
+		IAppLogger logger)
 	{
 		_servicioTranscript = servicioTranscript;
 		_servicioAlerta = servicioAlerta;
 		_logs = logs;
+		_logger = logger;
 
 		BuscarDevolucionesCommand = new Command<Busqueda>(async b => await OnBuscarDevoluciones(b));
 		PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
@@ -144,12 +148,22 @@ public partial class PaginaDevoluciones : ContentPage
 	{
 		if (item is null) return;
 
-		await Shell.Current.GoToAsync(nameof(DetalleDevolucionPage),
-			new Dictionary<string, object>
-			{
-				["devolucionId"] = item.Datos.Id,
-				["rfc"] = item.CuentaFiscalRfc
-			});
+		try
+		{
+			_logger.Info("Devoluciones.AbrirDetalle", "Inicio de navegación a detalle de devolución.");
+			await Shell.Current.GoToAsync(nameof(DetalleDevolucionPage),
+				new Dictionary<string, object>
+				{
+					["devolucionId"] = item.Datos.Id,
+					["rfc"] = item.CuentaFiscalRfc
+				});
+			_logger.Info("Devoluciones.AbrirDetalleExitoso", "Navegación a detalle de devolución completada.");
+		}
+		catch (Exception ex)
+		{
+			_logger.Debug("Devoluciones.AbrirDetalleException", "Excepción no controlada al navegar al detalle de devolución.", ex);
+			await _servicioAlerta.MostrarAsync("Error", "No se pudo abrir el detalle de la devolución.", verBotonCancelar: false, confirmarText: "OK");
+		}
 	}
 
 	public void OnTabActivated()
@@ -164,6 +178,7 @@ public partial class PaginaDevoluciones : ContentPage
 	{
 		if (AppState.Instance.CuentaFiscalActual is null)
 		{
+         _logger.Info("Devoluciones.SeleccionarCuentaFiscal", "No hay cuenta fiscal activa, se mostrará selector.");
 			await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
 			return;
 		}
@@ -191,6 +206,7 @@ public partial class PaginaDevoluciones : ContentPage
         EstaCargando = true;
 		try
 		{
+          _logger.Info("Devoluciones.EjecutarBusqueda", "Inicio de búsqueda de devoluciones.");
           _logs.Log($"[PaginaDevoluciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}");
 			var resultado = await _servicioTranscript.BusquedaDevoluciones(_ultimaBusqueda);
 
@@ -209,9 +225,15 @@ public partial class PaginaDevoluciones : ContentPage
 			TotalPaginas = (int)Math.Ceiling((double)resultado.Total / divisorPaginas);
 			if (TotalPaginas < 1) TotalPaginas = 1;
 			ConsultaEjecutada = true;
+          _logger.Info("Devoluciones.EjecutarBusquedaExitoso", "Búsqueda de devoluciones completada.");
 		}
         catch (ApiException ex)
 		{
+          _logger.Debug("Devoluciones.EjecutarBusquedaApiException", "La API devolvió error en búsqueda de devoluciones.", new Dictionary<string, object?>
+			{
+              ["StatusCode"] = ex.StatusCode,
+				["Mensaje"] = ex.Message
+			});
 			_logs.Log($"[PaginaDevoluciones] ApiException Status={ex.StatusCode} Body={ex.Response}");
 			await _servicioAlerta.MostrarAsync(
 				"Error",
@@ -223,6 +245,7 @@ public partial class PaginaDevoluciones : ContentPage
 		}
 		catch (Exception ex)
 		{
+          _logger.Debug("Devoluciones.EjecutarBusquedaException", "Excepción no controlada al buscar devoluciones.", ex);
 			_logs.Log($"[PaginaDevoluciones] {ex.GetType().Name}: {ex.Message}");
 			await _servicioAlerta.MostrarAsync(
 				"Error",
@@ -243,6 +266,7 @@ public partial class PaginaDevoluciones : ContentPage
 
        try
 		{
+           _logger.Info("Devoluciones.Crear", "Inicio del flujo de creación de devolución.");
            var hostPage = ObtenerPaginaActivaParaPopup() ?? this;
 			_logs.Log($"[PaginaDevoluciones-Crear] HostPage={hostPage.GetType().Name}");
 
@@ -271,6 +295,12 @@ public partial class PaginaDevoluciones : ContentPage
 			var respuesta = await _servicioTranscript.CrearDevolucionAsync(request);
 			if (!respuesta.Ok)
 			{
+             _logger.Debug("Devoluciones.CrearError", "La API devolvió error al crear devolución.", new Dictionary<string, object?>
+				{
+					["Codigo"] = respuesta.Error?.Codigo,
+					["Mensaje"] = respuesta.Error?.Mensaje,
+					["HttpCode"] = (int?)respuesta.Error?.HttpCode
+				});
              MostrarOverlayCarga = false;
 				await _servicioAlerta.MostrarAsync(
 					"Error",
@@ -288,9 +318,11 @@ public partial class PaginaDevoluciones : ContentPage
 
           MostrarOverlayCarga = false;
 			await EjecutarBusqueda(1);
+           _logger.Info("Devoluciones.CrearExitoso", "Devolución creada correctamente.");
 		}
         catch (Exception ex)
 		{
+         _logger.Debug("Devoluciones.CrearException", "Excepción no controlada al crear devolución.", ex);
 			_logs.Log($"[PaginaDevoluciones-Crear] {ex.GetType().Name}: {ex.Message}");
 			await _servicioAlerta.MostrarAsync(
 				"Error",

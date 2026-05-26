@@ -5,6 +5,7 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Perfil;
@@ -13,6 +14,7 @@ public partial class TarjetasPage : ContentPage
 {
     private readonly IServicioSesion _sesion;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IAppLogger _logger;
     private readonly ObservableCollection<TarjetaModel> _tarjetas = new();
 
     // Evita re-entradas mientras hay un popup activo
@@ -28,11 +30,12 @@ public partial class TarjetasPage : ContentPage
         CanBeDismissedByTappingOutsideOfPopup = false,
     };
 
-    public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta)
+    public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta, IAppLogger logger)
     {
         InitializeComponent();
         _sesion = sesion;
         _servicioAlerta = servicioAlerta;
+        _logger = logger;
         ListaTarjetas.ItemsSource = _tarjetas;
     }
 
@@ -97,8 +100,25 @@ public partial class TarjetasPage : ContentPage
 
     // ── Guarda en SecureStorage y AppState ───────────────────────────────────
 
-    private async Task SincronizarAsync()
-        => await _sesion.GuardarTarjetasAsync(_tarjetas.ToList());
+    private async Task<bool> SincronizarAsync()
+    {
+        try
+        {
+            _logger.Info("Tarjetas.Sincronizar", "Inicio de sincronización de tarjetas.", new Dictionary<string, object?>
+            {
+                ["TotalTarjetas"] = _tarjetas.Count
+            });
+            await _sesion.GuardarTarjetasAsync(_tarjetas.ToList());
+            _logger.Info("Tarjetas.SincronizarExitoso", "Sincronización de tarjetas completada.");
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tarjetas.SincronizarException", "Excepción no controlada al sincronizar tarjetas.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudieron guardar los cambios de tarjetas.", verBotonCancelar: false, confirmarText: "OK");
+            return false;
+        }
+    }
 
     // ── Gradiente + altura responsiva ─────────────────────────────────────────
 
@@ -143,7 +163,19 @@ public partial class TarjetasPage : ContentPage
             _tarjetas.Remove(tarjeta);
             ActualizarVisibilidad();
             LoadingOverlay.IsVisible = true;
-            try   { await SincronizarAsync(); }
+            try
+            {
+                _logger.Info("Tarjetas.Eliminar", "Inicio de eliminación de tarjeta.", new Dictionary<string, object?>
+                {
+                    ["TarjetaId"] = tarjeta.Id,
+                    ["Alias"] = tarjeta.Alias
+                });
+                var guardadoOk = await SincronizarAsync();
+                if (guardadoOk)
+                {
+                    _logger.Info("Tarjetas.EliminarExitoso", "Tarjeta eliminada y sincronizada correctamente.");
+                }
+            }
             finally { LoadingOverlay.IsVisible = false; }
         }
     }
@@ -156,6 +188,7 @@ public partial class TarjetasPage : ContentPage
         _enCRUD = true;
         try
         {
+            _logger.Info("Tarjetas.Agregar", "Inicio de alta de tarjeta.");
             TarjetaModel? nueva = null;
             await this.ShowPopupAsync(
                 new TarjetaFormPopup(result => nueva = result),
@@ -166,8 +199,17 @@ public partial class TarjetasPage : ContentPage
             {
                 _tarjetas.Add(nueva);
                 ActualizarVisibilidad();
-                await SincronizarAsync();
+                var guardadoOk = await SincronizarAsync();
+                if (guardadoOk)
+                {
+                    _logger.Info("Tarjetas.AgregarExitoso", "Tarjeta agregada y sincronizada correctamente.");
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tarjetas.AgregarException", "Excepción no controlada al agregar tarjeta.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo agregar la tarjeta.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -184,6 +226,11 @@ public partial class TarjetasPage : ContentPage
         _enCRUD = true;
         try
         {
+            _logger.Info("Tarjetas.Editar", "Inicio de edición de tarjeta.", new Dictionary<string, object?>
+            {
+                ["TarjetaId"] = tarjeta.Id,
+                ["Alias"] = tarjeta.Alias
+            });
             TarjetaModel? actualizada = null;
             await this.ShowPopupAsync(
                 new TarjetaFormPopup(result => actualizada = result, tarjeta),
@@ -199,9 +246,17 @@ public partial class TarjetasPage : ContentPage
                     _tarjetas.RemoveAt(index);
                     _tarjetas.Insert(index, actualizada);
                 }
-                await SincronizarAsync();
+
+                var guardadoOk = await SincronizarAsync();
                 CargarTarjetas();
+                if (guardadoOk)
+                    _logger.Info("Tarjetas.EditarExitoso", "Tarjeta editada y sincronizada correctamente.");
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tarjetas.EditarException", "Excepción no controlada al editar tarjeta.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo editar la tarjeta.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {

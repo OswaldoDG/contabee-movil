@@ -5,6 +5,7 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using System.Windows.Input;
 
 namespace ContaBeeMovil.Pages.Perfil;
@@ -14,14 +15,16 @@ public partial class RFCsPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
     private bool _autoNavegado;
 
-    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
     }
 
     protected override async void OnAppearing()
@@ -87,26 +90,44 @@ public partial class RFCsPage : ContentPage
         if (!confirmar) return;
 
         SetLoading(true);
-
-        Contabee.Api.Respuesta respuesta;
-        if (cuenta.TipoCuenta==TipoCuenta.Primaria)
-            respuesta = await _servicioCrm.EliminarCuentaFiscal(cuenta.CuentaFiscalId.ToString());
-        else
-            respuesta = await _servicioCrm.EliminarAsociacionFiscal(cuenta.Id);
-
-        if (respuesta.Ok)
+        _logger.Info("Rfcs.Eliminar", "Inicio de eliminación de cuenta fiscal.");
+        try
         {
-            var actualizadas = await _servicioCrm.GetAsociacionesFiscales();
-            if (actualizadas.Ok && actualizadas.Payload != null)
-                AppState.Instance.CuentasFiscales = actualizadas.Payload;
-            SetLoading(false);
-            CargarCuentas();
-        }
-        else
-        {
-            SetLoading(false);
+            Contabee.Api.Respuesta respuesta;
+            if (cuenta.TipoCuenta == TipoCuenta.Primaria)
+                respuesta = await _servicioCrm.EliminarCuentaFiscal(cuenta.CuentaFiscalId.ToString());
+            else
+                respuesta = await _servicioCrm.EliminarAsociacionFiscal(cuenta.Id);
+
+            if (respuesta.Ok)
+            {
+                _logger.Info("Rfcs.EliminarExitoso", "Cuenta fiscal eliminada correctamente.");
+                var actualizadas = await _servicioCrm.GetAsociacionesFiscales();
+                if (actualizadas.Ok && actualizadas.Payload != null)
+                    AppState.Instance.CuentasFiscales = actualizadas.Payload;
+
+                CargarCuentas();
+                return;
+            }
+
+            _logger.Debug("Rfcs.EliminarError", "La API devolvió error al eliminar cuenta fiscal.", new Dictionary<string, object?>
+            {
+                ["Codigo"] = respuesta.Error?.Codigo,
+                ["Mensaje"] = respuesta.Error?.Mensaje,
+                ["HttpCode"] = (int?)respuesta.Error?.HttpCode
+            });
             var mensaje = respuesta.Error?.Mensaje ?? "Error al eliminar la cuenta fiscal.";
             await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Rfcs.EliminarException", "Excepción no controlada al eliminar cuenta fiscal.", ex);
+            _logs.Log($"[RFCsPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "Error al eliminar la cuenta fiscal.", verBotonCancelar: false, confirmarText: "OK");
+        }
+        finally
+        {
+            SetLoading(false);
         }
     }
 

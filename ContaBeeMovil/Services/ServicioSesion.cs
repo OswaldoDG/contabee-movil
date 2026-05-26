@@ -6,7 +6,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
-using ContaBeeMovil.Services.Logging;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,10 +28,9 @@ public class ServicioSesion : IServicioSesion
     private readonly IServiceProvider _serviceProvider;
     private readonly IServicioLogs _logs;
     private readonly IAppLogger _appLogger;
-    private readonly LogContextService _logContextService;
     private bool _posLoginAbortado;
 
-    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs, IAppLogger appLogger, LogContextService logContextService)
+    public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs, IAppLogger appLogger)
     {
         _appState = appState;
         _servicioCrm = servicioCrm;
@@ -40,7 +39,6 @@ public class ServicioSesion : IServicioSesion
         _serviceProvider = serviceProvider;
         _logs = logs;
         _appLogger = appLogger;
-        _logContextService = logContextService;
     }
 
     public async Task<string> LeeIdDeDispositivo()
@@ -119,8 +117,10 @@ public class ServicioSesion : IServicioSesion
 
     private async Task ForzarReloginAsync(string mensaje)
     {
-        var context = _logContextService.BuildCommonContext();
-        context["Reason"] = mensaje;
+        var context = new Dictionary<string, object?>
+        {
+            ["Reason"] = mensaje
+        };
         _appLogger.Info("Auth.ForcedRelogin", "Se forzó relogin por estado de sesión o error de APIs de bootstrap.", context);
 
         _posLoginAbortado = true;
@@ -129,6 +129,7 @@ public class ServicioSesion : IServicioSesion
         _appState.CuentasFiscales = null;
         _appState.CuentaFiscalActual = null;
         _appState.MisUsuarios = null;
+        Preferences.Default.Remove("LogUserId");
 
         await MainThread.InvokeOnMainThreadAsync(async () =>
         {
@@ -289,9 +290,14 @@ public class ServicioSesion : IServicioSesion
 
                     if (usuarioActual is not null)
                     {
-                        _logContextService.SetCurrentUserId(usuarioActual.Id.ToString());
+                        Preferences.Default.Set("LogUserId", usuarioActual.Id.ToString());
+                        return;
                     }
                 }
+
+                var primerUsuario = usuarios.Payload.FirstOrDefault();
+                if (primerUsuario is not null)
+                    Preferences.Default.Set("LogUserId", primerUsuario.Id.ToString());
             }
         }
     }
@@ -334,7 +340,7 @@ public class ServicioSesion : IServicioSesion
         FiltrosDevolucionesView.LimpiarEstadoPersistido();
         FiltrosComprobacionesView.LimpiarEstadoPersistido();
 
-        _appLogger.Info("Auth.PostLoginStarted", "Inicio de carga de estado post-login.", _logContextService.BuildCommonContext());
+        _appLogger.Info("Auth.PostLoginStarted", "Inicio de carga de estado post-login.");
         _posLoginAbortado = false;
 
         await GetPerfilAsync();
@@ -347,12 +353,14 @@ public class ServicioSesion : IServicioSesion
         if (_posLoginAbortado) return;
 
         await GetLicenciaAsync();
-        _appLogger.Info("Auth.PostLoginCompleted", "Carga de estado post-login finalizada.", _logContextService.BuildCommonContext());
+        _appLogger.Info("Auth.PostLoginCompleted", "Carga de estado post-login finalizada.");
 
-        var postLoginDebugContext = _logContextService.BuildCommonContext();
-        postLoginDebugContext["TienePerfil"] = _appState.Perfil is not null;
-        postLoginDebugContext["CuentasFiscalesCount"] = _appState.CuentasFiscales?.Count ?? 0;
-        postLoginDebugContext["TieneLicenciamiento"] = _appState.Licenciamiento is not null;
+        var postLoginDebugContext = new Dictionary<string, object?>
+        {
+            ["TienePerfil"] = _appState.Perfil is not null,
+            ["CuentasFiscalesCount"] = _appState.CuentasFiscales?.Count ?? 0,
+            ["TieneLicenciamiento"] = _appState.Licenciamiento is not null
+        };
         _appLogger.Debug("Auth.PostLoginSummary", "Resumen técnico del estado post-login.", postLoginDebugContext);
     }
 
@@ -387,6 +395,7 @@ public class ServicioSesion : IServicioSesion
         _appState.Licenciamiento = null;
         _appState.MisUsuarios = null;
         _appState.Tarjetas = [];
+        Preferences.Default.Remove("LogUserId");
 
 
         await MainThread.InvokeOnMainThreadAsync(() =>
@@ -423,6 +432,7 @@ public class ServicioSesion : IServicioSesion
         _appState.Licenciamiento = null;
         _appState.MisUsuarios = null;
         _appState.Tarjetas = [];
+        Preferences.Default.Remove("LogUserId");
 
         // Navegar al login
         await MainThread.InvokeOnMainThreadAsync(() =>

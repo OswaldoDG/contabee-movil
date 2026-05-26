@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Dev;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Devoluciones;
@@ -18,6 +19,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     private Guid _devolucionId;
     private string _rfc = "RFC no disponible";
@@ -105,13 +107,15 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     public DetalleDevolucionPage(
         IServicioTranscript servicioTranscript,
         IServicioAlerta servicioAlerta,
-        IServicioLogs logs)
+        IServicioLogs logs,
+        IAppLogger logger)
     {
         InitializeComponent();
         InicializarSelectores();
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
 
         ActualizarEstadoCommand = new Command(async () => await ActualizarEstadoAsync());
         IrCapturaCommand = new Command(async () => await IrCapturaAsync());
@@ -155,9 +159,16 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleDevolucion.CargarDetalle", "Inicio de carga del detalle de devolución.");
             var res = await _servicioTranscript.ObtenerDevolucionAsync(_devolucionId);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleDevolucion.CargarDetalleError", "La API devolvió error al obtener detalle de devolución.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 if (EsEntidadNoEncontrada(res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
@@ -174,6 +185,13 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             await CargarCapturasRelacionadasAsync(1);
             RefrescarBindings();
+            _logger.Info("DetalleDevolucion.CargarDetalleExitoso", "Detalle de devolución cargado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleDevolucion.CargarDetalleException", "Excepción no controlada al cargar detalle de devolución.", ex);
+            _logs.Log($"[DetalleDevolucionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo cargar la devolución.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -236,6 +254,10 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
         try
         {
+            _logger.Info("DetalleDevolucion.CargarCapturas", "Inicio de carga de capturas relacionadas.", new Dictionary<string, object?>
+            {
+                ["Pagina"] = pagina
+            });
             var filtros = new List<Filtro>();
 
             var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
@@ -279,9 +301,15 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             if (TotalPaginasCapturas < 1)
                 TotalPaginasCapturas = 1;
             ConsultaCapturasEjecutada = true;
+            _logger.Info("DetalleDevolucion.CargarCapturasExitoso", "Capturas relacionadas cargadas correctamente.", new Dictionary<string, object?>
+            {
+                ["TotalEncontradas"] = TotalCapturasEncontradas,
+                ["PaginaActual"] = PaginaCapturasActual
+            });
         }
         catch (Exception ex)
         {
+            _logger.Debug("DetalleDevolucion.CargarCapturasException", "Excepción no controlada al cargar capturas relacionadas.", ex);
             _logs.Log($"[DetalleDevolucionPage] Error cargando capturas relacionadas: {ex.Message}");
             CapturasRelacionadas = [];
             TotalCapturasEncontradas = 0;
@@ -302,6 +330,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleDevolucion.Editar", "Inicio de actualización de devolución.");
             var req = new ActualizaDevolucion
             {
                 Id = _devolucion.Id,
@@ -311,6 +340,12 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             var res = await _servicioTranscript.ActualizarDevolucionAsync(_devolucion.Id, req);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleDevolucion.EditarError", "La API devolvió error al actualizar devolución.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar la devolución.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -318,6 +353,13 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             _devolucion = res.Payload;
             RefrescarBindings();
             PaginaDevoluciones.PendienteActualizarListado = true;
+            _logger.Info("DetalleDevolucion.EditarExitoso", "Devolución actualizada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleDevolucion.EditarException", "Excepción no controlada al actualizar devolución.", ex);
+            _logs.Log($"[DetalleDevolucionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo actualizar la devolución.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -340,9 +382,16 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleDevolucion.Eliminar", "Inicio de eliminación de devolución.");
             var res = await _servicioTranscript.EliminarDevolucionAsync(_devolucion.Id);
             if (!res.Ok)
             {
+                _logger.Debug("DetalleDevolucion.EliminarError", "La API devolvió error al eliminar devolución.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo eliminar la devolución.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -351,6 +400,13 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             _navegandoTrasEliminacion = true;
             _detalleNoDisponible = true;
             await Shell.Current.GoToAsync("..");
+            _logger.Info("DetalleDevolucion.EliminarExitoso", "Devolución eliminada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleDevolucion.EliminarException", "Excepción no controlada al eliminar devolución.", ex);
+            _logs.Log($"[DetalleDevolucionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo eliminar la devolución.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
@@ -386,9 +442,19 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         EstaCargando = true;
         try
         {
+            _logger.Info("DetalleDevolucion.ActualizarEstado", "Inicio de actualización de estado de devolución.", new Dictionary<string, object?>
+            {
+                ["EstadoSeleccionado"] = EstadoSeleccionado
+            });
             var res = await _servicioTranscript.ActualizarEstadoDevolucionAsync(_devolucion.Id, estadoNuevo);
             if (!res.Ok || res.Payload is null)
             {
+                _logger.Debug("DetalleDevolucion.ActualizarEstadoError", "La API devolvió error al actualizar estado de devolución.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = res.Error?.Codigo,
+                    ["Mensaje"] = res.Error?.Mensaje,
+                    ["HttpCode"] = (int?)res.Error?.HttpCode
+                });
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar el estado.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
@@ -397,6 +463,13 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
             PaginaDevoluciones.PendienteActualizarListado = true;
+            _logger.Info("DetalleDevolucion.ActualizarEstadoExitoso", "Estado de devolución actualizado correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("DetalleDevolucion.ActualizarEstadoException", "Excepción no controlada al actualizar estado de devolución.", ex);
+            _logs.Log($"[DetalleDevolucionPage] {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo actualizar el estado de la devolución.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {

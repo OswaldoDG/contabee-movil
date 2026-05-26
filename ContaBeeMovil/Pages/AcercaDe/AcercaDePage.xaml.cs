@@ -1,5 +1,6 @@
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
+using Contabee.Api.Logging;
 using MauiIcons.Core;
 using MauiIcons.Material;
 
@@ -8,15 +9,17 @@ namespace ContaBeeMovil.Pages.AcercaDe;
 public partial class AcercaDePage : ContentPage
 {
     private readonly IServicioSalud _servicioSalud;
+    private readonly IAppLogger _logger;
     private CancellationTokenSource? _ctsLoader;
 
     private static bool UsuarioLogueado
         => Application.Current?.Windows.FirstOrDefault()?.Page is Shell;
 
-    public AcercaDePage(IServicioSalud servicioSalud)
+    public AcercaDePage(IServicioSalud servicioSalud, IAppLogger logger)
     {
         InitializeComponent();
         _servicioSalud = servicioSalud;
+        _logger = logger;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
         BtnMenu.IsVisible = UsuarioLogueado;
     }
@@ -26,7 +29,14 @@ public partial class AcercaDePage : ContentPage
         base.OnAppearing();
         ActualizarInternet();
         Connectivity.ConnectivityChanged += OnConectividadCambiada;
-        await VerificarServiciosAsync();
+        try
+        {
+            await VerificarServiciosAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("AcercaDe.OnAppearingException", "Excepción no controlada en la carga de la pantalla Acerca de.", ex);
+        }
     }
 
     protected override void OnDisappearing()
@@ -67,7 +77,21 @@ public partial class AcercaDePage : ContentPage
         _ctsLoader = new CancellationTokenSource();
         var animacion = AnimarPuntosAsync(_ctsLoader.Token);
 
-        bool ok = await _servicioSalud.VerificarServiciosAsync();
+        _logger.Info("AcercaDe.VerificarServicios", "Inicio de verificación de servicios.");
+        bool ok;
+        try
+        {
+            ok = await _servicioSalud.VerificarServiciosAsync();
+            _logger.Info("AcercaDe.VerificarServiciosExitoso", "Verificación de servicios completada.", new Dictionary<string, object?>
+            {
+                ["ServiciosDisponibles"] = ok
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("AcercaDe.VerificarServiciosException", "Excepción no controlada al verificar servicios.", ex);
+            ok = false;
+        }
 
         _ctsLoader.Cancel();
         await animacion;

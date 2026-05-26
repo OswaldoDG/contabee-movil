@@ -4,6 +4,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.IAP;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using Plugin.InAppBilling;
 
@@ -17,6 +18,7 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     private Grid? _loadingOverlay;
     private CollectionView? _listaProductos;
@@ -28,7 +30,7 @@ public partial class TiendaPage : ContentPage
 
     private const string PrefsKeyComprasPendientes = "tienda.compras_pendientes";
 
-    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs)
+    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         _servicioEcommerce = servicioEcommerce;
@@ -37,6 +39,7 @@ public partial class TiendaPage : ContentPage
         _servicioAlerta    = servicioAlerta;
         _toast             = toast;
         _logs              = logs;
+        _logger = logger;
     }
 
     protected override async void OnAppearing()
@@ -55,9 +58,19 @@ public partial class TiendaPage : ContentPage
         }
 
         _logs.Log("Tienda: página abierta");
-        await CargarProductosAsync();
-        await ReintentarComprasPendientesLocalesAsync();
-        await RestaurarComprasPendientesAsync();
+        try
+        {
+            _logger.Info("Tienda.OnAppearing", "Inicio de carga inicial de pantalla Tienda.");
+            await CargarProductosAsync();
+            await ReintentarComprasPendientesLocalesAsync();
+            await RestaurarComprasPendientesAsync();
+            _logger.Info("Tienda.OnAppearingExitoso", "Carga inicial de pantalla Tienda completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tienda.OnAppearingException", "Excepción no controlada durante la carga inicial de Tienda.", ex);
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo completar la carga de la tienda.", verBotonCancelar: false, confirmarText: "Aceptar");
+        }
     }
 
     // ── Carga del catálogo ────────────────────────────────────────────────────
@@ -68,9 +81,16 @@ public partial class TiendaPage : ContentPage
         SetCargando(true);
         try
         {
+            _logger.Info("Tienda.CargarProductos", "Inicio de carga de catálogo de tienda.");
             var resultado = await _servicioEcommerce.GetCatalogoProductos();
             if (!resultado.Ok || resultado.Payload is null)
             {
+                _logger.Debug("Tienda.CargarProductosError", "La API devolvió error al obtener catálogo de tienda.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = resultado.Error?.Codigo,
+                    ["Mensaje"] = resultado.Error?.Mensaje,
+                    ["HttpCode"] = (int?)resultado.Error?.HttpCode
+                });
                 _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
                 await _servicioAlerta.MostrarAsync("Error", "No se pudo obtener el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
                 return;
@@ -143,6 +163,14 @@ public partial class TiendaPage : ContentPage
 
             if (_bannerProximamente is not null)
                 _bannerProximamente.IsVisible = !disponibleEnTienda;
+
+            _logger.Info("Tienda.CargarProductosExitoso", "Carga de catálogo de tienda completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tienda.CargarProductosException", "Excepción no controlada al cargar catálogo de tienda.", ex);
+            _logs.Log($"Tienda: excepción al cargar catálogo — {ex.GetType().Name}: {ex.Message}");
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo cargar el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
         }
         finally
         {
@@ -157,22 +185,32 @@ public partial class TiendaPage : ContentPage
         var cuenta = AppState.Instance.CuentaFiscalActual;
         if (cuenta is null) return;
 
-        _logs.Log("Tienda: restaurando compras pendientes");
-        var comprasPendientes = (await _servicioIAP.RestaurarComprasAsync())
-            .Where(c => c.State == PurchaseState.Purchased && c.IsAcknowledged != true)
-            .ToList();
-
-        _logs.Log($"Tienda: {comprasPendientes.Count} compras pendientes encontradas");
-
-        foreach (var compra in comprasPendientes)
+        try
         {
-            var productoCatalogo = BuscarProductoEnCatalogo(compra.ProductId);
-            if (productoCatalogo is null)
+            _logger.Info("Tienda.RestaurarPendientes", "Inicio de restauración de compras pendientes.");
+            _logs.Log("Tienda: restaurando compras pendientes");
+            var comprasPendientes = (await _servicioIAP.RestaurarComprasAsync())
+                .Where(c => c.State == PurchaseState.Purchased && c.IsAcknowledged != true)
+                .ToList();
+
+            _logs.Log($"Tienda: {comprasPendientes.Count} compras pendientes encontradas");
+
+            foreach (var compra in comprasPendientes)
             {
-                _logs.Log($"Tienda: restore — producto no encontrado en catálogo: {compra.ProductId}");
-                continue;
+                var productoCatalogo = BuscarProductoEnCatalogo(compra.ProductId);
+                if (productoCatalogo is null)
+                {
+                    _logs.Log($"Tienda: restore — producto no encontrado en catálogo: {compra.ProductId}");
+                    continue;
+                }
+                await ProcesarCompraAsync(compra, productoCatalogo, cuenta.CuentaFiscalId, silencioso: true);
             }
-            await ProcesarCompraAsync(compra, productoCatalogo, cuenta.CuentaFiscalId, silencioso: true);
+
+            _logger.Info("Tienda.RestaurarPendientesExitoso", "Restauración de compras pendientes completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tienda.RestaurarPendientesException", "Excepción no controlada al restaurar compras pendientes.", ex);
         }
     }
 
@@ -216,7 +254,14 @@ public partial class TiendaPage : ContentPage
 
     private async Task<bool> EnviarAlBackendYCompletarAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, bool silencioso)
     {
-        var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+        try
+        {
+            _logger.Info("Tienda.ProcesarCompra", "Inicio de procesamiento de compra para validación y completado.", new Dictionary<string, object?>
+            {
+                ["ProductoId"] = compra.ProductId,
+                ["CuentaFiscalId"] = cfid
+            });
+            var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
 #if IOS || MACCATALYST
         var pasarela = PasarelarPago.Apple;
@@ -307,7 +352,20 @@ public partial class TiendaPage : ContentPage
                 await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
         }
 
-        return completado;
+            _logger.Info("Tienda.ProcesarCompraFinalizado", "Procesamiento de compra finalizado.", new Dictionary<string, object?>
+            {
+                ["ProductoId"] = compra.ProductId,
+                ["Completado"] = completado
+            });
+            return completado;
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Tienda.ProcesarCompraException", "Excepción no controlada al procesar compra de tienda.", ex);
+            if (!silencioso)
+                await _servicioAlerta.MostrarAsync("Error", "No se pudo procesar la compra en este momento.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return false;
+        }
     }
 
     // ── Botón comprar ─────────────────────────────────────────────────────────
@@ -535,30 +593,41 @@ public partial class TiendaPage : ContentPage
         var pendientes = LeerComprasPendientesLocales();
         if (pendientes.Count == 0) return;
 
+        _logger.Info("Tienda.ReintentarPendientesLocales", "Inicio de reintento de compras pendientes locales.", new Dictionary<string, object?>
+        {
+            ["TotalPendientes"] = pendientes.Count
+        });
         _logs.Log($"Tienda: {pendientes.Count} compras pendientes locales — reintentando");
         var remanentes = new List<CompraPendienteLocal>();
 
         foreach (var p in pendientes)
         {
-            if (!Guid.TryParse(p.Comprobante.CuentaFiscalId, out var cfid))
-                cfid = cuenta.CuentaFiscalId;
-
-            var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, p.Comprobante);
-            bool completado = false;
-            if (verificado)
-                completado = await _servicioEcommerce.CompletarCompraIAP(cfid, p.Comprobante);
-
-            _logs.Log($"Tienda: reintento local — producto={p.Comprobante.ProductoTiendaId} verificado={verificado} completado={completado}");
-
-            if (completado)
+            try
             {
-                await _servicioIAP.ConsumirCompraAsync(p.Comprobante.ProductoTiendaId, p.PurchaseToken);
-                await _servicioSesion.GetLicenciaAsync();
-                _logs.Log($"Tienda: reintento local exitoso — {p.Comprobante.ProductoTiendaId}");
+                if (!Guid.TryParse(p.Comprobante.CuentaFiscalId, out var cfid))
+                    cfid = cuenta.CuentaFiscalId;
+
+                var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, p.Comprobante);
+                bool completado = false;
+                if (verificado)
+                    completado = await _servicioEcommerce.CompletarCompraIAP(cfid, p.Comprobante);
+
+                _logs.Log($"Tienda: reintento local — producto={p.Comprobante.ProductoTiendaId} verificado={verificado} completado={completado}");
+
+                if (completado)
+                {
+                    await _servicioIAP.ConsumirCompraAsync(p.Comprobante.ProductoTiendaId, p.PurchaseToken);
+                    await _servicioSesion.GetLicenciaAsync();
+                    _logs.Log($"Tienda: reintento local exitoso — {p.Comprobante.ProductoTiendaId}");
+                }
+                else
+                {
+                    remanentes.Add(p);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                remanentes.Add(p);
+                _logger.Debug("Tienda.ReintentarComprasPendientesLocalesException", "Excepción no controlada al reintentar compra pendiente de tienda.", ex);
             }
         }
 
@@ -569,6 +638,11 @@ public partial class TiendaPage : ContentPage
             else
                 Preferences.Default.Set(PrefsKeyComprasPendientes, System.Text.Json.JsonSerializer.Serialize(remanentes));
         }
+
+        _logger.Info("Tienda.ReintentarPendientesLocalesExitoso", "Reintento de compras pendientes locales finalizado.", new Dictionary<string, object?>
+        {
+            ["Remanentes"] = remanentes.Count
+        });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

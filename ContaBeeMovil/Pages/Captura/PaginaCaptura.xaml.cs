@@ -13,6 +13,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
@@ -27,6 +28,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     // ── Preferencias recordadas ──────────────────────────────────────────────
 
@@ -40,7 +42,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs, IAppLogger logger)
     {
         _servicioCamara    = servicioCamara;
         _servicioAlerta    = servicioAlerta;
@@ -48,6 +50,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _servicioSesion    = servicioSesion;
         _servicioTranscript = servicioTranscript;
         _logs              = logs;
+        _logger            = logger;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
         _capturas  = [];
@@ -125,18 +128,28 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task InicializarCapturasAsync()
     {
-        if (!_capturas.Any(c => c.TipoCaptura == TipoCaptura))
-            await VerificarFotosGuardadasAsync();
+        try
+        {
+            _logger.Info("Captura.InicializarCapturas", "Inicio de inicialización de capturas en pantalla.");
+            if (!_capturas.Any(c => c.TipoCaptura == TipoCaptura))
+                await VerificarFotosGuardadasAsync();
 
-        var sharedFileName = SharedImageHandler.TakePendingSharedImage();
-        if (string.IsNullOrEmpty(sharedFileName)) return;
+            var sharedFileName = SharedImageHandler.TakePendingSharedImage();
+            if (string.IsNullOrEmpty(sharedFileName)) return;
 
-        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
-        _capturas.Insert(0, captura);
-        CapturaSeleccionada = captura;
-        AppState.Instance.CapturasLote = [.. _capturas];
-        OnPropertyChanged(nameof(TieneCapturas));
-        await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
+            var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
+            _capturas.Insert(0, captura);
+            CapturaSeleccionada = captura;
+            AppState.Instance.CapturasLote = [.. _capturas];
+            OnPropertyChanged(nameof(TieneCapturas));
+            await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
+            _logger.Info("Captura.InicializarCapturasExitoso", "Inicialización de capturas completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.InicializarCapturasException", "Excepción no controlada al inicializar capturas.", ex);
+            await _servicioToast.MostrarAsync("No se pudieron inicializar las capturas.", ToastIcono.Warning, ToastPosicion.Bottom);
+        }
     }
 
     protected override void OnDisappearing()
@@ -165,75 +178,96 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task VerificarFotosGuardadasAsync()
     {
-        var loteCompleto = AppState.Instance.CapturasLote ?? [];
-        _logs.Log($"[PaginaCaptura] VerificarFotos — AppDataDirectory={FileSystem.AppDataDirectory}");
-        _logs.Log($"[PaginaCaptura] VerificarFotos — TipoCaptura={TipoCaptura}, total en AppState={loteCompleto.Count}");
-
-        var capturasGuardadas = loteCompleto
-            .Where(c => c.TipoCaptura == TipoCaptura)
-            .ToList();
-
-        _logs.Log($"[PaginaCaptura] VerificarFotos — del tipo actual={capturasGuardadas.Count}");
-
-        foreach (var c in capturasGuardadas)
+        try
         {
-            var existe = File.Exists(c.Path);
-            _logs.Log($"[PaginaCaptura] VerificarFotos — path={c.Path} | existe={existe}");
-        }
+            _logger.Info("Captura.VerificarFotosGuardadas", "Inicio de verificación de fotos guardadas.");
+            var loteCompleto = AppState.Instance.CapturasLote ?? [];
+            _logs.Log($"[PaginaCaptura] VerificarFotos — AppDataDirectory={FileSystem.AppDataDirectory}");
+            _logs.Log($"[PaginaCaptura] VerificarFotos — TipoCaptura={TipoCaptura}, total en AppState={loteCompleto.Count}");
 
-        capturasGuardadas = capturasGuardadas.Where(c => File.Exists(c.Path)).ToList();
-        capturasGuardadas = capturasGuardadas
-            .OrderByDescending(c => File.GetLastWriteTimeUtc(c.Path))
-            .ToList();
-        _logs.Log($"[PaginaCaptura] VerificarFotos — con archivo en disco={capturasGuardadas.Count}");
+            var capturasGuardadas = loteCompleto
+                .Where(c => c.TipoCaptura == TipoCaptura)
+                .ToList();
 
-        if (capturasGuardadas.Count == 0) return;
+            _logs.Log($"[PaginaCaptura] VerificarFotos — del tipo actual={capturasGuardadas.Count}");
 
-        bool conservar = await _servicioAlerta.MostrarAsync(
-            "Imágenes guardadas",
-            $"Tienes {capturasGuardadas.Count} imagen(es) de una captura anterior. ¿Deseas conservarlas?",
-            confirmarText: "Conservar",
-            cancelarText: "Eliminar");
-
-        _logs.Log($"[PaginaCaptura] VerificarFotos — usuario eligió conservar={conservar}");
-
-        if (conservar)
-        {
-            foreach (var c in capturasGuardadas)
-                _capturas.Add(c);
-
-            if (_capturas.Count > 0)
-                CapturaSeleccionada = _capturas[0];
-        }
-        else
-        {
             foreach (var c in capturasGuardadas)
             {
-                try
-                {
-                    File.Delete(c.Path);
-                    _logs.Log($"[PaginaCaptura] VerificarFotos — archivo eliminado: {c.Path}");
-                }
-                catch (Exception ex)
-                {
-                    _logs.Log($"[PaginaCaptura] VerificarFotos — error al eliminar {c.Path}: {ex.Message}");
-                }
+                var existe = File.Exists(c.Path);
+                _logs.Log($"[PaginaCaptura] VerificarFotos — path={c.Path} | existe={existe}");
             }
 
-            var restantes = (AppState.Instance.CapturasLote ?? [])
-                .Where(c => c.TipoCaptura != TipoCaptura)
+            capturasGuardadas = capturasGuardadas.Where(c => File.Exists(c.Path)).ToList();
+            capturasGuardadas = capturasGuardadas
+                .OrderByDescending(c => File.GetLastWriteTimeUtc(c.Path))
                 .ToList();
-            AppState.Instance.CapturasLote = restantes.Count > 0 ? restantes : null;
-            _logs.Log($"[PaginaCaptura] VerificarFotos — AppState actualizado, restantes={restantes.Count}");
+            _logs.Log($"[PaginaCaptura] VerificarFotos — con archivo en disco={capturasGuardadas.Count}");
+
+            if (capturasGuardadas.Count == 0) return;
+
+            bool conservar = await _servicioAlerta.MostrarAsync(
+                "Imágenes guardadas",
+                $"Tienes {capturasGuardadas.Count} imagen(es) de una captura anterior. ¿Deseas conservarlas?",
+                confirmarText: "Conservar",
+                cancelarText: "Eliminar");
+
+            _logs.Log($"[PaginaCaptura] VerificarFotos — usuario eligió conservar={conservar}");
+
+            if (conservar)
+            {
+                foreach (var c in capturasGuardadas)
+                    _capturas.Add(c);
+
+                if (_capturas.Count > 0)
+                    CapturaSeleccionada = _capturas[0];
+            }
+            else
+            {
+                foreach (var c in capturasGuardadas)
+                {
+                    try
+                    {
+                        File.Delete(c.Path);
+                        _logs.Log($"[PaginaCaptura] VerificarFotos — archivo eliminado: {c.Path}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logs.Log($"[PaginaCaptura] VerificarFotos — error al eliminar {c.Path}: {ex.Message}");
+                    }
+                }
+
+                var restantes = (AppState.Instance.CapturasLote ?? [])
+                    .Where(c => c.TipoCaptura != TipoCaptura)
+                    .ToList();
+                AppState.Instance.CapturasLote = restantes.Count > 0 ? restantes : null;
+                _logs.Log($"[PaginaCaptura] VerificarFotos — AppState actualizado, restantes={restantes.Count}");
+            }
+
+            _logger.Info("Captura.VerificarFotosGuardadasExitoso", "Verificación de fotos guardadas completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.VerificarFotosGuardadasException", "Excepción no controlada al verificar fotos guardadas.", ex);
+            await _servicioToast.MostrarAsync("No se pudieron verificar las imágenes guardadas.", ToastIcono.Warning, ToastPosicion.Bottom);
         }
     }
 
     private async Task CargarTarjetasYRefrescarAsync()
     {
-        await _servicioSesion.GetLicenciaAsync();
-        if (AppState.Instance.Tarjetas is null)
-            await _servicioSesion.GetTarjetasAsync();
-        RefrescarTarjetas();
+        try
+        {
+            _logger.Info("Captura.CargarTarjetas", "Inicio de carga de licencia y tarjetas.");
+            await _servicioSesion.GetLicenciaAsync();
+            if (AppState.Instance.Tarjetas is null)
+                await _servicioSesion.GetTarjetasAsync();
+            RefrescarTarjetas();
+            _logger.Info("Captura.CargarTarjetasExitoso", "Carga de licencia y tarjetas completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.CargarTarjetasException", "Excepción no controlada al cargar licencia/tarjetas.", ex);
+            await _servicioToast.MostrarAsync("No se pudieron cargar las tarjetas por el momento.", ToastIcono.Warning, ToastPosicion.Bottom);
+        }
     }
 
     // ── Parámetro de navegación ──────────────────────────────────────────────
@@ -615,41 +649,74 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task TomarFotoAsync()
     {
-        var fileName = await _servicioCamara.TomarFotoAsync();
-        _logs.Log($"[PaginaCaptura] TomarFoto — fileName obtenido: '{fileName}'");
-        if (string.IsNullOrEmpty(fileName)) return;
+        try
+        {
+            _logger.Info("Captura.TomarFoto", "Inicio de captura de foto.");
+            var fileName = await _servicioCamara.TomarFotoAsync();
+            _logs.Log($"[PaginaCaptura] TomarFoto — fileName obtenido: '{fileName}'");
+            if (string.IsNullOrEmpty(fileName)) return;
 
-        var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
-        _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
-        _capturas.Insert(0, captura);
-        CapturaSeleccionada = captura;
-        AppState.Instance.CapturasLote = [.. _capturas];
-        _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
+            var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
+            _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
+            _capturas.Insert(0, captura);
+            CapturaSeleccionada = captura;
+            AppState.Instance.CapturasLote = [.. _capturas];
+            _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
+            _logger.Info("Captura.TomarFotoExitoso", "Captura de foto completada y agregada al lote.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.TomarFotoException", "Excepción no controlada al tomar foto.", ex);
+            await _servicioToast.MostrarAsync("Ocurrió un error al tomar la foto.", ToastIcono.Error, ToastPosicion.Bottom);
+        }
     }
 
     private async Task VerImagenAsync(CapturaLote captura)
-        => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
-               new Dictionary<string, object> { ["path"] = captura.Path });
+    {
+        try
+        {
+            _logger.Info("Captura.VerImagen", "Inicio de navegación a visor de imagen.");
+            await Shell.Current.GoToAsync(nameof(VisorImagenPage),
+                   new Dictionary<string, object> { ["path"] = captura.Path });
+            _logger.Info("Captura.VerImagenExitoso", "Navegación a visor de imagen completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.VerImagenException", "Excepción no controlada al navegar al visor de imagen.", ex);
+            await _servicioToast.MostrarAsync("No se pudo abrir la imagen.", ToastIcono.Warning, ToastPosicion.Bottom);
+        }
+    }
 
     private async Task EliminarCapturaAsync(CapturaLote captura)
     {
-        bool confirmar = await _servicioAlerta.MostrarAsync(
-            "Eliminar imagen",
-            "¿Estás seguro de que deseas eliminar esta imagen?",
-            confirmarText: "Eliminar",
-            cancelarText: "Cancelar");
-
-        if (!confirmar) return;
-
-        _capturas.Remove(captura);
-        if (ReferenceEquals(CapturaSeleccionada, captura))
-            CapturaSeleccionada = _capturas.FirstOrDefault();
-        AppState.Instance.CapturasLote = _capturas.Count > 0 ? [.. _capturas] : null;
-
-        if (!captura.EsCompartida && File.Exists(captura.Path))
+        try
         {
-            try { File.Delete(captura.Path); }
-            catch (Exception ex) { _logs.Log($"[PaginaCaptura] EliminarCaptura — error al borrar archivo: {ex.Message}"); }
+            _logger.Info("Captura.EliminarCaptura", "Inicio de eliminación de captura.");
+            bool confirmar = await _servicioAlerta.MostrarAsync(
+                "Eliminar imagen",
+                "¿Estás seguro de que deseas eliminar esta imagen?",
+                confirmarText: "Eliminar",
+                cancelarText: "Cancelar");
+
+            if (!confirmar) return;
+
+            _capturas.Remove(captura);
+            if (ReferenceEquals(CapturaSeleccionada, captura))
+                CapturaSeleccionada = _capturas.FirstOrDefault();
+            AppState.Instance.CapturasLote = _capturas.Count > 0 ? [.. _capturas] : null;
+
+            if (!captura.EsCompartida && File.Exists(captura.Path))
+            {
+                try { File.Delete(captura.Path); }
+                catch (Exception ex) { _logs.Log($"[PaginaCaptura] EliminarCaptura — error al borrar archivo: {ex.Message}"); }
+            }
+
+            _logger.Info("Captura.EliminarCapturaExitoso", "Captura eliminada correctamente.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.EliminarCapturaException", "Excepción no controlada al eliminar captura.", ex);
+            await _servicioToast.MostrarAsync("No se pudo eliminar la captura.", ToastIcono.Warning, ToastPosicion.Bottom);
         }
     }
 
@@ -722,6 +789,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         bool canceladoPorUsuario  = false;
         var cantidadEnviadaLote   = 0;
 
+        _logger.Info("Captura.Enviar", "Inicio de envío de capturas.", new Dictionary<string, object?>
+        {
+            ["TotalCapturas"] = _capturas.Count,
+            ["SoloEvidencia"] = SoloEvidencia,
+            ["CapturaRemota"] = CapturaRemota
+        });
+
         try
         {
             // ── Punto 3a: Crear el lote en el servidor ───────────────────────
@@ -741,6 +815,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);
             if (!loteResult.Ok)
             {
+                _logger.Debug("Captura.CrearLoteError", "La API devolvió error al crear lote de captura.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = loteResult.Error?.Codigo,
+                    ["Mensaje"] = loteResult.Error?.Mensaje,
+                    ["HttpCode"] = (int?)loteResult.Error?.HttpCode
+                });
                 // Sin loteId → no hay lote que completar
                 if (loteResult.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired)
                 {
@@ -760,6 +840,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 var precargaResult = await _servicioTranscript.ObtenerPrecargaAsync(loteId.Value);
                 if (!precargaResult.Ok)
                 {
+                    _logger.Debug("Captura.ObtenerPrecargaError", "La API devolvió error al obtener precarga de lote.", new Dictionary<string, object?>
+                    {
+                        ["LoteId"] = loteId.Value,
+                        ["Codigo"] = precargaResult.Error?.Codigo,
+                        ["Mensaje"] = precargaResult.Error?.Mensaje,
+                        ["HttpCode"] = (int?)precargaResult.Error?.HttpCode
+                    });
                     await _servicioToast.MostrarAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
                 }
                 else
@@ -817,8 +904,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 }
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.Debug("Captura.EnviarException", "Excepción no controlada durante el envío de capturas.", ex);
             await _servicioToast.MostrarAsync("Ha ocurrido un error. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
         }
 
@@ -830,20 +918,42 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             if (SoloEvidencia && !CapturaRemota)
                 cierreLote = new DtoCierreLote { Montos = (montosCierre ?? []).Take(cantidadEnviadaLote).ToList() };
 
-            var completarResult = await _servicioTranscript.CompletarLoteAsync(loteId.Value, cierreLote);
-            if (completarResult.Ok && exitoso)
+            try
             {
-                await Task.Delay(400); // Pausa breve para ver el 100 %
-                AppState.Instance.CapturasLote = null;
-                _capturas.Clear();
-                CapturaSeleccionada = null;
-                SoloEvidencia = false;
-                CapturaRemota = false;
-                await _servicioSesion.GetLicenciaAsync();
-                await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
-                FacturacionPage.PendienteActualizarFacturas = true;
-                DashboardPage.PendienteActualizar = true;
-                await Shell.Current.GoToAsync("..");
+                var completarResult = await _servicioTranscript.CompletarLoteAsync(loteId.Value, cierreLote);
+                if (completarResult.Ok && exitoso)
+                {
+                    _logger.Info("Captura.EnviarExitoso", "Envío de capturas completado correctamente.", new Dictionary<string, object?>
+                    {
+                        ["LoteId"] = loteId.Value,
+                        ["CantidadEnviada"] = cantidadEnviadaLote
+                    });
+                    await Task.Delay(400); // Pausa breve para ver el 100 %
+                    AppState.Instance.CapturasLote = null;
+                    _capturas.Clear();
+                    CapturaSeleccionada = null;
+                    SoloEvidencia = false;
+                    CapturaRemota = false;
+                    await _servicioSesion.GetLicenciaAsync();
+                    await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
+                    FacturacionPage.PendienteActualizarFacturas = true;
+                    DashboardPage.PendienteActualizar = true;
+                    await Shell.Current.GoToAsync("..");
+                }
+                else
+                {
+                    _logger.Debug("Captura.CompletarLoteNoExitoso", "Completar lote no finalizó en estado exitoso.", new Dictionary<string, object?>
+                    {
+                        ["LoteId"] = loteId.Value,
+                        ["ExitosoSubida"] = exitoso,
+                        ["CompletarOk"] = completarResult.Ok
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Debug("Captura.CompletarLoteException", "Excepción no controlada al completar lote de captura.", ex);
+                await _servicioToast.MostrarAsync("No se pudo completar el envío. Inténtalo de nuevo más tarde.", ToastIcono.Error, ToastPosicion.Bottom);
             }
             // En cualquier otro caso: terminar proceso sin eliminar capturas
         }
@@ -890,7 +1000,16 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task CancelarAsync()
     {
-        await Shell.Current.GoToAsync("..");
+        try
+        {
+            _logger.Info("Captura.Cancelar", "Inicio de cancelación de captura y regreso de pantalla.");
+            await Shell.Current.GoToAsync("..");
+            _logger.Info("Captura.CancelarExitoso", "Cancelación de captura completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Captura.CancelarException", "Excepción no controlada al cancelar captura.", ex);
+        }
     }
 
     private void OnCapturasCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)

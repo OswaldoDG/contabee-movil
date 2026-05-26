@@ -1,4 +1,5 @@
 using Contabee.Api.abstractions;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.RecuperarPass;
@@ -7,12 +8,14 @@ public partial class RecuperarPassPage : ContentPage
 {
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioToast _servicioToast;
+    private readonly IAppLogger _logger;
 
-    public RecuperarPassPage(IServicioIdentidad servicioIdentidad, IServicioToast servicioToast)
+    public RecuperarPassPage(IServicioIdentidad servicioIdentidad, IServicioToast servicioToast, IAppLogger logger)
     {
         InitializeComponent();
         _servicioIdentidad = servicioIdentidad;
         _servicioToast = servicioToast;
+        _logger = logger;
     }
 
     protected override void OnAppearing()
@@ -61,10 +64,12 @@ public partial class RecuperarPassPage : ContentPage
 
         try
         {
+            _logger.Info("RecuperarPass.Restablecer", "Inicio de solicitud de recuperación de contraseña.");
             var resultado = await _servicioIdentidad.RecuperarPassword(email);
 
             if (resultado.Ok)
             {
+                _logger.Info("RecuperarPass.RestablecerExitoso", "Solicitud de recuperación procesada correctamente.");
                 await _servicioToast.MostrarAsync(
                     "Se ha enviado un enlace a el email para recuperar su contraseña",
                     ToastIcono.Info, ToastPosicion.Bottom);
@@ -73,13 +78,20 @@ public partial class RecuperarPassPage : ContentPage
             }
             else
             {
+                _logger.Debug("RecuperarPass.RestablecerError", "La API devolvió error en recuperación de contraseña.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = resultado.Error?.Codigo,
+                    ["Mensaje"] = resultado.Error?.Mensaje,
+                    ["HttpCode"] = (int?)resultado.Error?.HttpCode
+                });
                 await _servicioToast.MostrarAsync(
                     "No fue posible hacer la solicitud, intenta de nuevo más tarde",
                     ToastIcono.Error, ToastPosicion.Bottom);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.Debug("RecuperarPass.RestablecerException", "Excepción no controlada al recuperar contraseña.", ex);
             await _servicioToast.MostrarAsync(
                 "No fue posible hacer la solicitud, intenta de nuevo más tarde",
                 ToastIcono.Error, ToastPosicion.Bottom);

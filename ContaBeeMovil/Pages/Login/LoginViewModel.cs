@@ -11,7 +11,7 @@ using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
-using ContaBeeMovil.Services.Logging;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Login;
@@ -23,7 +23,6 @@ public class LoginViewModel : INotifyPropertyChanged
     private readonly IServicioToast _toast;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private readonly IAppLogger _logger;
-    private readonly LogContextService _logContextService;
     private const string ClaveMododDev = "ModoDeveloper";
     private string _email = string.Empty;
     private string _password = string.Empty;
@@ -39,15 +38,13 @@ public class LoginViewModel : INotifyPropertyChanged
         IServicioSesion servicioSesion,
         IServicioToast toast,
         IServicioAlmacenamiento almacenamiento,
-        IAppLogger logger,
-        LogContextService logContextService)
+        IAppLogger logger)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
         _toast = toast;
         _almacenamiento = almacenamiento;
         _logger = logger;
-        _logContextService = logContextService;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);
         VincularmeCommand = new Command(async () => await Vincularme());
         IrARegistroCommand = new Command(async () => await IrARegistro());
@@ -60,17 +57,27 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task CargarCredencialesAsync()
     {
-        if (PaginaLogin.LimpiarAlNavegar) return;
-
-        _recordarme = AppState.Instance.Recordarme;
-        OnPropertyChanged(nameof(Recordarme));
-
-        var email = await _servicioSesion.LeeEmailAsync();
-        if (!string.IsNullOrEmpty(email))
+        try
         {
-            _email = email;
-            OnPropertyChanged(nameof(Email));
-            ((Command)IngresarCommand).ChangeCanExecute();
+            _logger.Info("Login.CargarCredenciales", "Inicio de carga de credenciales recordadas.");
+            if (PaginaLogin.LimpiarAlNavegar) return;
+
+            _recordarme = AppState.Instance.Recordarme;
+            OnPropertyChanged(nameof(Recordarme));
+
+            var email = await _servicioSesion.LeeEmailAsync();
+            if (!string.IsNullOrEmpty(email))
+            {
+                _email = email;
+                OnPropertyChanged(nameof(Email));
+                ((Command)IngresarCommand).ChangeCanExecute();
+            }
+
+            _logger.Info("Login.CargarCredencialesExitoso", "Carga de credenciales recordadas completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.CargarCredencialesException", "Excepción no controlada al cargar credenciales recordadas.", ex);
         }
     }
 
@@ -175,8 +182,7 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Ingresar()
     {
-        var correlationId = _logContextService.NewCorrelationId();
-        _logger.Info("Login.SubmitStarted", "Inicio de intento de login.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+        _logger.Info("Login.Ingresar", "Inicio de intento de login.");
 
         _emailTocado = true;
         _passwordTocado = true;
@@ -185,12 +191,14 @@ public class LoginViewModel : INotifyPropertyChanged
 
         if (EmailRequerido || PasswordRequerido)
         {
-            _logger.Info("Login.ValidationFailed", "No se pudo continuar con login por datos incompletos.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+            _logger.Info("Login.IngresarValidacion", "No se pudo continuar con login por datos incompletos.");
 
-            var validationDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-            validationDebugContext["EmailRequerido"] = EmailRequerido;
-            validationDebugContext["PasswordRequerido"] = PasswordRequerido;
-            _logger.Debug("Login.ValidationFailed.Details", "Detalle de validación de campos requeridos.", validationDebugContext);
+            var validationDebugContext = new Dictionary<string, object?>
+            {
+                ["EmailRequerido"] = EmailRequerido,
+                ["PasswordRequerido"] = PasswordRequerido
+            };
+            _logger.Debug("Login.IngresarValidacionDetalle", "Detalle de validación de campos requeridos.", validationDebugContext);
             return;
         }
 
@@ -200,9 +208,8 @@ public class LoginViewModel : INotifyPropertyChanged
             var stopWatch = Stopwatch.StartNew();
 
             var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
-            var authStartContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-            authStartContext["Recordarme"] = Recordarme;
-            _logger.Debug("Login.AuthRequestStarted", "Iniciando autenticación contra API de identidad.", authStartContext);
+            var authStartContext = new Dictionary<string, object?> { ["Recordarme"] = Recordarme };
+            _logger.Debug("Login.IngresarAutenticacion", "Iniciando autenticación contra API de identidad.", authStartContext);
 
             var resultado = await _servicioIdentidad.IniciarSesion(Email, Password, dispositivoId, Recordarme);
 
@@ -213,28 +220,29 @@ public class LoginViewModel : INotifyPropertyChanged
                     ? "El correo o la contraseña son incorrectos."
                     : "Ha ocurrido un error al iniciar sesión.";
 
-                _logger.Info("Login.AuthRequestFailed", "No fue posible autenticar al usuario.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+                _logger.Info("Login.IngresarAutenticacionError", "No fue posible autenticar al usuario.");
 
-                var failedDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-                failedDebugContext["HttpCode"] = (int?)resultado.HttpCode;
-                failedDebugContext["Codigo"] = resultado.Error?.Codigo;
-                failedDebugContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
-                _logger.Debug("Login.AuthRequestFailed.Details", "Detalle técnico de autenticación fallida.", failedDebugContext);
+                var failedDebugContext = new Dictionary<string, object?>
+                {
+                    ["HttpCode"] = (int?)resultado.HttpCode,
+                    ["Codigo"] = resultado.Error?.Codigo,
+                    ["Mensaje"] = resultado.Error?.Mensaje,
+                    ["DurationMs"] = stopWatch.ElapsedMilliseconds
+                };
+                _logger.Debug("Login.IngresarAutenticacionErrorDetalle", "Detalle técnico de autenticación fallida.", failedDebugContext);
 
                 await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
                 return;
             }
 
             stopWatch.Stop();
-            var userId = _logContextService.ExtractUserIdFromAccessToken(resultado.Payload.AccessToken);
-            _logContextService.SetCurrentUserId(userId);
+            _logger.Info("Login.IngresarExitoso", "Autenticación exitosa.");
 
-            _logger.Info("Login.AuthRequestSucceeded", "Autenticación exitosa.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
-
-            var authSuccessDebugContext = _logContextService.BuildCommonContext("PaginaLogin", correlationId);
-            authSuccessDebugContext["DurationMs"] = stopWatch.ElapsedMilliseconds;
-            authSuccessDebugContext["UserIdResolved"] = !string.IsNullOrWhiteSpace(userId);
-            _logger.Debug("Login.AuthRequestSucceeded.Details", "Detalle técnico de autenticación exitosa.", authSuccessDebugContext);
+            var authSuccessDebugContext = new Dictionary<string, object?>
+            {
+                ["DurationMs"] = stopWatch.ElapsedMilliseconds
+            };
+            _logger.Debug("Login.IngresarExitosoDetalle", "Detalle técnico de autenticación exitosa.", authSuccessDebugContext);
 
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,
@@ -271,21 +279,22 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (cuentas.Count > 0)
             {
-                _logger.Debug("Login.NavigationToAppShell", "Navegación a AppShell después de login exitoso.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+                _logger.Debug("Login.NavigationToAppShell", "Navegación a AppShell después de login exitoso.");
                 var shell = MauiProgram.Services.GetRequiredService<AppShell>();
                 Application.Current!.Windows[0].Page = shell;
             }
             else
             {
-                _logger.Debug("Login.NavigationToRegisterRfc", "Usuario sin cuentas fiscales, navegación a registro RFC.", _logContextService.BuildCommonContext("PaginaLogin", correlationId));
+                _logger.Debug("Login.NavigationToRegisterRfc", "Usuario sin cuentas fiscales, navegación a registro RFC.");
                 // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
                 registrarPage.FromLogin = true;
                 Application.Current!.Windows[0].Page = registrarPage;
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.Debug("Login.IngresarException", "Excepción no controlada al iniciar sesión.", ex);
             await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
             var page = Application.Current?.Windows[0].Page as ContentPage;
@@ -309,48 +318,105 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Vincularme()
     {
-        await _toast.MostrarAsync("La funcionalidad de vinculación estará disponible próximamente.", ToastIcono.Warning, ToastPosicion.Bottom);
+        try
+        {
+            _logger.Info("Login.Vincularme", "Acción de vinculación seleccionada (funcionalidad pendiente).");
+            await _toast.MostrarAsync("La funcionalidad de vinculación estará disponible próximamente.", ToastIcono.Warning, ToastPosicion.Bottom);
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.VincularmeException", "Excepción no controlada al mostrar mensaje de vinculación.", ex);
+        }
     }
 
     private async Task IrARegistro()
     {
-        _logger.Debug("Login.RegisterTapped", "Navegación a registro desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
-        var paginaRegistro = App.Services.GetRequiredService<PaginaRegistro>();
-        await Application.Current!.Windows[0].Page!.Navigation.PushAsync(paginaRegistro);
+        try
+        {
+            _logger.Info("Login.IrARegistro", "Inicio de navegación a pantalla de registro.");
+            var paginaRegistro = App.Services.GetRequiredService<PaginaRegistro>();
+            await Application.Current!.Windows[0].Page!.Navigation.PushAsync(paginaRegistro);
+            _logger.Info("Login.IrARegistroExitoso", "Navegación a pantalla de registro completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.IrARegistroException", "Excepción no controlada al navegar a registro.", ex);
+        }
     }
 
     private void RecuperarContrasena()
     {
-        _logger.Debug("Login.ForgotPasswordTapped", "Navegación a recuperar contraseña desde login.", _logContextService.BuildCommonContext("PaginaLogin"));
-        var pagina = App.Services.GetRequiredService<RecuperarPassPage>();
-        _ = Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+        _ = RecuperarContrasenaAsync();
     }
 
-    private Task MostrarInfoApp()
+    private async Task RecuperarContrasenaAsync()
     {
-        var pagina = App.Services.GetRequiredService<AcercaDePage>();
-        return Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+        try
+        {
+            _logger.Info("Login.RecuperarContrasena", "Inicio de navegación a recuperar contraseña.");
+            var pagina = App.Services.GetRequiredService<RecuperarPassPage>();
+            await Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+            _logger.Info("Login.RecuperarContrasenaExitoso", "Navegación a recuperar contraseña completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.RecuperarContrasenaException", "Excepción no controlada al navegar a recuperar contraseña.", ex);
+        }
     }
 
-    private Task MostrarInfo()
+    private async Task MostrarInfoApp()
     {
-        var pagina = App.Services.GetRequiredService<AcercaDePage>();
-        return Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+        try
+        {
+            _logger.Info("Login.MostrarInfoApp", "Inicio de navegación a pantalla Acerca de.");
+            var pagina = App.Services.GetRequiredService<AcercaDePage>();
+            await Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+            _logger.Info("Login.MostrarInfoAppExitoso", "Navegación a pantalla Acerca de completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.MostrarInfoAppException", "Excepción no controlada al navegar a pantalla Acerca de.", ex);
+        }
+    }
+
+    private async Task MostrarInfo()
+    {
+        try
+        {
+            _logger.Info("Login.MostrarInfo", "Inicio de navegación a información de la app.");
+            var pagina = App.Services.GetRequiredService<AcercaDePage>();
+            await Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
+            _logger.Info("Login.MostrarInfoExitoso", "Navegación a información de la app completada.");
+        }
+        catch (Exception ex)
+        {
+            _logger.Debug("Login.MostrarInfoException", "Excepción no controlada al navegar a información de la app.", ex);
+        }
     }
 
     #endregion
 
     private async Task VerificarModoDeveloperAsync()
     {
-        var dto = await _almacenamiento.LeerSeguroAsync<ModoDeveloperDto>(ClaveMododDev);
-        if (dto is { EsDev: true } &&
-            DateTime.TryParse(dto.FechaActivacion, null, DateTimeStyles.RoundtripKind, out var fecha) &&
-            (DateTime.UtcNow - fecha).TotalDays <= 30)
+        try
         {
-            AppState.Instance.EsDev = true;
+            _logger.Info("Login.VerificarModoDeveloper", "Inicio de verificación de modo desarrollador.");
+            var dto = await _almacenamiento.LeerSeguroAsync<ModoDeveloperDto>(ClaveMododDev);
+            if (dto is { EsDev: true } &&
+                DateTime.TryParse(dto.FechaActivacion, null, DateTimeStyles.RoundtripKind, out var fecha) &&
+                (DateTime.UtcNow - fecha).TotalDays <= 30)
+            {
+                AppState.Instance.EsDev = true;
+            }
+            else
+            {
+                AppState.Instance.EsDev = false;
+            }
+            _logger.Info("Login.VerificarModoDeveloperExitoso", "Verificación de modo desarrollador completada.");
         }
-        else
+        catch (Exception ex)
         {
+            _logger.Debug("Login.VerificarModoDeveloperException", "Excepción no controlada al verificar modo desarrollador.", ex);
             AppState.Instance.EsDev = false;
         }
     }

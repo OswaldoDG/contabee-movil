@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ContaBeeMovil.Services.Camara;
 
@@ -13,7 +13,7 @@ public partial class CamaraPageModel : ObservableObject
         _servicioCamara = servicioCamara;
     }
 
-    // Opciones opcionales que pueden rellenarse antes de abrir la cámara
+    // Opciones opcionales que pueden rellenarse antes de abrir la c�mara
     public string? TipoPersona { get; set; }
     public bool Compartido { get; set; }
 

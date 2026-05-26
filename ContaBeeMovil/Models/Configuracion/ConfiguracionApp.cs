@@ -1,4 +1,4 @@
-﻿namespace ContaBee.Models.Configuracion;
+namespace ContaBee.Models.Configuracion;
 
 public enum TipoConfiguracion
 {

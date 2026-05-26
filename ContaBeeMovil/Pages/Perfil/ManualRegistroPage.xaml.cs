@@ -5,6 +5,7 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using Contabee.Api.Logging;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
@@ -23,15 +24,17 @@ public partial class ManualRegistroPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
-    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _logger = logger;
 
         SelectorPersona.Elementos = new List<string> { "Física", "Moral" };
         SelectorPersona.IndiceSeleccionado = 0;
@@ -132,6 +135,7 @@ public partial class ManualRegistroPage : ContentPage
     private async Task Registrar()
     {
         SetLoading(true);
+        _logger.Info("ManualRegistro.Registrar", "Inicio de registro manual de cuenta fiscal.");
         try
         {
             var selPersona = EsFisica ? PersonaType.Fisica : PersonaType.Moral;
@@ -149,10 +153,18 @@ public partial class ManualRegistroPage : ContentPage
             var resp = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
             if (!resp.Ok)
             {
+                _logger.Debug("ManualRegistro.RegistrarError", "La API devolvió error al registrar cuenta fiscal manual.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = resp.Error?.Codigo,
+                    ["Mensaje"] = resp.Error?.Mensaje,
+                    ["HttpCode"] = (int?)resp.Error?.HttpCode
+                });
                 SetLoading(false);
                 await _servicioAlerta.MostrarAsync("Error", resp.Error?.Mensaje ?? "Error al registrar.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
+
+            _logger.Info("ManualRegistro.RegistrarExitoso", "Registro manual de cuenta fiscal completado correctamente.");
 
             var cuentas = await _servicioCrm.GetAsociacionesFiscales();
             if (cuentas.Ok && cuentas.Payload != null)
@@ -174,18 +186,21 @@ public partial class ManualRegistroPage : ContentPage
         }
         catch (HttpRequestException ex)
         {
+            _logger.Debug("ManualRegistro.RegistrarHttpRequestException", "Error de conectividad durante registro manual.", ex);
             SetLoading(false);
             _logs.Log($"[ManualRegistroPage] HttpRequestException: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error de conexión", "No se pudo conectar al servidor. Verifica tu conexión.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (TaskCanceledException ex)
         {
+            _logger.Debug("ManualRegistro.RegistrarTimeoutException", "Timeout durante registro manual.", ex);
             SetLoading(false);
             _logs.Log($"[ManualRegistroPage] TaskCanceledException: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error de tiempo", "La solicitud tardó demasiado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {
+            _logger.Debug("ManualRegistro.RegistrarException", "Excepción no controlada durante registro manual.", ex);
             SetLoading(false);
             _logs.Log($"[ManualRegistroPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error inesperado", "Ocurrió un error inesperado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");

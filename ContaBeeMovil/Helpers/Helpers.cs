@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Maui;
+using CommunityToolkit.Maui;
 using Microsoft.Maui.Controls.Shapes;
 
 namespace ContaBeeMovil.Helpers;

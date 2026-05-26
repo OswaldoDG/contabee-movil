@@ -1,6 +1,7 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
+using Contabee.Api.Logging;
 using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Confirmar;
@@ -11,6 +12,7 @@ public partial class ConfirmarCuentaPage : ContentPage
     private string _token = string.Empty;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioLogs _logs;
+    private readonly IAppLogger _logger;
     private bool _activacionExitosa;
 
     public string Token
@@ -24,11 +26,12 @@ public partial class ConfirmarCuentaPage : ContentPage
         }
     }
 
-    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IServicioLogs logs)
+    public ConfirmarCuentaPage(IServicioIdentidad servicioIdentidad, IServicioLogs logs, IAppLogger logger)
     {
         InitializeComponent();
         this._servicioIdentidad = servicioIdentidad;
         this._logs = logs;
+        this._logger = logger;
     }
 
     private async void ActivarCuentaAsync(string token)
@@ -37,20 +40,29 @@ public partial class ConfirmarCuentaPage : ContentPage
 
         try
         {
+            _logger.Info("ConfirmarCuenta.Activar", "Inicio de confirmación de cuenta.");
             var respuesta = await _servicioIdentidad.ConfirmarCuenta(token);
             if (respuesta.Ok)
             {
                 _activacionExitosa = true;
+                _logger.Info("ConfirmarCuenta.ActivarExitoso", "Cuenta confirmada correctamente.");
                 MostrarEstado(Estado.Exito);
             }
             else
             {
+                _logger.Debug("ConfirmarCuenta.ActivarError", "La API devolvió error en confirmación de cuenta.", new Dictionary<string, object?>
+                {
+                    ["Codigo"] = respuesta.Error?.Codigo,
+                    ["Mensaje"] = respuesta.Error?.Mensaje,
+                    ["HttpCode"] = (int?)respuesta.Error?.HttpCode
+                });
                 _logs.Log($"[ConfirmarCuentaPage] Error API: {respuesta.Error?.Codigo} - {respuesta.Error?.Mensaje}");
                 MostrarEstado(Estado.Error, "El enlace no es válido o ya fue usado.");
             }
         }
         catch (Exception ex)
         {
+            _logger.Debug("ConfirmarCuenta.ActivarException", "Excepción no controlada al confirmar cuenta.", ex);
             _logs.Log($"[ConfirmarCuentaPage] {ex.GetType().Name}: {ex.Message}");
             MostrarEstado(Estado.Error, "El enlace no es válido o ya fue usado.");
         }
