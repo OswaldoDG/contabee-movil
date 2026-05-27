@@ -119,6 +119,10 @@ public partial class PaginaComprobaciones : ContentPage
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+            _ = _servicioSesion.GetMisUsuariosAsync();
+
         if (!ConsultaEjecutada)
         {
             _ = OnBuscarComprobaciones(PanelFiltros.BusquedaActual);

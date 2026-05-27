@@ -22,7 +22,7 @@
                    TextColor="{toolkit:AppThemeResource SecondaryText}"
                    Margin="4,0,0,4" />
 
-                <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Border x:Name="CardCambiarContrasena" Style="{StaticResource ElevatedCard}" Padding="10">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCambiarContrasenaClicked" />
                     </Border.GestureRecognizers>
@@ -51,86 +51,86 @@
                     </Grid>
                 </Border>
 
-                <!-- ── Legal ── -->
-                <Label Text="Legal"
-                   FontSize="13"
-                   FontAttributes="Bold"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   Margin="4,8,0,4" />
-
-                <Border Style="{StaticResource ElevatedCard}" Padding="10">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnAvisoPrivacidadClicked" />
-                    </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
-                        <BoxView Grid.Column="0"
-                             BackgroundColor="{toolkit:AppThemeResource Primary}"
-                             WidthRequest="4" CornerRadius="2"
-                             VerticalOptions="Fill" />
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=Security}"
-                                     IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     VerticalOptions="Center" />
-                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Aviso de privacidad"
-                               Style="{StaticResource Body1}" />
-                            <Label Text="Consulta cómo manejamos tu información"
-                               FontSize="12"
-                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                        </VerticalStackLayout>
-                        <mi:MauiIcon Grid.Column="3"
-                                     Icon="{mi:Material Icon=ChevronRight}"
-                                     IconSize="16"
-                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                     VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-
-                <Border Style="{StaticResource ElevatedCard}" Padding="10">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnTerminosServicioClicked" />
-                    </Border.GestureRecognizers>
-                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
-                        <BoxView Grid.Column="0"
-                             BackgroundColor="{toolkit:AppThemeResource Primary}"
-                             WidthRequest="4" CornerRadius="2"
-                             VerticalOptions="Fill" />
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=Description}"
-                                     IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     VerticalOptions="Center" />
-                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
-                            <Label Text="Términos del servicio"
-                               Style="{StaticResource Body1}" />
-                            <Label Text="Condiciones de uso de la aplicación"
-                               FontSize="12"
-                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                        </VerticalStackLayout>
-                        <mi:MauiIcon Grid.Column="3"
-                                     Icon="{mi:Material Icon=ChevronRight}"
-                                     IconSize="16"
-                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                     VerticalOptions="Center" />
-                    </Grid>
-                </Border>
-
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- ── Zona de peligro (siempre al fondo) ── -->
+        <!-- ── Legal + Zona de peligro (siempre al fondo) ── -->
         <VerticalStackLayout Grid.Row="1" Spacing="8" Padding="0,12,0,0">
+            <!-- ── Legal ── -->
+            <Label Text="Legal"
+               FontSize="13"
+               FontAttributes="Bold"
+               TextColor="{toolkit:AppThemeResource SecondaryText}"
+               Margin="4,0,0,4" />
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAvisoPrivacidadClicked" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                         BackgroundColor="{toolkit:AppThemeResource Primary}"
+                         WidthRequest="4" CornerRadius="2"
+                         VerticalOptions="Fill" />
+                    <mi:MauiIcon Grid.Column="1"
+                                 Icon="{mi:Material Icon=Security}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Aviso de privacidad"
+                           Style="{StaticResource Body1}" />
+                        <Label Text="Consulta cómo manejamos tu información"
+                           FontSize="12"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </VerticalStackLayout>
+                    <mi:MauiIcon Grid.Column="3"
+                                 Icon="{mi:Material Icon=ChevronRight}"
+                                 IconSize="16"
+                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                 VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTerminosServicioClicked" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                         BackgroundColor="{toolkit:AppThemeResource Primary}"
+                         WidthRequest="4" CornerRadius="2"
+                         VerticalOptions="Fill" />
+                    <mi:MauiIcon Grid.Column="1"
+                                 Icon="{mi:Material Icon=Description}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
+                        <Label Text="Términos del servicio"
+                           Style="{StaticResource Body1}" />
+                        <Label Text="Condiciones de uso de la aplicación"
+                           FontSize="12"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </VerticalStackLayout>
+                    <mi:MauiIcon Grid.Column="3"
+                                 Icon="{mi:Material Icon=ChevronRight}"
+                                 IconSize="16"
+                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                 VerticalOptions="Center" />
+                </Grid>
+            </Border>
 
             <BoxView Style="{StaticResource Divider}" />
 
+            <!-- ── Zona de peligro ── -->
             <Label Text="Zona de peligro"
                FontSize="13"
                FontAttributes="Bold"
                TextColor="{toolkit:AppThemeResource Error}"
                Margin="4,0,0,4" />
 
-            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+            <Border x:Name="CardEliminarCuenta" Style="{StaticResource ElevatedCard}" Padding="10">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnEliminarCuentaClicked" />
                 </Border.GestureRecognizers>

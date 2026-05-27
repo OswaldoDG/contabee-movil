@@ -19,6 +19,7 @@ public partial class PaginaDevoluciones : ContentPage
 
 	private readonly IServicioTranscript _servicioTranscript;
 	private readonly IServicioAlerta _servicioAlerta;
+	private readonly IServicioSesion _servicioSesion;
 	private readonly IServicioLogs _logs;
 	private Busqueda? _ultimaBusqueda;
 	private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
@@ -98,10 +99,12 @@ public partial class PaginaDevoluciones : ContentPage
 	public PaginaDevoluciones(
 		IServicioTranscript servicioTranscript,
 		IServicioAlerta servicioAlerta,
+		IServicioSesion servicioSesion,
 		IServicioLogs logs)
 	{
 		_servicioTranscript = servicioTranscript;
 		_servicioAlerta = servicioAlerta;
+		_servicioSesion = servicioSesion;
 		_logs = logs;
 
 		BuscarDevolucionesCommand = new Command<Busqueda>(async b => await OnBuscarDevoluciones(b));
@@ -116,7 +119,11 @@ public partial class PaginaDevoluciones : ContentPage
 	protected override void OnAppearing()
 	{
 		base.OnAppearing();
-     if (!ConsultaEjecutada)
+
+		if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+			_ = _servicioSesion.GetMisUsuariosAsync();
+
+		if (!ConsultaEjecutada)
 		{
 			_ = OnBuscarDevoluciones(PanelFiltros.BusquedaActual);
            return;

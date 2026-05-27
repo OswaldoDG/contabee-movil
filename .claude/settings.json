@@ -1,17 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/neurofant/Library/Logs/CrashReporter/MobileDevice/**)",
-      "Read(//Users/neurofant/Library/**)",
-      "Bash(chmod +x /Users/neurofant/proyectos/contabee/contabee-movil/build-release.sh)",
-      "Bash(sort find:*)",
-      "Bash(grep -v \"^$\")",
-      "Bash(dotnet list:*)",
-      "Bash(dotnet clean:*)",
-      "Bash(xargs cat:*)",
-      "Bash(grep -E \"\\\\.\\(xaml|cs\\)$\")",
-      "Bash(grep -E \"\\\\.\\(cs|xaml\\)$\")",
-      "Read(//Users/neurofant/Downloads/**)"
+      "mcp__codegraph__codegraph_search",
+      "mcp__codegraph__codegraph_context",
+      "mcp__codegraph__codegraph_callers",
+      "mcp__codegraph__codegraph_callees",
+      "mcp__codegraph__codegraph_impact",
+      "mcp__codegraph__codegraph_node",
+      "mcp__codegraph__codegraph_explore",
+      "mcp__codegraph__codegraph_trace",
+      "mcp__codegraph__codegraph_files",
+      "mcp__codegraph__codegraph_status"
     ]
   }
 }

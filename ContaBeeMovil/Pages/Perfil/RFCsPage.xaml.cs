@@ -50,12 +50,14 @@ public partial class RFCsPage : ContentPage
         double swipeWidth = cardWidth * 0.75;
 
         var cuentas = AppState.Instance.CuentasFiscales ?? new List<AsociacionCuentaFiscalCompleta>();
+        var esLoginLess = AppState.Instance.EsLoginLess;
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
             Nombre         = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
             Rfc            = c.Rfc ?? "—",
             Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
             SwipeItemWidth = swipeWidth,
+            PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
             DeleteCommand  = new Command(async () => await ConfirmarEliminar(c))
         }).ToList();
     }
@@ -85,6 +87,16 @@ public partial class RFCsPage : ContentPage
 
     private async Task ConfirmarEliminar(AsociacionCuentaFiscalCompleta cuenta)
     {
+        if (AppState.Instance.EsLoginLess && cuenta.TipoCuenta != TipoCuenta.Primaria)
+        {
+            await _servicioAlerta.MostrarAsync(
+                "No permitido",
+                "Solo puedes eliminar cuentas fiscales de las que eres titular.",
+                verBotonCancelar: false,
+                confirmarText: "OK");
+            return;
+        }
+
         bool confirmar = await _servicioAlerta.MostrarAsync(
             "Eliminar",
             "Eliminar la cuenta fiscal es un proceso irreversible ¿Desea continuar?",
@@ -128,6 +140,7 @@ public partial class RFCsPage : ContentPage
         public string Rfc { get; init; } = "";
         public string Regimen { get; init; } = "";
         public double SwipeItemWidth { get; init; }
+        public bool PuedeEliminar { get; init; } = true;
         public ICommand DeleteCommand { get; init; } = null!;
         public bool TieneNombre => !string.IsNullOrWhiteSpace(Nombre);
     }

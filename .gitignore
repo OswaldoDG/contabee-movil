@@ -430,3 +430,12 @@ graphify-out/
 .graphify_*.json
 .graphify_python
 .graphify_manifest.json
+
+# CodeGraph (índice local, no va en el repo)
+.codegraph/
+
+# MCP config local
+.mcp.json
+
+# Claude Code — config personal (no compartir)
+.claude/settings.local.json

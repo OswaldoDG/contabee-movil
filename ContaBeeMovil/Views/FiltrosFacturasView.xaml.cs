@@ -104,6 +104,14 @@ public partial class FiltrosFacturasView : ContentView
         InitializeComponent();
         InicializarSelectores();
         ActualizarPeriodoTexto();
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.MisUsuarios) or nameof(AppState.CuentaFiscalActual))
+                CargarCreadores();
+        };
+
+        Loaded += (_, _) => CargarCreadores();
     }
 
     private void InicializarSelectores()
@@ -385,19 +393,6 @@ public partial class FiltrosFacturasView : ContentView
 
         _creadoresIds.Clear();
 
-        var secundarios = usuarios
-            .Where(u => EsCuentaSecundaria(u.TipoCuenta)
-                && u.CuentaFiscalId.HasValue
-                && u.CuentaFiscalId.Value != cuentaFiscalActualId)
-            .Select(u => new
-            {
-                Usuario = u,
-                CuentaFiscalId = u.CuentaFiscalId!.Value
-            })
-            .GroupBy(x => x.CuentaFiscalId)
-            .Select(g => g.First().Usuario)
-            .ToList();
-
         var elementosCreador = new List<string> { "Todos" };
         _creadoresIds.Add(string.Empty);
 
@@ -407,19 +402,41 @@ public partial class FiltrosFacturasView : ContentView
             _creadoresIds.Add(cuentaFiscalActualId.Value.ToString());
         }
 
-        if (secundarios.Count > 0)
+        if (!AppState.Instance.EsLoginLess && EsUsuarioPrimario())
         {
-            elementosCreador.AddRange(secundarios.Select(u =>
+            var usuarioSesionId = (usuarios
+                .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
+                ?? usuarios.FirstOrDefault(u => !u.EsCaptura))?.Id;
+
+            var secundarios = usuarios
+                .Where(u => !EsCapturista(u.TipoCuenta) && u.Id != usuarioSesionId)
+                .ToList();
+
+            foreach (var u in secundarios)
             {
                 var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-                return $"{nombre} (Secundaria)";
-            }));
-            _creadoresIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
+                elementosCreador.Add($"{nombre} (Secundaria)");
+                _creadoresIds.Add(u.CuentaFiscalId?.ToString() ?? cuentaFiscalActualId?.ToString() ?? string.Empty);
+            }
         }
 
         SelectorCreador.Elementos = elementosCreador;
         SelectorCreador.IndiceSeleccionado = 0;
     }
+
+    private static bool EsUsuarioPrimario()
+    {
+        var cuentaActual = AppState.Instance.CuentaFiscalActual;
+        if (cuentaActual is null) return true;
+        return !EsCuentaSecundaria(cuentaActual.TipoCuenta.ToString());
+    }
+
+    private static bool EsCuentaSecundaria(string? tipoCuenta)
+        => string.Equals(tipoCuenta, "Secundaria", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Secondary", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Empleado", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "EmpleadoCliente", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "UsuarioCaptura", StringComparison.OrdinalIgnoreCase);
 
     private static string ObtenerEtiquetaUsuarioSesion()
     {
@@ -445,10 +462,8 @@ public partial class FiltrosFacturasView : ContentView
         return $"{nombre} (Yo)";
     }
 
-    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
-            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
-            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
+    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
 
     private static string MapearCampoOrden(string campo) => campo switch
     {

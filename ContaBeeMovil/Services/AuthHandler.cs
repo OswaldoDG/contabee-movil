@@ -73,7 +73,8 @@ public class AuthHandler : DelegatingHandler
         if (tokenExpirado)
         {
             var refreshToken = await sesion.LeeRefreshTokenAsync();
-            bool puedeRefrescar = appState.Recordarme && !string.IsNullOrEmpty(refreshToken);
+            bool esLoginLess = !string.IsNullOrEmpty(await sesion.LeeTokenLoginLessAsync());
+            bool puedeRefrescar = (appState.Recordarme || esLoginLess) && !string.IsNullOrEmpty(refreshToken);
 
             if (puedeRefrescar)
             {
@@ -101,7 +102,25 @@ public class AuthHandler : DelegatingHandler
 
         try
         {
-            return await base.SendAsync(request, cancellationToken);
+            var response = await base.SendAsync(request, cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    var body = await response.Content.ReadAsStringAsync(cancellationToken);
+                    response.Content = new StringContent(
+                        body,
+                        System.Text.Encoding.UTF8,
+                        response.Content.Headers.ContentType?.MediaType ?? "application/json");
+
+                    if (body.Contains("no pertenece a la cuenta fiscal", StringComparison.OrdinalIgnoreCase))
+                        _ = sesion.ManejarDesvinculacionAsync();
+                }
+                catch { }
+            }
+
+            return response;
         }
         catch (HttpRequestException) when (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
         {

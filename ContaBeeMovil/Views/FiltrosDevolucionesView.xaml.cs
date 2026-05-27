@@ -75,6 +75,14 @@ public partial class FiltrosDevolucionesView : ContentView
         InitializeComponent();
         InicializarSelectores();
         ActualizarPeriodoTexto();
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(AppState.MisUsuarios) or nameof(AppState.CuentaFiscalActual))
+                CargarDestinatarios();
+        };
+
+        Loaded += (_, _) => CargarDestinatarios();
     }
 
     private void InicializarSelectores()
@@ -307,18 +315,6 @@ public partial class FiltrosDevolucionesView : ContentView
     {
         var usuarios = AppState.Instance.MisUsuarios ?? [];
         var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
-        var secundarios = usuarios
-            .Where(u => EsCuentaSecundaria(u.TipoCuenta)
-                && u.CuentaFiscalId.HasValue
-                && u.CuentaFiscalId.Value != cuentaFiscalActualId)
-            .Select(u => new
-            {
-                Usuario = u,
-                CuentaFiscalId = u.CuentaFiscalId!.Value
-            })
-            .GroupBy(x => x.CuentaFiscalId)
-            .Select(g => g.First().Usuario)
-            .ToList();
 
         _destinatariosIds.Clear();
         if (SelectorDestinatarioView is null) return;
@@ -332,16 +328,41 @@ public partial class FiltrosDevolucionesView : ContentView
             _destinatariosIds.Add(cuentaFiscalActualId.Value.ToString());
         }
 
-        elementosDestinatario.AddRange(secundarios.Select(u =>
+        if (!AppState.Instance.EsLoginLess && EsUsuarioPrimario())
         {
-            var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-            return $"{nombre} (Secundaria)";
-        }));
-        SelectorDestinatarioView.Elementos = elementosDestinatario;
+            var usuarioSesionId = (usuarios
+                .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
+                ?? usuarios.FirstOrDefault(u => !u.EsCaptura))?.Id;
 
-        _destinatariosIds.AddRange(secundarios.Select(u => u.CuentaFiscalId!.Value.ToString()));
+            var secundarios = usuarios
+                .Where(u => !EsCapturista(u.TipoCuenta) && u.Id != usuarioSesionId)
+                .ToList();
+
+            foreach (var u in secundarios)
+            {
+                var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
+                elementosDestinatario.Add($"{nombre} (Secundaria)");
+                _destinatariosIds.Add(u.CuentaFiscalId?.ToString() ?? cuentaFiscalActualId?.ToString() ?? string.Empty);
+            }
+        }
+
+        SelectorDestinatarioView.Elementos = elementosDestinatario;
         SelectorDestinatarioView.IndiceSeleccionado = 0;
     }
+
+    private static bool EsUsuarioPrimario()
+    {
+        var cuentaActual = AppState.Instance.CuentaFiscalActual;
+        if (cuentaActual is null) return true;
+        return !EsCuentaSecundaria(cuentaActual.TipoCuenta.ToString());
+    }
+
+    private static bool EsCuentaSecundaria(string? tipoCuenta)
+        => string.Equals(tipoCuenta, "Secundaria", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Secondary", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "Empleado", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "EmpleadoCliente", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tipoCuenta, "UsuarioCaptura", StringComparison.OrdinalIgnoreCase);
 
     private static string ObtenerEtiquetaUsuarioSesion()
     {
@@ -367,10 +388,8 @@ public partial class FiltrosDevolucionesView : ContentView
         return $"{nombre} (Yo)";
     }
 
-    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
-            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
-            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
+    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
 
     private record FiltrosPersistidos(
         string? Anio,

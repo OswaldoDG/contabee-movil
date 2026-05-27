@@ -17,6 +17,7 @@ public partial class FacturacionPage : ContentPage
 {
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioSesion _servicioSesion;
     private readonly IServicioLogs _logs;
     private Contabee.Api.Transcript.Busqueda? _ultimaBusqueda;
     internal static Guid? ProcesoAsociadoFiltroId { get; set; }
@@ -84,10 +85,11 @@ public partial class FacturacionPage : ContentPage
 
     // ── Constructor ──────────────────────────────────────────────────────────────
 
-    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public FacturacionPage(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioSesion servicioSesion, IServicioLogs logs)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
+        _servicioSesion = servicioSesion;
         _logs = logs;
         BuscarFacturasCommand = new Command<Contabee.Api.Transcript.Busqueda>(async b => await OnBuscarFacturas(b));
         PaginaAnteriorCommand = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
@@ -112,6 +114,10 @@ public partial class FacturacionPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+            _ = _servicioSesion.GetMisUsuariosAsync();
+
         PanelFiltros.RestaurarEstado();
 
         if (ProcesoAsociadoFiltroId.HasValue)

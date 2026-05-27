@@ -21,7 +21,8 @@
                     <SwipeView>
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
-                                <SwipeItemView Command="{Binding DeleteCommand}">
+                                <SwipeItemView Command="{Binding DeleteCommand}"
+                                               IsVisible="{Binding PuedeEliminar}">
                                     <Border BackgroundColor="#d65c5c"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="0"

@@ -23,6 +23,7 @@ public interface IServicioSesion
     Task PosLoginAsync();
     Task VerificarSesionAlReanudarAsync();
     Task CerrarSesionAsync();
+    Task ManejarDesvinculacionAsync();
     Task PostEliminarCuentaAsync();
     Task GuardaTokenLoginLessAsync(string token);
     Task<string?> LeeTokenLoginLessAsync();

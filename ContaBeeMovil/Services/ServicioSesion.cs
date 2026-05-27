@@ -29,6 +29,7 @@ public class ServicioSesion : IServicioSesion
     private readonly IServiceProvider _serviceProvider;
     private readonly IServicioLogs _logs;
     private bool _posLoginAbortado;
+    private static readonly SemaphoreSlim _desvinculacionLock = new(1, 1);
 
     public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs)
     {
@@ -357,16 +358,84 @@ public class ServicioSesion : IServicioSesion
         if (!Preferences.Get("TieneSesion", false))
             return;
 
+        bool esLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
         var expiracion = await LeeExpiracionAsync();
-        if (!expiracion.HasValue || DateTime.Now < expiracion.Value)
-            return; // válido o indeterminado — AuthHandler maneja el refresh en el próximo request
+        bool tokenExpirado = expiracion.HasValue && DateTime.Now >= expiracion.Value;
 
-        bool puedeRefrescar = _appState.Recordarme && !string.IsNullOrEmpty(await LeeRefreshTokenAsync());
-        if (puedeRefrescar)
-            return; // AuthHandler lo refresheará automáticamente en la siguiente petición
+        if (tokenExpirado)
+        {
+            bool puedeRefrescar = (esLoginLess || _appState.Recordarme) && !string.IsNullOrEmpty(await LeeRefreshTokenAsync());
+            if (!puedeRefrescar)
+            {
+                await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
+                return;
+            }
+        }
 
-        // Token expirado + sin posibilidad de refresh → expulsar inmediatamente
-        await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
+        if (!esLoginLess) return;
+
+        // Login-less: verificar desvinculación proactivamente al reanudar la app
+        var idAntes = _appState.CuentaFiscalActual?.CuentaFiscalId;
+        if (!idAntes.HasValue) return;
+
+        var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+        if (!respuesta.Ok) return;
+
+        var cuentas = respuesta.Payload ?? [];
+        bool desvinculado = cuentas.All(c => c.CuentaFiscalId != idAntes.Value);
+        AplicarCuentasFiscales(cuentas);
+        await GetMisUsuariosAsync();
+        if (desvinculado)
+            await ProcesarDesvinculacionAsync();
+    }
+
+    public async Task ManejarDesvinculacionAsync()
+    {
+        if (!await _desvinculacionLock.WaitAsync(0)) return;
+        try
+        {
+            var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+            if (!respuesta.Ok) return;
+
+            var cuentas = respuesta.Payload ?? [];
+            AplicarCuentasFiscales(cuentas);
+            await GetMisUsuariosAsync();
+            await ProcesarDesvinculacionAsync();
+        }
+        finally
+        {
+            _desvinculacionLock.Release();
+        }
+    }
+
+    private async Task ProcesarDesvinculacionAsync()
+    {
+        var toast = _serviceProvider.GetRequiredService<IServicioToast>();
+        const string mensaje = "Has sido desvinculado de la cuenta fiscal";
+
+        if (_appState.CuentasFiscales == null || _appState.CuentasFiscales.Count == 0)
+        {
+            await LimpiaTokensAsync();
+            SecureStorage.Remove(CLAVE_EXPIRACION);
+            _appState.Perfil = null;
+            _appState.CuentaFiscalActual = null;
+            _appState.Licenciamiento = null;
+            _appState.MisUsuarios = null;
+            _appState.Tarjetas = [];
+
+            await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
+                Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
+                await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
+            });
+        }
+        else
+        {
+            await GetLicenciaAsync();
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom));
+        }
     }
 
     public async Task CerrarSesionAsync()
