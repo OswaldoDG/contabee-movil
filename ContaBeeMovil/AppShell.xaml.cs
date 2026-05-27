@@ -55,9 +55,12 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
                 else if (e.PropertyName == nameof(AppState.EsLoginLess))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLoginLess);
+                else if (e.PropertyName == nameof(AppState.ModoOffline))
+                    MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadOffline);
             };
 
             ActualizarVisibilidadLoginLess();
+            ActualizarVisibilidadOffline();
 
             Navigated += (_, _) => AplicarEstiloIconosConDelay();
             Loaded += (_, _) => AplicarEstiloIconosConDelay();
@@ -174,8 +177,17 @@ namespace ContaBeeMovil
         private void ActualizarVisibilidadLoginLess()
         {
             var esLoginLess = AppState.Instance.EsLoginLess;
-            TiendaCard.IsVisible = !esLoginLess;
+            TiendaCard.IsVisible = !esLoginLess && !AppState.Instance.ModoOffline;
             BtnCerrarSesion.IsVisible = !esLoginLess;
+        }
+
+        private void ActualizarVisibilidadOffline()
+        {
+            var offline = AppState.Instance.ModoOffline;
+            TiendaCard.IsVisible = !AppState.Instance.EsLoginLess && !offline;
+            CuponesCard.IsVisible = !offline;
+            VincularmeCard.IsVisible = !offline;
+            BuzonItem.IsVisible = !offline;
         }
 
         private void ActualizarNombreLabel()

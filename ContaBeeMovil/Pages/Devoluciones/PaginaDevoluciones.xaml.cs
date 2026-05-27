@@ -169,6 +169,8 @@ public partial class PaginaDevoluciones : ContentPage
 
 	private async Task OnBuscarDevoluciones(Busqueda busqueda)
 	{
+		if (AppState.Instance.ModoOffline) return;
+
 		if (AppState.Instance.CuentaFiscalActual is null)
 		{
 			await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
@@ -246,6 +248,13 @@ public partial class PaginaDevoluciones : ContentPage
   private async void OnCrearDevolucionClicked(object sender, TappedEventArgs e)
 	{
       if (_abriendoPopup) return;
+
+		if (AppState.Instance.ModoOffline)
+		{
+			await _servicioAlerta.MostrarAsync("Sin conexión", "Esta función requiere internet.", verBotonCancelar: false, confirmarText: "Aceptar");
+			return;
+		}
+
 		_abriendoPopup = true;
 
        try

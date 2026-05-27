@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using ContaBeeMovil.Pages.Equipo;
+using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Pages;
 
@@ -64,11 +65,13 @@ public partial class EquipoPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        if (AppState.Instance.ModoOffline) return;
         await _viewModel.CargarAsync();
     }
 
     public async void OnTabActivated()
     {
+        if (AppState.Instance.ModoOffline) return;
         await Task.Yield();
         await _viewModel.CargarAsync();
     }

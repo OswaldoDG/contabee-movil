@@ -655,6 +655,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task EnviarAsync()
     {
+        if (AppState.Instance.ModoOffline)
+        {
+            await _servicioAlerta.MostrarAsync("Sin conexión", "Tus fotos están guardadas. Envíalas cuando recuperes internet.");
+            return;
+        }
+
         // ── Punto 1: Validar campos obligatorios ─────────────────────────────
         var cuentaFiscal = AppState.Instance.CuentaFiscalActual;
         if (cuentaFiscal is null)

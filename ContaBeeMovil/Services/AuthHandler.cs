@@ -2,7 +2,6 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Pages.Login;
-using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,9 +53,10 @@ public class AuthHandler : DelegatingHandler
             return await base.SendAsync(request, cancellationToken);
 
         // Verificar conectividad antes de cualquier llamada autenticada
-        if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+        var networkAccess = Connectivity.Current.NetworkAccess;
+        if (networkAccess is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
         {
-            await MostrarPaginaSinConexionAsync();
+            await ActivarModoOfflineAsync();
             return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
         }
 
@@ -104,6 +104,11 @@ public class AuthHandler : DelegatingHandler
         {
             var response = await base.SendAsync(request, cancellationToken);
 
+            // Si llegamos aquí, el servidor respondió — hay internet.
+            // Limpiar offline mode por si ConnectivityChanged no lo hizo.
+            if (AppState.Instance.ModoOffline)
+                AppState.Instance.ModoOffline = false;
+
             if (!response.IsSuccessStatusCode)
             {
                 try
@@ -122,10 +127,10 @@ public class AuthHandler : DelegatingHandler
 
             return response;
         }
-        catch (HttpRequestException) when (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+        catch (HttpRequestException) when (Connectivity.Current.NetworkAccess is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
         {
             // La red se cayó entre el check inicial y la petición efectiva
-            await MostrarPaginaSinConexionAsync();
+            await ActivarModoOfflineAsync();
             return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
         }
     }
@@ -181,13 +186,26 @@ public class AuthHandler : DelegatingHandler
         }
     }
 
-    private async Task MostrarPaginaSinConexionAsync()
+    private Task ActivarModoOfflineAsync()
     {
-        await MainThread.InvokeOnMainThreadAsync(() =>
+        var access = Connectivity.Current.NetworkAccess;
+        if (access is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
         {
-            var pagina = _serviceProvider.GetRequiredService<PaginaSinConexion>();
-            Application.Current!.Windows[0].Page = pagina;
-        });
+            var yaEraOffline = AppState.Instance.ModoOffline;
+            AppState.Instance.ModoOffline = true;
+
+            // Primera detección: si el usuario está en una página secundaria, volver al inicio
+            if (!yaEraOffline)
+            {
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    if (AppState.Instance.ModoOffline &&
+                        Shell.Current?.Navigation?.NavigationStack?.Count > 1)
+                        await Shell.Current.Navigation.PopToRootAsync(animated: false);
+                });
+            }
+        }
+        return Task.CompletedTask;
     }
 
     private async Task CerrarSesionAsync(IServicioSesion sesion, AppState appState)

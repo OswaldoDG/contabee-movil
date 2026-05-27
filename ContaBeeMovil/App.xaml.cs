@@ -36,7 +36,12 @@ public partial class App : Application
         Window window;
 
         if (tieneSesion)
+        {
+            var access = Connectivity.Current.NetworkAccess;
+            if (access is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
+                AppState.Instance.ModoOffline = true;
             window = new Window(Services.GetRequiredService<AppShell>());
+        }
         else
             window = new Window(new NavigationPage(Services.GetRequiredService<PaginaLogin>()));
 
@@ -55,6 +60,27 @@ public partial class App : Application
         Services = services;
         _deviceService = deviceService;
         InitializeComponent();
+        Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
+    }
+
+    private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+    {
+        // Usar el estado actual, no el del evento (puede ser transitorio en Android)
+        var access = Connectivity.Current.NetworkAccess;
+        var tieneInternet = access is NetworkAccess.Internet or NetworkAccess.ConstrainedInternet;
+
+        if (tieneInternet)
+        {
+            AppState.Instance.ModoOffline = false;
+
+            if (Preferences.Get("TarjetasPendienteSincronizacion", false))
+                _ = Task.Delay(2000).ContinueWith(_ =>
+                    Services.GetRequiredService<IServicioSesion>().GetTarjetasAsync());
+        }
+        else
+        {
+            AppState.Instance.ModoOffline = true;
+        }
     }
 
 }

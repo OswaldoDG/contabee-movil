@@ -1,4 +1,5 @@
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages;
 
@@ -17,6 +18,7 @@ public partial class MainTabbedPage : ContentPage
     private View? _equipoView;
 
     private int _currentIndex = -1;
+    private bool _estabaOffline;
 
     internal static event Action? EquipoRequested;
 
@@ -55,15 +57,31 @@ public partial class MainTabbedPage : ContentPage
         {
             if (e.PropertyName == nameof(AppState.EsLoginLess))
                 MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
+            else if (e.PropertyName == nameof(AppState.ModoOffline))
+                MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
         };
 
         ActualizarVisibilidadEquipo();
+        ActualizarModoOffline();
         SwitchToTab(0);
     }
 
     private void ActualizarVisibilidadEquipo()
     {
         TabBar.SetEquipoVisible(!AppState.Instance.EsLoginLess);
+    }
+
+    private void ActualizarModoOffline()
+    {
+        var offline = AppState.Instance.ModoOffline;
+        BannerOffline.IsVisible = offline;
+
+        if (_estabaOffline && !offline)
+        {
+            var toast = App.Services.GetRequiredService<IServicioToast>();
+            _ = toast.MostrarAsync("Conexión Restaurada", ToastIcono.Info, ToastPosicion.Bottom);
+        }
+        _estabaOffline = offline;
     }
 
     private void ForceEquipoTab()

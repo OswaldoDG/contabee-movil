@@ -121,7 +121,8 @@
                         </Grid>
                     </Border>
                     
-                    <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    <Border x:Name="CuponesCard"
+                            Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnCuponesClicked" />
                         </Border.GestureRecognizers>
@@ -171,7 +172,8 @@
                         </Grid>
                     </Border>
                     
-                    <Border Style="{StaticResource ElevatedCard}" Padding="14,12">
+                    <Border x:Name="VincularmeCard"
+                            Style="{StaticResource ElevatedCard}" Padding="14,12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnVincularmeClicked" />
                         </Border.GestureRecognizers>
@@ -239,7 +241,8 @@
 
             <!-- ── FOOTER ── -->
             <VerticalStackLayout Grid.Row="2" Padding="16,8,16,24">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                <Grid x:Name="BuzonItem"
+                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBuzonClicked" />
                     </Grid.GestureRecognizers>

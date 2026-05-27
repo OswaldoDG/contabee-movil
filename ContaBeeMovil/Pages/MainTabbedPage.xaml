@@ -65,14 +65,27 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Banner de modo offline -->
+        <Grid x:Name="BannerOffline"
+              Grid.Row="0"
+              IsVisible="False"
+              BackgroundColor="#F59E0B"
+              Padding="10,6">
+            <Label Text="Sin Conexión"
+                   TextColor="White"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
 
         <!-- Área de contenido dinámico -->
         <ContentView x:Name="PageContainer"
-                 Grid.Row="0" />
+                 Grid.Row="1" />
 
         <!-- Contenedor con fondo para la zona inferior -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 StrokeThickness="0"
                 StrokeShape="RoundRectangle 1,1,0,0"
                 BackgroundColor="{toolkit:AppThemeResource Background}"

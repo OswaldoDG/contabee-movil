@@ -35,7 +35,7 @@ public partial class RFCsPage : ContentPage
         CargarCuentas();
 
         var cuentas = AppState.Instance.CuentasFiscales;
-        if (!_autoNavegado && cuentas != null && cuentas.Count == 0)
+        if (!_autoNavegado && cuentas != null && cuentas.Count == 0 && !AppState.Instance.ModoOffline)
         {
             _autoNavegado = true;
             await AbrirRegistrar();
@@ -72,6 +72,12 @@ public partial class RFCsPage : ContentPage
 
     private async void BtnAgregar_Clicked(object? sender, EventArgs e)
     {
+        if (AppState.Instance.ModoOffline)
+        {
+            await _servicioAlerta.MostrarAsync("Sin conexión", "Esta función requiere internet.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return;
+        }
+
         try { await AbrirRegistrar(); }
         catch (Exception ex)
         {
@@ -87,6 +93,12 @@ public partial class RFCsPage : ContentPage
 
     private async Task ConfirmarEliminar(AsociacionCuentaFiscalCompleta cuenta)
     {
+        if (AppState.Instance.ModoOffline)
+        {
+            await _servicioAlerta.MostrarAsync("Sin conexión", "Esta función requiere internet.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return;
+        }
+
         if (AppState.Instance.EsLoginLess && cuenta.TipoCuenta != TipoCuenta.Primaria)
         {
             await _servicioAlerta.MostrarAsync(

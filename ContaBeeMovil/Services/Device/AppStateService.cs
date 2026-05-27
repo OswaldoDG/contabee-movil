@@ -301,4 +301,18 @@ public partial class AppState : ObservableObject
         get => _esLoginLess;
         set => SetProperty(ref _esLoginLess, value);
     }
+
+    // ── ModoOffline ────────────────────────────────────────────────────────────
+    private bool _modoOffline;
+
+    /// <summary>
+    /// Indica que la app opera sin conexión a internet.
+    /// Se activa automáticamente al perder conectividad y se desactiva al recuperarla.
+    /// No persiste entre sesiones.
+    /// </summary>
+    public bool ModoOffline
+    {
+        get => _modoOffline;
+        set => SetProperty(ref _modoOffline, value);
+    }
 }

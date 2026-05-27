@@ -282,6 +282,22 @@ public class ServicioSesion : IServicioSesion
         if (string.IsNullOrEmpty(email)) return;
 
         var clave = $"CLAVE_{email.Split('@')[0]}";
+
+        // Si hay cambios locales offline pendientes, subirlos antes de hacer fetch del servidor
+        if (Preferences.Get("TarjetasPendienteSincronizacion", false))
+        {
+            var localesPendientes = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave);
+            if (localesPendientes?.Count > 0)
+            {
+                var push = await _servicioCrm.GuardarMisTarjetasUsuario(localesPendientes.Select(ToDto).ToList());
+                if (push.Ok) Preferences.Set("TarjetasPendienteSincronizacion", false);
+            }
+            else
+            {
+                Preferences.Set("TarjetasPendienteSincronizacion", false);
+            }
+        }
+
         var respuesta = await _servicioCrm.MisTarjetasUsuario();
 
         if (respuesta.Ok)
@@ -321,8 +337,13 @@ public class ServicioSesion : IServicioSesion
         var clave = $"CLAVE_{email.Split('@')[0]}";
 
         var respuesta = await _servicioCrm.GuardarMisTarjetasUsuario(tarjetas.Select(ToDto).ToList());
-        if (!respuesta.Ok)
+        if (respuesta.Ok)
         {
+            Preferences.Set("TarjetasPendienteSincronizacion", false);
+        }
+        else
+        {
+            Preferences.Set("TarjetasPendienteSincronizacion", true);
             var toast = _serviceProvider.GetRequiredService<IServicioToast>();
             await MainThread.InvokeOnMainThreadAsync(() =>
                 toast.MostrarAsync("No se pudieron guardar tus tarjetas en la nube", ToastIcono.Warning, ToastPosicion.Bottom));
