@@ -30,7 +30,7 @@ public partial class RegistrarRFCsPage : ContentPage
         {
             var page = MauiProgram.Services.GetService(typeof(ManualRegistroPage)) as Page;
             if (page != null)
-                await Navigation.PushModalAsync(page);
+                await Navigation.PushAsync(page);
         }
         catch (Exception ex)
         {
