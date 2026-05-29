@@ -10,7 +10,7 @@
     <Grid Padding="10">
         <!-- Tarjeta centrada -->
         <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                VerticalOptions="Fill"
+                VerticalOptions="Center"
                 HorizontalOptions="Fill"
                 StrokeShape="RoundRectangle 10"
                 Stroke="{toolkit:AppThemeResource Accent1}"
@@ -108,6 +108,42 @@
                         </VisualStateGroup>
                     </VisualStateManager.VisualStateGroups>
                 </Label>
+                <views:SelectorFlotante x:Name="SelectorEntidadFederativa"
+                                        Titulo="Entidad Federativa" />
+
+                <Entry x:Name="EntryMunicipio"
+                       Placeholder="Municipio"
+                       HeightRequest="44"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Entry x:Name="EntryColonia"
+                       Placeholder="Colonia"
+                       HeightRequest="44"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Entry x:Name="EntryNombreVialidad"
+                       Placeholder="Nombre de Vialidad"
+                       HeightRequest="44"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Entry x:Name="EntryNumExterior"
+                           Placeholder="No. Exterior"
+                           HeightRequest="44"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                    <Entry x:Name="EntryNumInterior"
+                           Grid.Column="1"
+                           Placeholder="No. Interior"
+                           HeightRequest="44"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                </Grid>
+
+
 
                 <views:SelectorFlotante x:Name="SelectorRegimen"
                                         Titulo="Regimen" />

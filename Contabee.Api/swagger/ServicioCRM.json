@@ -2157,42 +2157,125 @@
         }
       }
     },
-    "/tarjetas": {
-      "get": {
-        "tags": [ "Tarjetas" ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": { "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario" }
-                }
-              }
-            }
-          },
-          "401": { "description": "Unauthorized" },
-          "500": { "description": "Internal Server Error" }
-        }
-      },
-      "put": {
-        "tags": [ "Tarjetas" ],
+    "/api/Soporte/contacto": {
+      "post": {
+        "tags": [
+          "Soporte"
+        ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "type": "array",
-                "items": { "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario" }
+                "$ref": "#/components/schemas/contabee.model.crm.contacto.SolicitudContactoCrearDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.contacto.SolicitudContactoCrearDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.contacto.SolicitudContactoCrearDto"
               }
             }
           }
         },
         "responses": {
-          "200": { "description": "OK" },
-          "400": { "description": "Bad Request" },
-          "401": { "description": "Unauthorized" },
-          "500": { "description": "Internal Server Error" }
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/tarjetas": {
+      "get": {
+        "tags": [
+          "Tarjetas"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tarjetas"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/contabee.model.crm.usuarios.TarjetaUsuario"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     }
@@ -2361,7 +2444,9 @@
       "comunes.proxies.ecommerce.PasarelarPago": {
         "enum": [
           "Interbancario",
-          "MercadoPago"
+          "MercadoPago",
+          "Apple",
+          "Google"
         ],
         "type": "string"
       },
@@ -2800,7 +2885,8 @@
             "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
           },
           "cuentaUsuario": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
+            ,
             "nullable": true
           },
           "direcciones": {
@@ -2845,6 +2931,30 @@
             "type": "boolean"
           },
           "claveRegimenFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "entidadFederativa": {
+            "type": "string",
+            "nullable": true
+          },
+          "municipio": {
+            "type": "string",
+            "nullable": true
+          },
+          "colonia": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombreVialidad": {
+            "type": "string",
+            "nullable": true
+          },
+          "numExterior": {
+            "type": "string",
+            "nullable": true
+          },
+          "numInterior": {
             "type": "string",
             "nullable": true
           }
@@ -3097,6 +3207,69 @@
           "Contabee",
           "InternoDinamico",
           "Interno"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.contacto.MedioPreferidoContacto": {
+        "enum": [
+          "Ninguno",
+          "Email",
+          "Telefono",
+          "Whatsapp"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.contacto.SolicitudContactoCrearDto": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "telefono": {
+            "type": "string",
+            "nullable": true
+          },
+          "nota": {
+            "type": "string",
+            "nullable": true
+          },
+          "origen": {
+            "$ref": "#/components/schemas/contabee.model.crm.contacto.TipoOrigenSolicitudContacto"
+          },
+          "areaInteres": {
+            "$ref": "#/components/schemas/contabee.model.crm.contacto.TipoInteresContacto"
+          },
+          "medioPreferido": {
+            "$ref": "#/components/schemas/contabee.model.crm.contacto.MedioPreferidoContacto"
+          },
+          "recaptchaToken": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.contacto.TipoInteresContacto": {
+        "enum": [
+          "ProductoServicio",
+          "SoporteTecnico",
+          "Ventas",
+          "Distribucion",
+          "Aclaracion"
+        ],
+        "type": "string"
+      },
+      "contabee.model.crm.contacto.TipoOrigenSolicitudContacto": {
+        "enum": [
+          "Web"
         ],
         "type": "string"
       },

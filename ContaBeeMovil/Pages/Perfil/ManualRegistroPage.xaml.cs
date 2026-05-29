@@ -10,6 +10,42 @@ namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class ManualRegistroPage : ContentPage
 {
+    private static readonly List<string> EntidadesFederativas =
+    [
+        "AGUASCALIENTES",
+        "BAJA CALIFORNIA",
+        "BAJA CALIFORNIA SUR",
+        "CAMPECHE",
+        "COAHUILA",
+        "COLIMA",
+        "CHIAPAS",
+        "CHIHUAHUA",
+        "CIUDAD DE MEXICO",
+        "DURANGO",
+        "GUANAJUATO",
+        "GUERRERO",
+        "HIDALGO",
+        "JALISCO",
+        "MEXICO",
+        "MICHOACAN",
+        "MORELOS",
+        "NAYARIT",
+        "NUEVO LEON",
+        "OAXACA",
+        "PUEBLA",
+        "QUERETARO",
+        "QUINTANA ROO",
+        "SAN LUIS POTOSI",
+        "SINALOA",
+        "SONORA",
+        "TABASCO",
+        "TAMAULIPAS",
+        "TLAXCALA",
+        "VERACRUZ",
+        "YUCATAN",
+        "ZACATECAS"
+    ];
+
     private static readonly Regex RfcFisicaRegex = new(
         @"^[A-ZÑ]{4}\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{3}$",
         RegexOptions.Compiled);
@@ -38,6 +74,9 @@ public partial class ManualRegistroPage : ContentPage
         SelectorPersona.IndiceCambiado += OnPersonaCambiada;
 
         SelectorRegimen.IndiceCambiado += (_, _) => UpdateRegistrarButton();
+
+        SelectorEntidadFederativa.Elementos = EntidadesFederativas;
+        SelectorEntidadFederativa.IndiceSeleccionado = -1;
 
         PopulateRegimen();
     }
@@ -142,6 +181,14 @@ public partial class ManualRegistroPage : ContentPage
                 Nombre = EntryName.Text?.Trim() ?? string.Empty,
                 Rfc = EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty,
                 CodigoPostal = EntryCp.Text?.Trim() ?? string.Empty,
+                EntidadFederativa = SelectorEntidadFederativa.IndiceSeleccionado >= 0
+                    ? EntidadesFederativas[SelectorEntidadFederativa.IndiceSeleccionado]
+                    : string.Empty,
+                Municipio = EntryMunicipio.Text?.Trim() ?? string.Empty,
+                Colonia = EntryColonia.Text?.Trim() ?? string.Empty,
+                NombreVialidad = EntryNombreVialidad.Text?.Trim() ?? string.Empty,
+                NumExterior = EntryNumExterior.Text?.Trim() ?? string.Empty,
+                NumInterior = EntryNumInterior.Text?.Trim() ?? string.Empty,
                 ClaveRegimenFiscal = regimenSel,
                 Compartido = ChkCompartido.IsChecked
             };
