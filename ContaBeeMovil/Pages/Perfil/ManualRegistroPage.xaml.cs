@@ -5,6 +5,7 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
@@ -59,15 +60,18 @@ public partial class ManualRegistroPage : ContentPage
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
+    private readonly IServicioToast _servicioToast;
+    private bool _isLoading;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
-    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs, IServicioToast servicioToast)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
+        _servicioToast = servicioToast;
 
         SelectorPersona.Elementos = new List<string> { "Física", "Moral" };
         SelectorPersona.IndiceSeleccionado = 0;
@@ -127,7 +131,7 @@ public partial class ManualRegistroPage : ContentPage
 
     private async void BtnCancel_Clicked(object? sender, EventArgs e)
     {
-        await Navigation.PopModalAsync();
+        await Navigation.PopAsync();
     }
 
     private async void BtnRegistrar_Clicked(object? sender, EventArgs e)
@@ -160,6 +164,12 @@ public partial class ManualRegistroPage : ContentPage
 
     private void UpdateRegistrarButton()
     {
+        if (_isLoading)
+        {
+            BtnRegistrar.IsEnabled = false;
+            return;
+        }
+
         bool rfcValido = IsRfcValid(EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty);
         bool cpValido = CpRegex.IsMatch(EntryCp.Text?.Trim() ?? string.Empty);
         bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
@@ -208,41 +218,74 @@ public partial class ManualRegistroPage : ContentPage
                 AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
             }
 
-            SetLoading(false);
-            await Navigation.PopModalAsync();
+            LimpiarFormulario();
 
-            if (Shell.Current != null)
-                await Shell.Current.GoToAsync("..");
-            else
+            if (Navigation.NavigationStack.Count > 1)
             {
-                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-                Application.Current!.Windows[0].Page = shell;
+                var stack = Navigation.NavigationStack;
+                if (stack.Count >= 2 && stack[^2] is RegistrarRFCsPage registrarPage)
+                    Navigation.RemovePage(registrarPage);
+
+                await Navigation.PopAsync();
+                await _servicioToast.MostrarAsync("Cuenta fiscal registrada correctamente.");
+            }
+            else if (Shell.Current is not null)
+            {
+                await Shell.Current.GoToAsync(nameof(RFCsPage));
+                await _servicioToast.MostrarAsync("Cuenta fiscal registrada correctamente.");
             }
         }
         catch (HttpRequestException ex)
         {
-            SetLoading(false);
             _logs.Log($"[ManualRegistroPage] HttpRequestException: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error de conexión", "No se pudo conectar al servidor. Verifica tu conexión.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (TaskCanceledException ex)
         {
-            SetLoading(false);
             _logs.Log($"[ManualRegistroPage] TaskCanceledException: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error de tiempo", "La solicitud tardó demasiado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {
-            SetLoading(false);
             _logs.Log($"[ManualRegistroPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error inesperado", "Ocurrió un error inesperado. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
+        }
+        finally
+        {
+            SetLoading(false);
         }
     }
 
     private void SetLoading(bool isLoading)
     {
+        _isLoading = isLoading;
         LoadingOverlay.IsVisible = isLoading;
-        BtnRegistrar.IsEnabled = !isLoading;
         BtnCancel.IsEnabled = !isLoading;
+        if (isLoading)
+        {
+            BtnRegistrar.IsEnabled = false;
+            return;
+        }
+
+        UpdateRegistrarButton();
+    }
+
+    private void LimpiarFormulario()
+    {
+        EntryName.Text = string.Empty;
+        EntryRfc.Text = string.Empty;
+        EntryCp.Text = string.Empty;
+        EntryMunicipio.Text = string.Empty;
+        EntryColonia.Text = string.Empty;
+        EntryNombreVialidad.Text = string.Empty;
+        EntryNumExterior.Text = string.Empty;
+        EntryNumInterior.Text = string.Empty;
+        SelectorPersona.IndiceSeleccionado = 0;
+        SelectorRegimen.IndiceSeleccionado = -1;
+        SelectorEntidadFederativa.IndiceSeleccionado = -1;
+        RefreshRfcCounter(string.Empty);
+        VisualStateManager.GoToState(LabelCpCounter, "Empty");
+        LabelCpCounter.Text = "0/5";
+        ChkCompartido.IsChecked = true;
     }
 }

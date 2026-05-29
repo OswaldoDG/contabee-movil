@@ -5,186 +5,181 @@
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.Perfil.ManualRegistroPage"
              Title="Nueva cuenta fiscal"
-             BackgroundColor="#66000000">
+             BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid Padding="10">
-        <!-- Tarjeta centrada -->
-        <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                VerticalOptions="Center"
-                HorizontalOptions="Fill"
-                StrokeShape="RoundRectangle 10"
-                Stroke="{toolkit:AppThemeResource Accent1}"
-                StrokeThickness="1"
-                Padding="20">
-            <Border.Shadow>
-                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
-                        Offset="0,4"
-                        Radius="16"
-                        Opacity="0.4" />
-            </Border.Shadow>
-            <VerticalStackLayout Spacing="12">
+    <Grid RowDefinitions="*,Auto">
+        <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
+            <VerticalStackLayout Spacing="14" Padding="16,14,16,18">
+                <VerticalStackLayout Spacing="14">
 
-                <Label Text="Nueva cuenta fiscal"
-                       FontAttributes="Bold"
-                       FontSize="20"
-                       HorizontalOptions="Center"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <BoxView Style="{StaticResource Divider}" />
-                <Entry x:Name="EntryName"
-                       Placeholder="Nombre o Razón Social"
-                       HeightRequest="44"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                       TextChanged="EntryName_TextChanged" />
+                        <Entry x:Name="EntryName"
+                               Placeholder="Nombre o Razón Social"
+                               HeightRequest="44"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                               TextChanged="EntryName_TextChanged" />
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Entry x:Name="EntryRfc"
-                           Placeholder="RFC"
-                           MaxLength="13"
-                           HeightRequest="44"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                           TextChanged="EntryRfc_TextChanged" />
-                    <views:SelectorFlotante x:Name="SelectorPersona"
-                                            Titulo="Persona"
-                                            Grid.Column="1" />
-                </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <views:SelectorFlotante x:Name="SelectorPersona"
+                                                    Titulo="Persona"
+                                                    Grid.Column="0" />
 
-                <Label x:Name="LabelCounter"
-                       Text="0/13"
-                       HorizontalOptions="End"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}">
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="RfcValidation">
-                            <VisualState x:Name="Empty">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Valid">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Invalid">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Label>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Entry x:Name="EntryRfc"
+                                       Placeholder="RFC"
+                                       MaxLength="13"
+                                       HeightRequest="44"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                                       TextChanged="EntryRfc_TextChanged" />
 
-                <Entry x:Name="EntryCp"
-                       Placeholder="Código Postal"
-                       Keyboard="Numeric"
-                       MaxLength="5"
-                       HeightRequest="44"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                       TextChanged="EntryCp_TextChanged" />
+                                <Label x:Name="LabelCounter"
+                                       Text="0/13"
+                                       HorizontalOptions="End"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="RfcValidation">
+                                            <VisualState x:Name="Empty">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Valid">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Invalid">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Grid>
 
-                <Label x:Name="LabelCpCounter"
-                       Text="0/5"
-                       HorizontalOptions="End"
-                       TextColor="{toolkit:AppThemeResource SecondaryText}">
-                    <VisualStateManager.VisualStateGroups>
-                        <VisualStateGroup x:Name="CpValidation">
-                            <VisualState x:Name="Empty">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Valid">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                            <VisualState x:Name="Invalid">
-                                <VisualState.Setters>
-                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
-                                </VisualState.Setters>
-                            </VisualState>
-                        </VisualStateGroup>
-                    </VisualStateManager.VisualStateGroups>
-                </Label>
-                <views:SelectorFlotante x:Name="SelectorEntidadFederativa"
-                                        Titulo="Entidad Federativa" />
+                        <views:SelectorFlotante x:Name="SelectorRegimen"
+                                                Titulo="Regimen" />
 
-                <Entry x:Name="EntryMunicipio"
-                       Placeholder="Municipio"
-                       HeightRequest="44"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <views:SelectorFlotante x:Name="SelectorEntidadFederativa"
+                                                    Titulo="Entidad Federativa"
+                                                    Grid.Column="0" />
 
-                <Entry x:Name="EntryColonia"
-                       Placeholder="Colonia"
-                       HeightRequest="44"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Entry x:Name="EntryCp"
+                                       Placeholder="Código Postal"
+                                       Keyboard="Numeric"
+                                       MaxLength="5"
+                                       HeightRequest="44"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                                       TextChanged="EntryCp_TextChanged" />
 
-                <Entry x:Name="EntryNombreVialidad"
-                       Placeholder="Nombre de Vialidad"
-                       HeightRequest="44"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}"
-                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                                <Label x:Name="LabelCpCounter"
+                                       Text="0/5"
+                                       HorizontalOptions="End"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CpValidation">
+                                            <VisualState x:Name="Empty">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Valid">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Success}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                            <VisualState x:Name="Invalid">
+                                                <VisualState.Setters>
+                                                    <Setter Property="TextColor" Value="{toolkit:AppThemeResource Error}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <Entry x:Name="EntryNumExterior"
-                           Placeholder="No. Exterior"
-                           HeightRequest="44"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
-                    <Entry x:Name="EntryNumInterior"
-                           Grid.Column="1"
-                           Placeholder="No. Interior"
-                           HeightRequest="44"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
-                </Grid>
+                        <Entry x:Name="EntryMunicipio"
+                               Placeholder="Municipio"
+                               HeightRequest="44"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
 
+                        <Entry x:Name="EntryColonia"
+                               Placeholder="Colonia"
+                               HeightRequest="44"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
 
+                        <Entry x:Name="EntryNombreVialidad"
+                               Placeholder="Nombre de Vialidad"
+                               HeightRequest="44"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
 
-                <views:SelectorFlotante x:Name="SelectorRegimen"
-                                        Titulo="Regimen" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Entry x:Name="EntryNumExterior"
+                                   Placeholder="No. Exterior"
+                                   HeightRequest="44"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                            <Entry x:Name="EntryNumInterior"
+                                   Grid.Column="1"
+                                   Placeholder="No. Interior"
+                                   HeightRequest="44"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </Grid>
 
-                <CheckBox x:Name="ChkCompartido"
-                          IsChecked="True"
-                          IsVisible="False" />
+                    <CheckBox x:Name="ChkCompartido"
+                              IsChecked="True"
+                              IsVisible="False" />
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Button x:Name="BtnCancel"
-                            Text="Cancelar"
-                            BackgroundColor="Transparent"
-                            BorderColor="{toolkit:AppThemeResource Accent1}"
-                            BorderWidth="1"
-                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                            CornerRadius="10"
-                            HeightRequest="44"
-                            Clicked="BtnCancel_Clicked" />
-                    <Button x:Name="BtnRegistrar"
-                            Grid.Column="1"
-                            Text="Registrar"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                            CornerRadius="10"
-                            HeightRequest="44"
-                            IsEnabled="False"
-                            Clicked="BtnRegistrar_Clicked">
-                        <Button.Triggers>
-                            <Trigger TargetType="Button" Property="IsEnabled" Value="False">
-                                <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
-                                <Setter Property="TextColor"       Value="{toolkit:AppThemeResource SecondaryText}" />
-                                <Setter Property="Opacity"         Value="1" />
-                            </Trigger>
-                        </Button.Triggers>
-                    </Button>
-                </Grid>
-
+                </VerticalStackLayout>
             </VerticalStackLayout>
-        </Border>
+        </ScrollView>
+
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,*"
+              Padding="16,8,16,12"
+              ColumnSpacing="12"
+              BackgroundColor="{toolkit:AppThemeResource Background}">
+            <Button x:Name="BtnCancel"
+                    Grid.Column="0"
+                    Text="Cancelar"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    Clicked="BtnCancel_Clicked" />
+            <Button x:Name="BtnRegistrar"
+                    Grid.Column="1"
+                    Text="Registrar"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    IsEnabled="False"
+                    Clicked="BtnRegistrar_Clicked">
+                <Button.Triggers>
+                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
+                        <Setter Property="Opacity" Value="1" />
+                    </Trigger>
+                </Button.Triggers>
+            </Button>
+        </Grid>
+
         <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"
+              Grid.RowSpan="2"
               IsVisible="False"
               BackgroundColor="{toolkit:AppThemeResource Shadow}"
               InputTransparent="False">
