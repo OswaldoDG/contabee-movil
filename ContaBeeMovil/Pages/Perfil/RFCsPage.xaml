@@ -12,7 +12,9 @@
              Shell.TabBarIsVisible="False">
 
     <Grid>
-        <CollectionView x:Name="ListaCuentas" Margin="10,10">
+        <CollectionView x:Name="ListaCuentas" Margin="10,10"
+                        SelectionMode="Single"
+                        SelectionChanged="OnCuentaSeleccionada">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
             </CollectionView.ItemsLayout>
@@ -39,7 +41,6 @@
                         </SwipeView.LeftItems>
 
                         <Border Style="{StaticResource ElevatedCard}" Padding="10">
-                            <Grid>
                             <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
                                 <BoxView Grid.Column="0"
                                          BackgroundColor="{toolkit:AppThemeResource Primary}"
@@ -71,11 +72,6 @@
                                              IconColor="{toolkit:AppThemeResource SecondaryText}"
                                              VerticalOptions="Center"
                                              IsVisible="{Binding EsSecundaria}" />
-                            </Grid>
-                            <Button BackgroundColor="Transparent"
-                                    BorderWidth="0"
-                                    Command="{Binding VerResumenCommand}"
-                                    IsVisible="{Binding EsPrimaria}" />
                             </Grid>
                         </Border>
                     </SwipeView>
