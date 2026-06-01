@@ -446,8 +446,8 @@ public partial class PaginaComprobaciones : ContentPage
         return resultado;
     }
 
-    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.Empleado
-            or Contabee.Api.Identidad.TipoCuenta.EmpleadoCliente
-            or Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
+    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuentaUsuario.Empleado
+            or Contabee.Api.Identidad.TipoCuentaUsuario.EmpleadoCliente
+            or Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura;
 }

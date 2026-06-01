@@ -39,11 +39,11 @@ public class EquipoUsuarioItem
 
         TipoCuentaTexto = u.TipoCuenta switch
         {
-            TipoCuenta.Cliente          => "Propietario",
-            TipoCuenta.Empleado         => "Empleado",
-            TipoCuenta.EmpleadoCliente  => "Empleado / Cliente",
-            TipoCuenta.UsuarioCaptura   => "Captura",
-            TipoCuenta.LoginLessCliente => "Sin contraseña",
+            TipoCuentaUsuario.Cliente          => "Propietario",
+            TipoCuentaUsuario.Empleado         => "Empleado",
+            TipoCuentaUsuario.EmpleadoCliente  => "Empleado / Cliente",
+            TipoCuentaUsuario.UsuarioCaptura   => "Captura",
+            TipoCuentaUsuario.LoginLessCliente => "Sin contraseña",
             _                           => "Colaborador"
         };
     }

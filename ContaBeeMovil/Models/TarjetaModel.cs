@@ -1,3 +1,5 @@
+using System.Windows.Input;
+
 namespace ContaBeeMovil.Models;
 
 public class TarjetaModel
@@ -9,4 +11,7 @@ public class TarjetaModel
     public string DisplayLabel => string.IsNullOrEmpty(UltimosDigitos)
         ? Alias
         : $"{Alias} ({UltimosDigitos})";
+
+    public ICommand? DeleteCommand { get; set; }
+    public double SwipeItemWidth { get; set; }
 }

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.ResumenLicenciaPopup"
+               BackgroundColor="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            StrokeShape="RoundRectangle 10"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            Padding="10"
+            MinimumWidthRequest="360">
+        <Border.Shadow>
+            <Shadow Brush="#5e000000"
+                    Offset="0,4"
+                    Radius="16"
+                    Opacity="0.4" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="14">
+
+            <!-- Título -->
+            <Label Text="Mis Créditos"
+                   FontAttributes="Bold"
+                   FontSize="20"
+                   HorizontalOptions="Center"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+            <BoxView Style="{StaticResource Divider}" />
+
+            <!-- RFC -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <Label Text="RFC:"
+                       Style="{StaticResource Caption1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       VerticalOptions="Center"/>
+                <Label x:Name="LblRfc"
+                       Grid.Column="1"
+                       Text="—"
+                       Style="{StaticResource Body1}"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+            <BoxView Style="{StaticResource Divider}" />
+
+            <!-- Créditos de captura -->
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Créditos de captura"
+                       Style="{StaticResource Caption1}"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                <Border BackgroundColor="{toolkit:AppThemeResource Background}"
+                        StrokeShape="RoundRectangle 8"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        StrokeThickness="1"
+                        Padding="10,8"
+                        HorizontalOptions="Center"
+                        MinimumWidthRequest="140">
+                    <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                        <Label x:Name="LblDisponibles"
+                               Text="0"
+                               FontSize="26"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource Primary}" />
+                        <Label Text="Disponibles"
+                               Style="{StaticResource Caption1}"
+                               HorizontalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </VerticalStackLayout>
+                </Border>
+                <!--<Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Border BackgroundColor="{toolkit:AppThemeResource Background}"
+                            StrokeShape="RoundRectangle 8"
+                            Stroke="{toolkit:AppThemeResource Accent1}"
+                            StrokeThickness="1"
+                            Padding="10,8">
+                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Label x:Name="LblDisponibles"
+                                   Text="0"
+                                   FontSize="26"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource Primary}" />
+                            <Label Text="Disponibles"
+                                   Style="{StaticResource Caption1}"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <Border Grid.Column="1"
+                            BackgroundColor="{toolkit:AppThemeResource Background}"
+                            StrokeShape="RoundRectangle 8"
+                            Stroke="{toolkit:AppThemeResource Accent1}"
+                            StrokeThickness="1"
+                            Padding="10,8">
+                        <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                            <Label x:Name="LblConsumidos"
+                                   Text="0"
+                                   FontSize="26"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            <Label Text="Consumidos"
+                                   Style="{StaticResource Caption1}"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                    </Border>-->
+                <!--<Label x:Name="LblTotal"
+                       Text="de 0 en total"
+                       Style="{StaticResource Caption1}"
+                       HorizontalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />-->
+            </VerticalStackLayout>
+
+            <!-- Botón cerrar -->
+            <Button Text="Cerrar"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="#1a1a1a"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    FontAttributes="Bold"
+                    Clicked="OnCerrar" />
+
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

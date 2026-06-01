@@ -32,14 +32,14 @@
                                                HeightRequest="26"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"
-                                               mi:MauiIcon.IconColor="White" />
+                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"/>
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
                         <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                            <Grid>
                             <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
                                 <BoxView Grid.Column="0"
                                          BackgroundColor="{toolkit:AppThemeResource Primary}"
@@ -60,10 +60,22 @@
                                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                 </VerticalStackLayout>
                                 <mi:MauiIcon Grid.Column="2"
+                                             Icon="{mi:Material Icon=ChevronRight}"
+                                             IconSize="22"
+                                             IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding EsPrimaria}" />
+                                <mi:MauiIcon Grid.Column="2"
                                              Icon="{mi:Material Icon=Person}"
                                              IconSize="22"
                                              IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                             VerticalOptions="Center" />
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding EsSecundaria}" />
+                            </Grid>
+                            <Button BackgroundColor="Transparent"
+                                    BorderWidth="0"
+                                    Command="{Binding VerResumenCommand}"
+                                    IsVisible="{Binding EsPrimaria}" />
                             </Grid>
                         </Border>
                     </SwipeView>

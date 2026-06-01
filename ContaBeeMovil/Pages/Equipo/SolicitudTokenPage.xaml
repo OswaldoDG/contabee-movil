@@ -99,6 +99,30 @@
                 FontAttributes="Bold"
                 FontSize="16" />
 
+        <!-- Overlay de inicio de sesión (se activa tras confirmar vinculación) -->
+        <Grid Grid.RowSpan="2"
+              BackgroundColor="{toolkit:AppThemeResource Background}"
+              IsVisible="{Binding EstaIniciandoSesion}">
+            <VerticalStackLayout VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="28">
+                <Image Source="contabeesingle.png"
+                       WidthRequest="140"
+                       HeightRequest="140"
+                       HorizontalOptions="Center"
+                       Aspect="AspectFit" />
+                <ActivityIndicator IsRunning="{Binding EstaIniciandoSesion}"
+                                   Color="{toolkit:AppThemeResource Primary}"
+                                   HorizontalOptions="Center"
+                                   WidthRequest="48"
+                                   HeightRequest="48" />
+                <Label Text="Iniciando sesión..."
+                       FontSize="18"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
     </Grid>
 
 </ContentPage>

@@ -67,9 +67,18 @@ public partial class TarjetasPage : ContentPage
 
     private void CargarTarjetas()
     {
+        var info      = DeviceDisplay.MainDisplayInfo;
+        double density    = info.Density > 0 ? info.Density : 1;
+        double cardWidth  = (info.Width / density) - 32;
+        double swipeWidth = cardWidth * 0.75;
+
         _tarjetas.Clear();
         foreach (var t in AppState.Instance.Tarjetas ?? Enumerable.Empty<TarjetaModel>())
+        {
+            t.SwipeItemWidth = swipeWidth;
+            t.DeleteCommand  = new Command(async () => await EliminarTarjetaAsync(t));
             _tarjetas.Add(t);
+        }
 
         ActualizarVisibilidad();
     }
@@ -128,11 +137,8 @@ public partial class TarjetasPage : ContentPage
 
     // ── Eliminar ─────────────────────────────────────────────────────────────
 
-    private async void OnEliminarTarjeta(object sender, EventArgs e)
+    private async Task EliminarTarjetaAsync(TarjetaModel tarjeta)
     {
-        if (sender is not SwipeItem swipeItem) return;
-        if (swipeItem.BindingContext is not TarjetaModel tarjeta) return;
-
         bool confirmar = await _servicioAlerta.MostrarAsync(
             "Eliminar tarjeta",
             $"¿Deseas eliminar la tarjeta \"{tarjeta.Alias}\"?",

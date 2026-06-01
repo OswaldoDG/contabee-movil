@@ -47,9 +47,19 @@
                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
-                                <SwipeItem BackgroundColor="{toolkit:AppThemeResource Error}"
-                                           Invoked="OnEliminarTarjeta"
-                                           mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
+                                <SwipeItemView Command="{Binding DeleteCommand}">
+                                    <Border BackgroundColor="#d65c5c"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0"
+                                            Padding="5"
+                                            WidthRequest="{Binding SwipeItemWidth}">
+                                        <Image WidthRequest="26"
+                                               HeightRequest="26"
+                                               HorizontalOptions="Start"
+                                               VerticalOptions="Center"
+                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"/>
+                                    </Border>
+                                </SwipeItemView>
                             </SwipeItems>
                         </SwipeView.LeftItems>
 

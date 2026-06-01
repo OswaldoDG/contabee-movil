@@ -22,6 +22,7 @@ public interface
     Task<RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload>> VincularUsuario(Guid cfid, SolictudVinculacion solictud);
     Task<RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload>> VincularUsuarioLoginLess(Guid cfid, SolictudTokenLoginless solictud);
     Task<Respuesta> EliminarVinculoUsuario(Guid cfid, Guid usuarioId);
+    Task<Respuesta> EliminarAsociacionesDispositivo(string dispositivoId);
 }
 
 

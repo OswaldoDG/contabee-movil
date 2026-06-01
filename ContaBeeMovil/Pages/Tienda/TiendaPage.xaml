@@ -11,6 +11,26 @@
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.TabBarIsVisible="False">
 
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="2,2,15,0">
+            <Label Grid.Column="0"
+                   Text="Tienda"
+                   Style="{StaticResource Body1Strong}"
+                   FontSize="15"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="Resumen"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    BorderWidth="1"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    CornerRadius="10"
+                    Padding="10,2"
+                    FontSize="12"
+                    VerticalOptions="Center"
+                    Clicked="OnVerDetalleLicenciaClicked" />
+        </Grid>
+    </Shell.TitleView>
+
     <Grid>
 
         <CollectionView x:Name="ListaProductos"

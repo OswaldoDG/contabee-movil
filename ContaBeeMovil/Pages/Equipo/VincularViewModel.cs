@@ -16,6 +16,7 @@ public class VincularViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioToast _toast;
+    private readonly IServicioAlerta _alerta;
     private readonly AppState _appState;
 
     private bool _esConCuenta;
@@ -140,11 +141,13 @@ public class VincularViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioToast toast,
+        IServicioAlerta alerta,
         AppState appState)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion    = servicioSesion;
         _toast             = toast;
+        _alerta            = alerta;
         _appState          = appState;
 
         VincularCommand          = new Command(async () => await VincularPasoDosAsync());
@@ -235,19 +238,49 @@ public class VincularViewModel : INotifyPropertyChanged
         try
         {
             var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId ?? Guid.Empty;
-            var r = await _servicioIdentidad.VincularUsuarioLoginLess(cfid, new SolictudTokenLoginless
+            var solicitud = new SolictudTokenLoginless
             {
                 TokenVinculacion = _tokenValidado,
                 Nombre           = _nombre,
                 Email            = string.IsNullOrWhiteSpace(_email)    ? null : _email,
                 Telefono         = string.IsNullOrWhiteSpace(_telefono) ? null : _telefono
-            });
+            };
+
+            var r = await _servicioIdentidad.VincularUsuarioLoginLess(cfid, solicitud);
 
             if (!r.Ok)
             {
-                var msg = r.Error?.Mensaje ?? "Error al crear el colaborador.";
-                await _toast.MostrarAsync(msg, ToastIcono.Error);
-                return;
+                if (r.HttpCode == System.Net.HttpStatusCode.Conflict)
+                {
+                    var confirmar = await _alerta.MostrarAsync(
+                        "Dispositivo ya registrado",
+                        "Este dispositivo ya está vinculado a otra cuenta. ¿Deseas liberar el dispositivo y continuar?",
+                        confirmarText: "Liberar y vincular");
+
+                    if (!confirmar) return;
+
+                    var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
+                    var rEliminar = await _servicioIdentidad.EliminarAsociacionesDispositivo(dispositivoId);
+                    if (!rEliminar.Ok)
+                    {
+                        await _toast.MostrarAsync("No se pudo liberar el dispositivo.", ToastIcono.Error);
+                        return;
+                    }
+
+                    r = await _servicioIdentidad.VincularUsuarioLoginLess(cfid, solicitud);
+                    if (!r.Ok)
+                    {
+                        var msg = r.Error?.Mensaje ?? "Error al vincular el colaborador.";
+                        await _toast.MostrarAsync(msg, ToastIcono.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    var msg = r.Error?.Mensaje ?? "Error al crear el colaborador.";
+                    await _toast.MostrarAsync(msg, ToastIcono.Error);
+                    return;
+                }
             }
 
             await _servicioSesion.GetMisUsuariosAsync();
