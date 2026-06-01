@@ -27,9 +27,9 @@
                     Margin="8,5"
                       >
                 <Button Grid.Column="1"
-                    Text="Resumen"
+                    Text="Ver detalles"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    BorderWidth="1"
+
                     TextColor="{toolkit:AppThemeResource PrimaryText}"
                     CornerRadius="10"
                     Padding="10,2"
