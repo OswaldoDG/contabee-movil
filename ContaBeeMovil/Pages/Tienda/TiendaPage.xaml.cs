@@ -1,3 +1,6 @@
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Extensions;
+using CommunityToolkit.Maui.Views;
 using Contabee.Api.abstractions;
 using Contabee.Api.Ecommerce;
 using ContaBeeMovil.Services;
@@ -5,6 +8,7 @@ using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.IAP;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Views;
 using Plugin.InAppBilling;
 
 namespace ContaBeeMovil.Pages.Tienda;
@@ -18,11 +22,18 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
 
+    private static readonly PopupOptions _popupOpts = new()
+    {
+        PageOverlayColor = Color.FromArgb("#66000000"),
+        CanBeDismissedByTappingOutsideOfPopup = false,
+    };
+
+    private bool _cargado;
+
     private Grid? _loadingOverlay;
     private CollectionView? _listaProductos;
     private Border? _bannerProximamente;
     private VerticalStackLayout? _debugCompraDirecta;
-
     // Catálogo del backend guardado para usarse al verificar la compra
     private List<DtoProducto> _productosCreditos = [];
 
@@ -53,6 +64,9 @@ public partial class TiendaPage : ContentPage
             if (!AppState.Instance.EsDev && _listaProductos is not null)
                 _listaProductos.Header = null;
         }
+
+        if (_cargado) return;
+        _cargado = true;
 
         _logs.Log("Tienda: página abierta");
         await CargarProductosAsync();
@@ -569,6 +583,11 @@ public partial class TiendaPage : ContentPage
             else
                 Preferences.Default.Set(PrefsKeyComprasPendientes, System.Text.Json.JsonSerializer.Serialize(remanentes));
         }
+    }
+
+    private async void OnVerDetalleLicenciaClicked(object sender, EventArgs e)
+    {
+        await this.ShowPopupAsync(new ResumenLicenciaPopup(), _popupOpts, CancellationToken.None);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

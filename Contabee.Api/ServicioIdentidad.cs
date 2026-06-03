@@ -82,7 +82,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
-            await servicioIdentidad.ConfirmarPOSTAsync(token);
+            await servicioIdentidad.ConfirmarPOSTAsync(token, false);
             r.Ok = true;
         }
         catch (Exception ex)
@@ -398,11 +398,32 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
+        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        {
+            r.HttpCode = System.Net.HttpStatusCode.Conflict;
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");
+        }
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");
         }
 
+        return r;
+    }
+
+    public async Task<Respuesta> EliminarAsociacionesDispositivo(string dispositivoId)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioIdentidad.DispositivoAsync(dispositivoId);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-EliminarAsociacionesDispositivo");
+        }
         return r;
     }
 

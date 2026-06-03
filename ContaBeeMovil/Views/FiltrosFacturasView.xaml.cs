@@ -462,8 +462,8 @@ public partial class FiltrosFacturasView : ContentView
         return $"{nombre} (Yo)";
     }
 
-    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
+    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura;
 
     private static string MapearCampoOrden(string campo) => campo switch
     {

@@ -167,6 +167,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<TarjetasPage>();
             builder.Services.AddTransient<RFCsPage>();
             builder.Services.AddTransient<RegistrarRFCsPage>();
+            builder.Services.AddTransient<ResumenLicenciaRFCPage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<MiCuentaPage>();
             builder.Services.AddTransient<EliminarCuentaPage>();

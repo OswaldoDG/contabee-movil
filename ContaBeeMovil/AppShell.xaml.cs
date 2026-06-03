@@ -330,6 +330,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(TarjetasPage), typeof(TarjetasPage));
             Routing.RegisterRoute(nameof(RFCsPage), typeof(RFCsPage));
             Routing.RegisterRoute(nameof(RegistrarRFCsPage), typeof(RegistrarRFCsPage));
+            Routing.RegisterRoute(nameof(ResumenLicenciaRFCPage), typeof(ResumenLicenciaRFCPage));
             Routing.RegisterRoute(nameof(CambiarContrasenaPage), typeof(CambiarContrasenaPage));
             Routing.RegisterRoute(nameof(MiCuentaPage), typeof(MiCuentaPage));
             Routing.RegisterRoute(nameof(EliminarCuentaPage), typeof(EliminarCuentaPage));

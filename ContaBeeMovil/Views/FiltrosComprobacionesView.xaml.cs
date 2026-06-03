@@ -418,8 +418,8 @@ public partial class FiltrosComprobacionesView : ContentView
         return $"{nombre} (Yo)";
     }
 
-    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuenta tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuenta.UsuarioCaptura;
+    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta)
+        => tipoCuenta is Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura;
 
     private record FiltrosPersistidos(
         string? Anio,

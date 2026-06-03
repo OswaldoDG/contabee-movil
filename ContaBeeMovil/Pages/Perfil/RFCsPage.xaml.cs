@@ -53,12 +53,14 @@ public partial class RFCsPage : ContentPage
         var esLoginLess = AppState.Instance.EsLoginLess;
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
-            Nombre         = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
-            Rfc            = c.Rfc ?? "—",
-            Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
-            SwipeItemWidth = swipeWidth,
-            PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
-            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c))
+            Nombre          = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
+            Rfc             = c.Rfc ?? "—",
+            Regimen         = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
+            SwipeItemWidth  = swipeWidth,
+            PuedeEliminar   = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
+            EsPrimaria      = c.TipoCuenta == TipoCuenta.Primaria,
+            CuentaFiscalId  = c.CuentaFiscalId,
+            DeleteCommand   = new Command(async () => await ConfirmarEliminar(c))
         }).ToList();
     }
 
@@ -84,6 +86,15 @@ public partial class RFCsPage : ContentPage
             _logs.Log($"[RFCsPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error inesperado.", verBotonCancelar: false, confirmarText: "OK");
         }
+    }
+
+    private async void OnCuentaSeleccionada(object? sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is not CuentaItem item) return;
+        ListaCuentas.SelectedItem = null;
+        if (!item.EsPrimaria) return;
+        await Shell.Current.GoToAsync(
+            $"{nameof(ResumenLicenciaRFCPage)}?cfid={item.CuentaFiscalId}&rfc={Uri.EscapeDataString(item.Rfc)}");
     }
 
     private async Task AbrirRegistrar()
@@ -153,7 +164,10 @@ public partial class RFCsPage : ContentPage
         public string Regimen { get; init; } = "";
         public double SwipeItemWidth { get; init; }
         public bool PuedeEliminar { get; init; } = true;
+        public Guid CuentaFiscalId { get; init; }
         public ICommand DeleteCommand { get; init; } = null!;
+        public bool EsPrimaria { get; init; }
+        public bool EsSecundaria => !EsPrimaria;
         public bool TieneNombre => !string.IsNullOrWhiteSpace(Nombre);
     }
 }

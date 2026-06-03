@@ -108,6 +108,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "forzar",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
         "responses": {
@@ -1497,6 +1504,9 @@
           "400": {
             "description": "Bad Request"
           },
+          "409": {
+            "description": "Conflict"
+          },
           "500": {
             "description": "Internal Server Error"
           }
@@ -2050,6 +2060,37 @@
         }
       }
     },
+    "/usuarios/dispositivo/{dispositivoId}": {
+      "delete": {
+        "tags": [
+          "Usuarios"
+        ],
+        "parameters": [
+          {
+            "name": "dispositivoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/usuarios/mi": {
       "delete": {
         "tags": [
@@ -2246,7 +2287,7 @@
             "nullable": true
           },
           "tipoCuenta": {
-            "$ref": "#/components/schemas/TipoCuenta"
+            "$ref": "#/components/schemas/TipoCuentaUsuario"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -2471,7 +2512,7 @@
             "nullable": true
           },
           "tipoCuenta": {
-            "$ref": "#/components/schemas/TipoCuenta"
+            "$ref": "#/components/schemas/TipoCuentaUsuario"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -3012,7 +3053,7 @@
         ],
         "type": "string"
       },
-      "TipoCuenta": {
+      "TipoCuentaUsuario": {
         "enum": [
           "None",
           "Cliente",

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Pages.PaginaCargando"
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{toolkit:AppThemeResource Background}">
+
+    <ContentPage.Behaviors>
+        <toolkit:StatusBarBehavior
+            StatusBarColor="{AppThemeBinding Light=#fefdfc, Dark=#141414}"
+            StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </ContentPage.Behaviors>
+
+    <VerticalStackLayout VerticalOptions="Center"
+                         HorizontalOptions="Center"
+                         Spacing="28">
+
+        <Image Source="contabeesingle.png"
+               WidthRequest="140"
+               HeightRequest="140"
+               HorizontalOptions="Center"
+               Aspect="AspectFit" />
+
+        <ActivityIndicator IsRunning="True"
+                           Color="{toolkit:AppThemeResource Primary}"
+                           HorizontalOptions="Center"
+                           WidthRequest="48"
+                           HeightRequest="48" />
+
+        <Label Text="Iniciando sesión..."
+               FontSize="18"
+               TextColor="{toolkit:AppThemeResource SecondaryText}"
+               HorizontalOptions="Center" />
+
+    </VerticalStackLayout>
+
+</ContentPage>

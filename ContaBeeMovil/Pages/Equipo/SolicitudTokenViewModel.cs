@@ -19,6 +19,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
     private bool _estaCargando;
     private bool _mostrarToken;
+    private bool _estaIniciandoSesion;
     private string _token = string.Empty;
     private IReadOnlyList<string> _tokenChars = [];
     private bool _enSesion;
@@ -34,6 +35,12 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     {
         get => _mostrarToken;
         set { _mostrarToken = value; OnPropertyChanged(); }
+    }
+
+    public bool EstaIniciandoSesion
+    {
+        get => _estaIniciandoSesion;
+        set { _estaIniciandoSesion = value; OnPropertyChanged(); }
     }
 
     public string Token
@@ -177,6 +184,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             // El backend borra el registro al devolver 200, así que cancelamos
             // el polling aquí antes de cualquier llamada que pueda fallar.
             _cts?.Cancel();
+            await MainThread.InvokeOnMainThreadAsync(() => EstaIniciandoSesion = true);
 
             _logs.Log("[SinSesion] Vinculación detectada. Solicitando token LoginLess.");
             var loginlessResult = await _servicioIdentidad.GetTokenLoginLess(dispositivoId);
@@ -217,9 +225,20 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
             await _servicioSesion.PosLoginAsync();
 
             _logs.Log("[SinSesion] PosLogin completado. Navegando a AppShell.");
+
+            // Mostrar PaginaCargando primero para que el usuario no vea negro
+            // mientras MAUI construye AppShell (que tarda 2-3s en devices lentos).
             await MainThread.InvokeOnMainThreadAsync(() =>
             {
                 _appState.EsLoginLess = true;
+                Application.Current!.Windows[0].Page = new ContaBeeMovil.Pages.PaginaCargando();
+            });
+
+            // Ceder el hilo principal para que renderice PaginaCargando
+            await Task.Delay(80);
+
+            await MainThread.InvokeOnMainThreadAsync(() =>
+            {
                 var shell = MauiProgram.Services.GetRequiredService<AppShell>();
                 Application.Current!.Windows[0].Page = shell;
             });

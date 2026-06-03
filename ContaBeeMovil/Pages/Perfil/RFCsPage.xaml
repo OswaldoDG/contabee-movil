@@ -12,13 +12,27 @@
              Shell.TabBarIsVisible="False">
 
     <Grid>
-        <CollectionView x:Name="ListaCuentas" Margin="10,10">
+        <CollectionView x:Name="ListaCuentas" Margin="10,10"
+                        SelectionMode="Single"
+                        SelectionChanged="OnCuentaSeleccionada">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <SwipeView>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroupList>
+                                <VisualStateGroup x:Name="CommonStates">
+                                    <VisualState x:Name="Normal" />
+                                    <VisualState x:Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="Transparent" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateGroupList>
+                        </VisualStateManager.VisualStateGroups>
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItemView Command="{Binding DeleteCommand}"
@@ -32,8 +46,7 @@
                                                HeightRequest="26"
                                                HorizontalOptions="Start"
                                                VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"
-                                               mi:MauiIcon.IconColor="White" />
+                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"/>
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>
@@ -60,10 +73,17 @@
                                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                 </VerticalStackLayout>
                                 <mi:MauiIcon Grid.Column="2"
+                                             Icon="{mi:Material Icon=ChevronRight}"
+                                             IconSize="22"
+                                             IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding EsPrimaria}" />
+                                <mi:MauiIcon Grid.Column="2"
                                              Icon="{mi:Material Icon=Person}"
                                              IconSize="22"
                                              IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                             VerticalOptions="Center" />
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding EsSecundaria}" />
                             </Grid>
                         </Border>
                     </SwipeView>
