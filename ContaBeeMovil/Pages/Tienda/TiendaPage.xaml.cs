@@ -32,12 +32,23 @@ public partial class TiendaPage : ContentPage
 
     private Grid? _loadingOverlay;
     private CollectionView? _listaProductos;
-    private Border? _bannerProximamente;
+    private FlexLayout? _tabsCategorias;
+    private VerticalStackLayout? _estadoVacio;
     private VerticalStackLayout? _debugCompraDirecta;
-    // Catálogo del backend guardado para usarse al verificar la compra
-    private List<DtoProducto> _productosCreditos = [];
+
+    private List<DtoProducto> _todosLosProductos = [];
+    private List<CategoriaTabModel> _categorias = [];
+    private CategoriaTabModel? _categoriaActiva;
 
     private const string PrefsKeyComprasPendientes = "tienda.compras_pendientes";
+
+    private static readonly (string Clave, string Nombre)[] CategoriasConfig =
+    [
+        ("CREDITOS_CAPTURA",      "Captura"),
+        ("CREDITOS_COLABORACION", "Colaboración"),
+        ("LICENCIAS",             "Licencias"),
+        ("REGALOS",               "Regalos"),
+    ];
 
     public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs)
     {
@@ -54,16 +65,14 @@ public partial class TiendaPage : ContentPage
     {
         base.OnAppearing();
 
-        _loadingOverlay      = this.FindByName<Grid>("LoadingOverlay");
-        _listaProductos      = this.FindByName<CollectionView>("ListaProductos");
-        _bannerProximamente  = this.FindByName<Border>("BannerProximamente");
-        _debugCompraDirecta  = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
+        _loadingOverlay   = this.FindByName<Grid>("LoadingOverlay");
+        _listaProductos   = this.FindByName<CollectionView>("ListaProductos");
+        _tabsCategorias   = this.FindByName<FlexLayout>("TabsCategorias");
+        _estadoVacio      = this.FindByName<VerticalStackLayout>("EstadoVacio");
+        _debugCompraDirecta = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
+
         if (_debugCompraDirecta is not null)
-        {
             _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
-            if (!AppState.Instance.EsDev && _listaProductos is not null)
-                _listaProductos.Header = null;
-        }
 
         if (_cargado) return;
         _cargado = true;
@@ -82,81 +91,89 @@ public partial class TiendaPage : ContentPage
         SetCargando(true);
         try
         {
+            // Inicializar las 4 categorías vacías
+            _categorias = CategoriasConfig
+                .Select((c, i) => new CategoriaTabModel
+                {
+                    Clave          = c.Clave,
+                    Nombre         = c.Nombre,
+                    EsSeleccionada = i == 0,
+                })
+                .ToList();
+
             var resultado = await _servicioEcommerce.GetCatalogoProductos();
             if (!resultado.Ok || resultado.Payload is null)
             {
                 _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
                 await _servicioAlerta.MostrarAsync("Error", "No se pudo obtener el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
+                ActualizarUI();
                 return;
             }
 
+            // ── Créditos captura ──────────────────────────────────────────────
             var categoriaCreditos = resultado.Payload.FirstOrDefault(c => c.Clave == "CREDITOS");
-            if (categoriaCreditos?.Productos is null)
+            if (categoriaCreditos?.Productos is not null)
             {
-                _logs.Log("Tienda: categoría CREDITOS no encontrada en el catálogo");
-                return;
-            }
-
-            _productosCreditos = categoriaCreditos.Productos
-                .Where(p => p.Propiedades.Any(x => x.Propiedad == "credcaptura" && x.Valor == "true"))
-                .Where(p => p.Precios.Any(pr => pr.Tipo == TipoPrecio.Publico && pr.Precio > 0))
-                .OrderBy(p =>
-                {
-                    var prop = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto");
-                    return int.TryParse(prop?.Valor, out var u) ? u : 0;
-                })
-                .ToList();
-
-            _logs.Log($"Tienda: {_productosCreditos.Count} productos encontrados en backend");
-
-            var iapIds = _productosCreditos.Select(p => $"contabee.creditos.{p.Clave.ToLower()}").ToArray();
-            _logs.Log($"Tienda: consultando store con IDs [{string.Join(", ", iapIds)}]");
-
-            var productosStore = (await _servicioIAP.ObtenerProductosAsync(iapIds)).ToList();
-            var disponibleEnTienda = productosStore.Count > 0;
-            _logs.Log($"Tienda: store respondió {productosStore.Count} productos — disponible={disponibleEnTienda}");
-
-            List<ProductoIAPModel> modelos;
-
-            if (disponibleEnTienda)
-            {
-                modelos = productosStore.Select(sp => new ProductoIAPModel
-                {
-                    Clave              = sp.ProductId,
-                    Nombre             = sp.Name.Contains('(') ? sp.Name[..sp.Name.IndexOf('(')].Trim() : sp.Name,
-                    Unidades           = ObtenerUnidades(sp.ProductId),
-                    PrecioTexto        = sp.LocalizedPrice,
-                    PrecioValor        = sp.MicrosPrice / 1_000_000.0,
-                    DisponibleEnTienda = true
-                })
-                .OrderBy(m => m.PrecioValor)
-                .ToList();
-            }
-            else
-            {
-                modelos = _productosCreditos.Select(p =>
-                {
-                    var precio   = p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
-                    var unidades = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "?";
-                    return new ProductoIAPModel
+                var productosCaptura = categoriaCreditos.Productos
+                    .Where(p => p.Propiedades.Any(x => x.Propiedad == "credcaptura" && x.Valor == "true"))
+                    .Where(p => p.Precios.Any(pr => pr.Tipo == TipoPrecio.Publico && pr.Precio > 0))
+                    .OrderBy(p =>
                     {
-                        Clave              = $"contabee.creditos.{p.Clave.ToLower()}",
-                        Nombre             = p.Nombre,
-                        Unidades           = unidades,
-                        PrecioTexto        = $"${precio.Precio:N2} MXN",
-                        PrecioValor        = precio.Precio,
-                        DisponibleEnTienda = false
-                    };
-                })
-                .OrderBy(m => m.PrecioValor)
-                .ToList();
+                        var prop = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto");
+                        return int.TryParse(prop?.Valor, out var u) ? u : 0;
+                    })
+                    .ToList();
+
+                _todosLosProductos.AddRange(productosCaptura);
+                _logs.Log($"Tienda: {productosCaptura.Count} productos créditos captura encontrados");
+
+                var iapIds = productosCaptura.Select(p => $"contabee.creditos.{p.Clave.ToLower()}").ToArray();
+                var productosStore = (await _servicioIAP.ObtenerProductosAsync(iapIds)).ToList();
+                var disponibleEnTienda = productosStore.Count > 0;
+                _logs.Log($"Tienda: store respondió {productosStore.Count} productos — disponible={disponibleEnTienda}");
+
+                List<ProductoIAPModel> modelos;
+                if (disponibleEnTienda)
+                {
+                    modelos = productosStore.Select(sp => new ProductoIAPModel
+                    {
+                        Clave              = sp.ProductId,
+                        Nombre             = sp.Name.Contains('(') ? sp.Name[..sp.Name.IndexOf('(')].Trim() : sp.Name,
+                        Unidades           = ObtenerUnidades(sp.ProductId),
+                        PrecioTexto        = sp.LocalizedPrice,
+                        PrecioValor        = sp.MicrosPrice / 1_000_000.0,
+                        DisponibleEnTienda = true,
+                        Imagen             = ImagenParaProducto(BuscarProductoEnCatalogo(sp.ProductId)?.Clave),
+                    })
+                    .OrderBy(m => m.PrecioValor)
+                    .ToList();
+                }
+                else
+                {
+                    modelos = productosCaptura.Select(p =>
+                    {
+                        var precio   = p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
+                        var unidades = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "?";
+                        return new ProductoIAPModel
+                        {
+                            Clave              = $"contabee.creditos.{p.Clave.ToLower()}",
+                            Nombre             = p.Nombre,
+                            Unidades           = unidades,
+                            PrecioTexto        = $"${precio.Precio:N2} MXN",
+                            PrecioValor        = precio.Precio,
+                            DisponibleEnTienda = false,
+                            Imagen             = ImagenParaProducto(p.Clave),
+                        };
+                    })
+                    .OrderBy(m => m.PrecioValor)
+                    .ToList();
+                }
+
+                var tabCaptura = _categorias.First(c => c.Clave == "CREDITOS_CAPTURA");
+                tabCaptura.Productos = modelos;
             }
 
-            if (_listaProductos is not null)
-                _listaProductos.ItemsSource = modelos;
-
-            if (_bannerProximamente is not null)
-                _bannerProximamente.IsVisible = !disponibleEnTienda;
+            ActualizarUI();
         }
         finally
         {
@@ -164,7 +181,47 @@ public partial class TiendaPage : ContentPage
         }
     }
 
-    // ── Restaurar compras pendientes (equivalente a restorePurchasesOnStart) ──
+    private void ActualizarUI()
+    {
+        _categoriaActiva = _categorias.FirstOrDefault(c => c.EsSeleccionada) ?? _categorias.FirstOrDefault();
+
+        if (_tabsCategorias is not null)
+            BindableLayout.SetItemsSource(_tabsCategorias, _categorias);
+
+        if (_categoriaActiva is not null)
+            MostrarCategoria(_categoriaActiva);
+    }
+
+    // ── Selección de tab ──────────────────────────────────────────────────────
+
+    private void OnCategoriaSeleccionada(object sender, TappedEventArgs e)
+    {
+        if (e.Parameter is not CategoriaTabModel cat) return;
+
+        foreach (var c in _categorias) c.EsSeleccionada = false;
+        cat.EsSeleccionada = true;
+        _categoriaActiva = cat;
+
+        // INotifyPropertyChanged en CategoriaTabModel actualiza los triggers sin resetear el source
+
+        MostrarCategoria(cat);
+    }
+
+    private void MostrarCategoria(CategoriaTabModel cat)
+    {
+        var tieneProductos = cat.Productos.Count > 0;
+
+        if (_listaProductos is not null)
+        {
+            _listaProductos.IsVisible   = tieneProductos;
+            _listaProductos.ItemsSource = tieneProductos ? cat.Productos : null;
+        }
+
+        if (_estadoVacio is not null)
+            _estadoVacio.IsVisible = !tieneProductos;
+    }
+
+    // ── Restaurar compras pendientes ──────────────────────────────────────────
 
     private async Task RestaurarComprasPendientesAsync()
     {
@@ -190,7 +247,7 @@ public partial class TiendaPage : ContentPage
         }
     }
 
-    // ── Máquina de estados (equivalente a handlePurchase + completePurchase + updateLicense) ──
+    // ── Máquina de estados de compra ──────────────────────────────────────────
 
     private async Task<bool> ProcesarCompraAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, bool silencioso = false)
     {
@@ -299,7 +356,6 @@ public partial class TiendaPage : ContentPage
 
         if (completado)
         {
-            // Solo consumir y actualizar licencia cuando el backend confirmó la compra
             await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
             _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
 
@@ -308,7 +364,6 @@ public partial class TiendaPage : ContentPage
         }
         else
         {
-            // No consumir en la store — guardar localmente para reintentar en la próxima apertura (crítico en iOS)
             _logs.Log($"Tienda: compra NO consumida — guardando localmente — verificado={verificado}");
             GuardarCompraPendienteLocal(comprobante, compra.PurchaseToken ?? compra.TransactionIdentifier, productoCatalogo.Nombre);
         }
@@ -377,7 +432,7 @@ public partial class TiendaPage : ContentPage
         }
     }
 
-    // ── Compra directa (debug: fuerza compra de captura100 sin catálogo) ──────
+    // ── Compra directa (debug) ────────────────────────────────────────────────
 
     private async void OnCompraDirectaClicked(object sender, EventArgs e)
     {
@@ -423,7 +478,6 @@ public partial class TiendaPage : ContentPage
     private async Task ProcesarCompraDirectaAsync(InAppBillingPurchase compra, Guid cfid)
     {
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
-
 
 #if IOS || MACCATALYST
         var pasarela = PasarelarPago.Apple;
@@ -511,7 +565,6 @@ public partial class TiendaPage : ContentPage
         try
         {
             var pendientes = LeerComprasPendientesLocales();
-            // Evitar duplicados por CompraId
             if (pendientes.Any(p => p.Comprobante.CompraId == comprobante.CompraId))
             {
                 _logs.Log($"Tienda: compra ya estaba en pendientes locales — {comprobante.ProductoTiendaId}");
@@ -593,8 +646,11 @@ public partial class TiendaPage : ContentPage
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private DtoProducto? BuscarProductoEnCatalogo(string iapId) =>
-        _productosCreditos.FirstOrDefault(p =>
+        _todosLosProductos.FirstOrDefault(p =>
             iapId.EndsWith(p.Clave, StringComparison.OrdinalIgnoreCase));
+
+    private static string ImagenParaProducto(string? clave) =>
+        string.IsNullOrEmpty(clave) ? "coin.png" : $"{clave.ToLower()}.jpeg";
 
     private string ObtenerUnidades(string iapId) =>
         BuscarProductoEnCatalogo(iapId)

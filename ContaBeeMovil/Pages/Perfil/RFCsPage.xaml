@@ -13,8 +13,7 @@
 
     <Grid>
         <CollectionView x:Name="ListaCuentas" Margin="10,10"
-                        SelectionMode="Single"
-                        SelectionChanged="OnCuentaSeleccionada">
+                        SelectionMode="None">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
             </CollectionView.ItemsLayout>

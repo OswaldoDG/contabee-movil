@@ -60,10 +60,8 @@ public partial class RFCsPage : ContentPage
             PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
             EsPrimaria      = c.TipoCuenta == TipoCuenta.Primaria,
             DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
-            OpenCommand    = new Command(async () => await AbrirEdicion(c))
+            OpenCommand    = new Command(async () => await AbrirEdicion(c)),
             CuentaFiscalId  = c.CuentaFiscalId,
-            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
-            OpenCommand    = new Command(async () => await AbrirEdicion(c))
         }).ToList();
     }
 
@@ -89,15 +87,6 @@ public partial class RFCsPage : ContentPage
             _logs.Log($"[RFCsPage] {ex.GetType().Name}: {ex.Message}");
             await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error inesperado.", verBotonCancelar: false, confirmarText: "OK");
         }
-    }
-
-    private async void OnCuentaSeleccionada(object? sender, SelectionChangedEventArgs e)
-    {
-        if (e.CurrentSelection.FirstOrDefault() is not CuentaItem item) return;
-        ListaCuentas.SelectedItem = null;
-        if (!item.EsPrimaria) return;
-        await Shell.Current.GoToAsync(
-            $"{nameof(ResumenLicenciaRFCPage)}?cfid={item.CuentaFiscalId}&rfc={Uri.EscapeDataString(item.Rfc)}");
     }
 
     private async Task AbrirRegistrar()
