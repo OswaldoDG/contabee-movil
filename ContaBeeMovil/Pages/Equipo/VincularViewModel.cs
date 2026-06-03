@@ -189,11 +189,22 @@ public class VincularViewModel : INotifyPropertyChanged
 
             if (!r.Ok)
             {
+                if (r.HttpCode == System.Net.HttpStatusCode.Conflict && !_esConCuenta)
+                {
+                    await _alerta.MostrarAsync(
+                        "Dispositivo del invitado con conflicto",
+                        "El dispositivo del invitado ya está registrado en otra cuenta. Pídele que abra la app e intente generar un nuevo código — la app lo guiará automáticamente.",
+                        verBotonCancelar: false,
+                        confirmarText: "Entendido");
+                    TokenIngresado = string.Empty;
+                    return;
+                }
+
                 var msg = r.HttpCode switch
                 {
                     System.Net.HttpStatusCode.BadRequest => "Token para tipo de vinculación incorrecto.",
                     System.Net.HttpStatusCode.NotFound   => "Código de vinculación no válido.",
-                    _                         => "Ha ocurrido un error al vincular."
+                    _                                    => "Ha ocurrido un error al vincular."
                 };
                 await _toast.MostrarAsync(msg, ToastIcono.Error);
                 TokenIngresado = string.Empty;

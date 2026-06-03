@@ -14,6 +14,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioToast _toast;
+    private readonly IServicioAlerta _alerta;
     private readonly IServicioLogs _logs;
     private readonly AppState _appState;
 
@@ -66,12 +67,14 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioToast toast,
+        IServicioAlerta alerta,
         IServicioLogs logs,
         AppState appState)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion    = servicioSesion;
         _toast             = toast;
+        _alerta            = alerta;
         _logs              = logs;
         _appState          = appState;
 
@@ -100,9 +103,45 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
             var resultado = await _servicioIdentidad.GetTokenVinculacion(dispositivoId, enSesion);
 
-            if (!resultado.Ok || resultado.Payload?.Token is null)
+            if (!resultado.Ok)
             {
-                _logs.Log($"[Vinculación] Error al obtener token. Ok={resultado.Ok} Error={resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
+                // 409 solo ocurre en flujo sin cuenta: el dispositivo ya tiene un usuario normal registrado.
+                // DELETE no requiere JWT en este caso — el backend lo permite sin sesión.
+                if (resultado.HttpCode == System.Net.HttpStatusCode.Conflict && !enSesion)
+                {
+                    var confirmar = await _alerta.MostrarAsync(
+                        "Dispositivo registrado en otra cuenta",
+                        "Este dispositivo está vinculado a una cuenta existente. ¿Deseas limpiar el dispositivo y continuar como usuario sin cuenta?",
+                        confirmarText: "Limpiar y continuar");
+
+                    if (!confirmar)
+                    {
+                        await NavegaAtrasAsync();
+                        return;
+                    }
+
+                    await _servicioIdentidad.EliminarAsociacionesDispositivo(dispositivoId);
+                    resultado = await _servicioIdentidad.GetTokenVinculacion(dispositivoId, enSesion);
+
+                    if (!resultado.Ok || resultado.Payload?.Token is null)
+                    {
+                        _logs.Log($"[Vinculación] Error tras limpiar dispositivo. Ok={resultado.Ok} Error={resultado.Error?.Codigo}");
+                        await NavegaAtrasAsync();
+                        _ = _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
+                        return;
+                    }
+                }
+                else
+                {
+                    _logs.Log($"[Vinculación] Error al obtener token. Ok={resultado.Ok} Error={resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
+                    await NavegaAtrasAsync();
+                    _ = _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
+                    return;
+                }
+            }
+
+            if (resultado.Payload?.Token is null)
+            {
                 await NavegaAtrasAsync();
                 _ = _toast.MostrarAsync("No se pudo obtener el token.", ToastIcono.Error);
                 return;

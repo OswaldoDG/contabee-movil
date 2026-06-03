@@ -281,6 +281,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
+        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        {
+            r.HttpCode = System.Net.HttpStatusCode.Conflict;
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-GetTokenVinculacion");
+        }
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Obtener  token vinculacion");
@@ -372,6 +377,11 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             // Servidor devuelve 200 con body vacío — NSwag lanza excepción pero es éxito
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        {
+            r.HttpCode = System.Net.HttpStatusCode.Conflict;
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-VincularUsuario");
         }
         catch (Exception ex)
         {

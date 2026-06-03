@@ -60,7 +60,7 @@ public partial class RFCsPage : ContentPage
             PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
             EsPrimaria      = c.TipoCuenta == TipoCuenta.Primaria,
             DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
-            OpenCommand    = new Command(async () => await AbrirEdicion(c)),
+            OpenCommand    = new Command(async () => await AbrirEdicion(c), () => c.TipoCuenta == TipoCuenta.Primaria),
             CuentaFiscalId  = c.CuentaFiscalId,
         }).ToList();
     }
