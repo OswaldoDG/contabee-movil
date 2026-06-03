@@ -11,72 +11,204 @@
              Shell.ForegroundColor="{toolkit:AppThemeResource PrimaryText}"
              Shell.TabBarIsVisible="False">
 
-    <Grid>
+    <Grid RowDefinitions="Auto,Auto,*">
 
-        <CollectionView x:Name="ListaProductos"
-                        SelectionMode="None"
-                        Margin="10,10">
-
-            <CollectionView.Header>
-                <VerticalStackLayout x:Name="DebugCompraDirecta"
-                                     Padding="0,0,0,8"
-                                     Spacing="6"
-                                     IsVisible="False">
-                    <Label Text="[DEV] Compra directa"
-                           Style="{StaticResource Caption1}"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}"
-                           HorizontalOptions="Center"/>
-                    <Button Text="Comprar captura15 directo"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            TextColor="#1a1a1a"
-                            CornerRadius="12"
-                            Padding="16,12"
-                            HorizontalOptions="Fill"
-                            Clicked="OnCompraDirectaClicked"/>
-                </VerticalStackLayout>
-            </CollectionView.Header>
-
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
-            </CollectionView.ItemsLayout>
-
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="local:ProductoIAPModel">
-                    <Border Style="{StaticResource ElevatedCard}" Padding="10">
-                        <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
-                            <BoxView Grid.Column="0"
-                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                     WidthRequest="4" CornerRadius="2"
-                                     VerticalOptions="Fill" />
-                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
-                                <Label Text="{Binding Nombre}"
-                                       Style="{StaticResource Body1}"
-                                       FontAttributes="Bold" />
-                                <Label Text="{Binding PrecioTexto}"
-                                       FontSize="13"
-                                       FontAttributes="Bold"
-                                       TextColor="{toolkit:AppThemeResource Primary}" />
-                            </VerticalStackLayout>
-                            <Button Grid.Column="2"
-                                    Text="Comprar"
-                                    IsEnabled="{Binding DisponibleEnTienda}"
-                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    TextColor="#1a1a1a"
-                                    CornerRadius="12"
-                                    Padding="16,8"
-                                    FontAttributes="Bold"
-                                    VerticalOptions="Center"
-                                    CommandParameter="{Binding .}"
-                                    Clicked="OnComprarClicked"/>
-                        </Grid>
-                    </Border>
+        <!-- ── Tabs de categoría — FlexLayout distribuye a ancho completo ── -->
+        <FlexLayout x:Name="TabsCategorias"
+                    Grid.Row="0"
+                    Direction="Row"
+                    JustifyContent="SpaceEvenly"
+                    AlignItems="Stretch"
+                    Wrap="NoWrap"
+                    Margin="0,6,0,0">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="local:CategoriaTabModel">
+                    <Grid FlexLayout.Grow="1" Padding="0,4,4,0">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnCategoriaSeleccionada"
+                                                  CommandParameter="{Binding .}"/>
+                        </Grid.GestureRecognizers>
+                        <Border StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                Padding="6,5"
+                                HorizontalOptions="Fill">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding EsSeleccionada}"
+                                             Value="True">
+                                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Accent5}"/>
+                                    <Setter Property="StrokeShape">
+                                        <Setter.Value>
+                                            <RoundRectangle CornerRadius="8,8,0,0"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding EsSeleccionada}"
+                                             Value="False">
+                                    <Setter Property="BackgroundColor" Value="Transparent"/>
+                                    <Setter Property="StrokeShape">
+                                        <Setter.Value>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="{Binding Nombre}"
+                                   FontSize="15"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="2"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalOptions="Center"
+                                   Padding="2"
+                                   >
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding EsSeleccionada}"
+                                                 Value="True">
+                                        <Setter Property="FontAttributes" Value="Bold"/>
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding EsSeleccionada}"
+                                                 Value="False">
+                                        <Setter Property="FontAttributes" Value="None"/>
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                    </Grid>
                 </DataTemplate>
-            </CollectionView.ItemTemplate>
+            </BindableLayout.ItemTemplate>
+        </FlexLayout>
 
-        </CollectionView>
+        <!-- Separador bajo los tabs -->
+        <BoxView Grid.Row="1"
+                 HeightRequest="2"
+                 BackgroundColor="{toolkit:AppThemeResource Accent5}"
+                 Margin="0"/>
 
-        <!-- Overlay de carga — al final para quedar encima del contenido -->
+        <!-- ── Área de contenido: mismo fondo Alternate que el chip del tab activo ── -->
+        <Grid Grid.Row="2"
+              BackgroundColor="{toolkit:AppThemeResource Accent5}">
+
+            <!-- Header debug (modo dev) -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <VerticalStackLayout x:Name="DebugCompraDirecta"
+                                 Grid.Row="0"
+                                 Padding="10,8,10,0"
+                                 Spacing="6"
+                                 IsVisible="False">
+                <Label Text="[DEV] Compra directa"
+                       Style="{StaticResource Caption1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"/>
+                <Button Text="Comprar captura15 directo"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="#1a1a1a"
+                        CornerRadius="12"
+                        Padding="16,12"
+                        HorizontalOptions="Fill"
+                        Clicked="OnCompraDirectaClicked"/>
+            </VerticalStackLayout>
+
+            <!-- Grid de productos -->
+            <CollectionView x:Name="ListaProductos"
+                            Grid.Row="1"
+                            SelectionMode="None"
+                            Margin="10,10">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="2"
+                                     HorizontalItemSpacing="8"
+                                     VerticalItemSpacing="8"/>
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="local:ProductoIAPModel">
+                        <!-- Propuesta 1: imagen individual por producto + badge flotante oscuro -->
+                        <Grid Margin="4,10,4,4">
+                            <Border Style="{StaticResource ElevatedCard}" Padding="0" Margin="0,0,0,0">
+                                <VerticalStackLayout Spacing="8">
+                                    <Image Source="{Binding Imagen}"
+                                           HeightRequest="80"
+                                           Aspect="AspectFill"
+                                           HorizontalOptions="Fill"/>
+                                    <Label Text="{Binding Nombre}"
+                                           Style="{StaticResource Body1}"
+                                           FontAttributes="Bold"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           MaxLines="2"
+                                           Margin="8,0"/>
+                                    <Button Text="Comprar"
+                                            IsEnabled="{Binding DisponibleEnTienda}"
+                                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                            TextColor="#1a1a1a"
+                                            CornerRadius="10"
+                                            Margin="10,0,10,10"
+                                            FontAttributes="Bold"
+                                            FontSize="13"
+                                            HorizontalOptions="Fill"
+                                            CommandParameter="{Binding .}"
+                                            Clicked="OnComprarClicked"/>
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border BackgroundColor="#1a1a1a"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10,5"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Start"
+                                    ZIndex="10">
+                                <Border.Shadow>
+                                    <Shadow Brush="#000000" Offset="0,4" Radius="5" Opacity="0.3"/>
+                                </Border.Shadow>
+                                <Label Text="{Binding PrecioTexto}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource Primary}"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+
+            <!-- Estado vacío — "Próximamente" -->
+            <VerticalStackLayout x:Name="EstadoVacio"
+                                 Grid.Row="1"
+                                 IsVisible="False"
+                                 VerticalOptions="Center"
+                                 HorizontalOptions="Center"
+                                 Spacing="12">
+                <Image Source="icon.png"
+                       WidthRequest="80"
+                       HeightRequest="80"
+                       Opacity="0.35"
+                       HorizontalOptions="Center"/>
+                <Label Text="Próximamente"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"/>
+                <Label Text="Esta categoría estará disponible pronto."
+                       FontSize="13"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+
+        </Grid>
+
+        <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"
+              Grid.RowSpan="3"
               IsVisible="True"
               BackgroundColor="Transparent"
               InputTransparent="False">
@@ -85,7 +217,7 @@
                                WidthRequest="48"
                                HeightRequest="48"
                                HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                               VerticalOptions="Center"/>
         </Grid>
 
     </Grid>

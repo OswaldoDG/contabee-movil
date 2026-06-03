@@ -47,6 +47,7 @@
     <toolkit:AppThemeColor x:Key="Background"          Light="#fefdfc" Dark="#141414" />
     <toolkit:AppThemeColor x:Key="SecondaryBackground" Light="#fafafa" Dark="#505050" />
 
+
     <!-- ========================================= -->
     <!-- ACCENT COLORS                             -->
     <!-- ========================================= -->
@@ -54,6 +55,7 @@
     <toolkit:AppThemeColor x:Key="Accent2" Light="#1e1e1e" Dark="#ffffff" />
     <toolkit:AppThemeColor x:Key="Accent3" Light="#fefdfc" Dark="#d8d9db" />
     <toolkit:AppThemeColor x:Key="Accent4" Light="#c5902b" Dark="#c5902b" />
+    <toolkit:AppThemeColor x:Key="Accent5" Light="#f2f2f2" Dark="#1e1e1e" />
 
     <!-- ========================================= -->
     <!-- SEMANTIC COLORS                           -->

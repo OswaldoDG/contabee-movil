@@ -131,6 +131,14 @@
                 Value="1.29" />
         <!-- 22 -->
     </Style>
+    <Style x:Key="BodyShop"
+           TargetType="Label">
+        <Setter Property="FontSize"
+                Value="17" />
+        <Setter Property="LineHeight"
+                Value="1.1" />
+        <!-- 22 -->
+    </Style>
     <Style x:Key="Body1Strong"
            TargetType="Label">
         <Setter Property="FontSize"

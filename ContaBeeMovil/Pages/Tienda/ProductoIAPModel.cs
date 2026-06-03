@@ -8,4 +8,5 @@ public class ProductoIAPModel
     public string PrecioTexto { get; set; } = string.Empty;
     public double PrecioValor { get; set; }
     public bool DisponibleEnTienda { get; set; }
+    public string Imagen { get; set; } = "icon.png";
 }
