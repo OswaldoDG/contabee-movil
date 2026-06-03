@@ -116,6 +116,43 @@
                 </Grid>
             </Border>
 
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <mi:MauiIcon Grid.Column="1"
+                                 Icon="{mi:Material Icon=Settings}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="Carga actual"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <Label x:Name="LoaderCargaActual"
+                           Grid.Column="3"
+                           Text="..."
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource Primary}"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           WidthRequest="100" />
+                    <Label x:Name="LabelCargaActual"
+                           Grid.Column="3"
+                           Text="Pendientes --"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource Error}"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="End"
+                           IsVisible="False"
+                           WidthRequest="120" />
+                </Grid>
+            </Border>
+
         </VerticalStackLayout>
 
     </Grid>

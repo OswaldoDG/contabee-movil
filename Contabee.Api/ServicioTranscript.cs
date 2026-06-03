@@ -323,6 +323,32 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
 
     }
 
+    public async Task<RespuestaPayload<ValorInstantaneoCaptura>> ObtenerInstantaneosAsync(
+        CancellationToken ct = default)
+    {
+        RespuestaPayload<ValorInstantaneoCaptura> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.InstantaneosAsync(ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ObtenerInstantaneos"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ObtenerInstantaneos");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<LoteCaptura>> CrearLoteAsync(
         CreaLoteCaptura request, CancellationToken ct = default)
     {
