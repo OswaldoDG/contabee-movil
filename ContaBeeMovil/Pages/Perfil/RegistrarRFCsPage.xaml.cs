@@ -28,9 +28,12 @@ public partial class RegistrarRFCsPage : ContentPage
     {
         try
         {
-            var page = MauiProgram.Services.GetService(typeof(ManualRegistroPage)) as Page;
+            var page = MauiProgram.Services.GetService(typeof(ManualRegistroPage)) as ManualRegistroPage;
             if (page != null)
+            {
+                page.ConfigurarAlta();
                 await Navigation.PushAsync(page);
+            }
         }
         catch (Exception ex)
         {

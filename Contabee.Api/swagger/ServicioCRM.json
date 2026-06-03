@@ -63,6 +63,35 @@
             "description": "OK"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscalMinima"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
       }
     },
     "/crm/rfc/url": {
@@ -2884,6 +2913,9 @@
           "estadoLicenciaDemo": {
             "$ref": "#/components/schemas/contabee.model.crm.EstadoLicenciaDemo"
           },
+          "sinDireccion": {
+            "type": "boolean"
+          },
           "cuentaUsuario": {
             "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",
             "nullable": true
@@ -2956,6 +2988,9 @@
           "numInterior": {
             "type": "string",
             "nullable": true
+          },
+          "sinDireccion": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
