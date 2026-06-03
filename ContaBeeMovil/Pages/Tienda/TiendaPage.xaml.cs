@@ -35,6 +35,7 @@ public partial class TiendaPage : ContentPage
     private FlexLayout? _tabsCategorias;
     private VerticalStackLayout? _estadoVacio;
     private VerticalStackLayout? _debugCompraDirecta;
+
     private List<DtoProducto> _todosLosProductos = [];
     private List<CategoriaTabModel> _categorias = [];
     private CategoriaTabModel? _categoriaActiva;
