@@ -48,6 +48,9 @@ public interface IServicioTranscript
 
     Task<RespuestaPayload<ResumenCapturaCuentaFiscal>> GetEstadisticas(Guid cfid, int? anio, int? mes);
 
+    Task<RespuestaPayload<ValorInstantaneoCaptura>> ObtenerInstantaneosAsync(
+        CancellationToken ct = default);
+
     Task<RespuestaPayload<LoteCaptura>> CrearLoteAsync(
         CreaLoteCaptura request, CancellationToken ct = default);
 
