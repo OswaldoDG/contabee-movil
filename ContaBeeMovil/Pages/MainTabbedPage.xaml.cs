@@ -1,3 +1,4 @@
+using Contabee.Api.Crm;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -55,7 +56,8 @@ public partial class MainTabbedPage : ContentPage
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(AppState.EsLoginLess))
+            if (e.PropertyName == nameof(AppState.EsLoginLess) ||
+                e.PropertyName == nameof(AppState.CuentaFiscalActual))
                 MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
             else if (e.PropertyName == nameof(AppState.ModoOffline))
                 MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
@@ -66,9 +68,16 @@ public partial class MainTabbedPage : ContentPage
         SwitchToTab(0);
     }
 
+    private bool EquipoDebeEstarVisible() =>
+        !AppState.Instance.EsLoginLess &&
+        AppState.Instance.CuentaFiscalActual?.TipoCuenta != TipoCuenta.Secundaria;
+
     private void ActualizarVisibilidadEquipo()
     {
-        TabBar.SetEquipoVisible(!AppState.Instance.EsLoginLess);
+        var visible = EquipoDebeEstarVisible();
+        TabBar.SetEquipoVisible(visible);
+        if (!visible && _currentIndex == 4)
+            SwitchToTab(0);
     }
 
     private void ActualizarModoOffline()
@@ -86,7 +95,7 @@ public partial class MainTabbedPage : ContentPage
 
     private void ForceEquipoTab()
     {
-        if (AppState.Instance.EsLoginLess) return;
+        if (!EquipoDebeEstarVisible()) return;
         _currentIndex = -1;
         SwitchToTab(4);
     }
@@ -102,7 +111,7 @@ public partial class MainTabbedPage : ContentPage
 
     private async void SwitchToTab(int index)
     {
-        if (index == 4 && AppState.Instance.EsLoginLess) return;
+        if (index == 4 && !EquipoDebeEstarVisible()) return;
         if (_currentIndex == index) return;
         _currentIndex = index;
 

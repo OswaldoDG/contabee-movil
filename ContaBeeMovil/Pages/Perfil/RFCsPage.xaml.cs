@@ -89,15 +89,6 @@ public partial class RFCsPage : ContentPage
         }
     }
 
-    private async void OnCuentaSeleccionada(object? sender, SelectionChangedEventArgs e)
-    {
-        if (e.CurrentSelection.FirstOrDefault() is not CuentaItem item) return;
-        ListaCuentas.SelectedItem = null;
-        if (!item.EsPrimaria) return;
-        await Shell.Current.GoToAsync(
-            $"{nameof(ResumenLicenciaRFCPage)}?cfid={item.CuentaFiscalId}&rfc={Uri.EscapeDataString(item.Rfc)}");
-    }
-
     private async Task AbrirRegistrar()
     {
         await Shell.Current.GoToAsync(nameof(RegistrarRFCsPage));
