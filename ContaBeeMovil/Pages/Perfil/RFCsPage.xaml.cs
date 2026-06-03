@@ -62,6 +62,8 @@ public partial class RFCsPage : ContentPage
             DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
             OpenCommand    = new Command(async () => await AbrirEdicion(c))
             CuentaFiscalId  = c.CuentaFiscalId,
+            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
+            OpenCommand    = new Command(async () => await AbrirEdicion(c))
         }).ToList();
     }
 
