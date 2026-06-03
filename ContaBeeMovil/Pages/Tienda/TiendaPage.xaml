@@ -41,7 +41,7 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid>
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- ── Tabs de categoría — FlexLayout distribuye a ancho completo ── -->
         <FlexLayout x:Name="TabsCategorias"
