@@ -62,6 +62,7 @@ public partial class ManualRegistroPage : ContentPage
     private readonly IServicioLogs _logs;
     private readonly IServicioToast _servicioToast;
     private bool _isLoading;
+    private bool _esEdicion;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
@@ -83,6 +84,55 @@ public partial class ManualRegistroPage : ContentPage
         SelectorEntidadFederativa.IndiceSeleccionado = -1;
 
         PopulateRegimen();
+        ApplySinDireccionState(false);
+    }
+
+    public void ConfigurarAlta()
+    {
+        _esEdicion = false;
+        Title = "Nueva cuenta fiscal";
+        BtnRegistrar.Text = "Registrar";
+        EntryRfc.IsReadOnly = false;
+        EntryRfc.Opacity = 1;
+        LimpiarFormulario();
+    }
+
+    public void ConfigurarEdicion(AsociacionCuentaFiscalCompleta cuenta)
+    {
+        _esEdicion = true;
+        Title = "Editar cuenta fiscal";
+        BtnRegistrar.Text = "Actualizar";
+        EntryRfc.IsReadOnly = true;
+        EntryRfc.Opacity = 1;
+
+        var cuentaFiscal = cuenta.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal;
+        var direccion = cuentaFiscal?.Direcciones?.FirstOrDefault() ?? cuenta.DireccionesFiscales?.FirstOrDefault();
+
+        bool esFisica = (cuenta.Rfc?.Trim().Length ?? 0) >= 13;
+        SelectorPersona.IndiceSeleccionado = esFisica ? 0 : 1;
+        PopulateRegimen();
+
+        EntryName.Text = cuentaFiscal?.Nombre ?? string.Empty;
+        EntryRfc.Text = (cuenta.Rfc ?? string.Empty).Trim().ToUpperInvariant();
+        EntryCp.Text = direccion?.CodigoPostal ?? string.Empty;
+        EntryMunicipio.Text = direccion?.Municipio ?? string.Empty;
+        EntryColonia.Text = direccion?.Colonia ?? string.Empty;
+        EntryNombreVialidad.Text = direccion?.NombreVialidad ?? string.Empty;
+        EntryNumExterior.Text = direccion?.NumExterior ?? string.Empty;
+        EntryNumInterior.Text = direccion?.NumInterior ?? string.Empty;
+
+        var regimenes = RegimenFiscalProvider.GetRegimenFiscal(esFisica ? PersonaType.Fisica : PersonaType.Moral);
+        SelectorRegimen.IndiceSeleccionado = regimenes.FindIndex(r => r.Codigo == cuenta.ClaveRegimenFiscal);
+
+        var entidad = direccion?.EntidadFederativa?.Trim().ToUpperInvariant() ?? string.Empty;
+        SelectorEntidadFederativa.IndiceSeleccionado = EntidadesFederativas.FindIndex(e => e == entidad);
+
+        ChkSinDireccion.IsChecked = cuentaFiscal?.SinDireccion ?? false;
+        ChkCompartido.IsChecked = cuentaFiscal?.Compartida ?? ChkCompartido.IsChecked;
+
+        RefreshRfcCounter(EntryRfc.Text ?? string.Empty);
+        EntryCp_TextChanged(EntryCp, new TextChangedEventArgs(string.Empty, EntryCp.Text ?? string.Empty));
+        UpdateRegistrarButton();
     }
 
     private void EntryName_TextChanged(object? sender, TextChangedEventArgs e)
@@ -122,11 +172,23 @@ public partial class ManualRegistroPage : ContentPage
         int nuevoMax = EsFisica ? 13 : 12;
         EntryRfc.MaxLength = nuevoMax;
 
-        EntryRfc.Text = string.Empty;
-        RefreshRfcCounter(string.Empty);
+        if (!_esEdicion)
+        {
+            EntryRfc.Text = string.Empty;
+            RefreshRfcCounter(string.Empty);
+        }
+        else
+        {
+            RefreshRfcCounter(EntryRfc.Text ?? string.Empty);
+        }
 
         PopulateRegimen();
         UpdateRegistrarButton();
+    }
+
+    private void ChkSinDireccion_CheckedChanged(object? sender, CheckedChangedEventArgs e)
+    {
+        ApplySinDireccionState(e.Value);
     }
 
     private async void BtnCancel_Clicked(object? sender, EventArgs e)
@@ -188,6 +250,7 @@ public partial class ManualRegistroPage : ContentPage
 
             var modelo = new CuentaFiscalMinima
             {
+                Tipo = EsFisica ? TipoPersonaFiscal.Fisica : TipoPersonaFiscal.Moral,
                 Nombre = EntryName.Text?.Trim() ?? string.Empty,
                 Rfc = EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty,
                 CodigoPostal = EntryCp.Text?.Trim() ?? string.Empty,
@@ -200,14 +263,28 @@ public partial class ManualRegistroPage : ContentPage
                 NumExterior = EntryNumExterior.Text?.Trim() ?? string.Empty,
                 NumInterior = EntryNumInterior.Text?.Trim() ?? string.Empty,
                 ClaveRegimenFiscal = regimenSel,
-                Compartido = ChkCompartido.IsChecked
+                Compartido = ChkCompartido.IsChecked,
+                SinDireccion = ChkSinDireccion.IsChecked
             };
 
-            var resp = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
+            if (ChkSinDireccion.IsChecked)
+            {
+                modelo.EntidadFederativa = string.Empty;
+                modelo.Municipio = string.Empty;
+                modelo.Colonia = string.Empty;
+                modelo.NombreVialidad = string.Empty;
+                modelo.NumExterior = string.Empty;
+                modelo.NumInterior = string.Empty;
+            }
+
+            var resp = _esEdicion
+                ? await _servicioCrm.ActualizaRFCMinima(modelo)
+                : await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
             if (!resp.Ok)
             {
                 SetLoading(false);
-                await _servicioAlerta.MostrarAsync("Error", resp.Error?.Mensaje ?? "Error al registrar.", verBotonCancelar: false, confirmarText: "OK");
+                var mensajeError = _esEdicion ? "Error al actualizar." : "Error al registrar.";
+                await _servicioAlerta.MostrarAsync("Error", resp.Error?.Mensaje ?? mensajeError, verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
 
@@ -227,12 +304,16 @@ public partial class ManualRegistroPage : ContentPage
                     Navigation.RemovePage(registrarPage);
 
                 await Navigation.PopAsync();
-                await _servicioToast.MostrarAsync("Cuenta fiscal registrada correctamente.");
+                await _servicioToast.MostrarAsync(_esEdicion
+                    ? "Cuenta fiscal actualizada correctamente."
+                    : "Cuenta fiscal registrada correctamente.");
             }
             else if (Shell.Current is not null)
             {
                 await Shell.Current.GoToAsync(nameof(RFCsPage));
-                await _servicioToast.MostrarAsync("Cuenta fiscal registrada correctamente.");
+                await _servicioToast.MostrarAsync(_esEdicion
+                    ? "Cuenta fiscal actualizada correctamente."
+                    : "Cuenta fiscal registrada correctamente.");
             }
         }
         catch (HttpRequestException ex)
@@ -283,9 +364,16 @@ public partial class ManualRegistroPage : ContentPage
         SelectorPersona.IndiceSeleccionado = 0;
         SelectorRegimen.IndiceSeleccionado = -1;
         SelectorEntidadFederativa.IndiceSeleccionado = -1;
+        ChkSinDireccion.IsChecked = false;
         RefreshRfcCounter(string.Empty);
         VisualStateManager.GoToState(LabelCpCounter, "Empty");
         LabelCpCounter.Text = "0/5";
         ChkCompartido.IsChecked = true;
+    }
+
+    private void ApplySinDireccionState(bool sinDireccion)
+    {
+        DireccionContainer.IsVisible = !sinDireccion;
+        LblSinDireccionAviso.IsVisible = sinDireccion;
     }
 }

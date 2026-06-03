@@ -38,7 +38,7 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         var r = new Respuesta();
         try
         {
-            await servicioCrm.MinimaAsync(modelo);
+            await servicioCrm.MinimaPOSTAsync(modelo);
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
@@ -49,6 +49,27 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         catch (Exception ex)
         {
             r.Error = ex.ErrorGenerico("ServicioCrm-RegistrarCuentaFiscalMinima");
+        }
+
+        return r;
+    }
+
+    public async Task<Respuesta> ActualizaRFCMinima(Contabee.Api.Crm.CuentaFiscalMinima modelo)
+    {
+        var r = new Respuesta();
+        try
+        {
+            await servicioCrm.MinimaPUTAsync(modelo);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-ActualizaRFCMinima" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-ActualizaRFCMinima");
         }
 
         return r;

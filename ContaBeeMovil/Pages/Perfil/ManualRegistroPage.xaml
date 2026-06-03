@@ -105,40 +105,60 @@
                             </Grid>
                         </Grid>
 
-                        <Entry x:Name="EntryNombreVialidad"
-                               Placeholder="Calle"
-                               HeightRequest="44"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                        <VerticalStackLayout Spacing="6">
+                            <HorizontalStackLayout Spacing="10">
+                                <CheckBox x:Name="ChkSinDireccion"
+                                          VerticalOptions="Center"
+                                          CheckedChanged="ChkSinDireccion_CheckedChanged" />
+                                <Label Text="No deseo proporcionar mi dirección"
+                                       VerticalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                            </HorizontalStackLayout>
 
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                            <Entry x:Name="EntryNumExterior"
-                                   Placeholder="No. Exterior"
+                            <Label x:Name="LblSinDireccionAviso"
+                                   IsVisible="False"
+                                   Margin="34,0,0,0"
+                                   Text="Y estoy de acuerdo que Contabee no deberá obtener el CFDI si la información es obligatoria en el portal de facturación."
+                                   LineBreakMode="WordWrap"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout x:Name="DireccionContainer" Spacing="14">
+                            <Entry x:Name="EntryNombreVialidad"
+                                   Placeholder="Calle"
                                    HeightRequest="44"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
-                            <Entry x:Name="EntryNumInterior"
-                                   Grid.Column="1"
-                                   Placeholder="No. Interior"
+
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <Entry x:Name="EntryNumExterior"
+                                       Placeholder="No. Exterior"
+                                       HeightRequest="44"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                                <Entry x:Name="EntryNumInterior"
+                                       Grid.Column="1"
+                                       Placeholder="No. Interior"
+                                       HeightRequest="44"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </Grid>
+
+                            <Entry x:Name="EntryColonia"
+                                   Placeholder="Colonia"
                                    HeightRequest="44"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
-                        </Grid>
 
-                        <Entry x:Name="EntryColonia"
-                               Placeholder="Colonia"
-                               HeightRequest="44"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
+                            <Entry x:Name="EntryMunicipio"
+                                   Placeholder="Municipio"
+                                   HeightRequest="44"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
 
-                        <Entry x:Name="EntryMunicipio"
-                               Placeholder="Municipio"
-                               HeightRequest="44"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               PlaceholderColor="{toolkit:AppThemeResource SecondaryText}" />
-
-                        <views:SelectorFlotante x:Name="SelectorEntidadFederativa"
-                                                Titulo="Entidad Federativa" />
+                            <views:SelectorFlotante x:Name="SelectorEntidadFederativa"
+                                                    Titulo="Entidad Federativa" />
+                        </VerticalStackLayout>
 
                     <CheckBox x:Name="ChkCompartido"
                               IsChecked="True"
