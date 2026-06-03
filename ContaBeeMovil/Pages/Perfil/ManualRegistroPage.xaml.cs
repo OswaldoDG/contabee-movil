@@ -269,12 +269,12 @@ public partial class ManualRegistroPage : ContentPage
 
             if (ChkSinDireccion.IsChecked)
             {
-                modelo.EntidadFederativa = string.Empty;
-                modelo.Municipio = string.Empty;
-                modelo.Colonia = string.Empty;
-                modelo.NombreVialidad = string.Empty;
-                modelo.NumExterior = string.Empty;
-                modelo.NumInterior = string.Empty;
+                modelo.EntidadFederativa = "-";
+                modelo.Municipio = "-";
+                modelo.Colonia = "-";
+                modelo.NombreVialidad = "-";
+                modelo.NumExterior = "-";
+                modelo.NumInterior = "-";
             }
 
             var resp = _esEdicion
