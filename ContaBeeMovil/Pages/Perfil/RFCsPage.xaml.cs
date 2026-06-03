@@ -58,7 +58,8 @@ public partial class RFCsPage : ContentPage
             Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
             SwipeItemWidth = swipeWidth,
             PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
-            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c))
+            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
+            OpenCommand    = new Command(async () => await AbrirEdicion(c))
         }).ToList();
     }
 
@@ -89,6 +90,25 @@ public partial class RFCsPage : ContentPage
     private async Task AbrirRegistrar()
     {
         await Shell.Current.GoToAsync(nameof(RegistrarRFCsPage));
+    }
+
+    private async Task AbrirEdicion(AsociacionCuentaFiscalCompleta cuenta)
+    {
+        if (AppState.Instance.ModoOffline)
+        {
+            await _servicioAlerta.MostrarAsync("Sin conexión", "Esta función requiere internet.", verBotonCancelar: false, confirmarText: "Aceptar");
+            return;
+        }
+
+        var page = MauiProgram.Services.GetService(typeof(ManualRegistroPage)) as ManualRegistroPage;
+        if (page is null)
+        {
+            await _servicioAlerta.MostrarAsync("Error", "No se pudo abrir la edición de la cuenta fiscal.", verBotonCancelar: false, confirmarText: "OK");
+            return;
+        }
+
+        page.ConfigurarEdicion(cuenta);
+        await Navigation.PushAsync(page);
     }
 
     private async Task ConfirmarEliminar(AsociacionCuentaFiscalCompleta cuenta)
@@ -154,6 +174,7 @@ public partial class RFCsPage : ContentPage
         public double SwipeItemWidth { get; init; }
         public bool PuedeEliminar { get; init; } = true;
         public ICommand DeleteCommand { get; init; } = null!;
+        public ICommand OpenCommand { get; init; } = null!;
         public bool TieneNombre => !string.IsNullOrWhiteSpace(Nombre);
     }
 }

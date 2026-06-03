@@ -6,6 +6,7 @@ public interface IServicioCrm
 {
     Task<RespuestaPayload<List<AsociacionCuentaFiscalCompleta>>> GetAsociacionesFiscales();
     Task<Respuesta> RegistrarCuentaFiscalMinima(CuentaFiscalMinima modelo);
+    Task<Respuesta> ActualizaRFCMinima(CuentaFiscalMinima modelo);
     Task<Respuesta> EnviarUrlCuentaFiscal(RequestUrl request);
     Task<Respuesta> EliminarCuentaFiscal(string cuentaFiscalId);
     Task<Respuesta> EliminarAsociacionFiscal(long id);

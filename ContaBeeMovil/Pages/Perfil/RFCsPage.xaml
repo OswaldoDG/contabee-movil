@@ -40,6 +40,9 @@
                         </SwipeView.LeftItems>
 
                         <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenCommand}" />
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="4,*,Auto" ColumnSpacing="10">
                                 <BoxView Grid.Column="0"
                                          BackgroundColor="{toolkit:AppThemeResource Primary}"
