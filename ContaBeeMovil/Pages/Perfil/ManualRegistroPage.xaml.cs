@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
@@ -11,6 +12,9 @@ namespace ContaBeeMovil.Pages.Perfil;
 
 public partial class ManualRegistroPage : ContentPage
 {
+    private const string SinDireccionTextoBase = "No deseo proporcionar mi dirección";
+    private const string SinDireccionTextoCompleto = "No deseo proporcionar mi dirección: Y estoy de acuerdo que Contabee no deberá obtener el CFDI si la información es obligatoria en el portal de facturación.";
+
     private static readonly List<string> EntidadesFederativas =
     [
         "AGUASCALIENTES",
@@ -63,6 +67,7 @@ public partial class ManualRegistroPage : ContentPage
     private readonly IServicioToast _servicioToast;
     private bool _isLoading;
     private bool _esEdicion;
+    private AsociacionCuentaFiscalCompleta? _cuentaEnEdicion;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
@@ -90,6 +95,7 @@ public partial class ManualRegistroPage : ContentPage
     public void ConfigurarAlta()
     {
         _esEdicion = false;
+        _cuentaEnEdicion = null;
         Title = "Nueva cuenta fiscal";
         BtnRegistrar.Text = "Registrar";
         EntryRfc.IsReadOnly = false;
@@ -100,6 +106,7 @@ public partial class ManualRegistroPage : ContentPage
     public void ConfigurarEdicion(AsociacionCuentaFiscalCompleta cuenta)
     {
         _esEdicion = true;
+        _cuentaEnEdicion = cuenta;
         Title = "Editar cuenta fiscal";
         BtnRegistrar.Text = "Actualizar";
         EntryRfc.IsReadOnly = true;
@@ -232,6 +239,12 @@ public partial class ManualRegistroPage : ContentPage
             return;
         }
 
+        if (_esEdicion && _cuentaEnEdicion?.TipoCuenta != TipoCuenta.Primaria)
+        {
+            BtnRegistrar.IsEnabled = false;
+            return;
+        }
+
         bool rfcValido = IsRfcValid(EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty);
         bool cpValido = CpRegex.IsMatch(EntryCp.Text?.Trim() ?? string.Empty);
         bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
@@ -242,6 +255,16 @@ public partial class ManualRegistroPage : ContentPage
 
     private async Task Registrar()
     {
+        if (_esEdicion && _cuentaEnEdicion?.TipoCuenta != TipoCuenta.Primaria)
+        {
+            await _servicioAlerta.MostrarAsync(
+                "No permitido",
+                "Solo puedes actualizar cuentas fiscales primarias.",
+                verBotonCancelar: false,
+                confirmarText: "OK");
+            return;
+        }
+
         SetLoading(true);
         try
         {
@@ -374,6 +397,6 @@ public partial class ManualRegistroPage : ContentPage
     private void ApplySinDireccionState(bool sinDireccion)
     {
         DireccionContainer.IsVisible = !sinDireccion;
-        LblSinDireccionAviso.IsVisible = sinDireccion;
+        LblSinDireccionTexto.Text = sinDireccion ? SinDireccionTextoCompleto : SinDireccionTextoBase;
     }
 }

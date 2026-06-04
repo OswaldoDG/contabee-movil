@@ -121,7 +121,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             if (registrado.Codigo is null || registrado.Aplicado)
             {
-                await _servicioAlerta.MostrarAsync("Cupón", "No se pudo registrar el cupón.", confirmarText: "OK", verBotonCancelar: false);
+                await _servicioAlerta.MostrarAsync("Cupón", "Cupón no válido", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
 
