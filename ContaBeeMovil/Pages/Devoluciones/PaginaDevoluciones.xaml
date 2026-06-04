@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Devoluciones.PaginaDevoluciones"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              Title="Devoluciones">
@@ -32,67 +32,123 @@
                         <views:ResultadosListaView.PlantillaItem>
                             <DataTemplate>
                                 <Border Style="{StaticResource ElevatedCard}"
-                                        Margin="6,4"
-                                        Padding="12,10"
-                                        Shadow="{x:Null}">
-                                    <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
-                                        <Label Grid.Row="0"
-                                               Text="{Binding Datos.Creacion, StringFormat='Fecha: {0:d/M/yyyy HH:mm}'}"
-                                               Style="{StaticResource Caption1}" />
+                                        Margin="5,4"
+                                        Padding="0">
+                                    <Grid ColumnDefinitions="Auto,*,Auto">
 
-                                        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                            <Label Grid.Column="0"
-                                                   Text="{Binding CuentaFiscalRfc, StringFormat='RFC: {0}'}"
+                                        <!-- LEFT: Consecutivo + ícono -->
+                                        <Grid Grid.Column="0"
+                                              RowDefinitions="*,*"
+                                              Padding="10"
+                                              WidthRequest="52"
+                                              VerticalOptions="Fill"
+                                              HorizontalOptions="Center">
+                                            <Label Grid.Row="0"
+                                                   Text="{Binding Consecutivo}"
                                                    Style="{StaticResource Body2Strong}"
-                                                   LineBreakMode="TailTruncation" />
-
-                                            <Border Grid.Column="1"
-                                                    StrokeShape="RoundRectangle 8"
-                                                    StrokeThickness="0"
-                                                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                                                    Padding="8,2">
-                                                <Label Text="{Binding Datos.Estado}"
-                                                       Style="{StaticResource Caption1}" />
-                                            </Border>
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                            <mi:MauiIcon Grid.Row="1"
+                                                         Icon="{mi:Material Icon=FileDownload}"
+                                                         IconSize="20"
+                                                         IconColor="{toolkit:AppThemeResource Disabled}"
+                                                         HorizontalOptions="Center"
+                                                         VerticalOptions="Center"
+                                                         IsEnabled="False"
+                                                         Opacity="0.4" />
                                         </Grid>
 
-                                        <Label Grid.Row="2"
-                                               Text="{Binding Datos.Monto, StringFormat='Monto: {0:C2}'}"
-                                               Style="{StaticResource Body2Strong}" />
+                                        <!-- CENTER: Info principal -->
+                                        <VerticalStackLayout Grid.Column="1"
+                                                             Spacing="8"
+                                                             Padding="10,10,10,10"
+                                                             VerticalOptions="Center">
 
-                                        <Label Grid.Row="3"
-                                               Text="{Binding Datos.Descripcion}"
-                                               Style="{StaticResource Body2}"
-                                               LineBreakMode="WordWrap"
-                                               MaxLines="2" />
+                                            <!-- Pills: Fecha | RFC -->
+                                            <FlexLayout Direction="Row"
+                                                        Wrap="Wrap"
+                                                        AlignItems="Center"
+                                                        JustifyContent="SpaceBetween">
+                                                <Border StrokeShape="RoundRectangle 10"
+                                                        StrokeThickness="1"
+                                                        Stroke="{toolkit:AppThemeResource Accent1}"
+                                                        BackgroundColor="Transparent"
+                                                        Padding="8,2"
+                                                        Margin="0,0,8,2"
+                                                        VerticalOptions="Center">
+                                                    <Label Text="{Binding Datos.Creacion, StringFormat='{0:d/M/yyyy}'}"
+                                                           Style="{StaticResource Caption1}"
+                                                           LineBreakMode="NoWrap" />
+                                                </Border>
+                                                <Border StrokeShape="RoundRectangle 10"
+                                                        StrokeThickness="1"
+                                                        Stroke="{toolkit:AppThemeResource Accent1}"
+                                                        BackgroundColor="Transparent"
+                                                        Padding="8,2"
+                                                        Margin="0,0,0,2"
+                                                        VerticalOptions="Center">
+                                                    <Label Text="{Binding TextoCreador}"
+                                                           Style="{StaticResource Caption1}"
+                                                           LineBreakMode="NoWrap" />
+                                                </Border>
+                                            </FlexLayout>
+
+                                            <!-- Badge: Estado -->
+                                            <Border BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 10"
+                                                    Padding="16,6"
+                                                    HorizontalOptions="Fill">
+                                                <Label Text="{Binding Datos.Estado}"
+                                                       Style="{StaticResource Body2Strong}"
+                                                       HorizontalTextAlignment="Center"
+                                                       LineBreakMode="TailTruncation" />
+                                            </Border>
+
+                                            <!-- Descripción -->
+                                            <Label Text="{Binding Datos.Descripcion}"
+                                                   Style="{StaticResource Body2}"
+                                                   LineBreakMode="TailTruncation"
+                                                   MaxLines="1" />
+
+                                        </VerticalStackLayout>
+
+                                        <!-- RIGHT: Monto -->
+                                        <Border Grid.Column="2"
+                                                BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 0,16,0,16"
+                                                Padding="8,10"
+                                                WidthRequest="80"
+                                                VerticalOptions="Fill">
+                                            <VerticalStackLayout Spacing="4"
+                                                                 VerticalOptions="Center"
+                                                                 HorizontalOptions="Center">
+                                                <Label Text="{Binding Datos.Monto, StringFormat='{0:C0}'}"
+                                                       Style="{StaticResource Body2Strong}"
+                                                       HorizontalTextAlignment="Center"
+                                                       LineBreakMode="NoWrap" />
+                                                <Label Text="solicitado"
+                                                       Style="{StaticResource Caption1}"
+                                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                                       HorizontalTextAlignment="Center" />
+                                            </VerticalStackLayout>
+                                        </Border>
+
                                     </Grid>
                                 </Border>
                             </DataTemplate>
                         </views:ResultadosListaView.PlantillaItem>
                     </views:ResultadosListaView>
 
-                    <Border WidthRequest="44" HeightRequest="44"
-                            StrokeShape="RoundRectangle 10"
-                            StrokeThickness="0"
-                            Padding="0"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            HorizontalOptions="End"
-                            VerticalOptions="End"
+                    <Border Style="{StaticResource FabBorder}"
                             Margin="0,0,8,8"
                             ZIndex="10">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnCrearDevolucionClicked" />
                         </Border.GestureRecognizers>
-                        <Label Text="{x:Static f:FluentUI.add_20_regular}"
-                               FontFamily="FluentUI"
-                               FontSize="20"
-                               TextColor="#1A1A1A"
-                               WidthRequest="44"
-                               HeightRequest="44"
-                               HorizontalTextAlignment="Center"
-                               VerticalTextAlignment="Center"
-                               HorizontalOptions="Fill"
-                               VerticalOptions="Fill" />
+                        <mi:MauiIcon Icon="{mi:Material Icon=Add}"
+                                     Style="{StaticResource FabIcon}" />
                     </Border>
                 </Grid>
             </Grid>

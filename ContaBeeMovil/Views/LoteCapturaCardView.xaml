@@ -21,6 +21,7 @@
         <converters:NombreInicialesConverter x:Key="NombreIniciales" />
         <converters:FormaPagoConTerminacionConverter x:Key="FormaPagoConTerminacion" />
         <converters:StringNotEmptyToVisibilityConverter x:Key="StringNotEmpty" />
+        <converters:DateTimeToLocalStringConverter x:Key="FechaLocal" />
     </ContentView.Resources>
 
     <Border Style="{StaticResource ElevatedCard}"
@@ -98,7 +99,7 @@
                             Padding="8,2"
                             Margin="0,0,8,2"
                             VerticalOptions="Center">
-                        <Label Text="{Binding Datos.FechaCreacion, StringFormat='{0:d/M/yyyy HH:mm}'}"
+                        <Label Text="{Binding Datos.FechaCreacion, Converter={StaticResource FechaLocal}}"
                                Style="{StaticResource Caption1}"
                                VerticalOptions="Center"
                                LineBreakMode="NoWrap" />

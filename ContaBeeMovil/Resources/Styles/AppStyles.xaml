@@ -460,6 +460,36 @@
     </Style>
 
     <!-- ========================================= -->
+    <!-- FAB (Floating Action Button)              -->
+    <!-- ========================================= -->
+
+    <!-- Contenedor del FAB — posición y margin se definen inline por página -->
+    <Style x:Key="FabBorder" TargetType="Border">
+        <Setter Property="WidthRequest" Value="48"/>
+        <Setter Property="HeightRequest" Value="48"/>
+        <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
+        <Setter Property="StrokeThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
+        <Setter Property="HorizontalOptions" Value="End"/>
+        <Setter Property="VerticalOptions" Value="End"/>
+        <Setter Property="Shadow">
+            <Shadow Brush="{toolkit:AppThemeResource Shadow}"
+                    Offset="0,4"
+                    Radius="8"
+                    Opacity="0.5"/>
+        </Setter>
+    </Style>
+
+    <!-- Ícono dentro del FAB -->
+    <Style x:Key="FabIcon" TargetType="mi:MauiIcon">
+        <Setter Property="IconSize" Value="22"/>
+        <Setter Property="IconColor" Value="{toolkit:AppThemeResource Icon}"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="VerticalOptions" Value="Center"/>
+    </Style>
+
+    <!-- ========================================= -->
     <!-- SHIMMER / PULL TO REFRESH                 -->
     <!-- ========================================= -->
     <Style TargetType="BoxView" x:Key="ShimmerCustomViewStyle">

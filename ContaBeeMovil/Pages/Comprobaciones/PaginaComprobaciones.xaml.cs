@@ -59,7 +59,11 @@ public partial class PaginaComprobaciones : ContentPage
         private set { _elementos = value; OnPropertyChanged(); }
     }
 
-    public record ItemConConsecutivo(int Consecutivo, Comprobacion Datos, string CuentaFiscalRfc);
+    public record ItemConConsecutivo(int Consecutivo, Comprobacion Datos, string CuentaFiscalRfc, string NombreCreador, string NombreReceptor)
+    {
+        public string TextoCreador   => !string.IsNullOrWhiteSpace(NombreCreador)  ? NombreCreador  : CuentaFiscalRfc;
+        public string TextoReceptor  => !string.IsNullOrWhiteSpace(NombreReceptor) ? NombreReceptor : CuentaFiscalRfc;
+    }
 
     private long _totalEncontrados;
     public long TotalEncontrados
@@ -186,6 +190,9 @@ public partial class PaginaComprobaciones : ContentPage
     {
         if (_ultimaBusqueda is null) return;
 
+        if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+            await _servicioSesion.GetMisUsuariosAsync();
+
         _ultimaBusqueda.Paginado = new Paginado
         {
             Pagina = pagina,
@@ -209,7 +216,7 @@ public partial class PaginaComprobaciones : ContentPage
 
             var offset = (pagina - 1) * _tamanoPaginaEfectivo;
             Elementos = elementosPagina
-                .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e)))
+                .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreReceptor(e.UsuarioCreadorId), ResolverNombreReceptor(e.UsuarioReceptorId)))
                 .ToList();
 
             TotalEncontrados = resultado.Total;
@@ -358,6 +365,24 @@ public partial class PaginaComprobaciones : ContentPage
         return page;
     }
 
+    private static string ResolverNombreReceptor(Guid usuarioReceptorId)
+    {
+        if (usuarioReceptorId == Guid.Empty) return string.Empty;
+
+        var usuario = AppState.Instance.MisUsuarios?
+            .FirstOrDefault(u => u.Id == usuarioReceptorId);
+
+        if (usuario is null) return string.Empty;
+
+        var nombre = usuario.Nombre ?? usuario.UserName ?? usuario.Email;
+        if (string.IsNullOrWhiteSpace(nombre)) return string.Empty;
+
+        if (nombre.Contains('@'))
+            nombre = nombre[..nombre.IndexOf('@')];
+
+        return nombre;
+    }
+
     private static string ResolverRfcCuentaFiscal(Comprobacion comprobacion)
     {
         var cuentaFiscalId = comprobacion.CuentaFiscalId.ToString();
@@ -376,9 +401,11 @@ public partial class PaginaComprobaciones : ContentPage
             .Where(u => !u.EsCaptura && u.Estado == Contabee.Api.Identidad.EstadoCuenta.Activo)
             .ToList();
         var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        var perfilCuentaFiscalId = AppState.Instance.Perfil?.CuentaFiscalId;
 
         var usuarioSesion = usuarios
-            .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
+            .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == perfilCuentaFiscalId)
+            ?? usuarios.FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
             ?? usuarios.FirstOrDefault(u => !u.EsCaptura)
             ?? usuarios.FirstOrDefault();
 
@@ -386,7 +413,9 @@ public partial class PaginaComprobaciones : ContentPage
 
         if (usuarioSesion is not null)
         {
-            var nombreSesion = usuarioSesion.Nombre ?? usuarioSesion.UserName ?? usuarioSesion.Email ?? usuarioSesion.Id.ToString();
+            var nombreSesion = AppState.Instance.Perfil?.DisplayName;
+            if (string.IsNullOrWhiteSpace(nombreSesion))
+                nombreSesion = usuarioSesion.Nombre ?? usuarioSesion.UserName ?? usuarioSesion.Email ?? usuarioSesion.Id.ToString();
             if (nombreSesion.Contains('@'))
                 nombreSesion = nombreSesion[..nombreSesion.IndexOf('@')];
 

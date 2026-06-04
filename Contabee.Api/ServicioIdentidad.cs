@@ -281,7 +281,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
-        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        catch (ApiException ex) when (ex.StatusCode == 409)
         {
             r.HttpCode = System.Net.HttpStatusCode.Conflict;
             r.Error = ex.ErrorGenerico("ServicioIdentidad-GetTokenVinculacion");
@@ -378,7 +378,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
-        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        catch (ApiException ex) when (ex.StatusCode == 409)
         {
             r.HttpCode = System.Net.HttpStatusCode.Conflict;
             r.Error = ex.ErrorGenerico("ServicioIdentidad-VincularUsuario");
@@ -408,7 +408,7 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
         }
-        catch (Exception ex) when (ex.Message.Contains("Status: 409"))
+        catch (ApiException ex) when (ex.StatusCode == 409)
         {
             r.HttpCode = System.Net.HttpStatusCode.Conflict;
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");

@@ -17,7 +17,8 @@ public partial class AlertaPopup : Popup
         InitializeComponent();
 
         var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
-        ContenedorPopup.WidthRequest = Math.Min(screenWidth - 48, 320);
+        ContenedorPopup.MinimumWidthRequest = screenWidth * 0.70;
+        ContenedorPopup.WidthRequest = Math.Min(screenWidth * 0.88, 500);
 
         LblTitulo.Text = titulo;
         LblMensaje.Text = mensaje;
@@ -35,11 +36,26 @@ public partial class AlertaPopup : Popup
             BtnConfirmar.HorizontalOptions = LayoutOptions.Center;
             BtnConfirmar.WidthRequest = 130;
         }
-        if (!verBotonConfirmar)
+        else if (!verBotonConfirmar)
         {
             Grid.SetColumnSpan(BtnCancelar, 2);
             BtnCancelar.HorizontalOptions = LayoutOptions.Center;
             BtnCancelar.WidthRequest = 130;
+        }
+        else if (confirmarText.Length > 10 || cancelarText.Length > 10)
+        {
+            // Texto largo: apila botones verticalmente para que cada uno ocupe el ancho completo
+            GridBotones.ColumnDefinitions.Clear();
+            GridBotones.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+            GridBotones.ColumnSpacing = 0;
+            GridBotones.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            GridBotones.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            GridBotones.RowSpacing = 8;
+
+            Grid.SetColumn(BtnConfirmar, 0);
+            Grid.SetRow(BtnConfirmar, 0);
+            Grid.SetColumn(BtnCancelar, 0);
+            Grid.SetRow(BtnCancelar, 1);
         }
     }
 

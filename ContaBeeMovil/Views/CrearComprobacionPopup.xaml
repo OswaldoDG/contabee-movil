@@ -3,6 +3,7 @@
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                xmlns:views="clr-namespace:ContaBeeMovil.Views"
+               xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
                x:Class="ContaBeeMovil.Views.CrearComprobacionPopup"
                BackgroundColor="Transparent"
                CanBeDismissedByTappingOutsideOfPopup="False">
@@ -54,12 +55,25 @@
                        Text="Vence"
                        FontSize="14"
                        TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                <DatePicker Grid.Row="1"
-                            Grid.Column="1"
-                            x:Name="PickerCierre"
-                            Format="dd/MM/yyyy"
-                            MinimumDate="2000-01-01"
-                            VerticalOptions="Center" />
+                <Border Grid.Row="1"
+                        Grid.Column="1"
+                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="8,2"
+                        VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                        <mi:MauiIcon Icon="{mi:Material Icon=CalendarMonth}"
+                                     IconSize="16"
+                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                     VerticalOptions="Center" />
+                        <DatePicker x:Name="PickerCierre"
+                                    Format="dd/MM/yyyy"
+                                    MinimumDate="2000-01-01"
+                                    VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
             </Grid>
 
             <views:SelectorFlotante x:Name="SelectorDestinatario"
@@ -112,7 +126,7 @@
             </Grid>
 
             <Editor x:Name="EntryDescripcion"
-                    Placeholder="ISR"
+                    Placeholder="Descripcion"
                     AutoSize="TextChanges"
                     HeightRequest="72"
                     TextColor="{toolkit:AppThemeResource PrimaryText}"

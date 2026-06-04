@@ -59,7 +59,10 @@ public partial class PaginaDevoluciones : ContentPage
 		private set { _elementos = value; OnPropertyChanged(); }
 	}
 
-    public record ItemConConsecutivo(int Consecutivo, Devolucion Datos, string CuentaFiscalRfc);
+    public record ItemConConsecutivo(int Consecutivo, Devolucion Datos, string CuentaFiscalRfc, string NombreCreador)
+    {
+        public string TextoCreador => !string.IsNullOrWhiteSpace(NombreCreador) ? NombreCreador : CuentaFiscalRfc;
+    }
 
 	private long _totalEncontrados;
 	public long TotalEncontrados
@@ -186,6 +189,9 @@ public partial class PaginaDevoluciones : ContentPage
 	{
 		if (_ultimaBusqueda is null) return;
 
+		if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+			await _servicioSesion.GetMisUsuariosAsync();
+
 		_ultimaBusqueda.Paginado = new Paginado
 		{
 			Pagina = pagina,
@@ -209,7 +215,7 @@ public partial class PaginaDevoluciones : ContentPage
 
 			var offset = (pagina - 1) * _tamanoPaginaEfectivo;
 			Elementos = elementosPagina
-				.Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e)))
+				.Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreUsuario(e.UsuarioCreadorId)))
 				.ToList();
 
 			TotalEncontrados = resultado.Total;
@@ -335,6 +341,24 @@ public partial class PaginaDevoluciones : ContentPage
 			page = tabbedPage.CurrentPage;
 
 		return page;
+	}
+
+	private static string ResolverNombreUsuario(Guid usuarioId)
+	{
+		if (usuarioId == Guid.Empty) return string.Empty;
+
+		var usuario = AppState.Instance.MisUsuarios?
+			.FirstOrDefault(u => u.Id == usuarioId);
+
+		if (usuario is null) return string.Empty;
+
+		var nombre = usuario.Nombre ?? usuario.UserName ?? usuario.Email;
+		if (string.IsNullOrWhiteSpace(nombre)) return string.Empty;
+
+		if (nombre.Contains('@'))
+			nombre = nombre[..nombre.IndexOf('@')];
+
+		return nombre;
 	}
 
 	private static string ResolverRfcCuentaFiscal(Devolucion devolucion)
