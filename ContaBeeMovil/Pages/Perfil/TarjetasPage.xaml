@@ -48,7 +48,7 @@
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItemView Command="{Binding DeleteCommand}">
-                                    <Border BackgroundColor="#d65c5c"
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="0"
                                             Padding="5"

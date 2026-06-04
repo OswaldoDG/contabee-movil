@@ -67,7 +67,7 @@
                     </Border.GestureRecognizers>
                     <mi:MauiIcon Icon="{mi:Material Icon=Search}"
                                  IconSize="20"
-                                 IconColor="#1A1A1A"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
                 </Border>

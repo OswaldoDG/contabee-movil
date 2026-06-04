@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:local="clr-namespace:ContaBeeMovil.Pages.Tienda"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.Tienda.TiendaPage"
              Title="Tienda"
              BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -15,29 +16,19 @@
         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,4,10,4">
             <Label Grid.Column="0"
                    Text="Tienda"
-                   FontSize="25"
-                   FontAttributes="Bold"
+                   Style="{StaticResource Title2}"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   VerticalOptions="Center"/>
-            <Border Grid.Column="1"
-                    StrokeShape="RoundRectangle 10"
-                    Stroke="Transparent"
-                    StrokeThickness="0"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    Margin="8,5"
-                      >
-                <Button Grid.Column="1"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
                     Text="Ver detalles"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-
                     TextColor="{toolkit:AppThemeResource PrimaryText}"
-                    CornerRadius="10"
+                    CornerRadius="12"
                     Padding="10,2"
                     FontSize="12"
+                    HeightRequest="34"
                     VerticalOptions="Center"
                     Clicked="OnVerDetalleLicenciaClicked" />
-            </Border>
-
         </Grid>
     </Shell.TitleView>
 
@@ -141,7 +132,7 @@
                        HorizontalOptions="Center"/>
                 <Button Text="Comprar captura15 directo"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="#1a1a1a"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
                         CornerRadius="12"
                         Padding="16,12"
                         HorizontalOptions="Fill"
@@ -179,7 +170,7 @@
                                     <Button Text="Comprar"
                                             IsEnabled="{Binding DisponibleEnTienda}"
                                             BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                            TextColor="#1a1a1a"
+                                            TextColor="{toolkit:AppThemeResource PrimaryText}"
                                             CornerRadius="10"
                                             Margin="10,0,10,10"
                                             FontAttributes="Bold"
@@ -189,7 +180,7 @@
                                             Clicked="OnComprarClicked"/>
                                 </VerticalStackLayout>
                             </Border>
-                            <Border BackgroundColor="#1a1a1a"
+                            <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                     StrokeThickness="0"
                                     StrokeShape="RoundRectangle 10"
                                     Padding="10,5"
@@ -237,18 +228,9 @@
         </Grid>
 
         <!-- Overlay de carga -->
-        <Grid x:Name="LoadingOverlay"
-              Grid.RowSpan="3"
-              IsVisible="True"
-              BackgroundColor="Transparent"
-              InputTransparent="False">
-            <ActivityIndicator IsRunning="True"
-                               Color="{toolkit:AppThemeResource Primary}"
-                               WidthRequest="48"
-                               HeightRequest="48"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-        </Grid>
+        <views:CargandoOverlay x:Name="LoadingOverlay"
+                               Grid.RowSpan="3"
+                               IsVisible="True" />
 
     </Grid>
 

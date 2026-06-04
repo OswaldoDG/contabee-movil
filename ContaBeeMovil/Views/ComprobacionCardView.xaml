@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
+             x:Class="ContaBeeMovil.Views.ComprobacionCardView">
+
+    <ContentView.Resources>
+        <converters:NotNullToVisibilityConverter x:Key="NotNull" />
+    </ContentView.Resources>
+
+    <Border Style="{StaticResource ElevatedCard}"
+            Margin="5,4"
+            Padding="0">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+
+            <!-- LEFT: Consecutivo + ícono -->
+            <Grid Grid.Column="0"
+                  RowDefinitions="*,*"
+                  Padding="10"
+                  WidthRequest="52"
+                  VerticalOptions="Fill"
+                  HorizontalOptions="Center">
+                <Label Grid.Row="0"
+                       Text="{Binding Consecutivo}"
+                       Style="{StaticResource Body2Strong}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+                <mi:MauiIcon Grid.Row="1"
+                             Icon="{mi:Material Icon=FileDownload}"
+                             IconSize="20"
+                             IconColor="{toolkit:AppThemeResource Disabled}"
+                             HorizontalOptions="Center"
+                             VerticalOptions="Center"
+                             IsEnabled="False"
+                             Opacity="0.4" />
+            </Grid>
+
+            <!-- CENTER: Info principal -->
+            <VerticalStackLayout Grid.Column="1"
+                                 Spacing="8"
+                                 Padding="10,10,10,10"
+                                 VerticalOptions="Center">
+
+                <!-- Pills: Fecha creación | Vence -->
+                <FlexLayout Direction="Row"
+                            Wrap="Wrap"
+                            AlignItems="Center"
+                            JustifyContent="SpaceBetween">
+                    <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Stroke="{toolkit:AppThemeResource Accent1}"
+                            BackgroundColor="Transparent"
+                            Padding="8,2"
+                            Margin="0,0,8,2"
+                            VerticalOptions="Center">
+                        <Label Text="{Binding Datos.Creacion, StringFormat='{0:d/M/yyyy}'}"
+                               Style="{StaticResource Caption1}"
+                               LineBreakMode="NoWrap" />
+                    </Border>
+                    <Border StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1"
+                            Stroke="{toolkit:AppThemeResource Accent1}"
+                            BackgroundColor="Transparent"
+                            Padding="8,2"
+                            Margin="0,0,0,2"
+                            VerticalOptions="Center"
+                            IsVisible="{Binding Datos.Cierre, Converter={StaticResource NotNull}}">
+                        <Label Text="{Binding Datos.Cierre, StringFormat='Vence {0:d/M/yy}'}"
+                               Style="{StaticResource Caption1}"
+                               LineBreakMode="NoWrap" />
+                    </Border>
+                </FlexLayout>
+
+                <!-- Badge: Estado -->
+                <Border BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="16,6"
+                        HorizontalOptions="Fill">
+                    <Label Text="{Binding Datos.Estado}"
+                           Style="{StaticResource Body2Strong}"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="TailTruncation" />
+                </Border>
+
+                <!-- Receptor pill -->
+                <Border StrokeShape="RoundRectangle 10"
+                        StrokeThickness="1"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        BackgroundColor="Transparent"
+                        Padding="8,4"
+                        HorizontalOptions="Fill">
+                    <Label Style="{StaticResource Caption1}"
+                           LineBreakMode="TailTruncation"
+                           HorizontalOptions="Start">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Receptor: " FontAttributes="Bold" />
+                                <Span Text="{Binding TextoReceptor}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </Border>
+
+                <!-- Descripción -->
+                <Label Text="{Binding Datos.Descripcion}"
+                       Style="{StaticResource Body2}"
+                       LineBreakMode="TailTruncation"
+                       MaxLines="1" />
+
+            </VerticalStackLayout>
+
+            <!-- RIGHT: Métricas financieras -->
+            <Border Grid.Column="2"
+                    BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 0,16,0,16"
+                    Padding="8,10"
+                    WidthRequest="80"
+                    VerticalOptions="Fill">
+                <VerticalStackLayout Spacing="4"
+                                     VerticalOptions="Center"
+                                     HorizontalOptions="Center">
+                    <Label Text="{Binding Datos.Monto, StringFormat='{0:C0}'}"
+                           Style="{StaticResource Body2Strong}"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="NoWrap" />
+                    <Label Text="depositado"
+                           Style="{StaticResource Caption1}"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalTextAlignment="Center" />
+                    <BoxView Style="{StaticResource Divider}"
+                             Margin="0,2" />
+                    <Label Text="{Binding Datos.MontoComprobado, StringFormat='{0:C0}'}"
+                           Style="{StaticResource Caption1Strong}"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="NoWrap" />
+                    <Label Text="comprobado"
+                           Style="{StaticResource Caption1}"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Border>
+
+        </Grid>
+    </Border>
+
+</ContentView>

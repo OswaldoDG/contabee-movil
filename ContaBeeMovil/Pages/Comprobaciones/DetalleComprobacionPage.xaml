@@ -29,8 +29,8 @@
     <Grid RowDefinitions="Auto,*">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="10" Spacing="8">
-                <Border Style="{StaticResource ElevatedCard}" Padding="10,8">
-                    <VerticalStackLayout Spacing="6">
+                <Border Style="{StaticResource ElevatedCard}" Padding="12">
+                    <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="Creación" Style="{StaticResource Caption1}" />
@@ -42,13 +42,12 @@
                             </VerticalStackLayout>
                         </Grid>
 
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
-                            <Label Text="RFC:" Style="{StaticResource Body2Strong}" />
-                            <Label Grid.Column="1"
-                                   Text="{Binding Rfc}"
-                                   Style="{StaticResource Body2}"
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="RFC" Style="{StaticResource Caption1}" />
+                            <Label Text="{Binding Rfc}"
+                                   Style="{StaticResource Body2Strong}"
                                    LineBreakMode="TailTruncation" />
-                        </Grid>
+                        </VerticalStackLayout>
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <VerticalStackLayout Spacing="2">
@@ -87,11 +86,8 @@
                                                     ElementoSeleccionado="{Binding EstadoSeleccionado}" />
                             <Button Grid.Column="1"
                                     Text="Actualizar"
-                                    Command="{Binding ActualizarEstadoCommand}"
-                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                    CornerRadius="10"
-                                    HeightRequest="44" />
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding ActualizarEstadoCommand}" />
                         </Grid>
 
                     </VerticalStackLayout>
