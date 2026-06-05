@@ -76,6 +76,9 @@
                 </Border>
             </Grid>
 
+            <Label Text="Para:"
+                   FontSize="14"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
             <views:SelectorFlotante x:Name="SelectorDestinatario"
                                     Titulo="Destinatario"
                                     MaxAltoLista="240" />

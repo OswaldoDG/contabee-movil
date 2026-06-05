@@ -2,6 +2,7 @@
 using Contabee.Api.Crm;
 using Contabee.Api.Ecommerce;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
     private readonly IServicioEcommerce _servicioEcommerce;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioLogs _logs;
 
     private bool _estaCargando;
     private string _codigoCupon = string.Empty;
@@ -59,11 +61,13 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
     public PaginaCuponesViewModel(
         IServicioEcommerce servicioEcommerce,
         IServicioSesion servicioSesion,
-        IServicioAlerta servicioAlerta)
+        IServicioAlerta servicioAlerta,
+        IServicioLogs logs)
     {
         _servicioEcommerce = servicioEcommerce;
         _servicioSesion = servicioSesion;
         _servicioAlerta = servicioAlerta;
+        _logs = logs;
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
@@ -83,6 +87,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
     {
         if (EstaCargando) return;
 
+        _logs.Info("[Cupones] Cargando cupones");
         EstaCargando = true;
         try
         {
@@ -92,6 +97,12 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
             Cupones.Clear();
             foreach (var item in cupones ?? [])
                 Cupones.Add(item);
+
+            _logs.Info($"[Cupones] Cargados — count={Cupones.Count}");
+        }
+        catch (Exception ex)
+        {
+            _logs.Error($"[Cupones] Error al cargar: {ex.GetType().Name} - {ex.Message}");
         }
         finally
         {
@@ -121,10 +132,12 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             if (registrado.Codigo is null || registrado.Aplicado)
             {
+                _logs.Warn("[Cupones] Cupón no válido o ya aplicado");
                 await _servicioAlerta.MostrarAsync("Cupón", "Cupón no válido", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
 
+            _logs.Info("[Cupones] Cupón registrado por código");
             CodigoCupon = string.Empty;
         }
         finally
@@ -163,10 +176,12 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             if (activacion is null || !activacion.Aplicado)
             {
+                _logs.Warn("[Cupones] No se pudo activar el cupón");
                 await _servicioAlerta.MostrarAsync("Cupón", "No se pudo activar el cupón.", confirmarText: "OK", verBotonCancelar: false);
                 return;
             }
 
+            _logs.Info($"[Cupones] Cupón aplicado — tipo={item.TipoCuenta}");
             AppState.Instance.CuponesVersion++;
         }
         finally

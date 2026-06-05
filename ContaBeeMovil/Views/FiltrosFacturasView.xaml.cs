@@ -468,6 +468,7 @@ public partial class FiltrosFacturasView : ContentView
     private static string MapearCampoOrden(string campo) => campo switch
     {
         "Creacion" => "FechaCreacion",
+        "Monto"    => "Total",
         _          => campo
     };
 

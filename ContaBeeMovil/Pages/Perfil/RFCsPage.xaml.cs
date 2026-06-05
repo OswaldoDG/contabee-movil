@@ -150,7 +150,11 @@ public partial class RFCsPage : ContentPage
         {
             var actualizadas = await _servicioCrm.GetAsociacionesFiscales();
             if (actualizadas.Ok && actualizadas.Payload != null)
+            {
                 AppState.Instance.CuentasFiscales = actualizadas.Payload;
+                if (AppState.Instance.CuentaFiscalActual?.CuentaFiscalId == cuenta.CuentaFiscalId)
+                    AppState.Instance.CuentaFiscalActual = actualizadas.Payload.FirstOrDefault();
+            }
             SetLoading(false);
             CargarCuentas();
         }

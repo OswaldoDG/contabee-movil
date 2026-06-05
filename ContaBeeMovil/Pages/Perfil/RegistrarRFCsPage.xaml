@@ -32,15 +32,14 @@
                     StrokeShape="RoundRectangle 10"
                     StrokeThickness="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="IconManual_Tapped" />
+                </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=Edit}"
                              IconSize="32"
                              IconColor="{toolkit:AppThemeResource PrimaryText}"
                              HorizontalOptions="Center"
-                             VerticalOptions="Center">
-                    <mi:MauiIcon.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="IconManual_Tapped" />
-                    </mi:MauiIcon.GestureRecognizers>
-                </mi:MauiIcon>
+                             VerticalOptions="Center" />
             </Border>
         </VerticalStackLayout>
 
@@ -68,15 +67,14 @@
                     StrokeShape="RoundRectangle 10"
                     StrokeThickness="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="IconQr_Tapped" />
+                </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=QrCode}"
                              IconSize="32"
                              IconColor="{toolkit:AppThemeResource PrimaryText}"
                              HorizontalOptions="Center"
-                             VerticalOptions="Center">
-                    <mi:MauiIcon.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="IconQr_Tapped" />
-                    </mi:MauiIcon.GestureRecognizers>
-                </mi:MauiIcon>
+                             VerticalOptions="Center" />
             </Border>
         </VerticalStackLayout>
 

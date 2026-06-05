@@ -17,15 +17,15 @@
                         Stroke="{toolkit:AppThemeResource Accent1}"
                         StrokeShape="RoundRectangle 10"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
-                        HeightRequest="48"
                         VerticalOptions="Center"
-                        Padding="14,8">
+                        Padding="14,0">
                     <Entry Placeholder="Código"
                            Text="{Binding CodigoCupon}"
                            ReturnType="Search"
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           BackgroundColor="Transparent" />
+                           BackgroundColor="Transparent"
+                           VerticalOptions="Center" />
                 </Border>
 
                 <Button Grid.Column="1"

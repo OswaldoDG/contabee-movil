@@ -301,7 +301,10 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         try
         {
-            var res = await servicioIdentidad.TokenvinculacionAsync(dispositivoId,enSesion);
+            var res = enSesion
+                ? await servicioIdentidad.SesionAsync(dispositivoId)
+                : await servicioIdentidad.TokenvinculacionAsync(dispositivoId);
+
             r.Payload = res;
             r.Ok = true;
             r.HttpCode = System.Net.HttpStatusCode.OK;
