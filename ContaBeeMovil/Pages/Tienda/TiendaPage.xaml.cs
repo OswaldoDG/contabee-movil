@@ -30,7 +30,7 @@ public partial class TiendaPage : ContentPage
 
     private bool _cargado;
 
-    private Grid? _loadingOverlay;
+    private View? _loadingOverlay;
     private CollectionView? _listaProductos;
     private FlexLayout? _tabsCategorias;
     private VerticalStackLayout? _estadoVacio;
@@ -65,7 +65,7 @@ public partial class TiendaPage : ContentPage
     {
         base.OnAppearing();
 
-        _loadingOverlay   = this.FindByName<Grid>("LoadingOverlay");
+        _loadingOverlay   = this.FindByName<View>("LoadingOverlay");
         _listaProductos   = this.FindByName<CollectionView>("ListaProductos");
         _tabsCategorias   = this.FindByName<FlexLayout>("TabsCategorias");
         _estadoVacio      = this.FindByName<VerticalStackLayout>("EstadoVacio");

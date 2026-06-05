@@ -82,12 +82,12 @@
                         </Border>
                         <Label Text="Restantes"
                                FontSize="11"
-                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="1" Spacing="4">
-                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                        <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
@@ -100,12 +100,12 @@
                         </Border>
                         <Label Text="Emitidas"
                                FontSize="11"
-                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="2" Spacing="4">
-                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                        <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
@@ -118,12 +118,12 @@
                         </Border>
                         <Label Text="Fallidas"
                                FontSize="11"
-                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="3" Spacing="4">
-                        <Border BackgroundColor="{AppThemeBinding Light={StaticResource OffBlack}, Dark={StaticResource Gray600}}"
+                        <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="8,10"
@@ -136,7 +136,7 @@
                         </Border>
                         <Label Text="Pendientes"
                                FontSize="11"
-                               TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource Primary}}"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
@@ -243,7 +243,7 @@
             <Button Text="Reintentar"
                     Command="{Binding RefreshCommand}"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="White"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                     CornerRadius="20"
                     Padding="24,8"
                     HorizontalOptions="Center" />

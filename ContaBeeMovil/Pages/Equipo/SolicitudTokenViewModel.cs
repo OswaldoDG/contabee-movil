@@ -21,6 +21,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     private bool _estaCargando;
     private bool _mostrarToken;
     private bool _estaIniciandoSesion;
+    private bool _inicioYaEjecutado;
     private string _token = string.Empty;
     private IReadOnlyList<string> _tokenChars = [];
     private bool _enSesion;
@@ -90,6 +91,9 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
     public async Task IniciarAsync(bool enSesion)
     {
+        if (_inicioYaEjecutado) return;
+        _inicioYaEjecutado = true;
+
         _enSesion = enSesion;
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
@@ -110,9 +114,9 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
                 if (resultado.HttpCode == System.Net.HttpStatusCode.Conflict && !enSesion)
                 {
                     var confirmar = await _alerta.MostrarAsync(
-                        "Dispositivo registrado en otra cuenta",
-                        "Este dispositivo está vinculado a una cuenta existente. ¿Deseas limpiar el dispositivo y continuar como usuario sin cuenta?",
-                        confirmarText: "Limpiar y continuar");
+                        "Dispositivo con cuenta registrada",
+                        "Este dispositivo ya está vinculado a otra cuenta. Para continuar como usuario sin cuenta es necesario liberar el dispositivo.",
+                        confirmarText: "Liberar y continuar");
 
                     if (!confirmar)
                     {

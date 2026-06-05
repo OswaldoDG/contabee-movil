@@ -57,7 +57,7 @@
                         <SwipeView.LeftItems>
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItemView Command="{Binding DeleteCommand}">
-                                    <Border BackgroundColor="#d65c5c"
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="0"
                                             Padding="5"
@@ -178,7 +178,7 @@
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
                             <mi:MauiIcon Icon="{mi:Material Icon=Keyboard}"
                                      IconSize="28"
-                                     IconColor="#1e1e1e"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Capturista"
@@ -206,7 +206,7 @@
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
                             <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
                                      IconSize="28"
-                                     IconColor="#1e1e1e"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Sin cuenta"
@@ -234,7 +234,7 @@
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
                         <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
                                      IconSize="28"
-                                     IconColor="#1e1e1e"
+                                     IconColor="{toolkit:AppThemeResource Icon}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Con Cuenta"
@@ -263,13 +263,13 @@
                 <Grid>
                     <mi:MauiIcon Icon="{mi:Material Icon=Add}"
                                  IconSize="20"
-                                 IconColor="#1e1e1e"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
                                  IsVisible="{Binding FabColapsado}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
                     <mi:MauiIcon Icon="{mi:Material Icon=KeyboardArrowDown}"
                                  IconSize="20"
-                                 IconColor="#1e1e1e"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
                                  IsVisible="{Binding FabExpandido}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />

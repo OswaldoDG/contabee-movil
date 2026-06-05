@@ -17,7 +17,7 @@
                         Stroke="{toolkit:AppThemeResource Accent1}"
                         StrokeShape="RoundRectangle 10"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
-                        HeightRequest="56"
+                        HeightRequest="48"
                         VerticalOptions="Center"
                         Padding="14,8">
                     <Entry Placeholder="Código"
@@ -32,7 +32,7 @@
                         Text="Buscar"
                         Command="{Binding BuscarCuponCommand}"
                         WidthRequest="120"
-                        HeightRequest="56"
+                        HeightRequest="48"
                         Padding="0"
                         CornerRadius="12"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"

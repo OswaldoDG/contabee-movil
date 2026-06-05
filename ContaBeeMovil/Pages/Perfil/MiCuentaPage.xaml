@@ -17,10 +17,7 @@
             <VerticalStackLayout Spacing="8">
 
                 <Label Text="Cuenta"
-                   FontSize="13"
-                   FontAttributes="Bold"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   Margin="4,0,0,4" />
+                   Style="{StaticResource SectionHeader}" />
 
                 <Border x:Name="CardCambiarContrasena" Style="{StaticResource ElevatedCard}" Padding="10">
                     <Border.GestureRecognizers>
@@ -58,10 +55,7 @@
         <VerticalStackLayout Grid.Row="1" Spacing="8" Padding="0,12,0,0">
             <!-- ── Legal ── -->
             <Label Text="Legal"
-               FontSize="13"
-               FontAttributes="Bold"
-               TextColor="{toolkit:AppThemeResource SecondaryText}"
-               Margin="4,0,0,4" />
+               Style="{StaticResource SectionHeader}" />
 
             <Border Style="{StaticResource ElevatedCard}" Padding="10">
                 <Border.GestureRecognizers>
@@ -125,10 +119,8 @@
 
             <!-- ── Zona de peligro ── -->
             <Label Text="Zona de peligro"
-               FontSize="13"
-               FontAttributes="Bold"
-               TextColor="{toolkit:AppThemeResource Error}"
-               Margin="4,0,0,4" />
+               Style="{StaticResource SectionHeader}"
+               TextColor="{toolkit:AppThemeResource Error}" />
 
             <Border x:Name="CardEliminarCuenta" Style="{StaticResource ElevatedCard}" Padding="10">
                 <Border.GestureRecognizers>

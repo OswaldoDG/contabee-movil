@@ -15,7 +15,7 @@
             StrokeThickness="1"
             Padding="20">
         <Border.Shadow>
-            <Shadow Brush="#5e000000"
+            <Shadow Brush="{toolkit:AppThemeResource Shadow}"
                     Offset="0,4"
                     Radius="16"
                     Opacity="0.4" />
@@ -38,20 +38,12 @@
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                 <Button Text="Cancelar"
-                        BackgroundColor="Transparent"
-                        BorderColor="{toolkit:AppThemeResource Accent1}"
-                        BorderWidth="1"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        CornerRadius="10"
-                        HeightRequest="44"
+                        Style="{StaticResource SecondaryButton}"
                         Clicked="OnCancelar" />
 
                 <Button Grid.Column="1"
                         Text="Crear"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        CornerRadius="10"
-                        HeightRequest="44"
+                        Style="{StaticResource PrimaryButton}"
                         Clicked="OnCrear" />
             </Grid>
         </VerticalStackLayout>

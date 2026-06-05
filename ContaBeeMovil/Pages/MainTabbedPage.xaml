@@ -71,10 +71,10 @@
         <Grid x:Name="BannerOffline"
               Grid.Row="0"
               IsVisible="False"
-              BackgroundColor="#F59E0B"
+              BackgroundColor="{toolkit:AppThemeResource Warning}"
               Padding="10,6">
             <Label Text="Sin Conexión"
-                   TextColor="White"
+                   TextColor="{toolkit:AppThemeResource Info}"
                    FontSize="12"
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />

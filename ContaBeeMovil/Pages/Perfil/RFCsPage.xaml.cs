@@ -73,7 +73,7 @@ public partial class RFCsPage : ContentPage
         return regimen?.Descripcion ?? clave;
     }
 
-    private async void BtnAgregar_Clicked(object? sender, EventArgs e)
+    private async void BtnAgregar_Clicked(object? sender, TappedEventArgs e)
     {
         if (AppState.Instance.ModoOffline)
         {

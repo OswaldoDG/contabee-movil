@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.Perfil.RFCsPage"
              Title="Mis Cuentas Fiscales"
              BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -36,7 +37,7 @@
                             <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
                                 <SwipeItemView Command="{Binding DeleteCommand}"
                                                IsVisible="{Binding PuedeEliminar}">
-                                    <Border BackgroundColor="#d65c5c"
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
                                             StrokeShape="RoundRectangle 12"
                                             StrokeThickness="0"
                                             Padding="5"
@@ -94,37 +95,19 @@
         </CollectionView>
 
         <!-- Overlay de carga -->
-        <Grid x:Name="LoadingOverlay"
-              IsVisible="False"
-              BackgroundColor="{toolkit:AppThemeResource Shadow}"
-              InputTransparent="False">
-            <ActivityIndicator IsRunning="True"
-                               Color="{toolkit:AppThemeResource Primary}"
-                               WidthRequest="48"
-                               HeightRequest="48"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
-        </Grid>
+        <views:CargandoOverlay x:Name="LoadingOverlay"
+                               IsVisible="False" />
 
         <!-- FAB agregar -->
-        <Button x:Name="BtnAgregar"
-                Text="+"
-                FontSize="30"
-                FontAttributes="Bold"
-                WidthRequest="60"
-                HeightRequest="60"
-                CornerRadius="16"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="0,0,16,28"
-                BackgroundColor="{toolkit:AppThemeResource Primary}"
-                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                Clicked="BtnAgregar_Clicked">
-            <Button.Shadow>
-                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
-                        Offset="0,4" Radius="8" Opacity="0.5" />
-            </Button.Shadow>
-        </Button>
+        <Border x:Name="BtnAgregar"
+                Style="{StaticResource FabBorder}"
+                Margin="0,0,16,28">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="BtnAgregar_Clicked" />
+            </Border.GestureRecognizers>
+            <mi:MauiIcon Icon="{mi:Material Icon=Add}"
+                         Style="{StaticResource FabIcon}" />
+        </Border>
 
     </Grid>
 </ContentPage>

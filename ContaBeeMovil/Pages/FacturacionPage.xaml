@@ -63,12 +63,7 @@
         </views:ResultadosListaView>
 
             <!-- FAB Captura -->
-            <Border WidthRequest="50" HeightRequest="44"
-                    StrokeShape="RoundRectangle 10"
-                    StrokeThickness="0"
-                    Padding="0"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    HorizontalOptions="End" VerticalOptions="End"
+            <Border Style="{StaticResource FabBorder}"
                     Margin="0,0,8,8">
                 <Border.Triggers>
                     <DataTrigger TargetType="Border" Binding="{Binding SinCreditos}" Value="True">
@@ -79,10 +74,7 @@
                     <TapGestureRecognizer Tapped="OnAbrirCaptura" />
                 </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
-                             IconSize="20"
-                             IconColor="#1A1A1A"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center" />
+                             Style="{StaticResource FabIcon}" />
             </Border>
 
         </Grid>

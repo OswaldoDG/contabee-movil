@@ -31,9 +31,9 @@
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="BorderWidth" Value="0"/>
-        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="10,5"/>
-        <Setter Property="HeightRequest" Value="50"/>
+        <Setter Property="HeightRequest" Value="48"/>
         <Setter Property="MinimumHeightRequest" Value="40"/>
         <Setter Property="MinimumWidthRequest" Value="40"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -83,29 +83,7 @@
                     <VisualState x:Name="Normal" />
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource  Accent1}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
-
-    <Style TargetType="Editor">
-        <Setter Property="TextColor" Value="{toolkit:AppThemeResource  PrimaryText}" />
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="FontFamily" Value="OpenSansRegular"/>
-        <Setter Property="FontSize" Value="14" />
-        <Setter Property="PlaceholderColor" Value="{toolkit:AppThemeResource  Accent1}" />
-        <Setter Property="MinimumHeightRequest" Value="44"/>
-        <Setter Property="MinimumWidthRequest" Value="44"/>
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="Disabled">
-                        <VisualState.Setters>
-                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource  Accent1}" />
+                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource  PrimaryText}" />
                         </VisualState.Setters>
                     </VisualState>
                 </VisualStateGroup>

@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              xmlns:f="clr-namespace:Fonts"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Comprobaciones.DetalleComprobacionPage"
              Title="Detalle"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}">
@@ -28,8 +29,8 @@
     <Grid RowDefinitions="Auto,*">
         <ScrollView Grid.Row="0">
             <VerticalStackLayout Padding="10" Spacing="8">
-                <Border Style="{StaticResource ElevatedCard}" Padding="10,8">
-                    <VerticalStackLayout Spacing="6">
+                <Border Style="{StaticResource ElevatedCard}" Padding="12">
+                    <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="Creación" Style="{StaticResource Caption1}" />
@@ -41,13 +42,12 @@
                             </VerticalStackLayout>
                         </Grid>
 
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
-                            <Label Text="RFC:" Style="{StaticResource Body2Strong}" />
-                            <Label Grid.Column="1"
-                                   Text="{Binding Rfc}"
-                                   Style="{StaticResource Body2}"
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="RFC" Style="{StaticResource Caption1}" />
+                            <Label Text="{Binding Rfc}"
+                                   Style="{StaticResource Body2Strong}"
                                    LineBreakMode="TailTruncation" />
-                        </Grid>
+                        </VerticalStackLayout>
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <VerticalStackLayout Spacing="2">
@@ -86,11 +86,8 @@
                                                     ElementoSeleccionado="{Binding EstadoSeleccionado}" />
                             <Button Grid.Column="1"
                                     Text="Actualizar"
-                                    Command="{Binding ActualizarEstadoCommand}"
-                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                    CornerRadius="10"
-                                    HeightRequest="44" />
+                                    Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding ActualizarEstadoCommand}" />
                         </Grid>
 
                     </VerticalStackLayout>
@@ -114,29 +111,14 @@
             </views:ResultadosListaView.PlantillaItem>
         </views:ResultadosListaView>
 
-        <Border WidthRequest="44"
-                HeightRequest="44"
-                StrokeShape="RoundRectangle 10"
-                StrokeThickness="0"
-                Padding="0"
-                BackgroundColor="{toolkit:AppThemeResource Primary}"
-                HorizontalOptions="End"
-                VerticalOptions="End"
+        <Border Style="{StaticResource FabBorder}"
                 Margin="0,0,8,8"
                 Grid.RowSpan="2">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding IrCapturaCommand}" />
             </Border.GestureRecognizers>
-            <Label Text="{x:Static f:FluentUI.camera_20_regular}"
-                   FontFamily="FluentUI"
-                   FontSize="20"
-                   TextColor="#1A1A1A"
-                   WidthRequest="44"
-                   HeightRequest="44"
-                   HorizontalTextAlignment="Center"
-                   VerticalTextAlignment="Center"
-                   HorizontalOptions="Fill"
-                   VerticalOptions="Fill" />
+            <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+                         Style="{StaticResource FabIcon}" />
         </Border>
 
     </Grid>

@@ -57,7 +57,7 @@
                 <Button Text="Tomar Foto"
                         Command="{Binding TomarFotoCommand}"
                         IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
-                        HeightRequest="52"
+                        HeightRequest="48"
                         CornerRadius="12"
                         FontAttributes="Bold"
                         FontSize="16"
@@ -65,7 +65,7 @@
                         TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
                 <Button Text="Procesar QR (desde foto)"
-                        HeightRequest="52"
+                        HeightRequest="48"
                         CornerRadius="12"
                         FontAttributes="Bold"
                         FontSize="16"
