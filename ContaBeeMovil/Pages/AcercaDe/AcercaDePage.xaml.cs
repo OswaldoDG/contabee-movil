@@ -94,13 +94,15 @@ public partial class AcercaDePage : ContentPage
 
         if (respuesta.Ok && respuesta.Payload is not null)
         {
-            LabelCargaActual.Text = $"Pendientes {respuesta.Payload.Pendientes}";
+            LabelCargaActual.Text = $"{respuesta.Payload.Pendientes}";
             LabelCargaActual.TextColor = UIHelpers.GetColor("Error");
+            LabelCargaActual.FontSize = 17;
         }
         else
         {
-            LabelCargaActual.Text = "Pendientes --";
+            LabelCargaActual.Text = "--";
             LabelCargaActual.TextColor = UIHelpers.GetColor("SecondaryText");
+            LabelCargaActual.FontSize = 17;
         }
     }
 

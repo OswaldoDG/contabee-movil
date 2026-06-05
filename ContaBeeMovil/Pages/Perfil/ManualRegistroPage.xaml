@@ -105,23 +105,24 @@
                             </Grid>
                         </Grid>
 
-                        <VerticalStackLayout Spacing="6">
-                            <HorizontalStackLayout Spacing="10">
-                                <CheckBox x:Name="ChkSinDireccion"
-                                          VerticalOptions="Center"
-                                          CheckedChanged="ChkSinDireccion_CheckedChanged" />
-                                <Label Text="No deseo proporcionar mi dirección"
-                                       VerticalOptions="Center"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            </HorizontalStackLayout>
-
-                            <Label x:Name="LblSinDireccionAviso"
-                                   IsVisible="False"
-                                   Margin="34,0,0,0"
-                                   Text="Y estoy de acuerdo que Contabee no deberá obtener el CFDI si la información es obligatoria en el portal de facturación."
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="10">
+                            <CheckBox x:Name="ChkSinDireccion"
+                                      Grid.Column="0"
+                                      WidthRequest="24"
+                                      HeightRequest="24"
+                                      HorizontalOptions="Start"
+                                      VerticalOptions="Start"
+                                      Margin="-4,-6,0,0"
+                                      CheckedChanged="ChkSinDireccion_CheckedChanged" />
+                            <Label x:Name="LblSinDireccionTexto"
+                                   Grid.Column="1"
+                                   Text="No deseo proporcionar mi dirección"
                                    LineBreakMode="WordWrap"
+                                   HorizontalTextAlignment="Justify"
+                                   VerticalOptions="Start"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                        </VerticalStackLayout>
+                        </Grid>
 
                         <VerticalStackLayout x:Name="DireccionContainer" Spacing="14">
                             <Entry x:Name="EntryNombreVialidad"

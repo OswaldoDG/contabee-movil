@@ -128,6 +128,7 @@
                                  IconColor="{toolkit:AppThemeResource Icon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="2"
+                           FontSize="17"
                            Text="Carga actual"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
@@ -142,9 +143,9 @@
                            WidthRequest="100" />
                     <Label x:Name="LabelCargaActual"
                            Grid.Column="3"
-                           Text="Pendientes --"
-                           FontSize="14"
-                           FontAttributes="Bold"
+                           Text="--"
+                           FontSize="17"
+                           Style="{StaticResource Body2Strong}"
                            TextColor="{toolkit:AppThemeResource Error}"
                            VerticalOptions="Center"
                            HorizontalTextAlignment="End"
