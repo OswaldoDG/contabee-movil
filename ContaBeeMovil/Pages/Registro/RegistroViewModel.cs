@@ -209,8 +209,8 @@ public class RegistroViewModel : INotifyPropertyChanged
             PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
             _ = _toast.MostrarAsync(
-                "Registro completado. Por favor verifica tu correo electrónico.",
-                ToastIcono.Info, ToastPosicion.Bottom);
+                "Registro completado. Por favor verifica tu correo electrónico. No olvides revisar el folder de spam.",
+                ToastIcono.Info, ToastPosicion.Bottom, 6000);
         }
         catch (ApiException ex)
         {

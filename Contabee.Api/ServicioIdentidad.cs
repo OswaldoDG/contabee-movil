@@ -28,6 +28,31 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         return r;
     }
 
+    public async Task<RespuestaBoolean> ExisteSolicitudConfirmacion(string id)
+    {
+        RespuestaBoolean r = new();
+
+        try
+        {
+            await servicioIdentidad.ConfirmarGETAsync(id);
+            r.Resultado = true;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 404)
+        {
+            r.Resultado = false;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.NotFound;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-ExisteSolicitudConfirmacion");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<RespuestaToken>> IniciarSesion(string email, string password, string dispositivoId,bool recordarme)
     {
         var respuesta = new RespuestaPayload<RespuestaToken>();

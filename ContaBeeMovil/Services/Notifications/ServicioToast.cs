@@ -11,7 +11,8 @@ public interface IServicioToast
     Task MostrarAsync(
         string mensaje,
         ToastIcono icono = ToastIcono.Info,
-        ToastPosicion posicion = ToastPosicion.Bottom);
+        ToastPosicion posicion = ToastPosicion.Bottom,
+        int duracionMs = 3000);
 }
 
 public class ServicioToast : IServicioToast
@@ -21,7 +22,8 @@ public class ServicioToast : IServicioToast
     public async Task MostrarAsync(
         string mensaje,
         ToastIcono icono = ToastIcono.Info,
-        ToastPosicion posicion = ToastPosicion.Bottom)
+        ToastPosicion posicion = ToastPosicion.Bottom,
+        int duracionMs = 3000)
     {
         await _semaphore.WaitAsync();
         try
@@ -52,7 +54,7 @@ public class ServicioToast : IServicioToast
                     toast.TranslateToAsync(0, 0, 280, Easing.CubicOut)
                 );
 
-                try { await Task.Delay(3000, cts.Token); }
+                try { await Task.Delay(duracionMs, cts.Token); }
                 catch (TaskCanceledException) { }
 
                 await Task.WhenAll(
