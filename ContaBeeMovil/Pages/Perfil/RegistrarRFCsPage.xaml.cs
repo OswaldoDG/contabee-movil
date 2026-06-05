@@ -1,4 +1,4 @@
-using ContaBeeMovil.Pages.Camara;
+ using ContaBeeMovil.Pages.Camara;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 

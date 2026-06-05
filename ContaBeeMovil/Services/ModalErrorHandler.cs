@@ -31,7 +31,7 @@ namespace ContaBeeMovil.Services
             try
             {
                 await _semaphore.WaitAsync();
-                _logs.Log($"[ModalErrorHandler] {ex.GetType().Name}: {ex.Message}");
+                _logs.Error($"[ModalErrorHandler] {ex.GetType().Name}: {ex.Message}");
                 await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error inesperado.", verBotonCancelar: false, confirmarText: "OK");
             }
             finally

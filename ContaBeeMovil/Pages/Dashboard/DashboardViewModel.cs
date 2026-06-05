@@ -10,6 +10,7 @@ using ContaBee.Pages.Cupones;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using Newtonsoft.Json;
 
@@ -20,6 +21,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioEcommerce _servicioEcommerce;
+    private readonly IServicioLogs _logs;
 
     private const string CacheDataKey        = "Dashboard_Actividad_Data";
     private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
@@ -40,11 +42,12 @@ public class DashboardViewModel : INotifyPropertyChanged
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
-    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce)
+    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce, IServicioLogs logs)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _servicioEcommerce = servicioEcommerce;
+        _logs = logs;
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
 
@@ -208,8 +211,15 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     private async Task CargarCuponBienvenidaAsync()
     {
-        var cupones = await _servicioEcommerce.CuponesUsuario();
-        TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
+        try
+        {
+            var cupones = await _servicioEcommerce.CuponesUsuario();
+            TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
+        }
+        catch (Exception ex)
+        {
+            _logs.Error($"[Dashboard] Error cupones: {ex.GetType().Name} - {ex.Message}");
+        }
     }
 
     private async Task PullRefreshAsync()
@@ -271,22 +281,21 @@ public class DashboardViewModel : INotifyPropertyChanged
             if (cuentas is null)
                 return;
 
-            // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
-            await MainThread.InvokeOnMainThreadAsync(() =>
-            {
-                var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
-                Application.Current!.Windows[0].Page = registrarPage;
-            });
+            // Lista vacía: el usuario no tiene cuentas fiscales. No redirigir —
+            // el login ya maneja el primer acceso; aquí el usuario puede navegar libremente.
             return;
         }
 
         bool esMesActual = _mes == DateTime.Now.Month && _anio == DateTime.Now.Year;
+
+        _logs.Info($"[Dashboard] Cargando {_mes}/{_anio} forzar={forzarActualizacion}");
 
         if (esMesActual && !forzarActualizacion)
         {
             var cached = LeerCache();
             if (cached != null)
             {
+                _logs.Info($"[Dashboard] Usando caché para {_mes}/{_anio}");
                 TieneError   = false;
                 SinActividad = Preferences.Default.Get(CacheSinActividadKey, false);
                 AplicarDatos(cached);
@@ -306,6 +315,7 @@ public class DashboardViewModel : INotifyPropertyChanged
                 var errorMsg = resultado.Error?.Mensaje ?? string.Empty;
                 if (errorMsg.Contains("CRM-LIC-INEXISTENTE", StringComparison.OrdinalIgnoreCase))
                 {
+                    _logs.Warn($"[Dashboard] Sin actividad (CRM-LIC-INEXISTENTE) para {_mes}/{_anio}");
                     var datosVacios = new ResumenCapturaCuentaFiscal { Ano = _anio, Mes = _mes };
                     SinActividad = true;
                     TieneError   = false;
@@ -318,6 +328,7 @@ public class DashboardViewModel : INotifyPropertyChanged
                 }
                 else
                 {
+                    _logs.Warn($"[Dashboard] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
                     TieneError   = true;
                     MensajeError = "No se pudieron cargar los datos.\nVerifica tu conexión e intenta de nuevo.";
                 }
@@ -327,6 +338,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             SinActividad = false;
             TieneError   = false;
             AplicarDatos(resultado.Payload);
+            _logs.Info($"[Dashboard] OK — Emitidas={resultado.Payload.Emitidas} Pendientes={resultado.Payload.Pendientes} Declinadas={resultado.Payload.Declinadas}");
 
             if (esMesActual)
             {
@@ -334,8 +346,9 @@ public class DashboardViewModel : INotifyPropertyChanged
                 Preferences.Default.Remove(CacheSinActividadKey);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logs.Error($"[Dashboard] Excepción: {ex.GetType().Name} - {ex.Message}");
             TieneError   = true;
             MensajeError = "Ocurrió un error inesperado.\nIntenta de nuevo.";
         }

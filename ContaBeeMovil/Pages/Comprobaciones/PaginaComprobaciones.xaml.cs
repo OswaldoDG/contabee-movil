@@ -211,6 +211,10 @@ public partial class PaginaComprobaciones : ContentPage
             var resultado = await _servicioTranscript.BusquedaComprobaciones(_ultimaBusqueda);
 
             var elementosPagina = resultado.Elementos?.ToList() ?? [];
+            _logs.Log($"[PaginaComprobaciones] Respuesta: Total={resultado.Total}, EnPagina={elementosPagina.Count}");
+            foreach (var e in elementosPagina)
+                _logs.Log($"  -> Id={e.Id} Creador={e.UsuarioCreadorId} Receptor={e.UsuarioReceptorId} CuentaFiscal={e.CuentaFiscalId}");
+
             if (pagina == 1 && elementosPagina.Count > 0)
                 _tamanoPaginaEfectivo = elementosPagina.Count;
 

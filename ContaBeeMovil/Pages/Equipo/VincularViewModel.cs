@@ -6,6 +6,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Pages;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -18,6 +19,7 @@ public class VincularViewModel : INotifyPropertyChanged
     private readonly IServicioToast _toast;
     private readonly IServicioAlerta _alerta;
     private readonly AppState _appState;
+    private readonly IServicioLogs _logs;
 
     private bool _esConCuenta;
     private string _titulo = string.Empty;
@@ -142,13 +144,15 @@ public class VincularViewModel : INotifyPropertyChanged
         IServicioSesion servicioSesion,
         IServicioToast toast,
         IServicioAlerta alerta,
-        AppState appState)
+        AppState appState,
+        IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion    = servicioSesion;
         _toast             = toast;
         _alerta            = alerta;
         _appState          = appState;
+        _logs              = logs;
 
         VincularCommand          = new Command(async () => await VincularPasoDosAsync());
         CancelarCargaCommand     = new Command(CancelarCarga);
@@ -176,6 +180,7 @@ public class VincularViewModel : INotifyPropertyChanged
     {
         _cancelado = false;
         EstaCargando   = true;
+        _logs.Info($"[Vincular] PasoUno — esConCuenta={_esConCuenta}");
         try
         {
             var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId ?? Guid.Empty;
@@ -191,6 +196,7 @@ public class VincularViewModel : INotifyPropertyChanged
             {
                 if (r.HttpCode == System.Net.HttpStatusCode.Conflict && !_esConCuenta)
                 {
+                    _logs.Warn("[Vincular] PasoUno — conflicto 409 (dispositivo del invitado ya registrado)");
                     await _alerta.MostrarAsync(
                         "Dispositivo del invitado con conflicto",
                         "El dispositivo del invitado ya está registrado en otra cuenta. Pídele que abra la app e intente generar un nuevo código — la app lo guiará automáticamente.",
@@ -200,6 +206,7 @@ public class VincularViewModel : INotifyPropertyChanged
                     return;
                 }
 
+                _logs.Warn($"[Vincular] PasoUno — error HTTP={r.HttpCode} código={r.Error?.Codigo}");
                 var msg = r.HttpCode switch
                 {
                     System.Net.HttpStatusCode.BadRequest => "Token para tipo de vinculación incorrecto.",
@@ -213,6 +220,7 @@ public class VincularViewModel : INotifyPropertyChanged
 
             if (_esConCuenta)
             {
+                _logs.Info("[Vincular] PasoUno exitoso — flujo ConCuenta completado");
                 await _servicioSesion.GetMisUsuariosAsync();
                 await _servicioSesion.GetAsociacionesFiscalesAsync();
                 await MainThread.InvokeOnMainThreadAsync(async () =>
@@ -223,12 +231,14 @@ public class VincularViewModel : INotifyPropertyChanged
             }
             else
             {
+                _logs.Info("[Vincular] PasoUno exitoso — mostrando formulario SinCuenta");
                 _tokenValidado = _tokenIngresado;
                 MostrarFormulario = true;
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logs.Error($"[Vincular] PasoUno excepción: {ex.GetType().Name} - {ex.Message}");
             if (!_cancelado)
             {
                 await _toast.MostrarAsync("Error al vincular el usuario.", ToastIcono.Error);
@@ -246,6 +256,7 @@ public class VincularViewModel : INotifyPropertyChanged
         if (string.IsNullOrWhiteSpace(_nombre)) return;
 
         EstaCargando = true;
+        _logs.Info("[Vincular] PasoDos — enviando datos del colaborador sin cuenta");
         try
         {
             var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId ?? Guid.Empty;
@@ -294,13 +305,15 @@ public class VincularViewModel : INotifyPropertyChanged
                 }
             }
 
+            _logs.Info("[Vincular] PasoDos exitoso — colaborador vinculado");
             await _servicioSesion.GetMisUsuariosAsync();
             await _servicioSesion.GetAsociacionesFiscalesAsync();
             _ = _toast.MostrarAsync("¡Usuario vinculado correctamente!", ToastIcono.Info);
             VinculacionSinCuentaExitosa?.Invoke(this, EventArgs.Empty);
         }
-        catch
+        catch (Exception ex)
         {
+            _logs.Error($"[Vincular] PasoDos excepción: {ex.GetType().Name} - {ex.Message}");
             await _toast.MostrarAsync("Error al vincular el usuario.", ToastIcono.Error);
         }
         finally

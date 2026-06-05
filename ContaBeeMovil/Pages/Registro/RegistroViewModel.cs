@@ -155,6 +155,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         {
             EstaCargando = true;
             MensajeError = string.Empty;
+            _logs.Info("[Registro] Intento de registro");
 
             // Validar cupón si fue proporcionado
             if (!string.IsNullOrWhiteSpace(CuponRegistro) && CuponRegistro.Trim().Length <= 3)
@@ -206,6 +207,7 @@ public class RegistroViewModel : INotifyPropertyChanged
                 throw new Exception(respuesta.HttpCode.ToString());
             }
 
+            _logs.Info("[Registro] Registro completado exitosamente");
             PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
             _ = _toast.MostrarAsync(
@@ -214,6 +216,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
         catch (ApiException ex)
         {
+            _logs.Warn($"[Registro] ApiException: StatusCode={ex.StatusCode}");
             var mensaje = ex.StatusCode switch
             {
                 409 => "El correo electrónico ya está registrado.",
@@ -226,7 +229,7 @@ public class RegistroViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            _logs.Log($"[RegistroViewModel] {ex.GetType().Name}: {ex.Message}");
+            _logs.Error($"[Registro] Excepción: {ex.GetType().Name} - {ex.Message}");
             await _toast.MostrarAsync(
                 "Ocurrió un error inesperado. Intenta de nuevo.",
                 ToastIcono.Error);

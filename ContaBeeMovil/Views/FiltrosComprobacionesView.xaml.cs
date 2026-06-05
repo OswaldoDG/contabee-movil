@@ -39,7 +39,7 @@ public partial class FiltrosComprobacionesView : ContentView
         ["Abierta", "Cerrada", "Cancelada"];
 
     private static readonly List<string> _cumplimiento =
-        ["10 %", "20 %", "30 %", "40 %", "50 %", "60 %", "70 %", "80 %", "90 %", "100 %"];
+        ["Todos", "10 %", "20 %", "30 %", "40 %", "50 %", "60 %", "70 %", "80 %", "90 %", "100 %"];
 
     private static readonly List<string> _camposOrden =
         ["Apertura", "Cierre", "Monto", "% cumplimiento"];
@@ -103,7 +103,7 @@ public partial class FiltrosComprobacionesView : ContentView
         CargarDestinatarios();
 
         SelectorCumplimiento.Elementos = _cumplimiento;
-        SelectorCumplimiento.IndiceSeleccionado = 9;
+        SelectorCumplimiento.IndiceSeleccionado = 0;
 
         SelectorOrden.Elementos = _camposOrden;
         SelectorOrden.IndiceSeleccionado = 0;

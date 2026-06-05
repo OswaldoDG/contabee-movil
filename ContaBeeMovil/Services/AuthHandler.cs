@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Pages.Login;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,6 +37,8 @@ public class AuthHandler : DelegatingHandler
 
     private readonly IServiceProvider _serviceProvider;
     private static readonly SemaphoreSlim _refreshLock = new(1, 1);
+    private IServicioLogs? _logs;
+    private IServicioLogs Logs => _logs ??= _serviceProvider.GetRequiredService<IServicioLogs>();
 
     public AuthHandler(IServiceProvider serviceProvider)
     {
@@ -56,6 +59,7 @@ public class AuthHandler : DelegatingHandler
         var networkAccess = Connectivity.Current.NetworkAccess;
         if (networkAccess is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
         {
+            Logs.Warn($"[AuthHandler] Sin red — {request.Method} {path}");
             await ActivarModoOfflineAsync();
             return new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable);
         }
@@ -78,6 +82,7 @@ public class AuthHandler : DelegatingHandler
 
             if (puedeRefrescar)
             {
+                Logs.Info($"[AuthHandler] Token expirado — intentando refresh. Recordarme={appState.Recordarme} EsLoginLess={esLoginLess}");
                 var nuevoToken = await RefrescarTokenAsync(sesion, refreshToken!, cancellationToken);
                 if (nuevoToken != null)
                 {
@@ -85,12 +90,14 @@ public class AuthHandler : DelegatingHandler
                 }
                 else
                 {
+                    Logs.Warn("[AuthHandler] Refresh falló — cerrando sesión");
                     await CerrarSesionAsync(sesion, appState);
                     return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
                 }
             }
             else
             {
+                Logs.Info("[AuthHandler] Token expirado sin posibilidad de refresh — cerrando sesión");
                 await CerrarSesionAsync(sesion, appState);
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
@@ -120,7 +127,10 @@ public class AuthHandler : DelegatingHandler
                         response.Content.Headers.ContentType?.MediaType ?? "application/json");
 
                     if (body.Contains("no pertenece a la cuenta fiscal", StringComparison.OrdinalIgnoreCase))
+                    {
+                        Logs.Warn($"[AuthHandler] Desvinculación detectada — {path}");
                         _ = sesion.ManejarDesvinculacionAsync();
+                    }
                 }
                 catch { }
             }
@@ -145,6 +155,8 @@ public class AuthHandler : DelegatingHandler
             var expiracion = await sesion.LeeExpiracionAsync();
             if (expiracion.HasValue && DateTime.Now < expiracion.Value)
                 return await sesion.LeeAccessTokenAsync();
+
+            Logs.Info("[AuthHandler] Ejecutando refresh de token");
 
             var httpClientFactory = _serviceProvider.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient("IdentityToken");
@@ -174,10 +186,12 @@ public class AuthHandler : DelegatingHandler
             await sesion.GuardaTokenAsync(tokenData.AccessToken, tokenData.RefreshToken);
             await sesion.GuardaExpiracionAsync(DateTime.Now.AddSeconds(tokenData.ExpiresIn));
 
+            Logs.Info($"[AuthHandler] Refresh exitoso — expira en {tokenData.ExpiresIn}s");
             return tokenData.AccessToken;
         }
-        catch
+        catch (Exception ex)
         {
+            Logs.Error($"[AuthHandler] Excepción en refresh: {ex.GetType().Name} - {ex.Message}");
             return null;
         }
         finally
@@ -197,6 +211,7 @@ public class AuthHandler : DelegatingHandler
             // Primera detección: si el usuario está en una página secundaria, volver al inicio
             if (!yaEraOffline)
             {
+                Logs.Warn("[AuthHandler] Modo offline activado");
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     if (AppState.Instance.ModoOffline &&
@@ -210,6 +225,7 @@ public class AuthHandler : DelegatingHandler
 
     private async Task CerrarSesionAsync(IServicioSesion sesion, AppState appState)
     {
+        Logs.Warn("[AuthHandler] Sesión cerrada por token inválido");
         await sesion.LimpiaTokensAsync();
         appState.Perfil = null;
         appState.CuentasFiscales = null;

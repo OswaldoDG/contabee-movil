@@ -5,6 +5,7 @@ using System.Windows.Input;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
@@ -56,6 +57,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioIdentidad _servicioIdentidad;
     private readonly IServicioToast _toast;
+    private readonly IServicioLogs _logs;
 
     private ObservableCollection<EquipoUsuarioItem> _usuarios = [];
     private bool _estaCargando;
@@ -71,13 +73,14 @@ public class EquipoViewModel : INotifyPropertyChanged
     public ICommand AgregarSinCuentaCommand { get; }
     public ICommand AgregarConCuentaCommand { get; }
 
-    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad, IServicioToast toast)
+    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad, IServicioToast toast, IServicioLogs logs)
     {
         _appState           = appState;
         _servicioSesion     = servicioSesion;
         _servicioAlerta     = servicioAlerta;
         _servicioIdentidad  = servicioIdentidad;
         _toast              = toast;
+        _logs               = logs;
 
         PullRefreshCommand       = new Command(async () => await PullRefreshAsync());
         ToggleFabCommand         = new Command(() => FabExpandido = !FabExpandido);
@@ -163,11 +166,17 @@ public class EquipoViewModel : INotifyPropertyChanged
             return;
         }
 
+        _logs.Info("[Equipo] Cargando usuarios del equipo");
         EstaCargando = true;
         try
         {
             await _servicioSesion.GetMisUsuariosAsync();
             ActualizarLista();
+            _logs.Info($"[Equipo] Cargado — {Usuarios.Count} usuario(s)");
+        }
+        catch (Exception ex)
+        {
+            _logs.Error($"[Equipo] Error cargando: {ex.GetType().Name} - {ex.Message}");
         }
         finally
         {
@@ -248,11 +257,13 @@ public class EquipoViewModel : INotifyPropertyChanged
 
         if (resp.Ok)
         {
+            _logs.Info($"[Equipo] Usuario eliminado — Id={item.Id}");
             _ = _toast.MostrarAsync("Usuario eliminado del equipo", ToastIcono.Info);
             await CargarAsync(forzar: true);
         }
         else
         {
+            _logs.Warn($"[Equipo] Error eliminando usuario — {resp.Error?.Codigo}: {resp.Error?.Mensaje}");
             await _toast.MostrarAsync(resp.Error?.Mensaje ?? "Error al eliminar el usuario", ToastIcono.Error);
         }
     }

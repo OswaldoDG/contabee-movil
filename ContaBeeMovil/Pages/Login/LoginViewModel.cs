@@ -10,6 +10,7 @@ using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -21,6 +22,7 @@ public class LoginViewModel : INotifyPropertyChanged
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioToast _toast;
     private readonly IServicioAlmacenamiento _almacenamiento;
+    private readonly IServicioLogs _logs;
     private const string ClaveMododDev = "ModoDeveloper";
     private string _email = string.Empty;
     private string _password = string.Empty;
@@ -35,12 +37,14 @@ public class LoginViewModel : INotifyPropertyChanged
         IServicioIdentidad servicioIdentidad,
         IServicioSesion servicioSesion,
         IServicioToast toast,
-        IServicioAlmacenamiento almacenamiento)
+        IServicioAlmacenamiento almacenamiento,
+        IServicioLogs logs)
     {
         _servicioIdentidad = servicioIdentidad;
         _servicioSesion = servicioSesion;
         _toast = toast;
         _almacenamiento = almacenamiento;
+        _logs = logs;
         IngresarCommand = new Command(async () => await Ingresar(), () => PuedeIngresar);
         VincularmeCommand = new Command(async () => await Vincularme());
         IrARegistroCommand = new Command(async () => await IrARegistro());
@@ -179,6 +183,7 @@ public class LoginViewModel : INotifyPropertyChanged
         try
         {
             EstaCargando = true;
+            _logs.Info($"[Login] Intento: {LogSanitizer.EnmascararEmail(Email)}");
 
             var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
             var resultado = await _servicioIdentidad.IniciarSesion(Email, Password, dispositivoId, Recordarme);
@@ -203,6 +208,8 @@ public class LoginViewModel : INotifyPropertyChanged
                 await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
                 return;
             }
+
+            _logs.Info($"[Login] OK expires_in={resultado.Payload.ExpiresIn}s");
 
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,
@@ -247,11 +254,12 @@ public class LoginViewModel : INotifyPropertyChanged
                 // Lista vacía = API devolvió 404, usuario sin cuentas fiscales registradas
                 var registrarPage = MauiProgram.Services.GetRequiredService<RegistrarRFCsPage>();
                 registrarPage.FromLogin = true;
-                Application.Current!.Windows[0].Page = registrarPage;
+                Application.Current!.Windows[0].Page = new NavigationPage(registrarPage);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            _logs.Error($"[Login] Excepción: {ex.GetType().Name} - {ex.Message}");
             _ = _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
             var page = Application.Current?.Windows[0].Page as ContentPage;
