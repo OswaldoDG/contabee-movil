@@ -185,9 +185,21 @@ public class LoginViewModel : INotifyPropertyChanged
 
             if (!resultado.Ok || resultado.Payload == null)
             {
-                var mensaje = resultado.Error?.Codigo == "invalid_grant"
-                    ? "El correo o la contraseña son incorrectos."
-                    : "Ha ocurrido un error al iniciar sesión.";
+                var mensaje = "Ha ocurrido un error al iniciar sesión.";
+
+                if (resultado.Error?.Codigo == "invalid_grant")
+                {
+                    var detalle = (resultado.Error?.Mensaje ?? string.Empty).Trim();
+                    var cuentaNoConfirmada =
+                        detalle.Equals("Account not confirmed.", StringComparison.OrdinalIgnoreCase) ||
+                        detalle.Equals("The account is not confirmed.", StringComparison.OrdinalIgnoreCase) ||
+                        detalle.Equals("Cuenta no confirmada.", StringComparison.OrdinalIgnoreCase);
+
+                    mensaje = cuentaNoConfirmada
+                        ? "No ha activado su cuenta, revise el correo en su teléfono incluyendo el folder de spam por favor"
+                        : "El correo o la contraseña son incorrectos.";
+                }
+
                 await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
                 return;
             }
