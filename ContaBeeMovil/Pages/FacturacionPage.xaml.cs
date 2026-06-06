@@ -116,7 +116,7 @@ public partial class FacturacionPage : ContentPage
         base.OnAppearing();
 
         if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
-            _ = _servicioSesion.GetMisUsuariosAsync();
+            await _servicioSesion.GetMisUsuariosAsync();
 
         PanelFiltros.RestaurarEstado();
 

@@ -315,7 +315,12 @@
         <Setter Property="VisualStateManager.VisualStateGroups">
             <VisualStateGroupList>
                 <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal"/>
+                    <VisualState x:Name="Normal">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
+                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
+                        </VisualState.Setters>
+                    </VisualState>
                     <VisualState x:Name="Disabled">
                         <VisualState.Setters>
                             <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}"/>

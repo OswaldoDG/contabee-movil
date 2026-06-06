@@ -108,7 +108,7 @@
                     HorizontalOptions="Center"
                     WidthRequest="220"
                     Margin="0,12,0,24"
-                    mi:MauiIcon.Value="{mi:Material Icon=Send}" />
+                    />
 
         </VerticalStackLayout>
     </ScrollView>

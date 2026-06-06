@@ -3,10 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Dev.LogsPage"
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Title="Logs"
              Shell.TabBarIsVisible="False">
+
     <Shell.TitleView>
         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="2">
             <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="1">
@@ -25,56 +27,78 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <CollectionView ItemsSource="{Binding Logs}">
 
-        <!-- Lista de logs -->
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding Logs}"
-                        Margin="0">
-
-            <CollectionView.EmptyView>
-                <VerticalStackLayout VerticalOptions="Center"
-                                     HorizontalOptions="Center"
-                                     Spacing="8">
-                    <mi:MauiIcon Icon="{mi:Material Icon=TextSnippet}"
-                                 IconSize="48"
+        <CollectionView.EmptyView>
+            <VerticalStackLayout VerticalOptions="Center"
                                  HorizontalOptions="Center"
-                                 IconColor="{toolkit:AppThemeResource SecondaryText}" />
-                    <Label Text="No hay logs registrados"
-                           Style="{StaticResource Body1}"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
+                                 Spacing="8">
+                <mi:MauiIcon Icon="{mi:Material Icon=TextSnippet}"
+                             IconSize="48"
+                             HorizontalOptions="Center"
+                             IconColor="{toolkit:AppThemeResource SecondaryText}" />
+                <Label Text="No hay logs registrados"
+                       Style="{StaticResource Body1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </CollectionView.EmptyView>
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="x:String" >
-                    <Grid Padding="5,6"  ColumnDefinitions="*,Auto" >
-<Label Grid.Column="0"
-       Text="{Binding .}"
-       Style="{StaticResource Caption1}"
-       TextColor="{toolkit:AppThemeResource PrimaryText}"
-       FontFamily="OpenSansRegular"
-       LineBreakMode="WordWrap"
-       VerticalOptions="Center"
-       Margin="0,0,0,10"/>
+        <CollectionView.ItemTemplate>
+            <DataTemplate x:DataType="models:LogEntrada">
+                <VerticalStackLayout Spacing="0">
+                    <Grid ColumnDefinitions="3,*,Auto" Padding="0,8">
 
-<Button Grid.Column="1"
-        mi:MauiIcon.Value="{mi:Material Icon=ContentCopy}"
-        BackgroundColor="Transparent"
-        Padding="6,0"
-        VerticalOptions="Center"
-        CommandParameter="{Binding .}"
-        Clicked="OnCopiarLogClicked"/>
+                        <!-- Accent strip by level -->
+                        <BoxView Grid.Column="0"
+                                 Color="{Binding ColorAccent}"
+                                 VerticalOptions="Fill"/>
 
-<BoxView Grid.Row="0"
-         VerticalOptions="End"
-         Style="{StaticResource Divider}" />
+                        <!-- Content -->
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" Padding="12,0,8,0">
+
+                            <!-- Level badge + timestamp -->
+                            <HorizontalStackLayout Spacing="8">
+                                <Border StrokeShape="RoundRectangle 4"
+                                        BackgroundColor="{Binding ColorFondo}"
+                                        StrokeThickness="0"
+                                        Padding="6,2">
+                                    <Label Text="{Binding Nivel}"
+                                           FontSize="9"
+                                           FontAttributes="Bold"
+                                           TextColor="{Binding ColorAccent}"/>
+                                </Border>
+                                <Label Text="{Binding Hora}"
+                                       FontSize="11"
+                                       FontFamily="OpenSansRegular"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <!-- Message -->
+                            <Label Text="{Binding Mensaje}"
+                                   FontSize="12"
+                                   FontFamily="OpenSansRegular"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   LineBreakMode="WordWrap"/>
+
+                        </VerticalStackLayout>
+
+                        <!-- Copy button -->
+                        <Button Grid.Column="2"
+                                mi:MauiIcon.Value="{mi:Material Icon=ContentCopy}"
+                                BackgroundColor="Transparent"
+                                Padding="8,0"
+                                VerticalOptions="Center"
+                                CommandParameter="{Binding TextoCompleto}"
+                                Clicked="OnCopiarLogClicked"/>
+
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
+                    <BoxView Style="{StaticResource Divider}" Margin="12,0,0,0"/>
+                </VerticalStackLayout>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
 
-        </CollectionView>
+    </CollectionView>
 
-    </Grid>
 </ContentPage>

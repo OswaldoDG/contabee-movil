@@ -119,12 +119,12 @@ public partial class PaginaDevoluciones : ContentPage
 		BindingContext = this;
 	}
 
-	protected override void OnAppearing()
+	protected override async void OnAppearing()
 	{
 		base.OnAppearing();
 
 		if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
-			_ = _servicioSesion.GetMisUsuariosAsync();
+			await _servicioSesion.GetMisUsuariosAsync();
 
 		if (!ConsultaEjecutada)
 		{

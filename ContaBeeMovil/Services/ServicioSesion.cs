@@ -379,6 +379,8 @@ public class ServicioSesion : IServicioSesion
         if (!Preferences.Get("TieneSesion", false))
             return;
 
+        await GetTarjetasAsync();
+
         bool esLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
         var expiracion = await LeeExpiracionAsync();
         bool tokenExpirado = expiracion.HasValue && DateTime.Now >= expiracion.Value;

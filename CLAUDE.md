@@ -63,6 +63,46 @@ App móvil de **facturación fiscal y contabilidad** para México, dirigida a pe
 
 ---
 
+## Servicios custom — OBLIGATORIO usarlos siempre
+
+> **NUNCA** uses `DisplayAlert`, `Console.WriteLine`, `Debug.WriteLine` ni toasts de terceros. Siempre usa los servicios propios del proyecto.
+
+### Toast — `IServicioToast` (`Services/Notifications/ServicioToast.cs`)
+
+```csharp
+// Inyectado por DI o resuelto con _serviceProvider
+await _toast.MostrarAsync("Mensaje");
+await _toast.MostrarAsync("Mensaje", ToastIcono.Error);
+await _toast.MostrarAsync("Mensaje", ToastIcono.Warning, ToastPosicion.Top);
+// Enums: ToastIcono { Info, Warning, Error } | ToastPosicion { Top, Center, Bottom }
+```
+
+### Diálogo/alerta — `AlertaPopup` (`Views/AlertaPopup.xaml.cs`)
+
+```csharp
+var popup = new AlertaPopup(
+    titulo: "Confirmar",
+    mensaje: "¿Desea continuar?",
+    verBotonCancelar: true,   // default true
+    verBotonConfirmar: true,  // default true
+    cancelarText: "Cancelar", // default "Cancelar"
+    confirmarText: "Si");     // default "Si"
+await this.ShowPopupAsync(popup);
+bool confirmado = popup.Confirmado;
+```
+
+### Logs — `IServicioLogs` (`Services/Dev/IServicioLogs.cs`)
+
+```csharp
+// Inyectado por DI — métodos disponibles:
+_logs.Info("mensaje");
+_logs.Warn("mensaje");
+_logs.Error("mensaje");
+_logs.Log("mensaje");   // alias de Info
+```
+
+---
+
 ## Plataformas y versiones mínimas
 
 | Plataforma | Min OS |

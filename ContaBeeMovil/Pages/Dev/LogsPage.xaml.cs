@@ -24,8 +24,8 @@ public partial class LogsPage : ContentPage
 
     private async void OnLogTapped(object? sender, TappedEventArgs e)
     {
-        if (sender is Grid { BindingContext: string texto })
-            await Clipboard.Default.SetTextAsync(texto);
+        if (sender is Grid { BindingContext: Models.LogEntrada entrada })
+            await Clipboard.Default.SetTextAsync(entrada.TextoCompleto);
     }
 
     private async void OnCopiarLogClicked(object? sender, EventArgs e)

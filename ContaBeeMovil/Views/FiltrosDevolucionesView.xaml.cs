@@ -1,6 +1,8 @@
 using System.Windows.Input;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using MauiIcons.Material;
+using Microsoft.Extensions.DependencyInjection;
 using Busqueda = Contabee.Api.Transcript.Busqueda;
 using Filtro = Contabee.Api.Transcript.Filtro;
 using Operador = Contabee.Api.Transcript.Operador;
@@ -13,6 +15,7 @@ public partial class FiltrosDevolucionesView : ContentView
     public static string PrefijoPreferencias => PrefsKeyFiltros;
 
     private readonly List<string> _destinatariosIds = [];
+    private string? _emailSesion;
 
     private SelectorFlotante? SelectorDestinatarioView => FindByName("SelectorDestinatario") as SelectorFlotante;
 
@@ -82,7 +85,15 @@ public partial class FiltrosDevolucionesView : ContentView
                 CargarDestinatarios();
         };
 
-        Loaded += (_, _) => CargarDestinatarios();
+        Loaded += async (_, _) =>
+        {
+            if (_emailSesion == null && !AppState.Instance.EsLoginLess)
+            {
+                var sesion = IPlatformApplication.Current?.Services.GetService<IServicioSesion>();
+                _emailSesion = await sesion!.LeeEmailAsync();
+            }
+            CargarDestinatarios();
+        };
     }
 
     private void InicializarSelectores()
@@ -315,6 +326,9 @@ public partial class FiltrosDevolucionesView : ContentView
     {
         var usuarios = AppState.Instance.MisUsuarios ?? [];
         var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        var usuarioSesionId = _emailSesion != null
+            ? usuarios.FirstOrDefault(u => string.Equals(u.Email, _emailSesion, StringComparison.OrdinalIgnoreCase))?.Id
+            : null;
 
         _destinatariosIds.Clear();
         if (SelectorDestinatarioView is null) return;
@@ -322,74 +336,31 @@ public partial class FiltrosDevolucionesView : ContentView
         var elementosDestinatario = new List<string> { "Todos" };
         _destinatariosIds.Add(string.Empty);
 
-        if (cuentaFiscalActualId.HasValue)
+        foreach (var u in usuarios.Where(u => u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura))
         {
-            elementosDestinatario.Add(ObtenerEtiquetaUsuarioSesion());
-            _destinatariosIds.Add(cuentaFiscalActualId.Value.ToString());
-        }
+            var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
+            if (nombre.Contains('@'))
+                nombre = nombre[..nombre.IndexOf('@')];
 
-        if (!AppState.Instance.EsLoginLess && EsUsuarioPrimario())
-        {
-            var usuarioSesionId = (usuarios
-                .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
-                ?? usuarios.FirstOrDefault(u => !u.EsCaptura))?.Id;
+            var etiqueta = u.Id == usuarioSesionId
+                ? $"{nombre} (Yo)"
+                : $"{nombre} ({ObtenerEtiquetaTipo(u.TipoCuenta)})";
 
-            var secundarios = usuarios
-                .Where(u => !EsCapturista(u.TipoCuenta) && u.Id != usuarioSesionId)
-                .ToList();
-
-            foreach (var u in secundarios)
-            {
-                var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-                elementosDestinatario.Add($"{nombre} (Secundaria)");
-                _destinatariosIds.Add(u.CuentaFiscalId?.ToString() ?? cuentaFiscalActualId?.ToString() ?? string.Empty);
-            }
+            elementosDestinatario.Add(etiqueta);
+            _destinatariosIds.Add(u.CuentaFiscalId?.ToString() ?? cuentaFiscalActualId?.ToString() ?? string.Empty);
         }
 
         SelectorDestinatarioView.Elementos = elementosDestinatario;
         SelectorDestinatarioView.IndiceSeleccionado = 0;
     }
 
-    private static bool EsUsuarioPrimario()
+    private static string ObtenerEtiquetaTipo(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta) => tipoCuenta switch
     {
-        var cuentaActual = AppState.Instance.CuentaFiscalActual;
-        if (cuentaActual is null) return true;
-        return !EsCuentaSecundaria(cuentaActual.TipoCuenta.ToString());
-    }
-
-    private static bool EsCuentaSecundaria(string? tipoCuenta)
-        => string.Equals(tipoCuenta, "Secundaria", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(tipoCuenta, "Secondary", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(tipoCuenta, "Empleado", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(tipoCuenta, "EmpleadoCliente", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(tipoCuenta, "UsuarioCaptura", StringComparison.OrdinalIgnoreCase);
-
-    private static string ObtenerEtiquetaUsuarioSesion()
-    {
-        var nombre = AppState.Instance.Perfil?.DisplayName;
-
-        if (string.IsNullOrWhiteSpace(nombre))
-        {
-            var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
-            var usuarioSesion = (AppState.Instance.MisUsuarios ?? [])
-                .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
-                ?? (AppState.Instance.MisUsuarios ?? []).FirstOrDefault(u => !u.EsCaptura)
-                ?? (AppState.Instance.MisUsuarios ?? []).FirstOrDefault();
-
-            nombre = usuarioSesion?.Nombre ?? usuarioSesion?.UserName ?? usuarioSesion?.Email;
-        }
-
-        if (string.IsNullOrWhiteSpace(nombre))
-            nombre = "Yo";
-
-        if (nombre.Contains('@'))
-            nombre = nombre[..nombre.IndexOf('@')];
-
-        return $"{nombre} (Yo)";
-    }
-
-    private static bool EsCapturista(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura;
+        Contabee.Api.Identidad.TipoCuentaUsuario.Empleado         => "Empleado",
+        Contabee.Api.Identidad.TipoCuentaUsuario.EmpleadoCliente  => "Empleado / Cliente",
+        Contabee.Api.Identidad.TipoCuentaUsuario.LoginLessCliente => "Sin contraseña",
+        _                                                          => "Colaborador"
+    };
 
     private record FiltrosPersistidos(
         string? Anio,

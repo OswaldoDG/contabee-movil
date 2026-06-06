@@ -52,6 +52,7 @@ public partial class AppState : ObservableObject
         _licenciamiento          = LeerObjeto<DtoLicenciamiento2>(PrefsKeys.Licenciamiento);
         _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
         _capturasLote            = LeerObjeto<List<CapturaLote>>(PrefsKeys.CapturasLote);
+        _misUsuarios             = LeerObjeto<List<Contabee.Api.Identidad.CuentaUsuario>>(PrefsKeys.MisUsuarios);
 #if DEBUG
         System.Diagnostics.Debug.WriteLine($"[AppState] CargarDesdePreferencias — CapturasLote cargadas: {_capturasLote?.Count ?? 0}");
 #endif
@@ -66,6 +67,7 @@ public partial class AppState : ObservableObject
         OnPropertyChanged(nameof(Licenciamiento));
         OnPropertyChanged(nameof(EsDev));
         OnPropertyChanged(nameof(CapturasLote));
+        OnPropertyChanged(nameof(MisUsuarios));
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
@@ -80,6 +82,7 @@ public partial class AppState : ObservableObject
         public const string Licenciamiento         = "AppState_Licenciamiento";
         public const string EsDev                  = "AppState_EsDev";
         public const string CapturasLote           = "AppState_CapturasLote";
+        public const string MisUsuarios            = "AppState_MisUsuarios";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -228,7 +231,11 @@ public partial class AppState : ObservableObject
     public List<Contabee.Api.Identidad.CuentaUsuario>? MisUsuarios
     {
         get => _misUsuarios;
-        set => SetProperty(ref _misUsuarios, value);
+        set
+        {
+            if (SetProperty(ref _misUsuarios, value))
+                GuardarObjeto(PrefsKeys.MisUsuarios, value);
+        }
     }
 
     // ── CapturasLote ───────────────────────────────────────────────────────────
@@ -248,12 +255,12 @@ public partial class AppState : ObservableObject
     }
     
     // ── Logs ───────────────────────────────────────────────────────────────────
-    private ObservableCollection<string> _logs = [];
+    private ObservableCollection<LogEntrada> _logs = [];
 
     /// <summary>
     /// Registros del modo desarrollador. No persiste entre sesiones.
     /// </summary>
-    public ObservableCollection<string> Logs
+    public ObservableCollection<LogEntrada> Logs
     {
         get => _logs;
         set => SetProperty(ref _logs, value);

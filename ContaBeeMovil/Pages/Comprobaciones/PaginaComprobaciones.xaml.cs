@@ -24,6 +24,7 @@ public partial class PaginaComprobaciones : ContentPage
     private Busqueda? _ultimaBusqueda;
     private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
     private bool _abriendoPopup;
+    private string? _emailSesion;
 
     private static readonly PopupOptions _popupOpts = new()
     {
@@ -120,12 +121,12 @@ public partial class PaginaComprobaciones : ContentPage
         BindingContext = this;
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
 
         if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
-            _ = _servicioSesion.GetMisUsuariosAsync();
+            await _servicioSesion.GetMisUsuariosAsync();
 
         if (!ConsultaEjecutada)
         {
@@ -282,6 +283,8 @@ public partial class PaginaComprobaciones : ContentPage
             if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
                 await _servicioSesion.GetMisUsuariosAsync();
 
+            _emailSesion ??= await _servicioSesion.LeeEmailAsync();
+
             var destinatarios = ObtenerDestinatarios()
                 .Where(d => d.UsuarioId != Guid.Empty)
                 .ToList();
@@ -399,88 +402,38 @@ public partial class PaginaComprobaciones : ContentPage
         return string.IsNullOrWhiteSpace(cuenta?.Rfc) ? "RFC no disponible" : cuenta.Rfc;
     }
 
-    private static List<(Guid UsuarioId, string Nombre)> ObtenerDestinatarios()
+    private List<(Guid UsuarioId, string Nombre)> ObtenerDestinatarios()
     {
         var usuarios = (AppState.Instance.MisUsuarios ?? [])
-            .Where(u => !u.EsCaptura && u.Estado == Contabee.Api.Identidad.EstadoCuenta.Activo)
-            .ToList();
-        var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
-        var perfilCuentaFiscalId = AppState.Instance.Perfil?.CuentaFiscalId;
-
-        var usuarioSesion = usuarios
-            .FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == perfilCuentaFiscalId)
-            ?? usuarios.FirstOrDefault(u => !u.EsCaptura && u.CuentaFiscalId == cuentaFiscalActualId)
-            ?? usuarios.FirstOrDefault(u => !u.EsCaptura)
-            ?? usuarios.FirstOrDefault();
-
-        var destinatarios = new List<(Guid UsuarioId, string Nombre)>();
-
-        if (usuarioSesion is not null)
-        {
-            var nombreSesion = AppState.Instance.Perfil?.DisplayName;
-            if (string.IsNullOrWhiteSpace(nombreSesion))
-                nombreSesion = usuarioSesion.Nombre ?? usuarioSesion.UserName ?? usuarioSesion.Email ?? usuarioSesion.Id.ToString();
-            if (nombreSesion.Contains('@'))
-                nombreSesion = nombreSesion[..nombreSesion.IndexOf('@')];
-
-            destinatarios.Add((usuarioSesion.Id, $"{nombreSesion} (Yo)"));
-        }
-
-        var secundarios = usuarios
-            .Where(u => EsCuentaSecundaria(u.TipoCuenta)
-                && u.CuentaFiscalId.HasValue
-                && u.CuentaFiscalId.Value != cuentaFiscalActualId)
-            .Select(u => new
-            {
-                Usuario = u,
-                CuentaFiscalId = u.CuentaFiscalId!.Value
-            })
-            .GroupBy(x => x.CuentaFiscalId)
-            .Select(g => g.First().Usuario)
+            .Where(u => u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura
+                        && u.Estado == Contabee.Api.Identidad.EstadoCuenta.Activo)
             .ToList();
 
-        destinatarios.AddRange(secundarios
-            .Where(u => u.Id != usuarioSesion?.Id)
+        return usuarios
             .Select(u =>
             {
                 var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
                 if (nombre.Contains('@'))
                     nombre = nombre[..nombre.IndexOf('@')];
-                return (u.Id, Nombre: $"{nombre} (Secundaria)");
+
+                var esSesion = _emailSesion != null
+                    && string.Equals(u.Email, _emailSesion, StringComparison.OrdinalIgnoreCase);
+
+                var etiqueta = esSesion
+                    ? $"{nombre} (Yo)"
+                    : $"{nombre} ({ObtenerEtiquetaTipo(u.TipoCuenta)})";
+
+                return (u.Id, etiqueta);
             })
-            .DistinctBy(u => u.Id));
-
-        destinatarios.AddRange(usuarios
-            .Where(u => !u.EsCaptura && u.Id != usuarioSesion?.Id)
-            .Select(u =>
-            {
-                var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-                if (nombre.Contains('@'))
-                    nombre = nombre[..nombre.IndexOf('@')];
-                return (u.Id, Nombre: nombre);
-            })
-            .DistinctBy(u => u.Id));
-
-        if (destinatarios.Count == 0)
-        {
-            destinatarios.AddRange(usuarios
-                .Select(u =>
-                {
-                    var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
-                    if (nombre.Contains('@'))
-                        nombre = nombre[..nombre.IndexOf('@')];
-                    return (u.Id, Nombre: nombre);
-                })
-                .DistinctBy(u => u.Id));
-        }
-
-        var resultado = destinatarios.DistinctBy(u => u.UsuarioId).ToList();
-
-        return resultado;
+            .DistinctBy(x => x.Id)
+            .ToList();
     }
 
-    private static bool EsCuentaSecundaria(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta)
-        => tipoCuenta is Contabee.Api.Identidad.TipoCuentaUsuario.Empleado
-            or Contabee.Api.Identidad.TipoCuentaUsuario.EmpleadoCliente
-            or Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura;
+    private static string ObtenerEtiquetaTipo(Contabee.Api.Identidad.TipoCuentaUsuario tipoCuenta) => tipoCuenta switch
+    {
+        Contabee.Api.Identidad.TipoCuentaUsuario.Empleado         => "Empleado",
+        Contabee.Api.Identidad.TipoCuentaUsuario.EmpleadoCliente  => "Empleado / Cliente",
+        Contabee.Api.Identidad.TipoCuentaUsuario.LoginLessCliente => "Sin contraseña",
+        _                                                          => "Colaborador"
+    };
 }
