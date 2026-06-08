@@ -3,28 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Confirmar.ConfirmarCuentaPage"
-             Shell.NavBarIsVisible="False"
+             Title="Bienvenido a Contabee"
+             Shell.NavBarIsVisible="True"
              Shell.TabBarIsVisible="False"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid>
-        <!-- Barra superior color dorado -->
-        <BoxView BackgroundColor="{toolkit:AppThemeResource Primary}"
-                 HeightRequest="60"
-                 VerticalOptions="Start"/>
+    <NavigationPage.TitleView>
+        <Grid HorizontalOptions="FillAndExpand">
+            <Label Text="Bienvenido a Contabee"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+        </Grid>
+    </NavigationPage.TitleView>
 
-        <!-- Tarjeta central -->
-        <Border Margin="24,40,24,24"
-                StrokeShape="RoundRectangle 10"
-                Stroke="Transparent"
-                Padding="32"
-                BackgroundColor="{toolkit:AppThemeResource Background}"
-                VerticalOptions="Center">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,4" Radius="8" Opacity="0.2"/>
-            </Border.Shadow>
-
-            <StackLayout Spacing="0">
+    <ScrollView>
+        <VerticalStackLayout Padding="24,24,24,32"
+                             Spacing="0"
+                             VerticalOptions="Center">
 
                 <!-- Ícono superior: cambia según estado -->
                 <Grid HorizontalOptions="Center"
@@ -39,21 +38,13 @@
                                        HeightRequest="80"/>
 
                     <!-- Éxito -->
-                    <Border x:Name="SuccessIcon"
-                            IsVisible="False"
-                            WidthRequest="90"
-                            HeightRequest="90"
-                            StrokeShape="RoundRectangle 10"
-                            Stroke="Transparent"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            Padding="0"
-                            HorizontalOptions="Center">
-                        <Label Text="✓"
-                               FontSize="44"
-                               TextColor="White"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"/>
-                    </Border>
+                    <Image x:Name="SuccessIcon"
+                           IsVisible="False"
+                           Source="logo512.png"
+                           WidthRequest="90"
+                           HeightRequest="90"
+                           Aspect="AspectFit"
+                           HorizontalOptions="Center"/>
 
                     <!-- Error -->
                     <Border x:Name="ErrorIcon"
@@ -93,18 +84,20 @@
                        Margin="0,0,0,48"/>
 
                 <!-- Botón Continuar -->
-                <Button x:Name="ContinuarBtn"
-                        Text="Continuar"
-                        IsVisible="False"
-                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        FontSize="16"
-                        CornerRadius="12"
-                        HeightRequest="52"
-                        Clicked="OnContinuarClicked"/>
+            <Button x:Name="ContinuarBtn"
+                    Text="Continuar"
+                    IsVisible="False"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    CornerRadius="10"
+                    HeightRequest="44"
+                    HorizontalOptions="Center"
+                    WidthRequest="220"
+                    Clicked="OnContinuarClicked"/>
 
-            </StackLayout>
-        </Border>
-    </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>

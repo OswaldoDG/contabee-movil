@@ -74,7 +74,9 @@ public static class DeepLinkHandler
 
                 if (page == null) return;
 
-                Application.Current!.Windows[0].Page = page;
+                Application.Current!.Windows[0].Page = page is ConfirmarCuentaPage
+                    ? new NavigationPage(page)
+                    : page;
             }
             catch (Exception ex)
             {
