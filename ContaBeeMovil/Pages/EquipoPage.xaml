@@ -72,6 +72,25 @@
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
+                        <SwipeView.RightItems>
+                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
+                                <SwipeItemView Command="{Binding ConfigurarCommand}">
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                            IsVisible="{Binding MostrarConfigurar}"
+                                            StrokeShape="RoundRectangle 12"
+                                            StrokeThickness="0"
+                                            Padding="5"
+                                            WidthRequest="{Binding SwipeItemWidth}">
+                                        <Image WidthRequest="26"
+                                               HeightRequest="26"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center"
+                                               mi:MauiIcon.Value="{mi:Material Icon=Settings}" />
+                                    </Border>
+                                </SwipeItemView>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+
                     <Border Margin="0"
                             Padding="10,5"
                                 StrokeShape="RoundRectangle 10"
@@ -160,34 +179,6 @@
                                  Opacity="0"
                                  Spacing="12"
                                  HorizontalOptions="End">
-
-                <!-- Capturista -->
-                <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
-                    <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding AgregarCapturistaCommand}" />
-                    </VerticalStackLayout.GestureRecognizers>
-                    <Border WidthRequest="80" HeightRequest="65"
-                            StrokeShape="RoundRectangle 10"
-                            StrokeThickness="0"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            HorizontalOptions="Center"
-                            Padding="5">
-                        <Border.Shadow>
-                            <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
-                        </Border.Shadow>
-                        <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
-                            <mi:MauiIcon Icon="{mi:Material Icon=Keyboard}"
-                                     IconSize="28"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
-                                     HorizontalOptions="Center"
-                                     VerticalOptions="Center" />
-                            <Label Text="Capturista"
-                           FontSize="11"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
-                           HorizontalOptions="Center" />
-                        </VerticalStackLayout>
-                    </Border>
-                </VerticalStackLayout>
 
                 <!-- Sin cuenta -->
                 <VerticalStackLayout Spacing="4" HorizontalOptions="Center">

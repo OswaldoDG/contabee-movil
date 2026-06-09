@@ -44,7 +44,17 @@ public partial class RfcCpBarView : ContentView
                                or nameof(AppState.MostrarNombreFiscal)
                                or nameof(AppState.DireccionFiscalActual))
                 MainThread.BeginInvokeOnMainThread(ActualizarDatos);
+            else if (e.PropertyName == nameof(AppState.EstaActualizandoCF))
+                MainThread.BeginInvokeOnMainThread(ActualizarSpinner);
         };
+    }
+
+    private void ActualizarSpinner()
+    {
+        bool actualizando     = AppState.Instance.EstaActualizandoCF;
+        SpinnerRfc.IsRunning  = actualizando;
+        SpinnerRfc.IsVisible  = actualizando;
+        LabelRfcCp.IsVisible  = !actualizando;
     }
 
     private void ActualizarDatos()
@@ -65,7 +75,7 @@ public partial class RfcCpBarView : ContentView
 
         if (AppState.Instance.MostrarNombreFiscal)
         {
-            var nombre = cuenta.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre;
+            var nombre = cuenta.CuentaFiscal?.Nombre;
             return string.IsNullOrWhiteSpace(nombre) ? "?" : nombre;
         }
         return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;

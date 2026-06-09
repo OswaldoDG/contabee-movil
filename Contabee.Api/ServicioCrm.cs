@@ -204,4 +204,76 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         }
         return r;
     }
+
+    public async Task<RespuestaPayload<List<PropiedadUsuarioCF>>> GetPropiedadesUsuario(Guid cfid, Guid usuarioId)
+    {
+        RespuestaPayload<List<PropiedadUsuarioCF>> r = new();
+        try
+        {
+            var res = await servicioCrm.PropiedadAllAsync(cfid, usuarioId);
+            r.Payload = res?.ToList() ?? [];
+            r.Ok = true;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 403)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = System.Net.HttpStatusCode.Forbidden, Origen = "ServicioCrm-GetPropiedadesUsuario" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-GetPropiedadesUsuario");
+        }
+        return r;
+    }
+
+    public async Task<Respuesta> SetPropiedadUsuario(Guid cfid, Guid usuarioId, string prop, string valor)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioCrm.PropiedadPOSTAsync(cfid, usuarioId, prop, valor);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 403)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = System.Net.HttpStatusCode.Forbidden, Origen = "ServicioCrm-SetPropiedadUsuario" };
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-SetPropiedadUsuario" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-SetPropiedadUsuario");
+        }
+        return r;
+    }
+
+    public async Task<Respuesta> EliminarPropiedadUsuario(Guid cfid, Guid usuarioId, string prop)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioCrm.PropiedadDELETEAsync(cfid, usuarioId, prop);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 404)
+        {
+            r.Ok = true;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 403)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = System.Net.HttpStatusCode.Forbidden, Origen = "ServicioCrm-EliminarPropiedadUsuario" };
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-EliminarPropiedadUsuario" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-EliminarPropiedadUsuario");
+        }
+        return r;
+    }
 }

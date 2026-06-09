@@ -21,7 +21,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
     {
         if (AppState.Instance.MostrarNombreFiscal)
         {
-            var nombre = cuenta.DireccionesFiscales.FirstOrDefault().CuentaFiscal.Nombre;
+            var nombre = cuenta.CuentaFiscal?.Nombre;
             return string.IsNullOrWhiteSpace(nombre) ? "?" : nombre;
         }
         return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;
@@ -85,7 +85,8 @@ public partial class CuentaFiscalSelectorPopup : Popup
 
     private async void OnSeleccionarCuenta(AsociacionCuentaFiscalCompleta cuenta)
     {
-        AppState.Instance.CuentaFiscalActual = cuenta;
+        AppState.Instance.CuentaFiscalActual  = cuenta;
+        AppState.Instance.EstaActualizandoCF  = true;
         await CloseAsync();
 
         var sesion = IPlatformApplication.Current?.Services.GetRequiredService<IServicioSesion>();
@@ -98,6 +99,8 @@ public partial class CuentaFiscalSelectorPopup : Popup
             }
             catch { /* errores de red no deben impedir el cierre del popup */ }
         }
+
+        AppState.Instance.EstaActualizandoCF = false;
     }
 
     private void OnToggleRfc(object? sender, TappedEventArgs e)

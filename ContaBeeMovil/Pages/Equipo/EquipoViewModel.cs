@@ -3,14 +3,15 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
+using Contabee.Api.Crm;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
-using ContaBeeMovil.Views;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
+using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Equipo;
 
@@ -23,6 +24,8 @@ public class EquipoUsuarioItem
     public bool TieneEmail { get; }
     public string TipoCuentaTexto { get; }
     public ICommand? DeleteCommand { get; set; }
+    public ICommand? ConfigurarCommand { get; set; }
+    public bool MostrarConfigurar { get; set; }
     public double SwipeItemWidth { get; set; }
 
     public EquipoUsuarioItem(CuentaUsuario u)
@@ -43,7 +46,6 @@ public class EquipoUsuarioItem
             TipoCuentaUsuario.Cliente          => "Propietario",
             TipoCuentaUsuario.Empleado         => "Empleado",
             TipoCuentaUsuario.EmpleadoCliente  => "Empleado / Cliente",
-            TipoCuentaUsuario.UsuarioCaptura   => "Captura",
             TipoCuentaUsuario.LoginLessCliente => "Sin contraseña",
             _                           => "Colaborador"
         };
@@ -56,6 +58,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioIdentidad _servicioIdentidad;
+    private readonly IServicioCrm _servicioCrm;
     private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
 
@@ -69,22 +72,21 @@ public class EquipoViewModel : INotifyPropertyChanged
 
     public ICommand PullRefreshCommand { get; }
     public ICommand ToggleFabCommand { get; }
-    public ICommand AgregarCapturistaCommand { get; }
     public ICommand AgregarSinCuentaCommand { get; }
     public ICommand AgregarConCuentaCommand { get; }
 
-    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad, IServicioToast toast, IServicioLogs logs)
+    public EquipoViewModel(AppState appState, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioIdentidad servicioIdentidad, IServicioCrm servicioCrm, IServicioToast toast, IServicioLogs logs)
     {
         _appState           = appState;
         _servicioSesion     = servicioSesion;
         _servicioAlerta     = servicioAlerta;
         _servicioIdentidad  = servicioIdentidad;
+        _servicioCrm        = servicioCrm;
         _toast              = toast;
         _logs               = logs;
 
         PullRefreshCommand       = new Command(async () => await PullRefreshAsync());
         ToggleFabCommand         = new Command(() => FabExpandido = !FabExpandido);
-        AgregarCapturistaCommand = new Command(async () => await AgregarCapturistaAsync());
         AgregarSinCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: false));
         AgregarConCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: true));
 
@@ -190,21 +192,6 @@ public class EquipoViewModel : INotifyPropertyChanged
         await Shell.Current.GoToAsync($"{nameof(VincularPage)}?esConCuenta={esConCuenta}");
     }
 
-    private async Task AgregarCapturistaAsync()
-    {
-        FabExpandido = false;
-
-        var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
-        if (cfid == null) return;
-
-        bool creado = false;
-        var popup = new CrearCapturistaPopup(_servicioIdentidad, cfid.Value, r => creado = r);
-        await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
-
-        if (creado)
-            await CargarAsync(forzar: true);
-    }
-
     private async Task PullRefreshAsync()
     {
         EstaRefrescando = true;
@@ -226,19 +213,33 @@ public class EquipoViewModel : INotifyPropertyChanged
         double cardWidth   = (info.Width / density) - 32; // SwipeView Margin="16,6" → 16×2 horizontal
         double swipeWidth  = cardWidth * 0.75;
 
+        bool esPrimario = _appState.CuentaFiscalActual?.TipoCuenta == TipoCuenta.Primaria;
+
         var items = (_appState.MisUsuarios ?? [])
+            .Where(u => u.TipoCuenta != TipoCuentaUsuario.UsuarioCaptura)
             .Where(u => _miEmail == null || !string.Equals(u.Email, _miEmail, StringComparison.OrdinalIgnoreCase))
             .Select(u =>
             {
                 var item = new EquipoUsuarioItem(u);
-                item.SwipeItemWidth  = swipeWidth;
-                item.DeleteCommand   = new Command(async () => await ConfirmarEliminarAsync(item));
+                item.SwipeItemWidth    = swipeWidth;
+                item.MostrarConfigurar = esPrimario;
+                item.DeleteCommand     = new Command(async () => await ConfirmarEliminarAsync(item));
+                if (esPrimario)
+                    item.ConfigurarCommand = new Command(async () => await AbrirPropiedadesAsync(item));
                 return item;
             })
             .ToList();
         Usuarios    = new ObservableCollection<EquipoUsuarioItem>(items);
         SinUsuarios = Usuarios.Count == 0;
         TieneDatos  = Usuarios.Count > 0;
+    }
+
+    private async Task AbrirPropiedadesAsync(EquipoUsuarioItem item)
+    {
+        var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
+        if (cfid == null) return;
+        var popup = new PropiedadesUsuarioPopup(_servicioCrm, _toast, cfid.Value, item.Id, item.Nombre);
+        await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
     }
 
     private async Task ConfirmarEliminarAsync(EquipoUsuarioItem item)

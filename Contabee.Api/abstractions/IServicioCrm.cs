@@ -14,4 +14,7 @@ public interface IServicioCrm
     Task<RespuestaPayload<DtoLicenciamiento2>> GetLicenciamiento(Guid cfid);
     Task<RespuestaPayload<List<TarjetaUsuario>>> MisTarjetasUsuario();
     Task<Respuesta> GuardarMisTarjetasUsuario(List<TarjetaUsuario> tarjetas);
+    Task<RespuestaPayload<List<PropiedadUsuarioCF>>> GetPropiedadesUsuario(Guid cfid, Guid usuarioId);
+    Task<Respuesta> SetPropiedadUsuario(Guid cfid, Guid usuarioId, string prop, string valor);
+    Task<Respuesta> EliminarPropiedadUsuario(Guid cfid, Guid usuarioId, string prop);
 }
