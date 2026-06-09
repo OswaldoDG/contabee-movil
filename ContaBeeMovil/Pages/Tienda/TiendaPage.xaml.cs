@@ -650,7 +650,7 @@ public partial class TiendaPage : ContentPage
             iapId.EndsWith(p.Clave, StringComparison.OrdinalIgnoreCase));
 
     private static string ImagenParaProducto(string? clave) =>
-        string.IsNullOrEmpty(clave) ? "coin.png" : $"{clave.ToLower()}.jpeg";
+        string.IsNullOrEmpty(clave) ? "contabee.svg" : $"{clave.ToLower()}.jpeg";
 
     private string ObtenerUnidades(string iapId) =>
         BuscarProductoEnCatalogo(iapId)

@@ -112,7 +112,7 @@ public partial class ManualRegistroPage : ContentPage
         EntryRfc.IsReadOnly = true;
         EntryRfc.Opacity = 1;
 
-        var cuentaFiscal = cuenta.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal;
+        var cuentaFiscal = cuenta.CuentaFiscal;
         var direccion = cuentaFiscal?.Direcciones?.FirstOrDefault() ?? cuenta.DireccionesFiscales?.FirstOrDefault();
 
         bool esFisica = (cuenta.Rfc?.Trim().Length ?? 0) >= 13;

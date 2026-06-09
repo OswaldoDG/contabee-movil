@@ -19,7 +19,7 @@
             <VerticalStackLayout Spacing="24" Padding="0,0,0,32">
 
                 <!-- Logo -->
-                <Image Source="contabeesingle.png"
+                <Image Source="contabee.svg"
                        WidthRequest="120"
                        HeightRequest="120"
                        Margin="0,24,0,0"
@@ -27,19 +27,19 @@
                        Aspect="AspectFit" />
 
                 <!-- ── Token boxes + overlay ── -->
-                <Grid HorizontalOptions="Center"
-                      Margin="24,0"
+                <Grid HorizontalOptions="Fill"
+                      Margin="16,0"
                       x:Name="TokenBoxesGrid">
 
                     <!-- 4 visual boxes -->
                     <HorizontalStackLayout HorizontalOptions="Center"
                                            VerticalOptions="Center"
-                                           Spacing="12"
+                                           Spacing="8"
                                            BindableLayout.ItemsSource="{Binding TokenChars}">
                         <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="x:String">
-                                <Border WidthRequest="72"
-                                        HeightRequest="84"
+                            <DataTemplate x:DataType="vm:TokenCaracter">
+                                <Border WidthRequest="{Binding Ancho}"
+                                        HeightRequest="{Binding Alto}"
                                         StrokeShape="RoundRectangle 10"
                                         StrokeThickness="2"
                                         Stroke="{toolkit:AppThemeResource Accent1}"
@@ -47,12 +47,13 @@
                                     <Border.Shadow>
                                         <Shadow Brush="Black" Radius="8" Opacity="0.10" Offset="0,3" />
                                     </Border.Shadow>
-                                    <Label Text="{Binding .}"
-                                           FontSize="40"
+                                    <Label Text="{Binding Letra}"
+                                           FontSize="{Binding FontSize}"
                                            FontAttributes="Bold"
                                            TextColor="{toolkit:AppThemeResource PrimaryText}"
                                            HorizontalOptions="Center"
-                                           VerticalOptions="Center" />
+                                           VerticalOptions="Center"
+                                           LineBreakMode="NoWrap" />
                                 </Border>
                             </DataTemplate>
                         </BindableLayout.ItemTemplate>
@@ -80,7 +81,6 @@
                            BackgroundColor="Transparent"
                            HorizontalOptions="Fill"
                            VerticalOptions="Fill"
-                           HeightRequest="84"
                            Keyboard="Text"
                            IsEnabled="{Binding NoCargando}"
                            IsSpellCheckEnabled="False"

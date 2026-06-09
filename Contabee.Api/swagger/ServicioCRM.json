@@ -2186,6 +2186,152 @@
         }
       }
     },
+    "/crm/cuentafiscal/{cfid}/usuario/{UsuarioId}/propiedad": {
+      "get": {
+        "tags": [
+          "PropiedadesUsuarioCF"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "UsuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{cfid}/usuario/{UsuarioId}/propiedad/{prop}/{valor}": {
+      "post": {
+        "tags": [
+          "PropiedadesUsuarioCF"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "UsuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "prop",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "valor",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{cfid}/usuario/{UsuarioId}/propiedad/{prop}": {
+      "delete": {
+        "tags": [
+          "PropiedadesUsuarioCF"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "UsuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "prop",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Soporte/contacto": {
       "post": {
         "tags": [
@@ -2815,6 +2961,9 @@
               "$ref": "#/components/schemas/contabee.model.crm.DireccionFiscal"
             },
             "nullable": true
+          },
+          "cuentaFiscal": {
+            "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
           }
         },
         "additionalProperties": false
@@ -2916,10 +3065,6 @@
           "sinDireccion": {
             "type": "boolean"
           },
-          "cuentaUsuario": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario",
-            "nullable": true
-          },
           "direcciones": {
             "type": "array",
             "items": {
@@ -2991,52 +3136,6 @@
           },
           "sinDireccion": {
             "type": "boolean"
-          }
-        },
-        "additionalProperties": false
-      },
-      "contabee.model.crm.CuentaUsuario": {
-        "type": "object",
-        "properties": {
-          "cuentaUsuarioId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "estado": {
-            "$ref": "#/components/schemas/contabee.model.crm.EstadoCuenta"
-          },
-          "fechaCreacion": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "tipoCuenta": {
-            "$ref": "#/components/schemas/contabee.model.crm.TipoCuenta"
-          },
-          "cuentaPrimariaId": {
-            "type": "string",
-            "format": "uuid",
-            "nullable": true
-          },
-          "mesesHistorial": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "cuentaPrimaria": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
-          },
-          "cuentasSecundarias": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/contabee.model.crm.CuentaUsuario"
-            },
-            "nullable": true
-          },
-          "cuentasFiscales": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
-            },
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3113,9 +3212,6 @@
             "maxLength": 100,
             "type": "string",
             "nullable": true
-          },
-          "cuentaFiscal": {
-            "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
           }
         },
         "additionalProperties": false
@@ -3124,13 +3220,6 @@
         "enum": [
           "Activo",
           "Inactivo"
-        ],
-        "type": "string"
-      },
-      "contabee.model.crm.EstadoCuenta": {
-        "enum": [
-          "Activa",
-          "Inactiva"
         ],
         "type": "string"
       },
@@ -3840,6 +3929,36 @@
             "items": {
               "$ref": "#/components/schemas/contabee.model.crm.resumen.DtoCuentaFiscal"
             },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.usuarios.PropiedadUsuarioCF": {
+        "required": [
+          "propiedad",
+          "valorPropiedad"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "cuentaFiscalId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "propiedad": {
+            "type": "string",
+            "nullable": true
+          },
+          "valorPropiedad": {
+            "type": "string",
             "nullable": true
           }
         },

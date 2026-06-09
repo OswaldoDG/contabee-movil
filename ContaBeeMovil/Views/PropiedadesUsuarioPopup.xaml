@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.PropiedadesUsuarioPopup"
+               BackgroundColor="Transparent"
+               CanBeDismissedByTappingOutsideOfPopup="False">
+
+    <Border x:Name="CardBorder"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            VerticalOptions="Center"
+            HorizontalOptions="Center"
+            StrokeShape="RoundRectangle 10"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            Padding="20">
+        <Border.Shadow>
+            <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,4" Radius="16" Opacity="0.4" />
+        </Border.Shadow>
+
+        <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="0">
+
+            <!-- Encabezado -->
+            <VerticalStackLayout Grid.Row="0" Spacing="8">
+                <Label x:Name="LblTitulo"
+                       FontAttributes="Bold"
+                       FontSize="18"
+                       HorizontalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <BoxView Style="{StaticResource Divider}" />
+            </VerticalStackLayout>
+
+            <!-- Contenido: formulario + spinner de carga -->
+            <Grid Grid.Row="1" Margin="0,16,0,16">
+                <VerticalStackLayout x:Name="FormContent" Spacing="8">
+                    <Label Text="Propiedades"
+                           FontSize="14"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                    <!-- Toggle: UsuarioCaptura -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="Puede Capturar"
+                               VerticalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontAttributes="Bold"
+                               FontSize="15" />
+                        <Switch x:Name="SwitchCaptura"
+                                Grid.Column="1"
+                                OnColor="{toolkit:AppThemeResource Primary}"
+                                Scale="1.3"
+                                Margin="0,0,8,0" />
+                    </Grid>
+
+                </VerticalStackLayout>
+
+                <!-- Spinner overlay mientras carga o guarda -->
+                <ActivityIndicator x:Name="Spinner"
+                                   IsRunning="False"
+                                   IsVisible="False"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   Color="{toolkit:AppThemeResource Primary}" />
+            </Grid>
+
+            <!-- Botones -->
+            <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancelar"
+                        Style="{StaticResource SecondaryButton}"
+                        Clicked="OnCancelar" />
+                <Button x:Name="BtnGuardar"
+                        Grid.Column="1"
+                        Text="Guardar"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="12"
+                        HeightRequest="48"
+                        IsEnabled="False"
+                        Clicked="OnGuardar">
+                    <Button.Triggers>
+                        <Trigger TargetType="Button" Property="IsEnabled" Value="False">
+                            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                            <Setter Property="TextColor"       Value="{toolkit:AppThemeResource SecondaryText}" />
+                            <Setter Property="Opacity"         Value="1" />
+                        </Trigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
+
+        </Grid>
+    </Border>
+
+</toolkit:Popup>

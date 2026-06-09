@@ -1,3 +1,5 @@
+using Contabee.Api.Transcript;
+using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Services.Dev;
@@ -23,6 +25,7 @@ public static class DeepLinkHandler
         {
             ["cuenta", "confirmar", var token] => new PendingLink(TipoLink.ConfirmarCuenta, token),
             ["contrasena", "recuperar", var token] => new PendingLink(TipoLink.RecuperarContrasena, token),
+            ["captura", "ticket"] => new PendingLink(TipoLink.CapturaTicket, string.Empty),
             _ => null
         };
 
@@ -43,6 +46,15 @@ public static class DeepLinkHandler
         }
     }
 
+    public static void HandleWidgetCaptura()
+    {
+        Logs?.Info("[DeepLink] Widget: solicitud de apertura de PaginaCaptura");
+        if (_appReady)
+            NavegarACaptura();
+        else
+            _pendingDeepLink = new PendingLink(TipoLink.CapturaTicket, string.Empty);
+    }
+
     public static void NotifyAppReady()
     {
         Logs?.Info("[DeepLink] App lista");
@@ -59,6 +71,12 @@ public static class DeepLinkHandler
 
     private static void Navegar(PendingLink link)
     {
+        if (link.Tipo == TipoLink.CapturaTicket)
+        {
+            NavegarACaptura();
+            return;
+        }
+
         MainThread.BeginInvokeOnMainThread(() =>
         {
             try
@@ -81,6 +99,38 @@ public static class DeepLinkHandler
             catch (Exception ex)
             {
                 Logs?.Error($"[DeepLink] Error al navegar: {ex.GetType().Name} - {ex.Message}");
+            }
+        });
+    }
+
+    private static void NavegarACaptura()
+    {
+        MainThread.BeginInvokeOnMainThread(async () =>
+        {
+            try
+            {
+                await Task.Delay(300);
+                var tieneSesion = Preferences.Get("TieneSesion", false);
+                if (!tieneSesion)
+                {
+                    Logs?.Info("[DeepLink] Widget: sin sesión — se omite navegación");
+                    return;
+                }
+                if (Shell.Current == null)
+                {
+                    Logs?.Warn("[DeepLink] Widget: Shell.Current es null");
+                    return;
+                }
+                Logs?.Info("[DeepLink] Widget: navegando a PaginaCaptura");
+                await Shell.Current.GoToAsync(nameof(PaginaCaptura),
+                    new Dictionary<string, object>
+                    {
+                        ["tipo"] = TipoProcesoCaptura.FacturaIndividual
+                    });
+            }
+            catch (Exception ex)
+            {
+                Logs?.Error($"[DeepLink] Widget: error — {ex.GetType().Name}: {ex.Message}");
             }
         });
     }
@@ -112,5 +162,6 @@ public static class DeepLinkHandler
     {
         ConfirmarCuenta,
         RecuperarContrasena,
+        CapturaTicket,
     }
 }

@@ -21,14 +21,25 @@
             </mi:MauiIcon.GestureRecognizers>
         </mi:MauiIcon>
 
-        <Label Grid.Column="1"
-               x:Name="LabelRfcCp"
-               Text="? - ?"
-               FontSize="13"
-               FontAttributes="Bold"
-               TextColor="{StaticResource Black}"
-               HorizontalOptions="Center"
-               VerticalOptions="Center" />
+        <Grid Grid.Column="1"
+              HorizontalOptions="Center"
+              VerticalOptions="Center">
+            <Label x:Name="LabelRfcCp"
+                   Text="? - ?"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Black}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+            <ActivityIndicator x:Name="SpinnerRfc"
+                               IsRunning="False"
+                               IsVisible="False"
+                               Color="{StaticResource Black}"
+                               WidthRequest="20"
+                               HeightRequest="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
 
         <mi:MauiIcon Grid.Column="2"
                      x:Name="IconCp"

@@ -162,6 +162,19 @@ public partial class AppState : ObservableObject
         }
     }
 
+    // ── EstaActualizandoCF ────────────────────────────────────────────────────
+    private bool _estaActualizandoCF;
+
+    /// <summary>
+    /// Indica que se está cargando datos tras un cambio de cuenta fiscal activa.
+    /// No persiste; solo vive mientras dura la actualización.
+    /// </summary>
+    public bool EstaActualizandoCF
+    {
+        get => _estaActualizandoCF;
+        set => SetProperty(ref _estaActualizandoCF, value);
+    }
+
     // ── DireccionFiscalActual ──────────────────────────────────────────────────
     private DireccionFiscal? _direccionFiscalActual;
 

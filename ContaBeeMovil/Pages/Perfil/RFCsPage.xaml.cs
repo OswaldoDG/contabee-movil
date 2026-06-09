@@ -53,7 +53,7 @@ public partial class RFCsPage : ContentPage
         var esLoginLess = AppState.Instance.EsLoginLess;
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {            
-            Nombre         = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
+            Nombre         = c.CuentaFiscal?.Nombre ?? string.Empty,
             Rfc            = c.Rfc ?? "—",
             Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
             SwipeItemWidth = swipeWidth,

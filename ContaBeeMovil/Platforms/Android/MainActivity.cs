@@ -21,8 +21,8 @@ namespace ContaBeeMovil
         Label = "Compartir a ContaBee")]
     public class MainActivity : MauiAppCompatActivity
     {
-        // Flag estático para evitar bucle infinito de recreaciones
         private static bool _pendingRecreate = false;
+        private static bool _pendingWidgetNavigation = false;
 
         public static void SolicitarRecreacion()
         {
@@ -32,12 +32,8 @@ namespace ContaBeeMovil
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            // App estaba CERRADA y se abrió por el link
             HandleIntent(Intent);
 
-            // Si hay una recreación
-            // , ejecutarla UNA sola vez
             if (_pendingRecreate)
             {
                 _pendingRecreate = false;
@@ -48,13 +44,27 @@ namespace ContaBeeMovil
         protected override void OnNewIntent(Intent? intent)
         {
             base.OnNewIntent(intent);
-
-            // App estaba ABIERTA en segundo plano
             HandleIntent(intent);
+        }
+
+        protected override void OnResume()
+        {
+            base.OnResume();
+            if (_pendingWidgetNavigation)
+            {
+                _pendingWidgetNavigation = false;
+                DeepLinkHandler.HandleWidgetCaptura();
+            }
         }
 
         private void HandleIntent(Intent? intent)
         {
+            if (intent?.GetBooleanExtra(WidgetCaptura.ExtraWidgetCaptura, false) == true)
+            {
+                _pendingWidgetNavigation = true;
+                return;
+            }
+
             if (intent?.Action == Intent.ActionView && intent.Data != null)
             {
                 var uri = intent.Data.ToString();
