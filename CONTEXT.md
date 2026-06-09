@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-06-09 — Widget Android (lanzador de PaginaCaptura)
+
+**Hecho:**
+- Implementado widget Android 2×1 en `ContaBeeMovil/Platforms/Android/`:
+  - `WidgetCaptura.cs` — `AppWidgetProvider` con atributos .NET Android (no toca AndroidManifest)
+  - `Resources/layout/widget_captura.xml` — RemoteViews con ícono + texto "Capturar ticket"
+  - `Resources/drawable/widget_background.xml` — fondo redondeado con soporte dark mode
+  - `Resources/xml/widget_captura_info.xml` — metadatos del AppWidget (2×1, sin refresh)
+  - Colores `widget_bg`/`widget_text` en `values/colors.xml` y `values-night/colors.xml`
+- `DeepLinkHandler.cs`: nuevo método `HandleWidgetCaptura()` + `NavegarACaptura()` que usa `Shell.Current.GoToAsync("PaginaCaptura")` replicando el patrón de `SharedImageHandler`
+- `MainActivity.cs`: detección del widget por boolean extra (`mx.contabee.app.WIDGET_CAPTURA`), navegación diferida a `OnResume` para garantizar que MAUI esté listo
+
+**Decisiones tomadas:**
+- Detección por `intent.GetBooleanExtra(...)` en vez de URI parsing (más confiable con `PendingIntentFlags.Immutable`)
+- Navegación disparada en `OnResume`, no en `OnNewIntent`, para evitar timing issues
+- **Al actualizar el widget es necesario quitarlo y volverlo a agregar** cuando cambia el `PendingIntent`
+
+**Pendiente:**
+- Implementar widget equivalente en iOS (requiere Swift + WidgetKit, extensión separada)
+
+---
+
 ## 2026-05-26 — Limpieza de archivos locales y gitignore
 
 **Hecho:**

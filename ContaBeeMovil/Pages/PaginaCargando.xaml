@@ -18,7 +18,7 @@
                          HorizontalOptions="Center"
                          Spacing="28">
 
-        <Image Source="contabeesingle.png"
+        <Image Source="contabee.svg"
                WidthRequest="140"
                HeightRequest="140"
                HorizontalOptions="Center"

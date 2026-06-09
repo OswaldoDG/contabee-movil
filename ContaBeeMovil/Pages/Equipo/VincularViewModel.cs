@@ -9,6 +9,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using Microsoft.Maui.Devices;
 
 namespace ContaBeeMovil.Pages.Equipo;
 
@@ -28,7 +29,7 @@ public class VincularViewModel : INotifyPropertyChanged
     private bool _cancelado;
 
     private string _tokenIngresado = string.Empty;
-    private IReadOnlyList<string> _tokenChars = ["", "", "", ""];
+    private IReadOnlyList<TokenCaracter> _tokenChars = ConstruirCaracteres4("");
     private string _tokenValidado = string.Empty;
 
     private string _nombre = string.Empty;
@@ -92,20 +93,39 @@ public class VincularViewModel : INotifyPropertyChanged
             _tokenIngresado = upper;
             OnPropertyChanged();
 
-            var chars = new List<string> { "", "", "", "" };
-            for (int i = 0; i < Math.Min(upper.Length, 4); i++)
-                chars[i] = upper[i].ToString();
-            TokenChars = chars;
+            TokenChars = ConstruirCaracteres4(upper);
 
             if (upper.Length == 4 && !_estaCargando)
                 _ = VincularPasoUnoAsync();
         }
     }
 
-    public IReadOnlyList<string> TokenChars
+    public IReadOnlyList<TokenCaracter> TokenChars
     {
         get => _tokenChars;
         private set { _tokenChars = value; OnPropertyChanged(); }
+    }
+
+    private static IReadOnlyList<TokenCaracter> ConstruirCaracteres4(string upper)
+    {
+        try
+        {
+            var info = DeviceDisplay.MainDisplayInfo;
+            var screenWidth = info.Density > 0 ? info.Width / info.Density : 390.0;
+            var available = screenWidth - 32.0 - (3 * 8.0); // 16dp c/lado + 3 gaps de 8dp
+            var ancho = Math.Max(36, Math.Min(84, Math.Floor(available / 4)));
+            var alto = Math.Round(ancho * 1.38);
+            var fontSize = Math.Round(ancho * 0.52);
+            return Enumerable.Range(0, 4)
+                .Select(i => new TokenCaracter(i < upper.Length ? upper[i].ToString() : "", ancho, alto, fontSize))
+                .ToList();
+        }
+        catch
+        {
+            return Enumerable.Range(0, 4)
+                .Select(i => new TokenCaracter(i < upper.Length ? upper[i].ToString() : "", 48, 66, 30))
+                .ToList();
+        }
     }
 
     public string Nombre

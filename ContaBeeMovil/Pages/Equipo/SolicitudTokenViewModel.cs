@@ -6,8 +6,11 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using Microsoft.Maui.Devices;
 
 namespace ContaBeeMovil.Pages.Equipo;
+
+public record TokenCaracter(string Letra, double Ancho, double Alto, double FontSize);
 
 public class SolicitudTokenViewModel : INotifyPropertyChanged
 {
@@ -23,7 +26,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
     private bool _estaIniciandoSesion;
     private bool _inicioYaEjecutado;
     private string _token = string.Empty;
-    private IReadOnlyList<string> _tokenChars = [];
+    private IReadOnlyList<TokenCaracter> _tokenChars = [];
     private bool _enSesion;
     private CancellationTokenSource? _cts;
 
@@ -52,14 +55,35 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
         {
             _token = value;
             OnPropertyChanged();
-            TokenChars = value.Select(c => c.ToString()).ToList();
+            TokenChars = ConstruirCaracteres(value);
         }
     }
 
-    public IReadOnlyList<string> TokenChars
+    public IReadOnlyList<TokenCaracter> TokenChars
     {
         get => _tokenChars;
         private set { _tokenChars = value; OnPropertyChanged(); }
+    }
+
+    private static IReadOnlyList<TokenCaracter> ConstruirCaracteres(string token)
+    {
+        if (string.IsNullOrEmpty(token)) return [];
+        try
+        {
+            var info = DeviceDisplay.MainDisplayInfo;
+            var screenWidth = info.Density > 0 ? info.Width / info.Density : 390.0;
+            var n = token.Length;
+            var spacing = (n - 1) * 8.0;
+            var available = screenWidth - 32.0 - spacing; // 16dp padding cada lado
+            var ancho = Math.Max(36, Math.Min(84, Math.Floor(available / n)));
+            var alto = Math.Round(ancho * 1.38);
+            var fontSize = Math.Round(ancho * 0.52);
+            return token.Select(c => new TokenCaracter(c.ToString(), ancho, alto, fontSize)).ToList();
+        }
+        catch
+        {
+            return token.Select(c => new TokenCaracter(c.ToString(), 48, 66, 30)).ToList();
+        }
     }
 
     public ICommand CancelarCommand { get; }

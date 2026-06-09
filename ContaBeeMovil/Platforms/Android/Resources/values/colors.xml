@@ -4,4 +4,6 @@
 	<color name="colorPrimaryDark">#00000000</color>
 	<color name="colorAccent">#3a3a3a</color>
 	<color name="colorOnPrimary">#1e1e1e</color>
+	<color name="widget_bg">#00FFFFFF</color>
+	<color name="widget_text">#1E1E1E</color>
 </resources>
