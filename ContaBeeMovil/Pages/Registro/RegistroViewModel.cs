@@ -204,7 +204,16 @@ public class RegistroViewModel : INotifyPropertyChanged
 
             if (!respuesta.Ok)
             {
-                throw new Exception(respuesta.HttpCode.ToString());
+                var mensaje = respuesta.HttpCode switch
+                {
+                    System.Net.HttpStatusCode.Conflict => "Ya hay una cuenta con ese correo electrónico, utilice la recuperación de contraseña si no la recuerda.",
+                    System.Net.HttpStatusCode.InternalServerError => "Error al registrar. Por favor intenta más tarde.",
+                    _ => "Error al registrar. Por favor verifica tus datos."
+                };
+
+                _ = _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
+                MensajeError = mensaje;
+                return;
             }
 
             _logs.Info("[Registro] Registro completado exitosamente");

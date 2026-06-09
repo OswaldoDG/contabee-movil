@@ -20,6 +20,24 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 			await servicioIdentidad.RegistroAsync(true, request);
             r.Ok = true;
         }
+        catch (ApiException ex) when (ex.StatusCode == 409)
+        {
+            r.Error = new ErrorProceso
+            {
+                HttpCode = System.Net.HttpStatusCode.Conflict,
+                Mensaje = "Email duplicado",
+                Origen = "ServicioIdentidad-Registrar"
+            };
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Mensaje = string.IsNullOrWhiteSpace(ex.Response) ? ex.Message : ex.Response,
+                Origen = "ServicioIdentidad-Registrar"
+            };
+        }
 		catch (Exception ex)
 		{
             r.Error = ex.ErrorGenerico("ServicioIdentidad-Registrar");
