@@ -8,6 +8,7 @@ public interface IServicioCrm
     Task<Respuesta> RegistrarCuentaFiscalMinima(CuentaFiscalMinima modelo);
     Task<Respuesta> ActualizaRFCMinima(CuentaFiscalMinima modelo);
     Task<Respuesta> EnviarUrlCuentaFiscal(RequestUrl request);
+    Task<RespuestaPayload<CuentaFiscal>> PreviewUrlCuentaFiscal(RequestUrlInfo request);
     Task<Respuesta> EliminarCuentaFiscal(string cuentaFiscalId);
     Task<Respuesta> EliminarAsociacionFiscal(long id);
     Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request);

@@ -135,6 +135,27 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         return r;
     }
 
+    public async Task<RespuestaPayload<CuentaFiscal>> PreviewUrlCuentaFiscal(Contabee.Api.Crm.RequestUrlInfo request)
+    {
+        RespuestaPayload<CuentaFiscal> r = new();
+        try
+        {
+            var res = await servicioCrm.PreviewAsync(request);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-PreviewUrlCuentaFiscal" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-PreviewUrlCuentaFiscal");
+        }
+        return r;
+    }
+
     public async Task<Respuesta> EnviarFeedback(DtoCreaRetroalimentacion request)
     {
         var r = new Respuesta();

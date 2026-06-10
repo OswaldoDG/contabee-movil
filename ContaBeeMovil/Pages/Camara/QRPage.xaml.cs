@@ -1,6 +1,5 @@
 using Contabee.Api.abstractions;
 using Contabee.Api.Crm;
-using ContaBeeMovil.PageModels.Camara;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -16,10 +15,14 @@ public partial class QRPage : ContentPage
     private readonly IServicioLogs _logs;
     private bool _isProcessing;
 
-    public QRPage(QRPageModel pageModel, IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    /// <summary>
+    /// Invocado en cuanto se detecta la URL del QR. El llamador (RegistrarRFCsPage) hace el preview, muestra el popup y registra.
+    /// </summary>
+    public Func<string, Task>? AlObtenerUrl { get; set; }
+
+    public QRPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
-        BindingContext = pageModel;
         _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
@@ -94,71 +97,10 @@ public partial class QRPage : ContentPage
             return;
         }
 
-        var model = (QRPageModel)BindingContext;
-
-        if (string.IsNullOrEmpty(model.TipoPersona))
-        {
-            await _servicioAlerta.MostrarAsync("Atención", "Seleccione el tipo de persona.", verBotonCancelar: false, confirmarText: "OK");
-            _isProcessing = false;
-            BarcodeReader.IsDetecting = true;
-            return;
-        }
-
-        bool confirmar = await _servicioAlerta.MostrarAsync(
-            "QR detectado",
-            $"URL: {url}\n\nTipo: {model.TipoPersona}\nCompartido: {(model.Compartido ? "Sí" : "No")}\n\n¿Desea continuar?",
-            confirmarText: "Confirmar", cancelarText: "Cancelar");
-
-        if (!confirmar)
-        {
-            _isProcessing = false;
-            BarcodeReader.IsDetecting = true;
-            return;
-        }
-
-        var tipo = model.TipoPersona.Equals("Moral", StringComparison.OrdinalIgnoreCase)
-            ? TipoPersonaFiscal.Moral
-            : TipoPersonaFiscal.Fisica;
-
-        var request = new RequestUrl
-        {
-            Url = url,
-            Compartido = model.Compartido,
-            Tipo = tipo
-        };
-
-        LoadingOverlay.IsVisible = true;
-
-        var respuesta = await _servicioCrm.EnviarUrlCuentaFiscal(request);
-
-        if (respuesta.Ok)
-        {
-            var cuentas = await _servicioCrm.GetAsociacionesFiscales();
-            if (cuentas.Ok && cuentas.Payload != null)
-            {
-                AppState.Instance.CuentasFiscales = cuentas.Payload;
-                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
-            }
-
-            LoadingOverlay.IsVisible = false;
-            await Navigation.PopModalAsync();
-
-            if (Shell.Current != null)
-                await Shell.Current.GoToAsync("..");
-            else
-            {
-                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-                Application.Current!.Windows[0].Page = shell;
-            }
-        }
-        else
-        {
-            LoadingOverlay.IsVisible = false;
-            var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta fiscal.";
-            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
-            _isProcessing = false;
-            BarcodeReader.IsDetecting = true;
-        }
+        // Cerrar la cámara de inmediato y delegar preview + popup + registro al llamador.
+        await Navigation.PopModalAsync();
+        if (AlObtenerUrl != null)
+            await AlObtenerUrl(url);
     }
 
     private async Task RegistrarRfcDemoAsync()
@@ -205,5 +147,11 @@ public partial class QRPage : ContentPage
             _isProcessing = false;
             BarcodeReader.IsDetecting = true;
         }
+    }
+
+    private void ReactivarEscaner()
+    {
+        _isProcessing = false;
+        BarcodeReader.IsDetecting = true;
     }
 }

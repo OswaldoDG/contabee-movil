@@ -78,6 +78,20 @@
             </Border>
         </VerticalStackLayout>
 
+        <!-- Overlay de carga -->
+        <Grid x:Name="LoadingOverlay"
+              Grid.RowSpan="4"
+              IsVisible="False"
+              BackgroundColor="{toolkit:AppThemeResource Shadow}"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="48"
+                               HeightRequest="48"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
         <!-- Volver a inicio -->
         <Button x:Name="BtnVolverInicio"
                 Grid.Row="3"

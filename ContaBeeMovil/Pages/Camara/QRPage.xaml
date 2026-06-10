@@ -11,24 +11,13 @@
 
     <Grid RowDefinitions="Auto, *, Auto" Padding="16" RowSpacing="12">
 
-        <!-- Tipo de persona y compartido -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="0,4">
-            <Label Text="Tipo de persona"
-                   FontAttributes="Bold"
-                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
-            <HorizontalStackLayout Spacing="8">
-                <views:SelectorFlotante WidthRequest="160"
-                                        Titulo="Seleccione..."
-                                        Elementos="{Binding TiposPersona}"
-                                        ElementoSeleccionado="{Binding TipoPersona}" />
-                <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
-                    <Label Text="Compartido"
-                           VerticalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                    <Switch IsToggled="{Binding Compartido}" />
-                </HorizontalStackLayout>
-            </HorizontalStackLayout>
-        </VerticalStackLayout>
+        <!-- Instrucción -->
+        <Label Grid.Row="0"
+               Text="Escanea el QR de tu Constancia de Situación Fiscal"
+               FontAttributes="Bold"
+               HorizontalTextAlignment="Center"
+               Padding="0,4"
+               TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
         <!-- Scanner en tiempo real -->
         <Grid Grid.Row="1" x:Name="CameraGrid">

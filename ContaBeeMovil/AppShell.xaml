@@ -59,7 +59,7 @@
                             <mi:MauiIcon Grid.Column="1"
                                          Icon="{mi:Material Icon=ShoppingBag}"
                                          IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Tienda"
                                    Style="{StaticResource Body1}"
@@ -83,7 +83,7 @@
                             <mi:MauiIcon Grid.Column="1"
                                          Icon="{mi:Material Icon=Payment}"
                                          IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Tarjetas"
                                    Style="{StaticResource Body1}"
@@ -108,7 +108,7 @@
                             <mi:MauiIcon Grid.Column="1"
                                          Icon="{mi:Material Icon=Label}"
                                          IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="RFCs"
                                    Style="{StaticResource Body1}"
@@ -134,7 +134,7 @@
                                         <mi:MauiIcon Grid.Column="1"
                                                      Icon="{mi:Material Icon=ConfirmationNumber}"
                                                      IconSize="22"
-                                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                                     IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                                      VerticalOptions="Center" />
                                         <Label Grid.Column="2" Text="Cupones"
                            Style="{StaticResource Body1}"
@@ -159,7 +159,7 @@
                             <mi:MauiIcon Grid.Column="1"
                                          Icon="{mi:Material Icon=Settings}"
                                          IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Mi cuenta"
                                    Style="{StaticResource Body1}"
@@ -185,7 +185,7 @@
                             <mi:MauiIcon Grid.Column="1"
                                          Icon="{mi:Material Icon=SpatialAudioOff}"
                                          IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource Icon}"
+                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Vincularme"
                                    Style="{StaticResource Body1}"
@@ -249,7 +249,7 @@
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=Email}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Buzón de sugerencias"
                            Style="{StaticResource Body1}"
@@ -263,7 +263,7 @@
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=Share}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Compartir Contabee"
                            Style="{StaticResource Body1}"
@@ -276,7 +276,7 @@
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=Info}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Acerca de"
                            Style="{StaticResource Body1}"
@@ -293,7 +293,7 @@
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=BugReport}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Logs"
                            Style="{StaticResource Body1}"
@@ -307,7 +307,7 @@
                     <mi:MauiIcon Grid.Column="0"
                                  Icon="{mi:Material Icon=LightMode}"
                                  IconSize="25"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Switch Grid.Column="1"
                             x:Name="ThemeSwitch"
@@ -318,7 +318,7 @@
                     <mi:MauiIcon Grid.Column="2"
                                  Icon="{mi:Material Icon=DarkMode}"
                                  IconSize="25"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                 </Grid>
 

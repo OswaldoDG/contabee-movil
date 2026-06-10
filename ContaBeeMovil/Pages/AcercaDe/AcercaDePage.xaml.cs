@@ -10,17 +10,19 @@ public partial class AcercaDePage : ContentPage
 {
     private readonly IServicioSalud _servicioSalud;
     private readonly IServicioTranscript _servicioTranscript;
+    private readonly IServicioSesion _servicioSesion;
     private CancellationTokenSource? _ctsLoader;
     private CancellationTokenSource? _ctsLoaderCargaActual;
 
     private static bool UsuarioLogueado
         => Application.Current?.Windows.FirstOrDefault()?.Page is Shell;
 
-    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript)
+    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript,IServicioSesion servicioSesion)
     {
         InitializeComponent();
         _servicioSalud = servicioSalud;
         _servicioTranscript = servicioTranscript;
+        this._servicioSesion = servicioSesion;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
     }
 
@@ -31,6 +33,14 @@ public partial class AcercaDePage : ContentPage
         Connectivity.ConnectivityChanged += OnConectividadCambiada;
         await VerificarServiciosAsync();
         await CargarInstantaneosAsync();
+        _ = CargarDatosSesionAsync();
+    }
+
+    private async Task CargarDatosSesionAsync()
+    {
+        var idDispositivo = await _servicioSesion.LeeIdDeDispositivo();
+
+        LblIdDispositivo.Text = string.IsNullOrWhiteSpace(idDispositivo) ? "No disponible" : idDispositivo;
     }
 
     protected override void OnDisappearing()

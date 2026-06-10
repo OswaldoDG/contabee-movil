@@ -24,14 +24,14 @@
             <mi:MauiIcon x:Name="IconInicio"
                          Icon="{mi:Material Icon=Home}"
                          IconSize="22"
-                         IconColor="{toolkit:AppThemeResource Icon}"
+                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                          BackgroundColor="Transparent"
                          HorizontalOptions="Center" />
             <Label x:Name="LblInicio"
                    Text="Inicio"
                    FontSize="8"
                    HorizontalOptions="Center"
-                   TextColor="{toolkit:AppThemeResource Icon}" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineInicio"
                      HeightRequest="4"
                      WidthRequest="40"
@@ -55,10 +55,10 @@
                    IconSize="22"
                    HorizontalOptions="Center"
                    BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource Icon}" />
+                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblFacturacion"
                    Text="Facturación"
-                   TextColor="{toolkit:AppThemeResource Icon}"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                    FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineFacturacion"
@@ -84,10 +84,10 @@
                    IconSize="22"
                    HorizontalOptions="Center"
                    BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource Icon}" />
+                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblDevoluciones"
                    Text="Devoluciones"
-                   TextColor="{toolkit:AppThemeResource Icon}"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                    FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineDevoluciones"
@@ -113,10 +113,10 @@
                    IconSize="22"
                    HorizontalOptions="Center"
                    BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource Icon}" />
+                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblComprobaciones"
                    Text="Comprobaciones"
-                   TextColor="{toolkit:AppThemeResource Icon}"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                    FontSize="8"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineComprobaciones"
@@ -140,12 +140,12 @@
             <mi:MauiIcon x:Name="IconEquipo"
                          Icon="{mi:Material Icon=Group}"
                          IconSize="22"
-                         IconColor="{toolkit:AppThemeResource Icon}"
+                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                          BackgroundColor="Transparent"
                          HorizontalOptions="Center" />
             <Label x:Name="LblEquipo"
                    Text="Equipo"
-                   TextColor="{toolkit:AppThemeResource Icon}"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                    FontSize="10"
                    HorizontalOptions="Center" />
             <BoxView x:Name="UnderlineEquipo"

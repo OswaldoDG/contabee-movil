@@ -23,7 +23,7 @@
                   Padding="0">
                 <mi:MauiIcon Grid.Column="0"
                              Icon="{mi:Material Icon=ChevronLeft}"
-                             IconColor="{toolkit:AppThemeResource Icon}"
+                             IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                              IconSize="30"
                              BackgroundColor="Transparent"
                              VerticalOptions="Center">
@@ -42,7 +42,7 @@
 
                 <mi:MauiIcon Grid.Column="2"
                              Icon="{mi:Material Icon=ChevronRight}"
-                             IconColor="{toolkit:AppThemeResource Icon}"
+                             IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                              IconSize="30"
                              BackgroundColor="Transparent"
                              VerticalOptions="Center"
