@@ -37,7 +37,7 @@
                 </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=Edit}"
                              IconSize="32"
-                             IconColor="{toolkit:AppThemeResource PrimaryText}"
+                             IconColor="{toolkit:AppThemeResource OnPrimary}"
                              HorizontalOptions="Center"
                              VerticalOptions="Center" />
             </Border>
@@ -72,7 +72,7 @@
                 </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=QrCode}"
                              IconSize="32"
-                             IconColor="{toolkit:AppThemeResource PrimaryText}"
+                             IconColor="{toolkit:AppThemeResource OnPrimary}"
                              HorizontalOptions="Center"
                              VerticalOptions="Center" />
             </Border>

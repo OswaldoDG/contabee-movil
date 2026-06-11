@@ -7,11 +7,11 @@
     <Grid>
         <Button x:Name="BotonInterno"
                 BackgroundColor="{toolkit:AppThemeResource Primary}"
-                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                TextColor="{toolkit:AppThemeResource OnPrimary}"
                 Clicked="BotonInterno_Clicked" />
 
         <ActivityIndicator x:Name="Spinner"
-                           Color="{toolkit:AppThemeResource PrimaryText}"
+                           Color="{toolkit:AppThemeResource OnPrimary}"
                            WidthRequest="22"
                            HeightRequest="22"
                            HorizontalOptions="Center"

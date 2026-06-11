@@ -36,7 +36,7 @@
                         Padding="0"
                         CornerRadius="12"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{StaticResource Black}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         FontAttributes="Bold"
                         VerticalOptions="Center" />
             </Grid>
@@ -104,7 +104,7 @@
                                     Text="Aplicar"
                                     IsVisible="{Binding Aplicado, Converter={StaticResource InvertedBoolConverter}}"
                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    TextColor="{StaticResource Black}"
+                                    TextColor="{toolkit:AppThemeResource OnPrimary}"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AplicarCuponCommand}"
                                     CommandParameter="{Binding .}"
                                     Padding="16,8"

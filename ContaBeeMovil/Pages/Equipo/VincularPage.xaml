@@ -135,7 +135,7 @@
                                         Padding="1">
                                     <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
                                                  IconSize="20"
-                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
                                                  HorizontalOptions="Center"
                                                  VerticalOptions="Center" />
                                 </Border>
@@ -163,7 +163,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="1" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -186,7 +186,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="2" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -233,7 +233,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="3" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -256,7 +256,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="4" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -279,7 +279,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="5" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -317,7 +317,7 @@
                                         Padding="1">
                                     <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
                                                  IconSize="20"
-                                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
                                                  HorizontalOptions="Center"
                                                  VerticalOptions="Center" />
                                 </Border>
@@ -345,7 +345,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="1" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
                                 <Label Grid.Column="1"
@@ -367,7 +367,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="2" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
                                 <Label Grid.Column="1"
@@ -387,12 +387,12 @@
                                 <HorizontalStackLayout Spacing="8">
                                     <mi:MauiIcon Icon="{mi:Material Icon=SpatialAudioOff}"
                                                  IconSize="18"
-                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
                                                  VerticalOptions="Center" />
                                     <Label Text="Vincularme"
                                            FontSize="14"
                                            FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                             </Border>
@@ -409,7 +409,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="3" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -432,7 +432,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="4" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>
@@ -455,7 +455,7 @@
                                         Margin="0,1,0,0"
                                         Padding="1">
                                     <Label Text="5" FontSize="11" FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                                            HorizontalOptions="Fill" VerticalOptions="Fill"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
                                 </Border>

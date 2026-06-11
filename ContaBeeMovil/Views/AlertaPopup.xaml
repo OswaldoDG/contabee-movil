@@ -47,7 +47,7 @@
                 <Button x:Name="BtnConfirmar"
                         Grid.Column="1"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         HeightRequest="48"
                         FontAttributes="Bold"

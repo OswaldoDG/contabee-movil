@@ -46,7 +46,6 @@ public partial class TiendaPage : ContentPage
     [
         ("CREDITOS_CAPTURA",      "Captura"),
         ("CREDITOS_COLABORACION", "Colaboración"),
-        ("LICENCIAS",             "Licencias"),
         ("REGALOS",               "Regalos"),
     ];
 

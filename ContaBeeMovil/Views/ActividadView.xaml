@@ -54,11 +54,11 @@
                                 <Span Text="$ "
                                       FontSize="26"
                                       FontAttributes="Bold"
-                                      TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                                      TextColor="{toolkit:AppThemeResource OnPrimary}" />
                                 <Span Text="{Binding TotalFacturado, StringFormat='{0:N2}'}"
                                       FontSize="26"
                                       FontAttributes="Bold"
-                                      TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                                      TextColor="{toolkit:AppThemeResource OnPrimary}" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
@@ -77,7 +77,7 @@
                             <Label Text="{Binding CreditosRestantes}"
                                    FontSize="24"
                                    FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}"
                                    HorizontalOptions="Center" />
                         </Border>
                         <Label Text="Restantes"
@@ -243,7 +243,7 @@
             <Button Text="Reintentar"
                     Command="{Binding RefreshCommand}"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    TextColor="{toolkit:AppThemeResource OnPrimary}"
                     CornerRadius="20"
                     Padding="24,8"
                     HorizontalOptions="Center" />

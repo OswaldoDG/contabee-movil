@@ -40,6 +40,7 @@
     <!-- ========================================= -->
     <toolkit:AppThemeColor x:Key="PrimaryText"   Light="#1e1e1e" Dark="#fefdfc" />
     <toolkit:AppThemeColor x:Key="SecondaryText" Light="#6e6e6e" Dark="#b0b0b0" />
+    <toolkit:AppThemeColor x:Key="OnPrimary"     Light="#1e1e1e" Dark="#1e1e1e" />
 
     <!-- ========================================= -->
     <!-- BACKGROUND COLORS                         -->

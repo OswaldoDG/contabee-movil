@@ -68,7 +68,7 @@
                     <mi:MauiIcon Grid.Column="1"
                                      Icon="{mi:Material Icon=Smartphone}"
                                      IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                      VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                         <Label Text="ID del dispositivo"
@@ -90,7 +90,7 @@
                     <mi:MauiIcon Grid.Column="1"
                                  Icon="{mi:Material Icon=Wifi}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="2"
                            Text="Conectado a internet"
@@ -113,7 +113,7 @@
                     <mi:MauiIcon Grid.Column="1"
                                  Icon="{mi:Material Icon=Cloud}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="2"
                            Text="Servicios Contabee"
@@ -146,7 +146,7 @@
                     <mi:MauiIcon Grid.Column="1"
                                  Icon="{mi:Material Icon=Settings}"
                                  IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="2"
                            FontSize="17"

@@ -14,7 +14,7 @@
                      x:Name="IconRfc"
                      Icon="{mi:Material Icon=Person}"
                      IconSize="24"
-                     IconColor="{StaticResource Black}"
+                     IconColor="{toolkit:AppThemeResource OnPrimary}"
                      VerticalOptions="Center">
             <mi:MauiIcon.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
@@ -28,13 +28,13 @@
                    Text="? - ?"
                    FontSize="13"
                    FontAttributes="Bold"
-                   TextColor="{StaticResource Black}"
+                   TextColor="{toolkit:AppThemeResource OnPrimary}"
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />
             <ActivityIndicator x:Name="SpinnerRfc"
                                IsRunning="False"
                                IsVisible="False"
-                               Color="{StaticResource Black}"
+                               Color="{toolkit:AppThemeResource OnPrimary}"
                                WidthRequest="20"
                                HeightRequest="20"
                                HorizontalOptions="Center"
@@ -45,7 +45,7 @@
                      x:Name="IconCp"
                      Icon="{mi:Material Icon=LocationOn}"
                      IconSize="24"
-                     IconColor="{StaticResource Black}"
+                     IconColor="{toolkit:AppThemeResource OnPrimary}"
                      VerticalOptions="Center">
             <mi:MauiIcon.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCpButtonTapped" />
