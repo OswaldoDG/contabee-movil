@@ -40,6 +40,7 @@
     <!-- ========================================= -->
     <toolkit:AppThemeColor x:Key="PrimaryText"   Light="#1e1e1e" Dark="#fefdfc" />
     <toolkit:AppThemeColor x:Key="SecondaryText" Light="#6e6e6e" Dark="#b0b0b0" />
+    <toolkit:AppThemeColor x:Key="OnPrimary"     Light="#1e1e1e" Dark="#1e1e1e" />
 
     <!-- ========================================= -->
     <!-- BACKGROUND COLORS                         -->
@@ -70,7 +71,8 @@
     <!-- ========================================= -->
     <toolkit:AppThemeColor x:Key="Shadow"          Light="#5e000000" Dark="#b3000000"  />
     <toolkit:AppThemeColor x:Key="ShadowSecondary" Light="#10000000" Dark="#232323"  />
-    <toolkit:AppThemeColor x:Key="Icon"            Light="#000000"   Dark="#f2f1f0"  />
+    <toolkit:AppThemeColor x:Key="Icon"            Light="#000000"   Dark="#232323"  />
+    <toolkit:AppThemeColor x:Key="SecondaryIcon"   Light="#000000"   Dark="#f2f1f0"  />
     <toolkit:AppThemeColor x:Key="Disabled"        Light="#e3e3e5"   Dark="#3a3a3a"  />
     <toolkit:AppThemeColor x:Key="Camera"          Light="#8f8f8f"   Dark="#8f8f8f"  />
     <toolkit:AppThemeColor x:Key="AppBarPrimary"   Light="#fefdfc"   Dark="#3a3a3a"  />

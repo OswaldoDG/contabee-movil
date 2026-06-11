@@ -25,7 +25,7 @@
     </Style>
 
     <Style TargetType="Button">
-        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}" />
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
         <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource  Primary}" />
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>

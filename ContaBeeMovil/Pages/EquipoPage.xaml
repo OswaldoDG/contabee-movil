@@ -126,7 +126,7 @@
                                         <Label Text="{Binding Iniciales}"
                                                FontSize="17"
                                                FontAttributes="Bold"
-                                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                               TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                HorizontalOptions="Center"
                                                VerticalOptions="Center" />
                                     </Border>
@@ -197,12 +197,12 @@
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
                             <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
                                      IconSize="28"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconColor="{toolkit:AppThemeResource OnPrimary}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Sin cuenta"
                            FontSize="11"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                            HorizontalOptions="Center" />
                         </VerticalStackLayout>
                     </Border>
@@ -225,12 +225,12 @@
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
                         <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
                                      IconSize="28"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                                     IconColor="{toolkit:AppThemeResource OnPrimary}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Con Cuenta"
                            FontSize="11"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}"
                            HorizontalOptions="Center" />
                         </VerticalStackLayout>
                     </Border>
@@ -254,13 +254,13 @@
                 <Grid>
                     <mi:MauiIcon Icon="{mi:Material Icon=Add}"
                                  IconSize="20"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabColapsado}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
                     <mi:MauiIcon Icon="{mi:Material Icon=KeyboardArrowDown}"
                                  IconSize="20"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabExpandido}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+               xmlns:views="clr-namespace:ContaBeeMovil.Views"
+               x:Class="ContaBeeMovil.Views.PreviewCuentaFiscalPopup"
+               CanBeDismissedByTappingOutsideOfPopup="False"
+               Background="Transparent">
+
+    <Border x:Name="ContenedorPopup"
+            BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+            Stroke="{toolkit:AppThemeResource Accent1}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 12"
+            Padding="18,16"
+            Margin="18">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,4" Radius="16" Opacity="0.35"/>
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="10">
+
+            <!-- Título -->
+            <Label Text="Confirmar registro"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   HorizontalOptions="Center"/>
+
+            <BoxView Style="{StaticResource Divider}" />
+
+            <!-- RFC destacado -->
+            <Border StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    Padding="14,10"
+                    HorizontalOptions="Fill">
+                <VerticalStackLayout Spacing="2" HorizontalOptions="Center">
+                    <Label x:Name="LblRfc"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}"
+                           HorizontalOptions="Center"
+                           CharacterSpacing="2"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Nombre / Razón social -->
+            <Label x:Name="LblNombre"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"/>
+
+            <BoxView Style="{StaticResource Divider}" />
+
+            <!-- Régimen ancho completo -->
+            <VerticalStackLayout Spacing="3">
+                <Label Text="RÉGIMEN"
+                       FontSize="10"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"/>
+                <Label x:Name="LblRegimenCodigo"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource Primary}"/>
+                <Label x:Name="LblRegimenDesc"
+                       FontSize="12"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       MaxLines="2"
+                       LineBreakMode="TailTruncation"/>
+            </VerticalStackLayout>
+
+            <!-- Direcciones (visible solo si existen) -->
+            <VerticalStackLayout x:Name="SeccionDireccion" Spacing="6">
+                <BoxView Style="{StaticResource Divider}" />
+                <Label Text="DIRECCIÓN FISCAL"
+                       FontSize="10"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"/>
+                <ScrollView x:Name="ScrollDirecciones">
+                    <VerticalStackLayout x:Name="ContenedorDirecciones" Spacing="8"/>
+                </ScrollView>
+            </VerticalStackLayout>
+
+            <BoxView Style="{StaticResource Divider}" />
+
+            <!-- Tipo de persona -->
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Label Text="Tipo de persona"
+                       FontSize="13"
+                       VerticalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"/>
+                <views:SelectorFlotante x:Name="SelectorTipo"
+                                        Grid.Column="1"
+                                        Titulo="Tipo de persona"
+                                        MinimumWidthRequest="140"
+                                        MaxAltoLista="120"/>
+            </Grid>
+
+<!-- Botones -->
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="10"
+                  Margin="0,4,0,0">
+                <Button x:Name="BtnCancelar"
+                        Grid.Column="0"
+                        Text="Cancelar"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="10"
+                        HeightRequest="46"
+                        Clicked="OnCancelar"/>
+                <Button x:Name="BtnConfirmar"
+                        Grid.Column="1"
+                        Text="Registrar"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
+                        CornerRadius="10"
+                        HeightRequest="46"
+                        FontAttributes="Bold"
+                        Clicked="OnConfirmar"/>
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

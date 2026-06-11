@@ -94,6 +94,54 @@
         }
       }
     },
+    "/crm/rfc/url/preview": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrlInfo"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrlInfo"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.crm.RequestUrlInfo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.CuentaFiscal"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/crm/rfc/url": {
       "post": {
         "tags": [
@@ -3274,6 +3322,19 @@
           },
           "tipo": {
             "$ref": "#/components/schemas/contabee.model.crm.TipoPersonaFiscal"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.crm.RequestUrlInfo": {
+        "required": [
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

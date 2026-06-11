@@ -13,6 +13,8 @@
              Shell.TabBarIsVisible="False">
 
     <Grid>
+        <RefreshView x:Name="RefreshCuentas"
+                     Refreshing="RefreshCuentas_Refreshing">
         <CollectionView x:Name="ListaCuentas" Margin="10,10"
                         SelectionMode="None">
             <CollectionView.ItemsLayout>
@@ -93,6 +95,7 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </RefreshView>
 
         <!-- Overlay de carga -->
         <views:CargandoOverlay x:Name="LoadingOverlay"

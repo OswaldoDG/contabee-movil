@@ -304,7 +304,7 @@
     <!-- Primary Button: Filled, rounded pill shape -->
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
-        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}"/>
         <Setter Property="FontFamily" Value="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"/>
         <Setter Property="FontAttributes" Value="{OnPlatform Default=None, Android=Bold}"/>
         <Setter Property="FontSize" Value="16"/>
@@ -318,7 +318,7 @@
                     <VisualState x:Name="Normal">
                         <VisualState.Setters>
                             <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
-                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
+                            <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}"/>
                         </VisualState.Setters>
                     </VisualState>
                     <VisualState x:Name="Disabled">
@@ -489,7 +489,7 @@
     <!-- Ícono dentro del FAB -->
     <Style x:Key="FabIcon" TargetType="mi:MauiIcon">
         <Setter Property="IconSize" Value="22"/>
-        <Setter Property="IconColor" Value="{toolkit:AppThemeResource Icon}"/>
+        <Setter Property="IconColor" Value="{toolkit:AppThemeResource OnPrimary}"/>
         <Setter Property="HorizontalOptions" Value="Center"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>

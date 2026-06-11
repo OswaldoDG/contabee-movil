@@ -28,7 +28,7 @@
                 <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
                        FontSize="12"
                        FontAttributes="Bold"
-                       TextColor="{StaticResource Black}"
+                       TextColor="{toolkit:AppThemeResource OnPrimary}"
                        VerticalOptions="Center" />
             </Border>
         </Grid>
@@ -324,7 +324,7 @@
                         Command="{Binding TomarFotoCommand}"
                         IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         HeightRequest="52">
                     <Button.Shadow>
@@ -360,7 +360,7 @@
                         Command="{Binding TomarFotoCommand}"
                         IsEnabled="{Binding EstaEnviando, Converter={StaticResource InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         HeightRequest="50">
                     <Button.Shadow>
@@ -373,7 +373,7 @@
                         Command="{Binding EnviarCommand}"
                         IsEnabled="{Binding PuedeEnviar}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         HeightRequest="50"
                         Padding="14,0"

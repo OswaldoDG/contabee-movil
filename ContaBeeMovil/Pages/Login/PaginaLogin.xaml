@@ -184,33 +184,24 @@
                                Spacing="24"
                                Padding="0,8,0,16">
 
-            <Border Style="{StaticResource CircleIconButton}">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding MostrarInfoAppCommand}" />
-                </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=Groups}"
-                             Style="{StaticResource CircleIconLabel}"
-                             SemanticProperties.Description="Acerca de ContaBee" />
-            </Border>
 
-            <Border Style="{StaticResource CircleIconButton}">
+            <Border >
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding MostrarInfoCommand}" />
                 </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=Info}"
-                             Style="{StaticResource CircleIconLabel}"
-                             SemanticProperties.Description="Informaci&#243;n" />
+                             SemanticProperties.Description="Informaci&#243;n"
+                             IconColor="{toolkit:AppThemeResource Icon}"/>
             </Border>
 
             <Border x:Name="LogsButton"
-                    Style="{StaticResource CircleIconButton}"
                     IsVisible="False">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnLogsClicked" />
                 </Border.GestureRecognizers>
                 <mi:MauiIcon Icon="{mi:Material Icon=BugReport}"
-                             Style="{StaticResource CircleIconLabel}"
-                             SemanticProperties.Description="Logs" />
+                             SemanticProperties.Description="Logs"
+                             IconColor="{toolkit:AppThemeResource Icon}"/>
             </Border>
 
         </HorizontalStackLayout>

@@ -19,6 +19,12 @@
                                PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                                TextChanged="EntryName_TextChanged" />
 
+                        <Label x:Name="LblNombreError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-8,0,0"
+                               IsVisible="False" />
+
                         <Grid>
                             <Entry x:Name="EntryRfc"
                                    Placeholder="RFC"
@@ -27,7 +33,8 @@
                                    Margin="0,0,56,0"
                                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                                    PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
-                                   TextChanged="EntryRfc_TextChanged" />
+                                   TextChanged="EntryRfc_TextChanged"
+                                   Unfocused="EntryRfc_Unfocused" />
 
                             <Label x:Name="LabelCounter"
                                    Text="0/13"
@@ -57,8 +64,20 @@
                             </Label>
                         </Grid>
 
+                        <Label x:Name="LblRfcError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-8,0,0"
+                               IsVisible="False" />
+
                         <views:SelectorFlotante x:Name="SelectorRegimen"
                                                 Titulo="Regimen" />
+
+                        <Label x:Name="LblRegimenError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-8,0,0"
+                               IsVisible="False" />
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                             <views:SelectorFlotante x:Name="SelectorPersona"
@@ -104,6 +123,18 @@
                                 </Label>
                             </Grid>
                         </Grid>
+
+                        <Label x:Name="LblCpError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-8,0,0"
+                               IsVisible="False" />
+
+                        <Label x:Name="LblDireccionError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-4,0,0"
+                               IsVisible="False" />
 
                         <Grid ColumnDefinitions="Auto,*"
                               ColumnSpacing="10">
@@ -169,39 +200,30 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <Grid Grid.Row="1"
-              ColumnDefinitions="*,*"
-              Padding="16,8,16,12"
-              ColumnSpacing="12"
-              BackgroundColor="{toolkit:AppThemeResource Background}">
-            <Button x:Name="BtnCancel"
-                    Grid.Column="0"
-                    Text="Cancelar"
-                    BackgroundColor="Transparent"
-                    BorderColor="{toolkit:AppThemeResource Accent1}"
-                    BorderWidth="1"
-                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                    CornerRadius="10"
-                    HeightRequest="44"
-                    Clicked="BtnCancel_Clicked" />
-            <Button x:Name="BtnRegistrar"
-                    Grid.Column="1"
-                    Text="Registrar"
-                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                    CornerRadius="10"
-                    HeightRequest="44"
-                    IsEnabled="False"
-                    Clicked="BtnRegistrar_Clicked">
-                <Button.Triggers>
-                    <Trigger TargetType="Button" Property="IsEnabled" Value="False">
-                        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
-                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}" />
-                        <Setter Property="Opacity" Value="1" />
-                    </Trigger>
-                </Button.Triggers>
-            </Button>
-        </Grid>
+        <VerticalStackLayout Grid.Row="1"
+                             Padding="16,8,16,12"
+                             Spacing="6"
+                             BackgroundColor="{toolkit:AppThemeResource Background}">
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="12">
+                <Button x:Name="BtnCancel"
+                        Grid.Column="0"
+                        Text="Cancelar"
+                        BackgroundColor="Transparent"
+                        BorderColor="{toolkit:AppThemeResource Accent1}"
+                        BorderWidth="1"
+                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        CornerRadius="10"
+                        HeightRequest="44"
+                        Clicked="BtnCancel_Clicked" />
+                <views:BotonCargando x:Name="BtnRegistrar"
+                                     Grid.Column="1"
+                                     Texto="Registrar"
+                                     RadioEsquina="10"
+                                     Altura="44"
+                                     Clicked="BtnRegistrar_Clicked" />
+            </Grid>
+        </VerticalStackLayout>
 
         <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"

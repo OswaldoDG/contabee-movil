@@ -166,6 +166,40 @@ public partial class RFCsPage : ContentPage
         }
     }
 
+    private async void RefreshCuentas_Refreshing(object? sender, EventArgs e)
+    {
+        if (AppState.Instance.ModoOffline)
+        {
+            RefreshCuentas.IsRefreshing = false;
+            return;
+        }
+
+        try
+        {
+            var resultado = await _servicioCrm.GetAsociacionesFiscales();
+            if (resultado.Ok && resultado.Payload != null)
+            {
+                AppState.Instance.CuentasFiscales = resultado.Payload;
+                var actual = AppState.Instance.CuentaFiscalActual;
+                if (actual != null)
+                {
+                    var actualizada = resultado.Payload.FirstOrDefault(c => c.CuentaFiscalId == actual.CuentaFiscalId);
+                    if (actualizada != null)
+                        AppState.Instance.CuentaFiscalActual = actualizada;
+                }
+                CargarCuentas();
+            }
+        }
+        catch (Exception ex)
+        {
+            _logs.Log($"[RFCsPage] Refresh: {ex.GetType().Name}: {ex.Message}");
+        }
+        finally
+        {
+            RefreshCuentas.IsRefreshing = false;
+        }
+    }
+
     private void SetLoading(bool isLoading)
     {
         LoadingOverlay.IsVisible = isLoading;

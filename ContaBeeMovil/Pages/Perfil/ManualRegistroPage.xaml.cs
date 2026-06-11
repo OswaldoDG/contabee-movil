@@ -68,6 +68,7 @@ public partial class ManualRegistroPage : ContentPage
     private bool _isLoading;
     private bool _esEdicion;
     private AsociacionCuentaFiscalCompleta? _cuentaEnEdicion;
+    private string _ultimoRfcValido = string.Empty;
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
@@ -87,6 +88,7 @@ public partial class ManualRegistroPage : ContentPage
 
         SelectorEntidadFederativa.Elementos = EntidadesFederativas;
         SelectorEntidadFederativa.IndiceSeleccionado = -1;
+        SelectorEntidadFederativa.IndiceCambiado += (_, _) => UpdateRegistrarButton();
 
         PopulateRegimen();
         ApplySinDireccionState(false);
@@ -97,7 +99,7 @@ public partial class ManualRegistroPage : ContentPage
         _esEdicion = false;
         _cuentaEnEdicion = null;
         Title = "Nueva cuenta fiscal";
-        BtnRegistrar.Text = "Registrar";
+        BtnRegistrar.Texto = "Registrar";
         EntryRfc.IsReadOnly = false;
         EntryRfc.Opacity = 1;
         LimpiarFormulario();
@@ -108,7 +110,7 @@ public partial class ManualRegistroPage : ContentPage
         _esEdicion = true;
         _cuentaEnEdicion = cuenta;
         Title = "Editar cuenta fiscal";
-        BtnRegistrar.Text = "Actualizar";
+        BtnRegistrar.Texto = "Actualizar";
         EntryRfc.IsReadOnly = true;
         EntryRfc.Opacity = 1;
 
@@ -157,8 +159,17 @@ public partial class ManualRegistroPage : ContentPage
             return;
         }
 
+        if (!string.IsNullOrEmpty(text))
+            _ultimoRfcValido = text;
+
         RefreshRfcCounter(text);
         UpdateRegistrarButton();
+    }
+
+    private void EntryRfc_Unfocused(object? sender, FocusEventArgs e)
+    {
+        if (string.IsNullOrEmpty(EntryRfc.Text) && !string.IsNullOrEmpty(_ultimoRfcValido))
+            EntryRfc.Text = _ultimoRfcValido;
     }
 
     private void EntryCp_TextChanged(object? sender, TextChangedEventArgs e)
@@ -179,15 +190,11 @@ public partial class ManualRegistroPage : ContentPage
         int nuevoMax = EsFisica ? 13 : 12;
         EntryRfc.MaxLength = nuevoMax;
 
-        if (!_esEdicion)
-        {
-            EntryRfc.Text = string.Empty;
-            RefreshRfcCounter(string.Empty);
-        }
+        var rfcActual = EntryRfc.Text ?? string.Empty;
+        if (rfcActual.Length > nuevoMax)
+            EntryRfc.Text = rfcActual[..nuevoMax];
         else
-        {
-            RefreshRfcCounter(EntryRfc.Text ?? string.Empty);
-        }
+            RefreshRfcCounter(rfcActual);
 
         PopulateRegimen();
         UpdateRegistrarButton();
@@ -196,6 +203,7 @@ public partial class ManualRegistroPage : ContentPage
     private void ChkSinDireccion_CheckedChanged(object? sender, CheckedChangedEventArgs e)
     {
         ApplySinDireccionState(e.Value);
+        UpdateRegistrarButton();
     }
 
     private async void BtnCancel_Clicked(object? sender, EventArgs e)
@@ -235,7 +243,8 @@ public partial class ManualRegistroPage : ContentPage
     {
         if (_isLoading)
         {
-            BtnRegistrar.IsEnabled = false;
+            // El spinner del botón (EstaCargando) ya refleja el estado de carga;
+            // no tocar IsEnabled para no atenuarlo bajo el spinner.
             return;
         }
 
@@ -245,12 +254,62 @@ public partial class ManualRegistroPage : ContentPage
             return;
         }
 
-        bool rfcValido = IsRfcValid(EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty);
-        bool cpValido = CpRegex.IsMatch(EntryCp.Text?.Trim() ?? string.Empty);
+        string rfc = EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty;
+        string cp = EntryCp.Text?.Trim() ?? string.Empty;
+        bool rfcValido = IsRfcValid(rfc);
+        bool cpValido = CpRegex.IsMatch(cp);
         bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
         bool regimenValido = SelectorRegimen.IndiceSeleccionado >= 0;
 
-        BtnRegistrar.IsEnabled = rfcValido && cpValido && nombreValido && regimenValido;
+        bool direccionValida = ChkSinDireccion.IsChecked || SelectorEntidadFederativa.IndiceSeleccionado >= 0;
+
+        ActualizarErroresEnLinea(rfc, rfcValido, cp, cpValido, nombreValido, regimenValido);
+
+        if (LblDireccionError.IsVisible && direccionValida)
+            LblDireccionError.IsVisible = false;
+
+        BtnRegistrar.IsEnabled = true;
+    }
+
+    private void ActualizarErroresEnLinea(string rfc, bool rfcValido, string cp, bool cpValido, bool nombreValido, bool regimenValido, bool enSubmit = false)
+    {
+        if (rfcValido || (!enSubmit && rfc.Length == 0))
+        {
+            LblRfcError.IsVisible = false;
+        }
+        else
+        {
+            int rfcMax = EsFisica ? 13 : 12;
+            int faltantes = rfcMax - rfc.Length;
+            LblRfcError.Text = faltantes > 0
+                ? $"El RFC debe tener {rfcMax} caracteres."
+                : "El formato del RFC no es válido.";
+            LblRfcError.IsVisible = true;
+        }
+
+        if (cpValido || (!enSubmit && cp.Length == 0))
+            LblCpError.IsVisible = false;
+        else
+        {
+            LblCpError.Text = "El código postal debe tener 5 dígitos.";
+            LblCpError.IsVisible = true;
+        }
+
+        if (nombreValido || !enSubmit)
+            LblNombreError.IsVisible = false;
+        else
+        {
+            LblNombreError.Text = "El nombre o razón social es requerido.";
+            LblNombreError.IsVisible = true;
+        }
+
+        if (regimenValido || !enSubmit)
+            LblRegimenError.IsVisible = false;
+        else
+        {
+            LblRegimenError.Text = "Selecciona un régimen fiscal.";
+            LblRegimenError.IsVisible = true;
+        }
     }
 
     private async Task Registrar()
@@ -262,6 +321,23 @@ public partial class ManualRegistroPage : ContentPage
                 "Solo puedes actualizar cuentas fiscales primarias.",
                 verBotonCancelar: false,
                 confirmarText: "OK");
+            return;
+        }
+
+        string rfc = EntryRfc.Text?.Trim().ToUpperInvariant() ?? string.Empty;
+        string cp = EntryCp.Text?.Trim() ?? string.Empty;
+        bool rfcValido = IsRfcValid(rfc);
+        bool cpValido = CpRegex.IsMatch(cp);
+        bool nombreValido = !string.IsNullOrWhiteSpace(EntryName.Text);
+        bool regimenValido = SelectorRegimen.IndiceSeleccionado >= 0;
+        bool direccionValida = ChkSinDireccion.IsChecked || SelectorEntidadFederativa.IndiceSeleccionado >= 0;
+
+        if (!rfcValido || !cpValido || !nombreValido || !regimenValido || !direccionValida)
+        {
+            ActualizarErroresEnLinea(rfc, rfcValido, cp, cpValido, nombreValido, regimenValido, enSubmit: true);
+            LblDireccionError.IsVisible = !direccionValida;
+            if (!direccionValida)
+                LblDireccionError.Text = "Ingresa tu domicilio o confirma que no deseas proporcionarlo.";
             return;
         }
 
@@ -363,19 +439,20 @@ public partial class ManualRegistroPage : ContentPage
     private void SetLoading(bool isLoading)
     {
         _isLoading = isLoading;
-        LoadingOverlay.IsVisible = isLoading;
+        BtnRegistrar.EstaCargando = isLoading;
         BtnCancel.IsEnabled = !isLoading;
         if (isLoading)
-        {
-            BtnRegistrar.IsEnabled = false;
             return;
-        }
 
         UpdateRegistrarButton();
     }
 
     private void LimpiarFormulario()
     {
+        _ultimoRfcValido = string.Empty;
+        LblNombreError.IsVisible = false;
+        LblRegimenError.IsVisible = false;
+        LblDireccionError.IsVisible = false;
         EntryName.Text = string.Empty;
         EntryRfc.Text = string.Empty;
         EntryCp.Text = string.Empty;
@@ -392,6 +469,7 @@ public partial class ManualRegistroPage : ContentPage
         VisualStateManager.GoToState(LabelCpCounter, "Empty");
         LabelCpCounter.Text = "0/5";
         ChkCompartido.IsChecked = true;
+        UpdateRegistrarButton();
     }
 
     private void ApplySinDireccionState(bool sinDireccion)
