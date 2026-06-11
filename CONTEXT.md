@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-11 — Mostrar solo lo recién creado + color botones DatePicker
+
+**Hecho:**
+- **DatePicker (Android):** los botones Aceptar/Cancelar del diálogo nativo de calendario eran invisibles (texto casi blanco sobre fondo blanco). Solución en `ContaBeeDatePickerHandler.cs` (registrado en `MauiProgram.cs` bajo `#if ANDROID`): se colorean los botones por código en `OnShow` con el color `colorBrand` (DayNight: negro `#1e1e1e` en claro, blanco `#ffffff` en oscuro). El encabezado/círculo gris se mantienen.
+- **Mostrar solo lo recién creado tras crear:**
+  - Comprobaciones y Devoluciones: tras crear, filtran por `Id` del registro devuelto (`respuesta.Payload.Id`) + `CuentaFiscalId` (helper `ConstruirFiltrosPorId`). Fallback al periodo si no hay payload.
+  - Capturas: al enviar el lote se guarda `DateTimeOffset.UtcNow` (`FacturacionPage.CapturaRecienCreadaFiltroFecha`) y al volver se filtra `FechaCreacion` con `Entre` en ventana [envío −3 min, +10 min] (`CrearBusquedaPorFechaCreacion`).
+- **Página Equipo (`EquipoPage.xaml`):** se reemplazó el swipe a la derecha (abrir propiedades) por un `TapGestureRecognizer` en la card → un tap abre `PropiedadesUsuarioPopup` vía `ConfigurarCommand`. El swipe a la izquierda (eliminar) se mantiene. `ConfigurarCommand` solo se asigna en cuenta primaria, así que el tap respeta el gating sin necesidad de `MostrarConfigurar`.
+
+**Decisiones tomadas:**
+- DatePicker: NO se tocó el `colorAccent` global (es gris a propósito; afecta cursores/selección en toda la app). El handler aplica el color solo a los botones del diálogo.
+- Capturas: se intentó filtrar por `LoteCapturaId`, pero **el backend ignora silenciosamente las propiedades de filtro desconocidas y devuelve todo** — por eso se usa `FechaCreacion`.
+- **Hallazgo clave:** `FacturacionPage` (y las demás pestañas) viven embebidas como `Content` dentro de `MainTabbedPage`, así que su `OnAppearing` NO se dispara al volver de una página navegada (p. ej. `PaginaCaptura`). El hook correcto para recargar es `OnTabActivated()`, que `MainTabbedPage` invoca desde su `OnAppearing`/`SwitchToTab`. La lógica de recarga de capturas se movió ahí.
+
+**Pendiente / próximos pasos:**
+- La ventana de fecha en capturas es heurística (margen ±min). Si el reloj del dispositivo difiere mucho del servidor podría fallar; vigilar.
+
+---
+
 ## 2026-06-09 — Widget Android (lanzador de PaginaCaptura)
 
 **Hecho:**

@@ -58,6 +58,7 @@ namespace ContaBeeMovil
             {
 #if ANDROID
                 handlers.AddHandler<Shell, CustomShellRenderer>();
+                handlers.AddHandler<Microsoft.Maui.Controls.DatePicker, ContaBeeDatePickerHandler>();
 #endif
 #if WINDOWS
                     Microsoft.Maui.Controls.Handlers.Items.CollectionViewHandler.Mapper.AppendToMapping("KeyboardAccessibleCollectionView", (handler, view) =>

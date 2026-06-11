@@ -848,6 +848,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 await _servicioSesion.GetLicenciaAsync();
                 await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
+                FacturacionPage.CapturaRecienCreadaFiltroFecha = DateTimeOffset.UtcNow;
                 DashboardPage.PendienteActualizar = true;
                 await Shell.Current.GoToAsync("..");
             }
