@@ -180,15 +180,9 @@ public class ServicioSesion : IServicioSesion
 
         var respuesta = await _servicioCrm.GetLicenciamiento(cfid);
 
-        if (respuesta.Ok && respuesta.Payload is { } payload)
+        if (respuesta.Ok)
         {
-            var calcCaptura = Math.Max(0, payload.CreditosAdquiridos - payload.CreditosCapturaConsumo);
-            var alertaCaptura = payload.CreditosDisponibles != calcCaptura ? $" *** DISCREPANCIA (calculados={calcCaptura})" : "";
-            _logs.Log($"[Licencia] ── Captura  │ Adquiridos={payload.CreditosAdquiridos,-6} Consumo={payload.CreditosCapturaConsumo,-6} Disponibles={payload.CreditosDisponibles,-6}{alertaCaptura}");
-            _logs.Log($"[Licencia] ── Colab    │ Adquiridos={payload.CreditosColabAdquiridos,-6} Consumo={payload.CreditosColabConsumo,-6} Disponibles={payload.CreditosColabDisponibles}");
-            _logs.Log($"[Licencia] ── Auto     │ Adquiridos={payload.CreditosAutoAdquiridos,-6} Consumo={payload.CreditosAutoConsumo,-6} Disponibles={payload.CreditosAutoDisponibles}");
-            _logs.Log($"[Licencia] ── Flags    │ CentrosCostos={payload.CentrosCostosActivos}  Comprobaciones={payload.ComprobacionesActivas}  Devoluciones={payload.DevolucionesActivas}");
-            _appState.Licenciamiento = NormalizarCreditos(payload);
+            _appState.Licenciamiento = respuesta.Payload;
             return;
         }
 
@@ -540,20 +534,4 @@ public class ServicioSesion : IServicioSesion
     private static TarjetaModel FromDto(TarjetaDto d) =>
         new() { Id = d.Id.ToString(), Alias = d.Alias ?? string.Empty, UltimosDigitos = d.UltimosDigitos ?? string.Empty };
 
-    // ── Normalización de créditos ──────────────────────────────────────────────
-    // El backend a veces devuelve CreditosDisponibles=0 aunque haya adquiridos y
-    // consumo bajo. Comparamos el valor directo contra el calculado y usamos el mayor.
-    private Contabee.Api.Crm.DtoLicenciamiento2 NormalizarCreditos(Contabee.Api.Crm.DtoLicenciamiento2 lic)
-    {
-        var disponiblesApi  = lic.CreditosDisponibles;
-        var calculados      = Math.Max(0, lic.CreditosAdquiridos - lic.CreditosCapturaConsumo);
-        var efectivos       = Math.Max(disponiblesApi, calculados);
-
-        _logs.Log($"[Licencia] Créditos → API_Disponibles={disponiblesApi} Calculados={calculados} Efectivos={efectivos}");
-
-        if (efectivos != disponiblesApi)
-            lic.CreditosDisponibles = efectivos;
-
-        return lic;
-    }
 }
