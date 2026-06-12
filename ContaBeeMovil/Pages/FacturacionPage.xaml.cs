@@ -71,7 +71,7 @@ public partial class FacturacionPage : ContentPage
     }
 
     public bool TieneCreditos =>
-        (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) > 0;
+        (AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0) > 0;
 
     public bool SinCreditos => !TieneCreditos;
 

@@ -603,6 +603,46 @@
         }
       }
     },
+    "/crm/asociacionfiscal/{cuentafiscalId}/usuario/{usuarioSecundarioId}/activa/{activa}": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "usuarioSecundarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "activa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/crm/rfc/ids": {
       "post": {
         "tags": [
@@ -1015,6 +1055,116 @@
       }
     },
     "/licenciamiento/{cuentafiscalId}/incrementar/{cantidad}": {
+      "patch": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cantidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/{cuentafiscalId}/autocaptura/incrementar/{cantidad}": {
+      "patch": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "cantidad",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.DtoLicenciamiento"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/licenciamiento/{cuentafiscalId}/colaboracion/incrementar/{cantidad}": {
       "patch": {
         "tags": [
           "Licenciamiento"
@@ -2673,6 +2823,19 @@
         ],
         "type": "string"
       },
+      "comunes.proxies.licenciamiento.CaducidadLicenciamiento": {
+        "type": "object",
+        "properties": {
+          "producto": {
+            "$ref": "#/components/schemas/comunes.servicios.crm.TipoProducto"
+          },
+          "caducidad": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "comunes.proxies.licenciamiento.DtoLicenciamiento": {
         "type": "object",
         "properties": {
@@ -2688,16 +2851,57 @@
             "type": "string",
             "format": "uuid"
           },
-          "capturaOnPremise": {
-            "type": "boolean"
+          "creditosAdquiridos": {
+            "type": "integer",
+            "format": "int32"
           },
-          "creditosCaptura": {
+          "creditosDisponibles": {
             "type": "integer",
             "format": "int32"
           },
           "creditosCapturaConsumo": {
             "type": "integer",
             "format": "int32"
+          },
+          "creditosColabAdquiridos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosColabDisponibles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosColabConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoAdquiridos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoDisponibles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "centrosCostosActivos": {
+            "type": "boolean"
+          },
+          "timeStampt": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "siguienteRev": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "capturaOnPremise": {
+            "type": "boolean"
           },
           "licenciasCaptura": {
             "type": "integer",
@@ -2713,24 +2917,11 @@
           "devolucionesActivas": {
             "type": "boolean"
           },
-          "vigenciaLicenciasCaptura": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "vigenciaDevoluciones": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "vigenciaComprobaciones": {
-            "type": "integer",
-            "format": "int64",
-            "nullable": true
-          },
-          "vigenciaMembresia": {
-            "type": "integer",
-            "format": "int64",
+          "caducidades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.proxies.licenciamiento.CaducidadLicenciamiento"
+            },
             "nullable": true
           }
         },
@@ -2886,10 +3077,9 @@
         "enum": [
           "Indefinido",
           "CreditoCaptura",
-          "LicenciaCaptura",
-          "LicenciaComprobacion",
-          "LicenciaDevolucion",
-          "LicenciaColaboracion"
+          "CreditoColaboracion",
+          "CreditoAutocaptura",
+          "LicenciaCentrosCostos"
         ],
         "type": "string"
       },
@@ -3498,31 +3688,77 @@
         ],
         "type": "string"
       },
+      "contabee.model.crm.licenciamiento.CaducidadLicenciamiento": {
+        "type": "object",
+        "properties": {
+          "producto": {
+            "$ref": "#/components/schemas/comunes.servicios.crm.TipoProducto"
+          },
+          "caducidad": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
       "contabee.model.crm.licenciamiento.DtoLicenciamiento": {
         "type": "object",
         "properties": {
-          "ano": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "mes": {
-            "type": "integer",
-            "format": "int32"
-          },
           "cuentaFiscalId": {
             "type": "string",
             "format": "uuid"
           },
-          "capturaOnPremise": {
-            "type": "boolean"
+          "creditosAdquiridos": {
+            "type": "integer",
+            "format": "int32"
           },
-          "creditosCaptura": {
+          "creditosDisponibles": {
             "type": "integer",
             "format": "int32"
           },
           "creditosCapturaConsumo": {
             "type": "integer",
             "format": "int32"
+          },
+          "creditosColabAdquiridos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosColabDisponibles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosColabConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoAdquiridos": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoDisponibles": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creditosAutoConsumo": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "centrosCostosActivos": {
+            "type": "boolean"
+          },
+          "timeStampt": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "siguienteRev": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "capturaOnPremise": {
+            "type": "boolean"
           },
           "licenciasCaptura": {
             "type": "integer",
@@ -3538,9 +3774,19 @@
           "devolucionesActivas": {
             "type": "boolean"
           },
-          "siguienteRev": {
+          "ano": {
             "type": "integer",
-            "format": "int64",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "caducidades": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/contabee.model.crm.licenciamiento.CaducidadLicenciamiento"
+            },
             "nullable": true
           }
         },
