@@ -22,6 +22,7 @@ public partial class FacturacionPage : ContentPage
     private Contabee.Api.Transcript.Busqueda? _ultimaBusqueda;
     internal static Guid? ProcesoAsociadoFiltroId { get; set; }
     internal static TipoProcesoCaptura? ProcesoAsociadoFiltroTipo { get; set; }
+    internal static DateTimeOffset? CapturaRecienCreadaFiltroFecha { get; set; }
 
     // ── Propiedades observables ──────────────────────────────────────────────────
 
@@ -119,20 +120,44 @@ public partial class FacturacionPage : ContentPage
             await _servicioSesion.GetMisUsuariosAsync();
 
         PanelFiltros.RestaurarEstado();
+    }
 
-        if (ProcesoAsociadoFiltroId.HasValue)
+    private static Contabee.Api.Transcript.Busqueda CrearBusquedaPorFechaCreacion(DateTimeOffset fechaEnvio)
+    {
+        var filtros = new List<Contabee.Api.Transcript.Filtro>();
+
+        var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        if (cuentaFiscalId.HasValue)
         {
-            var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
-            ProcesoAsociadoFiltroId = null;
-            ProcesoAsociadoFiltroTipo = null;
-            await OnBuscarFacturas(busquedaProceso);
-            return;
+            filtros.Add(new Contabee.Api.Transcript.Filtro
+            {
+                Propiedad = "CuentaFiscalId",
+                Operador = Operador.Igual,
+                Valores = [cuentaFiscalId.Value.ToString()]
+            });
         }
 
-        if (!PendienteActualizarFacturas) return;
-        PendienteActualizarFacturas = false;
-        await Task.Delay(250);
-        PanelFiltros.IrARecientes();
+        // Ventana alrededor del momento del envío (en UTC, mismo formato que IrARecientes).
+        // Margen amplio para tolerar diferencia de reloj dispositivo/servidor.
+        static string Fmt(DateTimeOffset d) => d.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss.fff") + "Z";
+        var desde = Fmt(fechaEnvio.AddMinutes(-3));
+        var hasta = Fmt(fechaEnvio.AddMinutes(10));
+
+        filtros.Add(new Contabee.Api.Transcript.Filtro
+        {
+            Propiedad = "FechaCreacion",
+            Operador = Operador.Entre,
+            Valores = [desde, hasta]
+        });
+
+        return new Contabee.Api.Transcript.Busqueda
+        {
+            Filtros = filtros,
+            OrdernarDesc = true,
+            OrdenarPropiedad = "FechaCreacion",
+            Paginado = new Contabee.Api.Transcript.Paginado { Pagina = 1, TamanoPagina = AppSettings.Consulta.TamanoPagina },
+            Contar = true
+        };
     }
 
     private static Contabee.Api.Transcript.Busqueda CrearBusquedaPorProceso(Guid procesoId, TipoProcesoCaptura? tipo)
@@ -176,12 +201,37 @@ public partial class FacturacionPage : ContentPage
         };
     }
 
-    public void OnTabActivated()
+    public async void OnTabActivated()
     {
-        Dispatcher.Dispatch(() =>
+        PanelFiltros.RestaurarEstado();
+
+        if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+            await _servicioSesion.GetMisUsuariosAsync();
+
+        if (ProcesoAsociadoFiltroId.HasValue)
         {
-            PanelFiltros.RestaurarEstado();
-        });
+            var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
+            ProcesoAsociadoFiltroId = null;
+            ProcesoAsociadoFiltroTipo = null;
+            await OnBuscarFacturas(busquedaProceso);
+            return;
+        }
+
+        // Tras crear una captura, mostrar únicamente las capturas recién creadas
+        // (filtro por ventana de fecha de creación alrededor del momento del envío).
+        if (CapturaRecienCreadaFiltroFecha.HasValue)
+        {
+            var fechaEnvio = CapturaRecienCreadaFiltroFecha.Value;
+            CapturaRecienCreadaFiltroFecha = null;
+            PendienteActualizarFacturas = false;
+            await OnBuscarFacturas(CrearBusquedaPorFechaCreacion(fechaEnvio));
+            return;
+        }
+
+        if (!PendienteActualizarFacturas) return;
+        PendienteActualizarFacturas = false;
+        await Task.Delay(250);
+        PanelFiltros.IrARecientes();
     }
 
     // ── Handlers ─────────────────────────────────────────────────────────────────
@@ -218,7 +268,8 @@ public partial class FacturacionPage : ContentPage
             var resultado = await _servicioTranscript.BusquedaCapturas(_ultimaBusqueda);
 
             int offset = (pagina - 1) * AppSettings.Consulta.TamanoPagina;
-            Elementos = resultado.Elementos?
+            var elementosPagina = resultado.Elementos?.ToList() ?? [];
+            Elementos = elementosPagina
                 .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e))
                 .ToList();
             TotalEncontrados = resultado.Total;

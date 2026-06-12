@@ -72,25 +72,6 @@
                             </SwipeItems>
                         </SwipeView.LeftItems>
 
-                        <SwipeView.RightItems>
-                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
-                                <SwipeItemView Command="{Binding ConfigurarCommand}">
-                                    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                            IsVisible="{Binding MostrarConfigurar}"
-                                            StrokeShape="RoundRectangle 12"
-                                            StrokeThickness="0"
-                                            Padding="5"
-                                            WidthRequest="{Binding SwipeItemWidth}">
-                                        <Image WidthRequest="26"
-                                               HeightRequest="26"
-                                               HorizontalOptions="End"
-                                               VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Settings}" />
-                                    </Border>
-                                </SwipeItemView>
-                            </SwipeItems>
-                        </SwipeView.RightItems>
-
                     <Border Margin="0"
                             Padding="10,5"
                                 StrokeShape="RoundRectangle 10"
@@ -100,6 +81,10 @@
                             <Border.Shadow>
                                 <Shadow Brush="Black" Radius="14" Opacity="0.11" Offset="0,5" />
                             </Border.Shadow>
+                            <!-- Tap en la card abre propiedades (solo cuenta primaria; si no, el command es null) -->
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
+                            </Border.GestureRecognizers>
 
                             <Grid ColumnDefinitions="5,*">
 
@@ -111,8 +96,8 @@
 
                                 <!-- Contenido de la card -->
                                 <Grid Grid.Column="1"
-                                      Padding="5"   
-                                      ColumnDefinitions="56,*"
+                                      Padding="5"
+                                      ColumnDefinitions="56,*,Auto"
                                       ColumnSpacing="14">
 
                                     <!-- Avatar con iniciales -->
@@ -149,6 +134,15 @@
                                                FontSize="12"
                                                TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                     </VerticalStackLayout>
+
+                                    <!-- Indicador de que la card es clickeable (abre propiedades) -->
+                                    <mi:MauiIcon Grid.Column="2"
+                                                 Icon="{mi:Material Icon=ChevronRight}"
+                                                 IconSize="22"
+                                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                                 IsVisible="{Binding MostrarConfigurar}"
+                                                 HorizontalOptions="End"
+                                                 VerticalOptions="Center" />
 
                                 </Grid>
                             </Grid>

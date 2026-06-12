@@ -4,6 +4,8 @@
 	<color name="colorPrimaryDark">#00000000</color>
 	<color name="colorAccent">#fefdfc</color>
 	<color name="colorOnPrimary">#1e1e1e</color>
+	<!-- Texto de botones del diálogo del DatePicker (tema oscuro): blanco. -->
+	<color name="colorBrand">#ffffff</color>
 	<color name="widget_bg">#1E1500</color>
 	<color name="widget_text">#FAF0D7</color>
 	<color name="widget_border">#4A3500</color>

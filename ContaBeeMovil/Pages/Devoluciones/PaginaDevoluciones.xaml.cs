@@ -302,11 +302,19 @@ public partial class PaginaDevoluciones : ContentPage
 				return;
 			}
 
-            PanelFiltros.SeleccionarPeriodoActual();
-			if (_ultimaBusqueda is null)
-				_ultimaBusqueda = PanelFiltros.BusquedaActual;
-			else
-				_ultimaBusqueda = PanelFiltros.BusquedaActual;
+            // Tras crear, mostrar únicamente la devolución recién creada
+            // (no recargar el listado completo del periodo).
+            if (respuesta.Payload is { } creada)
+            {
+                var busqueda = PanelFiltros.BusquedaActual;
+                busqueda.Filtros = ConstruirFiltrosPorId(creada.Id);
+                _ultimaBusqueda = busqueda;
+            }
+            else
+            {
+                PanelFiltros.SeleccionarPeriodoActual();
+                _ultimaBusqueda = PanelFiltros.BusquedaActual;
+            }
 
           MostrarOverlayCarga = false;
 			await EjecutarBusqueda(1);
@@ -325,6 +333,31 @@ public partial class PaginaDevoluciones : ContentPage
          MostrarOverlayCarga = false;
 			_abriendoPopup = false;
 		}
+	}
+
+	private static List<Filtro> ConstruirFiltrosPorId(Guid id)
+	{
+		var filtros = new List<Filtro>();
+
+		var cuentaFiscalId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+		if (cuentaFiscalId.HasValue)
+		{
+			filtros.Add(new Filtro
+			{
+				Propiedad = "CuentaFiscalId",
+				Operador = Operador.Igual,
+				Valores = [cuentaFiscalId.Value.ToString()]
+			});
+		}
+
+		filtros.Add(new Filtro
+		{
+			Propiedad = "Id",
+			Operador = Operador.Igual,
+			Valores = [id.ToString()]
+		});
+
+		return filtros;
 	}
 
 	private static Page? ObtenerPaginaActivaParaPopup()
