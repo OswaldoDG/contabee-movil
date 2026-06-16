@@ -360,8 +360,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
     public int  CreditosCaptura  =>
-        (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) -
-        (AppState.Instance.Licenciamiento?.CreditosCapturaConsumo ?? 0);
+        AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
 
     // ── Ancho dinámico de cada card en el carrusel ───────────────────────────
 
@@ -696,8 +695,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
 
         // ── Punto 2: Validar créditos disponibles en AppState ────────────────
-        var creditosAppState = (AppState.Instance.Licenciamiento?.CreditosCaptura ?? 0) -
-                               (AppState.Instance.Licenciamiento?.CreditosCapturaConsumo ?? 0);
+        var creditosAppState = AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
         if (creditosAppState <= 0)
         {
             await _servicioToast.MostrarAsync("No tienes créditos suficientes.", ToastIcono.Error, ToastPosicion.Bottom);

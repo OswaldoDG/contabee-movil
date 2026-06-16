@@ -47,11 +47,7 @@ public partial class ResumenLicenciaRFCPage : ContentPage
         if (res.Ok && res.Payload != null)
         {
             var lic = res.Payload;
-            var total = lic.CreditosCaptura;
-            var consumidos = lic.CreditosCapturaConsumo;
-            var disponibles = Math.Max(0, total - consumidos);
-
-            LblDisponibles.Text = disponibles.ToString();
+            LblDisponibles.Text = lic.CreditosDisponibles.ToString();
             // LblConsumidos.Text = consumidos.ToString();
             // LblTotal.Text = $"de {total} en total";
         }

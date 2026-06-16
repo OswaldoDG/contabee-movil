@@ -159,16 +159,17 @@ public class ServicioSesion : IServicioSesion
         {
             _appState.Licenciamiento = new Contabee.Api.Crm.DtoLicenciamiento2
             {
-                CuentaFiscalId = Guid.Empty,
-                Ano = DateTime.Now.Year,
-                Mes = DateTime.Now.Month,
-                CreditosCaptura = 0,
+                CuentaFiscalId        = Guid.Empty,
+                Ano                   = DateTime.Now.Year,
+                Mes                   = DateTime.Now.Month,
+                CreditosAdquiridos    = 0,
+                CreditosDisponibles   = 0,
                 CreditosCapturaConsumo = 0,
-                LicenciasCaptura = 0,
+                LicenciasCaptura      = 0,
                 LicenciasColaboracion = 0,
-                CapturaOnPremise = false,
+                CapturaOnPremise      = false,
                 ComprobacionesActivas = false,
-                DevolucionesActivas = false,
+                DevolucionesActivas   = false,
             };
             return;
         }
@@ -181,9 +182,7 @@ public class ServicioSesion : IServicioSesion
 
         if (respuesta.Ok)
         {
-            var p = respuesta.Payload;
-            _logs.Log($"[Licencia] OK → CreditosCaptura={p?.CreditosCaptura} CreditosCapturaConsumo={p?.CreditosCapturaConsumo} LicenciasCaptura={p?.LicenciasCaptura} LicenciasColaboracion={p?.LicenciasColaboracion} CapturaOnPremise={p?.CapturaOnPremise}");
-            _appState.Licenciamiento = p;
+            _appState.Licenciamiento = respuesta.Payload;
             return;
         }
 
@@ -196,7 +195,8 @@ public class ServicioSesion : IServicioSesion
                 CuentaFiscalId        = _appState.CuentaFiscalActual.CuentaFiscalId,
                 Ano                   = DateTime.Now.Year,
                 Mes                   = DateTime.Now.Month,
-                CreditosCaptura       = 0,
+                CreditosAdquiridos    = 0,
+                CreditosDisponibles   = 0,
                 CreditosCapturaConsumo = 0,
                 LicenciasCaptura      = 0,
                 LicenciasColaboracion = 0,
@@ -533,4 +533,5 @@ public class ServicioSesion : IServicioSesion
 
     private static TarjetaModel FromDto(TarjetaDto d) =>
         new() { Id = d.Id.ToString(), Alias = d.Alias ?? string.Empty, UltimosDigitos = d.UltimosDigitos ?? string.Empty };
+
 }

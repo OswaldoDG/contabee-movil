@@ -17,11 +17,7 @@ public partial class ResumenLicenciaPopup : CommunityToolkit.Maui.Views.Popup
 
         LblRfc.Text = cuenta?.Rfc ?? "—";
 
-        var total       = lic?.CreditosCaptura ?? 0;
-        var consumidos  = lic?.CreditosCapturaConsumo ?? 0;
-        var disponibles = Math.Max(0, total - consumidos);
-
-        LblDisponibles.Text = disponibles.ToString();
+        LblDisponibles.Text = (lic?.CreditosDisponibles ?? 0).ToString();
         //LblConsumidos.Text  = consumidos.ToString();
         //LblTotal.Text       = $"de {total} en total";
     }
