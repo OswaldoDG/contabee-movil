@@ -370,6 +370,16 @@
         "tags": [
           "Cupones"
         ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1174,7 +1184,10 @@
           "ProductoGratuito",
           "NPorM",
           "Merchandise",
-          "CapturaBienvenida"
+          "CreditoCaptura",
+          "CreditoColaboracion",
+          "CreditoAutocaptura",
+          "LicenciaCentrosCostos"
         ],
         "type": "string"
       },

@@ -77,7 +77,7 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario →");
         try
         {
-            var res = await servicioEcommerce.CuponesAsync();
+            var res = await servicioEcommerce.CuponesAsync(null);
             System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← OK");
             return res.ToList();
         }

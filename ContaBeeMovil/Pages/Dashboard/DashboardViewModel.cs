@@ -214,7 +214,7 @@ public class DashboardViewModel : INotifyPropertyChanged
         try
         {
             var cupones = await _servicioEcommerce.CuponesUsuario();
-            TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CapturaBienvenida && (c.Aplicado == false || c.Fecha == null));
+            TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CreditoCaptura && (c.Aplicado == false || c.Fecha == null));
         }
         catch (Exception ex)
         {
