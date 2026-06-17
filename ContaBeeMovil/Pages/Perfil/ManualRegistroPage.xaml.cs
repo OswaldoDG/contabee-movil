@@ -102,6 +102,7 @@ public partial class ManualRegistroPage : ContentPage
         BtnRegistrar.Texto = "Registrar";
         EntryRfc.IsReadOnly = false;
         EntryRfc.Opacity = 1;
+        BloquearTipoYRegimen(false);
         LimpiarFormulario();
     }
 
@@ -113,11 +114,14 @@ public partial class ManualRegistroPage : ContentPage
         BtnRegistrar.Texto = "Actualizar";
         EntryRfc.IsReadOnly = true;
         EntryRfc.Opacity = 1;
+        BloquearTipoYRegimen(true);
 
         var cuentaFiscal = cuenta.CuentaFiscal;
         var direccion = cuentaFiscal?.Direcciones?.FirstOrDefault() ?? cuenta.DireccionesFiscales?.FirstOrDefault();
 
-        bool esFisica = (cuenta.Rfc?.Trim().Length ?? 0) >= 13;
+        bool esFisica = cuentaFiscal != null
+            ? cuentaFiscal.Tipo == TipoPersonaFiscal.Fisica
+            : (cuenta.Rfc?.Trim().Length ?? 0) >= 13;
         SelectorPersona.IndiceSeleccionado = esFisica ? 0 : 1;
         PopulateRegimen();
 
@@ -131,7 +135,8 @@ public partial class ManualRegistroPage : ContentPage
         EntryNumInterior.Text = direccion?.NumInterior ?? string.Empty;
 
         var regimenes = RegimenFiscalProvider.GetRegimenFiscal(esFisica ? PersonaType.Fisica : PersonaType.Moral);
-        SelectorRegimen.IndiceSeleccionado = regimenes.FindIndex(r => r.Codigo == cuenta.ClaveRegimenFiscal);
+        var claveRegimen = cuentaFiscal?.ClaveRegimenFiscal ?? cuenta.ClaveRegimenFiscal;
+        SelectorRegimen.IndiceSeleccionado = regimenes.FindIndex(r => r.Codigo == claveRegimen);
 
         var entidad = direccion?.EntidadFederativa?.Trim().ToUpperInvariant() ?? string.Empty;
         SelectorEntidadFederativa.IndiceSeleccionado = EntidadesFederativas.FindIndex(e => e == entidad);
@@ -142,6 +147,15 @@ public partial class ManualRegistroPage : ContentPage
         RefreshRfcCounter(EntryRfc.Text ?? string.Empty);
         EntryCp_TextChanged(EntryCp, new TextChangedEventArgs(string.Empty, EntryCp.Text ?? string.Empty));
         UpdateRegistrarButton();
+    }
+
+    private void BloquearTipoYRegimen(bool bloqueado)
+    {
+        SelectorPersona.IsEnabled = !bloqueado;
+        SelectorRegimen.IsEnabled = !bloqueado;
+        SelectorPersona.Opacity = bloqueado ? 0.5 : 1;
+        SelectorRegimen.Opacity = bloqueado ? 0.5 : 1;
+        LblEdicionBloqueado.IsVisible = bloqueado;
     }
 
     private void EntryName_TextChanged(object? sender, TextChangedEventArgs e)
@@ -394,8 +408,6 @@ public partial class ManualRegistroPage : ContentPage
                 AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
             }
 
-            LimpiarFormulario();
-
             if (Navigation.NavigationStack.Count > 1)
             {
                 var stack = Navigation.NavigationStack;
@@ -439,6 +451,7 @@ public partial class ManualRegistroPage : ContentPage
     private void SetLoading(bool isLoading)
     {
         _isLoading = isLoading;
+        LoadingOverlay.IsVisible = isLoading;
         BtnRegistrar.EstaCargando = isLoading;
         BtnCancel.IsEnabled = !isLoading;
         if (isLoading)

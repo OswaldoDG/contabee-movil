@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.0.8</ApplicationDisplayVersion>
-		<ApplicationVersion>48</ApplicationVersion>
+		<ApplicationDisplayVersion>2.0.9</ApplicationDisplayVersion>
+		<ApplicationVersion>49</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -81,6 +81,7 @@
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" Exclude="Resources\Images\contabee.svg" />
 		<MauiImage Include="Resources\Images\contabee.svg" BaseSize="200,200" />
+		<MauiImage Include="Resources\Images\item-shop\*" />
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
 

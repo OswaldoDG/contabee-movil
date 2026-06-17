@@ -4,9 +4,16 @@ namespace ContaBeeMovil.Views;
 
 public partial class ActividadView : ContentView
 {
+    private const string PrefModoCreditos = "Home_ModoCreditos";
+    // 0 = Captura + Colab + Auto  |  1 = Captura + Colab  |  2 = Solo Captura
+    private int _modoCreditos;
+
     public ActividadView()
     {
         InitializeComponent();
+
+        _modoCreditos = Preferences.Default.Get(PrefModoCreditos, 0);
+        AplicarModoCreditos();
 
         PullRefresh.HandlerChanged += (_, _) => AplicarColorRefresh();
 
@@ -15,6 +22,24 @@ public partial class ActividadView : ContentView
             Application.Current.RequestedThemeChanged += (_, _) =>
                 MainThread.BeginInvokeOnMainThread(AplicarColorRefresh);
         }
+    }
+
+    private void OnCreditosTapped(object sender, TappedEventArgs e)
+    {
+        _modoCreditos = (_modoCreditos + 1) % 3;
+        Preferences.Default.Set(PrefModoCreditos, _modoCreditos);
+        AplicarModoCreditos();
+    }
+
+    private void AplicarModoCreditos()
+    {
+        var mostrarColab = _modoCreditos < 2;
+        var mostrarAuto  = _modoCreditos == 0;
+
+        VStackColab.IsVisible = mostrarColab;
+        VStackAuto.IsVisible  = mostrarAuto;
+        ColColab.Width = mostrarColab ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
+        ColAuto.Width  = mostrarAuto  ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
     }
 
     private void AplicarColorRefresh()

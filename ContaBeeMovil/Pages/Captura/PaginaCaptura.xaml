@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
              Title="Captura"
@@ -19,7 +20,10 @@
                    FontAttributes="Bold"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                    VerticalOptions="Center" />
+
+            <!-- Badge: solo cuando NO hay créditos de autoservicio -->
             <Border Grid.Column="1"
+                    IsVisible="{Binding TieneCreditosAutoservicio, Converter={StaticResource InvertedBoolConverter}}"
                     StrokeShape="RoundRectangle 10"
                     Stroke="Transparent"
                     StrokeThickness="0"
@@ -30,6 +34,43 @@
                        FontAttributes="Bold"
                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                        VerticalOptions="Center" />
+            </Border>
+
+            <!-- Selector de tipo de crédito: píldora de color + ícono cambiar (vector) + tipo/número -->
+            <Border Grid.Column="1"
+                    IsVisible="{Binding TieneCreditosAutoservicio}"
+                    BackgroundColor="{Binding ColorCreditoActivo}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="11,6"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCambiarTipoCredito" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="7" VerticalOptions="Center">
+                    <!-- Ícono "cambiar" dibujado como vector (no depende de fuentes) -->
+                    <Path Data="M3,8 H19 M15,4 L19,8 L15,12 M21,16 H5 M9,12 L5,16 L9,20"
+                          Stroke="{Binding BrushContrasteCredito}"
+                          StrokeThickness="2.2"
+                          StrokeLineCap="Round"
+                          StrokeLineJoin="Round"
+                          Aspect="Uniform"
+                          WidthRequest="22"
+                          HeightRequest="22"
+                          VerticalOptions="Center" />
+                    <!-- Tipo del crédito activo -->
+                    <Label Text="{Binding TipoCreditoActivo}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{Binding ColorContrasteCredito}"
+                           VerticalOptions="Center" />
+                    <!-- Número de créditos (más grande) -->
+                    <Label Text="{Binding CreditosActivos}"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{Binding ColorContrasteCredito}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
             </Border>
         </Grid>
     </Shell.TitleView>
