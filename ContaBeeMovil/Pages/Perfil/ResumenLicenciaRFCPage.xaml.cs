@@ -1,4 +1,5 @@
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
@@ -7,6 +8,7 @@ namespace ContaBeeMovil.Pages.Perfil;
 public partial class ResumenLicenciaRFCPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioLogs _logs;
 
     private Guid _cfid;
     private string _rfc = "—";
@@ -22,10 +24,11 @@ public partial class ResumenLicenciaRFCPage : ContentPage
         set => _rfc = Uri.UnescapeDataString(value ?? "—");
     }
 
-    public ResumenLicenciaRFCPage(IServicioCrm servicioCrm)
+    public ResumenLicenciaRFCPage(IServicioCrm servicioCrm, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
+        _logs = logs;
     }
 
     protected override async void OnAppearing()
@@ -47,13 +50,17 @@ public partial class ResumenLicenciaRFCPage : ContentPage
         if (res.Ok && res.Payload != null)
         {
             var lic = res.Payload;
-            LblDisponibles.Text = lic.CreditosDisponibles.ToString();
-            // LblConsumidos.Text = consumidos.ToString();
-            // LblTotal.Text = $"de {total} en total";
+            _logs.Log($"[ResumenLicenciaRFC] OK → cfid={_cfid} Captura={lic.CreditosDisponibles} Colab={lic.CreditosColabDisponibles} Auto={lic.CreditosAutoDisponibles}");
+            LblCreditosCaptura.Text = lic.CreditosDisponibles.ToString();
+            LblCreditosColab.Text   = lic.CreditosColabDisponibles.ToString();
+            LblCreditosAuto.Text    = lic.CreditosAutoDisponibles.ToString();
         }
         else
         {
-            LblDisponibles.Text = "0";
+            _logs.Warn($"[ResumenLicenciaRFC] ERROR → cfid={_cfid} HttpCode={res.HttpCode} Mensaje={res.Error?.Mensaje}");
+            LblCreditosCaptura.Text = "0";
+            LblCreditosColab.Text   = "0";
+            LblCreditosAuto.Text    = "0";
         }
 
         SetLoading(false);

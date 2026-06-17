@@ -36,6 +36,14 @@
     <toolkit:AppThemeColor x:Key="Alternate" Light="#f2f1f0" Dark="#3a3a3a" />
 
     <!-- ========================================= -->
+    <!-- CRÉDITO COLORS                            -->
+    <!-- Color semántico por tipo de crédito       -->
+    <!-- ========================================= -->
+    <toolkit:AppThemeColor x:Key="Captura" Light="#fec001" Dark="#fec001" />
+    <toolkit:AppThemeColor x:Key="Colab"   Light="#0E9E86" Dark="#0E9E86" />
+    <toolkit:AppThemeColor x:Key="Auto"    Light="#2456C9" Dark="#2456C9" />
+
+    <!-- ========================================= -->
     <!-- TEXT COLORS                               -->
     <!-- ========================================= -->
     <toolkit:AppThemeColor x:Key="PrimaryText"   Light="#1e1e1e" Dark="#fefdfc" />

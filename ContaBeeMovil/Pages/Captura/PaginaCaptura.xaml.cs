@@ -82,7 +82,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(AppState.Licenciamiento))
+            {
                 OnPropertyChanged(nameof(CreditosCaptura));
+                OnPropertyChanged(nameof(CreditosAutoservicio));
+                OnPropertyChanged(nameof(TieneCreditosAutoservicio));
+                OnPropertyChanged(nameof(CreditosActivos));
+                if (!TieneCreditosAutoservicio && UsarAutoservicio)
+                    UsarAutoservicio = false;
+            }
         };
     }
 
@@ -388,6 +395,43 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public int  CreditosCaptura  =>
         AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
 
+    // ── Tipo de crédito de captura (Captura vs Autoservicio) ─────────────────
+
+    public int  CreditosAutoservicio      => AppState.Instance.Licenciamiento?.CreditosAutoDisponibles ?? 0;
+    public bool TieneCreditosAutoservicio => true; // [TEMPORAL] forzado para preview visual
+
+    private bool _usarAutoservicio;
+    public bool UsarAutoservicio
+    {
+        get => _usarAutoservicio;
+        set
+        {
+            if (_usarAutoservicio == value) return;
+            _usarAutoservicio = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(UsarCaptura));
+            OnPropertyChanged(nameof(TipoCreditoActivo));
+            OnPropertyChanged(nameof(CreditosActivos));
+            OnPropertyChanged(nameof(ColorCreditoActivo));
+            OnPropertyChanged(nameof(ColorContrasteCredito));
+            OnPropertyChanged(nameof(BrushContrasteCredito));
+        }
+    }
+    public bool UsarCaptura => !UsarAutoservicio;
+
+    // Tipo y número del crédito activo (separados para darles tamaños distintos), y su color
+    public string TipoCreditoActivo => UsarAutoservicio ? "Autoservicio" : "Captura";
+    public int    CreditosActivos   => UsarAutoservicio ? CreditosAutoservicio : CreditosCaptura;
+    public Color ColorCreditoActivo => UsarAutoservicio
+        ? UIHelpers.GetColor("Auto")
+        : UIHelpers.GetColor("Captura");
+    // Color de contraste para el ícono sobre el fondo del color activo
+    public Color ColorContrasteCredito => UsarAutoservicio
+        ? Colors.White
+        : UIHelpers.GetColor("OnPrimary");
+    // Mismo color como Brush, para el trazo del ícono vectorial (Path.Stroke)
+    public Brush BrushContrasteCredito => new SolidColorBrush(ColorContrasteCredito);
+
     // ── Ancho dinámico de cada card en el carrusel ───────────────────────────
 
     private double _capturaItemWidth = 300;
@@ -680,8 +724,22 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
+    private void OnSeleccionarCaptura(object sender, TappedEventArgs e)      => UsarAutoservicio = false;
+    private void OnSeleccionarAutoservicio(object sender, TappedEventArgs e) => UsarAutoservicio = true;
+    private void OnCambiarTipoCredito(object sender, TappedEventArgs e)      => UsarAutoservicio = !UsarAutoservicio;
+
     private async Task EnviarAsync()
     {
+        if (UsarAutoservicio)
+        {
+            await _servicioAlerta.MostrarAsync(
+                "Próximamente",
+                "La captura con créditos de autoservicio estará disponible muy pronto. Por ahora puedes usar tus créditos de captura.",
+                verBotonCancelar: false,
+                confirmarText: "Entendido");
+            return;
+        }
+
         if (AppState.Instance.ModoOffline)
         {
             await _servicioAlerta.MostrarAsync("Sin conexión", "Tus fotos están guardadas. Envíalas cuando recuperes internet.");

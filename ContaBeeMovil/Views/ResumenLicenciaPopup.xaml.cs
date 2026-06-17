@@ -17,9 +17,9 @@ public partial class ResumenLicenciaPopup : CommunityToolkit.Maui.Views.Popup
 
         LblRfc.Text = cuenta?.Rfc ?? "—";
 
-        LblDisponibles.Text = (lic?.CreditosDisponibles ?? 0).ToString();
-        //LblConsumidos.Text  = consumidos.ToString();
-        //LblTotal.Text       = $"de {total} en total";
+        LblCreditosCaptura.Text = (lic?.CreditosDisponibles      ?? 0).ToString();
+        LblCreditosColab.Text   = (lic?.CreditosColabDisponibles ?? 0).ToString();
+        LblCreditosAuto.Text    = (lic?.CreditosAutoDisponibles  ?? 0).ToString();
     }
 
     private async void OnCerrar(object sender, EventArgs e) => await CloseAsync(CancellationToken.None);
