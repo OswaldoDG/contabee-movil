@@ -2992,6 +2992,29 @@
             "format": "int32",
             "nullable": true
           },
+          "creditosColaboracionAdquiridos": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "creditosColaboracionRestantes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "creditosAutocapturaAdquiridos": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "creditosAutocapturaRestantes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "centroCostosActivo": {
+            "type": "boolean"
+          },
           "totalFacturado": {
             "type": "number",
             "format": "double"
@@ -3058,6 +3081,10 @@
           },
           "capturaRemota": {
             "type": "boolean"
+          },
+          "urgente": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3149,6 +3176,9 @@
           "capturaRemota": {
             "type": "boolean"
           },
+          "urgente": {
+            "type": "boolean"
+          },
           "creditosDisponibles": {
             "type": "integer",
             "format": "int64"
@@ -3231,6 +3261,9 @@
             "type": "boolean"
           },
           "capturaRemota": {
+            "type": "boolean"
+          },
+          "urgente": {
             "type": "boolean"
           }
         },

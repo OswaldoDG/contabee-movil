@@ -115,6 +115,7 @@
                     </Grid>
 
                     <!-- 6. Opciones de evidencia -->
+                    <!-- Fila A: Sólo evidencia + Urgente -->
                     <Grid ColumnDefinitions="*,*"
                           Margin="0,8,0,0"
                           ColumnSpacing="8">
@@ -141,6 +142,34 @@
                         </Border>
 
                         <Border Grid.Column="1"
+                                BackgroundColor="{toolkit:AppThemeResource Background}"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                Padding="4,0">
+                            <Grid ColumnDefinitions="Auto,*"
+                                  ColumnSpacing="0"
+                                  VerticalOptions="Center">
+                                <CheckBox Grid.Column="0"
+                                          IsChecked="{Binding EsUrgente}"
+                                          IsEnabled="{Binding PuedeSerUrgente}"
+                                          Color="{toolkit:AppThemeResource Primary}"
+                                          VerticalOptions="Center" />
+                                <Label Grid.Column="1"
+                                       Text="Urgente"
+                                       FontSize="12"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="WordWrap"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <!-- Fila B: Captura remota (solo visible si SoloEvidencia) -->
+                    <Grid ColumnDefinitions="*,*"
+                          Margin="0,8,0,0"
+                          ColumnSpacing="8">
+                        <Border Grid.Column="0"
                                 IsVisible="{Binding MostrarCapturaRemota}"
                                 BackgroundColor="{toolkit:AppThemeResource Background}"
                                 StrokeShape="RoundRectangle 10"
