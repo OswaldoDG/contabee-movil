@@ -43,9 +43,8 @@
                 </HorizontalStackLayout>
             </Border>
 
-            <!-- Selector de tipo de crédito (≥1 crédito de autoservicio): dos secciones.
-                 Izquierda: color del tipo + ícono + nombre.  Derecha: fondo claro + número.
-                 Toda la píldora es tocable y alterna Captura <-> Autoservicio. -->
+            <!-- Badge de créditos de autoservicio (se muestra cuando TieneCreditosAutoservicio).
+                 Se selecciona automáticamente; no es interactivo. -->
             <Border Grid.Column="1"
                     IsVisible="{Binding TieneCreditosAutoservicio}"
                     Stroke="Transparent"
@@ -53,9 +52,6 @@
                     BackgroundColor="Transparent"
                     Padding="0"
                     VerticalOptions="Center">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnCambiarTipoCredito" />
-                </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,Auto" VerticalOptions="Center">
                     <!-- Sección derecha (ATRÁS): fondo claro + número.
                          Margin negativo: su borde izquierdo se mete debajo de la box de color. -->

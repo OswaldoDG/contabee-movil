@@ -31,29 +31,41 @@ public partial class ActividadView : ContentView
         AplicarModoCreditos();
     }
 
-    /// <summary>
-    /// Resalta los box de los créditos que aumentaron tras una compra: por cada uno
-    /// muestra el "+N" flotante y cuenta el número desde el valor anterior al nuevo
-    /// (solo las tarjetas visibles según el modo de créditos actual).
-    /// </summary>
     public void ResaltarCreditos(params CreditoGanado[] creditos)
+        => _ = ResaltarCreditosAsync(creditos);
+
+    /// <summary>
+    /// Muestra el valor viejo, sube el "+N" y cuenta hasta el nuevo valor para cada crédito ganado.
+    /// Restaura el data binding del label al terminar; llama GetLicenciaAsync después de awaitar.
+    /// Solo anima las tarjetas visibles según el modo de créditos actual.
+    /// </summary>
+    public Task ResaltarCreditosAsync(params CreditoGanado[] creditos)
     {
+        var tareas = new List<Task>();
         foreach (var c in creditos)
         {
-            var (border, badge, numero, colorKey) = c.Tipo switch
+            var (border, badge, numero, colorKey, bindingPath) = c.Tipo switch
             {
-                TipoCreditoResaltar.Captura      => (BorderCaptura, BadgeCaptura, LabelCaptura, "Captura"),
-                TipoCreditoResaltar.Autoservicio => (BorderAuto,    BadgeAuto,    LabelAuto,    "Auto"),
-                _                                => (BorderColab,   BadgeColab,   LabelColab,   "Colab"),
+                TipoCreditoResaltar.Captura      => (BorderCaptura, BadgeCaptura, LabelCaptura, "Captura",    "CreditosCapturaDisponibles"),
+                TipoCreditoResaltar.Autoservicio => (BorderAuto,    BadgeAuto,    LabelAuto,    "Auto",       "CreditosAutoDisponibles"),
+                _                                => (BorderColab,   BadgeColab,   LabelColab,   "Colab",      "CreditosColabDisponibles"),
             };
 
-            if (!border.IsVisible) continue;   // tarjeta oculta por el modo de créditos
+            if (!border.IsVisible) continue;
 
-            // El número ya muestra el valor nuevo (binding actualizado); contamos desde el anterior.
-            int nuevo = int.TryParse(numero.Text, out var v) ? v : c.Cantidad;
-            int desde = Math.Max(0, nuevo - c.Cantidad);
-            _ = AnimacionesCredito.MasNConConteo(border, badge, numero, desde, nuevo, UIHelpers.GetColor(colorKey));
+            // El label aún muestra el valor viejo (GetLicenciaAsync no se ha llamado).
+            int desde = int.TryParse(numero.Text, out var v) ? v : 0;
+            int hasta = desde + c.Cantidad;
+            tareas.Add(AnimarConBinding(border, badge, numero, desde, hasta, UIHelpers.GetColor(colorKey), bindingPath));
         }
+        return tareas.Count > 0 ? Task.WhenAll(tareas) : Task.CompletedTask;
+    }
+
+    private static async Task AnimarConBinding(Border border, Label badge, Label numero, int desde, int hasta, Color color, string bindingPath)
+    {
+        await AnimacionesCredito.MasNConConteo(border, badge, numero, desde, hasta, color);
+        // ContarLabel rompe el binding (setea Text directamente); lo restauramos aquí.
+        numero.SetBinding(Label.TextProperty, new Binding(bindingPath));
     }
 
     private void AplicarModoCreditos()
