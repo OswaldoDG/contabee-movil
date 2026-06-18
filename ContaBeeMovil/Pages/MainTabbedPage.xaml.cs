@@ -23,14 +23,14 @@ public partial class MainTabbedPage : ContentPage
     private bool _estabaOffline;
 
     internal static event Action? EquipoRequested;
-    internal static event Action<TipoCreditoResaltar[]>? ResaltarCreditosRequested;
+    internal static event Action<CreditoGanado[]>? ResaltarCreditosRequested;
 
     /// <summary>
-    /// Pide al dashboard mostrarse (tab 0) y resaltar las tarjetas de los créditos indicados.
+    /// Pide al dashboard mostrarse (tab 0) y resaltar las tarjetas de los créditos que aumentaron.
     /// Lo usa el flujo de compra tras una compra exitosa.
     /// </summary>
-    internal static void SolicitarResaltarCreditos(params TipoCreditoResaltar[] tipos)
-        => ResaltarCreditosRequested?.Invoke(tipos);
+    internal static void SolicitarResaltarCreditos(params CreditoGanado[] creditos)
+        => ResaltarCreditosRequested?.Invoke(creditos);
 
     public MainTabbedPage(IServiceProvider services)
     {
@@ -103,11 +103,11 @@ public partial class MainTabbedPage : ContentPage
         _estabaOffline = offline;
     }
 
-    private async void OnResaltarCreditosRequested(TipoCreditoResaltar[] tipos)
+    private async void OnResaltarCreditosRequested(CreditoGanado[] creditos)
     {
         if (_currentIndex != 0) SwitchToTab(0);   // pone Dashboard + fade de 140ms
         await Task.Delay(280);                     // deja asentar el fade y el binding del nuevo licenciamiento
-        _dashboardPage.ResaltarCreditos(tipos);
+        _dashboardPage.ResaltarCreditos(creditos);
     }
 
     private void ForceEquipoTab()

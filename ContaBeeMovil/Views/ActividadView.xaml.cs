@@ -32,49 +32,28 @@ public partial class ActividadView : ContentView
     }
 
     /// <summary>
-    /// Resalta con un pulso de escala + glow de color las tarjetas de los tipos
-    /// de crédito indicados (solo las visibles según el modo de créditos actual).
+    /// Resalta los box de los créditos que aumentaron tras una compra: por cada uno
+    /// muestra el "+N" flotante y cuenta el número desde el valor anterior al nuevo
+    /// (solo las tarjetas visibles según el modo de créditos actual).
     /// </summary>
-    public void ResaltarCreditos(params TipoCreditoResaltar[] tipos)
+    public void ResaltarCreditos(params CreditoGanado[] creditos)
     {
-        foreach (var tipo in tipos.Distinct())
+        foreach (var c in creditos)
         {
-            var (border, colorKey) = tipo switch
+            var (border, badge, numero, colorKey) = c.Tipo switch
             {
-                TipoCreditoResaltar.Captura      => (BorderCaptura, "Captura"),
-                TipoCreditoResaltar.Autoservicio => (BorderAuto,    "Auto"),
-                _                                => (BorderColab,   "Colab"),
+                TipoCreditoResaltar.Captura      => (BorderCaptura, BadgeCaptura, LabelCaptura, "Captura"),
+                TipoCreditoResaltar.Autoservicio => (BorderAuto,    BadgeAuto,    LabelAuto,    "Auto"),
+                _                                => (BorderColab,   BadgeColab,   LabelColab,   "Colab"),
             };
 
             if (!border.IsVisible) continue;   // tarjeta oculta por el modo de créditos
-            _ = AnimarTarjeta(border, UIHelpers.GetColor(colorKey));
+
+            // El número ya muestra el valor nuevo (binding actualizado); contamos desde el anterior.
+            int nuevo = int.TryParse(numero.Text, out var v) ? v : c.Cantidad;
+            int desde = Math.Max(0, nuevo - c.Cantidad);
+            _ = AnimacionesCredito.MasNConConteo(border, badge, numero, desde, nuevo, UIHelpers.GetColor(colorKey));
         }
-    }
-
-    private static async Task AnimarTarjeta(Border border, Color color)
-    {
-        var strokeOriginal = border.Stroke;
-        var grosorOriginal = border.StrokeThickness;
-
-        border.Stroke = new SolidColorBrush(color);   // glow: el borde toma el color del tipo
-
-        await Task.WhenAll(
-            border.ScaleToAsync(1.12, 180, Easing.CubicOut),
-            AnimarGrosorBorde(border, grosorOriginal, 3, 180));
-
-        await Task.WhenAll(
-            border.ScaleToAsync(1.0, 200, Easing.CubicIn),
-            AnimarGrosorBorde(border, 3, grosorOriginal, 200));
-
-        border.Stroke = strokeOriginal;               // restaura el borde Accent1
-    }
-
-    private static Task AnimarGrosorBorde(Border border, double desde, double hasta, uint duracion)
-    {
-        var tcs = new TaskCompletionSource();
-        var anim = new Animation(v => border.StrokeThickness = v, desde, hasta, Easing.CubicInOut);
-        anim.Commit(border, "AnimGrosorBorde", length: duracion, finished: (_, _) => tcs.SetResult());
-        return tcs.Task;
     }
 
     private void AplicarModoCreditos()
