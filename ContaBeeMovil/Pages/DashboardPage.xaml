@@ -46,7 +46,7 @@
             </Grid>
         </Border>
 
-        <views:ActividadView Grid.Row="1" />
+        <views:ActividadView x:Name="Actividad" Grid.Row="1" />
 
     </Grid>
 

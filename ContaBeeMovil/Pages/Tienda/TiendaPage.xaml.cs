@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using Contabee.Api.abstractions;
 using Contabee.Api.Ecommerce;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -371,13 +372,26 @@ public partial class TiendaPage : ContentPage
             _logs.Log($"Tienda: completar backend — completado={completado}");
         }
 
+        var tiposResaltar = new List<TipoCreditoResaltar>();
+
         if (completado)
         {
             await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
             _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
 
+            // Snapshot de créditos antes del refresh para detectar qué tipo(s) aumentaron.
+            var licAntes = AppState.Instance.Licenciamiento;
+            int capAntes   = licAntes?.CreditosDisponibles      ?? 0;
+            int autoAntes  = licAntes?.CreditosAutoDisponibles  ?? 0;
+            int colabAntes = licAntes?.CreditosColabDisponibles ?? 0;
+
             await _servicioSesion.GetLicenciaAsync();
             _logs.Log("Tienda: licencia actualizada");
+
+            var licDespues = AppState.Instance.Licenciamiento;
+            if ((licDespues?.CreditosDisponibles      ?? 0) > capAntes)   tiposResaltar.Add(TipoCreditoResaltar.Captura);
+            if ((licDespues?.CreditosAutoDisponibles  ?? 0) > autoAntes)  tiposResaltar.Add(TipoCreditoResaltar.Autoservicio);
+            if ((licDespues?.CreditosColabDisponibles ?? 0) > colabAntes) tiposResaltar.Add(TipoCreditoResaltar.Colaboracion);
         }
         else
         {
@@ -388,9 +402,17 @@ public partial class TiendaPage : ContentPage
         if (!silencioso)
         {
             if (completado)
-                await _servicioAlerta.MostrarAsync("¡Compra exitosa!", $"Tu {productoCatalogo.Nombre} ya está disponible en tu cuenta.", verBotonCancelar: false, confirmarText: "Aceptar");
+            {
+                await _toast.MostrarAsync("¡Compra exitosa!", ToastIcono.Info, ToastPosicion.Bottom);
+                DashboardPage.PendienteActualizar = true;   // recarga estadísticas del dashboard
+                await Shell.Current.GoToAsync("..");        // vuelve de Tienda al MainTabbedPage
+                if (tiposResaltar.Count > 0)
+                    MainTabbedPage.SolicitarResaltarCreditos(tiposResaltar.ToArray());
+            }
             else
+            {
                 await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
+            }
         }
 
         return completado;

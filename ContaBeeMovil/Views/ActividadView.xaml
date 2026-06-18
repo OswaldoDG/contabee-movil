@@ -47,15 +47,16 @@
                       ColumnSpacing="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition x:Name="ColColab" Width="*" />
                         <ColumnDefinition x:Name="ColAuto" Width="*" />
+                        <ColumnDefinition x:Name="ColColab" Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCreditosTapped" />
                     </Grid.GestureRecognizers>
 
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
-                        <Border BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                        <Border x:Name="BorderCaptura"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
@@ -78,8 +79,9 @@
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout x:Name="VStackColab" Grid.Column="1" Spacing="4">
-                        <Border BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                    <VerticalStackLayout x:Name="VStackColab" Grid.Column="2" Spacing="4">
+                        <Border x:Name="BorderColab"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"
@@ -102,8 +104,9 @@
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout x:Name="VStackAuto" Grid.Column="2" Spacing="4">
-                        <Border BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                    <VerticalStackLayout x:Name="VStackAuto" Grid.Column="1" Spacing="4">
+                        <Border x:Name="BorderAuto"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 10"

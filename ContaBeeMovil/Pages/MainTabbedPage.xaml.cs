@@ -1,4 +1,5 @@
 using Contabee.Api.Crm;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -22,6 +23,14 @@ public partial class MainTabbedPage : ContentPage
     private bool _estabaOffline;
 
     internal static event Action? EquipoRequested;
+    internal static event Action<TipoCreditoResaltar[]>? ResaltarCreditosRequested;
+
+    /// <summary>
+    /// Pide al dashboard mostrarse (tab 0) y resaltar las tarjetas de los créditos indicados.
+    /// Lo usa el flujo de compra tras una compra exitosa.
+    /// </summary>
+    internal static void SolicitarResaltarCreditos(params TipoCreditoResaltar[] tipos)
+        => ResaltarCreditosRequested?.Invoke(tipos);
 
     public MainTabbedPage(IServiceProvider services)
     {
@@ -53,6 +62,7 @@ public partial class MainTabbedPage : ContentPage
         };
 
         EquipoRequested += ForceEquipoTab;
+        ResaltarCreditosRequested += OnResaltarCreditosRequested;
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
@@ -91,6 +101,13 @@ public partial class MainTabbedPage : ContentPage
             _ = toast.MostrarAsync("Conexión Restaurada", ToastIcono.Info, ToastPosicion.Bottom);
         }
         _estabaOffline = offline;
+    }
+
+    private async void OnResaltarCreditosRequested(TipoCreditoResaltar[] tipos)
+    {
+        if (_currentIndex != 0) SwitchToTab(0);   // pone Dashboard + fade de 140ms
+        await Task.Delay(280);                     // deja asentar el fade y el binding del nuevo licenciamiento
+        _dashboardPage.ResaltarCreditos(tipos);
     }
 
     private void ForceEquipoTab()
