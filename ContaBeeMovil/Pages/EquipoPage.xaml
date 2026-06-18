@@ -10,6 +10,207 @@
              BackgroundColor="{toolkit:AppThemeResource Background}"
              Padding="0">
 
+    <ContentPage.Resources>
+
+        <!-- Template para usuarios vinculados: con gesto de deslizar para eliminar -->
+        <DataTemplate x:Key="TemplateVinculado" x:DataType="vm:EquipoUsuarioItem">
+            <SwipeView Margin="16,6">
+                <SwipeView.LeftItems>
+                    <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
+                        <SwipeItemView Command="{Binding DeleteCommand}">
+                            <Border BackgroundColor="{toolkit:AppThemeResource Error}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0"
+                                    Padding="5"
+                                    WidthRequest="{Binding SwipeItemWidth}">
+                                <Image WidthRequest="26"
+                                       HeightRequest="26"
+                                       HorizontalOptions="Start"
+                                       VerticalOptions="Center"
+                                       mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
+                            </Border>
+                        </SwipeItemView>
+                    </SwipeItems>
+                </SwipeView.LeftItems>
+
+                <Border Margin="2"
+                        Padding="10,5"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        StrokeThickness="1"
+                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0"
+                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                 WidthRequest="4" CornerRadius="2"
+                                 VerticalOptions="Fill" />
+
+                        <Grid Grid.Column="1"
+                              Padding="5"
+                              ColumnDefinitions="56,*,Auto"
+                              ColumnSpacing="14">
+
+                            <Border Grid.Column="0"
+                                    WidthRequest="48"
+                                    HeightRequest="48"
+                                    StrokeShape="RoundRectangle 24"
+                                    StrokeThickness="0"
+                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                    VerticalOptions="Center">
+                                <Label Text="{Binding Iniciales}"
+                                       FontSize="10"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="3"
+                                                 VerticalOptions="Center">
+                                <Label Text="{Binding Nombre}"
+                                       FontSize="15"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Email}"
+                                       IsVisible="{Binding TieneEmail}"
+                                       FontSize="12"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding TipoCuentaTexto}"
+                                       FontSize="12"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </VerticalStackLayout>
+
+                            <mi:MauiIcon Grid.Column="2"
+                                         Icon="{mi:Material Icon=ChevronRight}"
+                                         IconSize="22"
+                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                         IsVisible="{Binding MostrarConfigurar}"
+                                         HorizontalOptions="End"
+                                         VerticalOptions="Center" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </SwipeView>
+        </DataTemplate>
+
+        <!-- Template para el usuario en sesión: sin swipe, chip "Yo" junto al nombre -->
+        <DataTemplate x:Key="TemplatePropio" x:DataType="vm:EquipoUsuarioItem">
+            <SwipeView Margin="16,6">
+                <Border Margin="0"
+                        Padding="10,5"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        StrokeThickness="1"
+                        BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="5,*">
+                        <BoxView Grid.Column="0"
+                                 BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                 WidthRequest="4" CornerRadius="2"
+                                 VerticalOptions="Fill" />
+
+                        <Grid Grid.Column="1"
+                              Padding="5"
+                              ColumnDefinitions="56,*,Auto"
+                              ColumnSpacing="14">
+
+                            <!-- Avatar con anillo dorado (diferenciador del usuario propio) -->
+                            <Grid Grid.Column="0"
+                                  WidthRequest="50"
+                                  HeightRequest="50"
+                                  VerticalOptions="Center">
+                                <!-- Relleno dorado con iniciales -->
+                                <Border WidthRequest="44"
+                                        HeightRequest="44"
+                                        StrokeShape="RoundRectangle 22"
+                                        StrokeThickness="0"
+                                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding Iniciales}"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <!-- Anillo superpuesto -->
+                                <Border WidthRequest="55"
+                                        HeightRequest="55"
+                                        StrokeShape="RoundRectangle 26"
+                                        Stroke="{toolkit:AppThemeResource Primary}"
+                                        StrokeThickness="2"
+                                        BackgroundColor="Transparent"
+                                        InputTransparent="True"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center" />
+                            </Grid>
+
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="3"
+                                                 VerticalOptions="Center">
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding Nombre}"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                           LineBreakMode="TailTruncation" />
+                                    <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 4"
+                                            Padding="6,2"
+                                            VerticalOptions="Center">
+                                        <Label Text="Yo"
+                                               FontSize="10"
+                                               TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                               FontAttributes="Bold" />
+                                    </Border>
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding Email}"
+                                       IsVisible="{Binding TieneEmail}"
+                                       FontSize="12"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding TipoCuentaTexto}"
+                                       FontSize="12"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </VerticalStackLayout>
+
+                            <mi:MauiIcon Grid.Column="2"
+                                         Icon="{mi:Material Icon=ChevronRight}"
+                                         IconSize="22"
+                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                         IsVisible="{Binding MostrarConfigurar}"
+                                         HorizontalOptions="End"
+                                         VerticalOptions="Center" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </SwipeView>
+        </DataTemplate>
+
+        <vm:EquipoDataTemplateSelector x:Key="ItemSelector"
+                                       UsuarioVinculadoTemplate="{StaticResource TemplateVinculado}"
+                                       UsuarioPropioTemplate="{StaticResource TemplatePropio}" />
+
+    </ContentPage.Resources>
+
     <Grid BackgroundColor="{toolkit:AppThemeResource Background}"
           RowDefinitions="Auto,*">
 
@@ -50,106 +251,8 @@
                      RefreshColor="{toolkit:AppThemeResource Icon}"
                      Background="{toolkit:AppThemeResource Background}">
         <CollectionView ItemsSource="{Binding Usuarios}"
+                        ItemTemplate="{StaticResource ItemSelector}"
                         Margin="0,4">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="vm:EquipoUsuarioItem">
-                    <SwipeView Margin="16,6">
-                        <SwipeView.LeftItems>
-                            <SwipeItems Mode="Execute" SwipeBehaviorOnInvoked="Close">
-                                <SwipeItemView Command="{Binding DeleteCommand}">
-                                    <Border BackgroundColor="{toolkit:AppThemeResource Error}"
-                                            StrokeShape="RoundRectangle 12"
-                                            StrokeThickness="0"
-                                            Padding="5"
-                                            WidthRequest="{Binding SwipeItemWidth}">
-                                        <Image WidthRequest="26"
-                                               HeightRequest="26"
-                                               HorizontalOptions="Start"
-                                               VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
-                                    </Border>
-                                </SwipeItemView>
-                            </SwipeItems>
-                        </SwipeView.LeftItems>
-
-                    <Border Margin="0"
-                            Padding="10,5"
-                                StrokeShape="RoundRectangle 10"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                StrokeThickness="1"
-                                BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                            <Border.Shadow>
-                                <Shadow Brush="Black" Radius="14" Opacity="0.11" Offset="0,5" />
-                            </Border.Shadow>
-                            <!-- Tap en la card abre propiedades (solo cuenta primaria; si no, el command es null) -->
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
-                            </Border.GestureRecognizers>
-
-                            <Grid ColumnDefinitions="5,*">
-
-                                <!-- Barra de acento izquierda según estado -->
-                        <BoxView Grid.Column="0"
-                             BackgroundColor="{toolkit:AppThemeResource Primary}"
-                             WidthRequest="4" CornerRadius="2"
-                             VerticalOptions="Fill" />
-
-                                <!-- Contenido de la card -->
-                                <Grid Grid.Column="1"
-                                      Padding="5"
-                                      ColumnDefinitions="56,*,Auto"
-                                      ColumnSpacing="14">
-
-                                    <!-- Avatar con iniciales -->
-                                    <Border Grid.Column="0"
-                                            WidthRequest="48"
-                                            HeightRequest="48"
-                                            StrokeShape="RoundRectangle 24"
-                                            StrokeThickness="0"
-                                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                            VerticalOptions="Center">
-                                        <Label Text="{Binding Iniciales}"
-                                               FontSize="17"
-                                               FontAttributes="Bold"
-                                               TextColor="{toolkit:AppThemeResource OnPrimary}"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center" />
-                                    </Border>
-
-                                    <!-- Datos del usuario -->
-                                    <VerticalStackLayout Grid.Column="1"
-                                                         Spacing="3"
-                                                         VerticalOptions="Center">
-                                        <Label Text="{Binding Nombre}"
-                                               FontSize="15"
-                                               FontAttributes="Bold"
-                                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                               LineBreakMode="TailTruncation" />
-                                        <Label Text="{Binding Email}"
-                                               IsVisible="{Binding TieneEmail}"
-                                               FontSize="12"
-                                               TextColor="{toolkit:AppThemeResource SecondaryText}"
-                                               LineBreakMode="TailTruncation" />
-                                        <Label Text="{Binding TipoCuentaTexto}"
-                                               FontSize="12"
-                                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                                    </VerticalStackLayout>
-
-                                    <!-- Indicador de que la card es clickeable (abre propiedades) -->
-                                    <mi:MauiIcon Grid.Column="2"
-                                                 Icon="{mi:Material Icon=ChevronRight}"
-                                                 IconSize="22"
-                                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                                 IsVisible="{Binding MostrarConfigurar}"
-                                                 HorizontalOptions="End"
-                                                 VerticalOptions="Center" />
-
-                                </Grid>
-                            </Grid>
-                    </Border>
-                    </SwipeView>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
         </CollectionView>
         </RefreshView>
 

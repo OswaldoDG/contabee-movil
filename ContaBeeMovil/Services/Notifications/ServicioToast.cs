@@ -12,7 +12,7 @@ public interface IServicioToast
         string mensaje,
         ToastIcono icono = ToastIcono.Info,
         ToastPosicion posicion = ToastPosicion.Bottom,
-        int duracionMs = 3000);
+        int duracionMs = 2000);
 }
 
 public class ServicioToast : IServicioToast
