@@ -34,11 +34,11 @@
                     <Label Text="{Binding CreditosCaptura}"
                                    FontSize="14"
                                    FontAttributes="Bold"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}"
                                    VerticalOptions="Center" />
                     <Label Text="créditos"
                                    FontSize="12"
-                                   TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}"
                                    VerticalOptions="Center" />
                 </HorizontalStackLayout>
             </Border>
@@ -89,15 +89,6 @@
                             <Shadow Brush="Black" Offset="1,0" Radius="2" Opacity="0.25" />
                         </Border.Shadow>
                         <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                            <Path Data="M3,8 H19 M15,4 L19,8 L15,12 M21,16 H5 M9,12 L5,16 L9,20"
-                                  Stroke="{Binding BrushContrasteCredito}"
-                                  StrokeThickness="2.1"
-                                  StrokeLineCap="Round"
-                                  StrokeLineJoin="Round"
-                                  Aspect="Uniform"
-                                  WidthRequest="17"
-                                  HeightRequest="17"
-                                  VerticalOptions="Center" />
                             <Label Text="{Binding TipoCreditoActivo}"
                                    FontSize="14"
                                    FontAttributes="Bold"
