@@ -31,6 +31,52 @@ public partial class ActividadView : ContentView
         AplicarModoCreditos();
     }
 
+    /// <summary>
+    /// Resalta con un pulso de escala + glow de color las tarjetas de los tipos
+    /// de crédito indicados (solo las visibles según el modo de créditos actual).
+    /// </summary>
+    public void ResaltarCreditos(params TipoCreditoResaltar[] tipos)
+    {
+        foreach (var tipo in tipos.Distinct())
+        {
+            var (border, colorKey) = tipo switch
+            {
+                TipoCreditoResaltar.Captura      => (BorderCaptura, "Captura"),
+                TipoCreditoResaltar.Autoservicio => (BorderAuto,    "Auto"),
+                _                                => (BorderColab,   "Colab"),
+            };
+
+            if (!border.IsVisible) continue;   // tarjeta oculta por el modo de créditos
+            _ = AnimarTarjeta(border, UIHelpers.GetColor(colorKey));
+        }
+    }
+
+    private static async Task AnimarTarjeta(Border border, Color color)
+    {
+        var strokeOriginal = border.Stroke;
+        var grosorOriginal = border.StrokeThickness;
+
+        border.Stroke = new SolidColorBrush(color);   // glow: el borde toma el color del tipo
+
+        await Task.WhenAll(
+            border.ScaleToAsync(1.12, 180, Easing.CubicOut),
+            AnimarGrosorBorde(border, grosorOriginal, 3, 180));
+
+        await Task.WhenAll(
+            border.ScaleToAsync(1.0, 200, Easing.CubicIn),
+            AnimarGrosorBorde(border, 3, grosorOriginal, 200));
+
+        border.Stroke = strokeOriginal;               // restaura el borde Accent1
+    }
+
+    private static Task AnimarGrosorBorde(Border border, double desde, double hasta, uint duracion)
+    {
+        var tcs = new TaskCompletionSource();
+        var anim = new Animation(v => border.StrokeThickness = v, desde, hasta, Easing.CubicInOut);
+        anim.Commit(border, "AnimGrosorBorde", length: duracion, finished: (_, _) => tcs.SetResult());
+        return tcs.Task;
+    }
+
     private void AplicarModoCreditos()
     {
         var mostrarColab = _modoCreditos < 2;
