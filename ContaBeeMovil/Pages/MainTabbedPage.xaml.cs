@@ -1,5 +1,6 @@
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -106,8 +107,10 @@ public partial class MainTabbedPage : ContentPage
     private async void OnResaltarCreditosRequested(CreditoGanado[] creditos)
     {
         if (_currentIndex != 0) SwitchToTab(0);   // pone Dashboard + fade de 140ms
-        await Task.Delay(280);                     // deja asentar el fade y el binding del nuevo licenciamiento
-        _dashboardPage.ResaltarCreditos(creditos);
+        await Task.Delay(280);                     // deja asentar el fade antes de animar
+        await _dashboardPage.ResaltarCreditosAsync(creditos);
+        // Después de la animación: sincroniza con el servidor y restaura el binding con el valor real.
+        await App.Services.GetRequiredService<IServicioSesion>().GetLicenciaAsync();
     }
 
     private void ForceEquipoTab()

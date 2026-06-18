@@ -85,8 +85,8 @@ public static class AnimacionesCredito
         border.Stroke = strokeOrig;
     }
 
-    // 6. "+N" flotante seguido del conteo — el badge "+N" aparece y de inmediato
-    //    el número sube del valor viejo al nuevo, mientras el "+N" flota y se desvanece.
+    // 6. "+N" flotante con conteo — muestra el valor viejo, sube el badge "+N" y cuenta hasta el nuevo.
+    //    El caller DEBE restaurar el binding del Label número después de que esta tarea termine.
     public static async Task MasNConConteo(Border border, Label badge, Label numero, int desde, int hasta, Color color)
     {
         var strokeOrig = border.Stroke;
@@ -94,7 +94,7 @@ public static class AnimacionesCredito
         int n = hasta - desde;
 
         border.Stroke = new SolidColorBrush(color);
-        numero.Text = desde.ToString();
+        numero.Text = desde.ToString();   // muestra valor viejo; el caller restaura el binding al terminar
 
         badge.Text = $"+{n}";
         badge.TranslationY = 0;
@@ -108,7 +108,7 @@ public static class AnimacionesCredito
             badge.FadeToAsync(1, 120, Easing.CubicOut),
             TweenGrosor(border, grosorOrig, 3, 160));
 
-        // Inmediatamente: el "+N" sube y se desvanece mientras el número cuenta.
+        // El "+N" sube y se desvanece mientras el número cuenta hasta el nuevo valor.
         await Task.WhenAll(
             badge.TranslateToAsync(0, -40, 760, Easing.CubicOut),
             badge.FadeToAsync(0, 760, Easing.CubicIn),

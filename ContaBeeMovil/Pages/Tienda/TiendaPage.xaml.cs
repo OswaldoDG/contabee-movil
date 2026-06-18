@@ -379,22 +379,17 @@ public partial class TiendaPage : ContentPage
             await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
             _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
 
-            // Snapshot de créditos antes del refresh para detectar qué tipo(s) aumentaron y cuánto.
-            var licAntes = AppState.Instance.Licenciamiento;
-            int capAntes   = licAntes?.CreditosDisponibles      ?? 0;
-            int autoAntes  = licAntes?.CreditosAutoDisponibles  ?? 0;
-            int colabAntes = licAntes?.CreditosColabDisponibles ?? 0;
-
-            await _servicioSesion.GetLicenciaAsync();
-            _logs.Log("Tienda: licencia actualizada");
-
-            var licDespues = AppState.Instance.Licenciamiento;
-            int dCap   = (licDespues?.CreditosDisponibles      ?? 0) - capAntes;
-            int dAuto  = (licDespues?.CreditosAutoDisponibles  ?? 0) - autoAntes;
-            int dColab = (licDespues?.CreditosColabDisponibles ?? 0) - colabAntes;
-            if (dCap   > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Captura,      dCap));
-            if (dAuto  > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Autoservicio, dAuto));
-            if (dColab > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Colaboracion, dColab));
+            // Determinamos tipo y cantidad desde los metadatos del producto (sin llamar al servidor).
+            // GetLicenciaAsync se llama después de la animación en MainTabbedPage para evitar el drop visual.
+            var pid = compra.ProductId.ToLower();
+            TipoCreditoResaltar? tipo = pid.Contains("creditoscolab") ? TipoCreditoResaltar.Colaboracion
+                                      : pid.Contains("creditosauto")  ? TipoCreditoResaltar.Autoservicio
+                                      : pid.Contains("creditos")      ? TipoCreditoResaltar.Captura
+                                      : null;
+            var unidadesStr = productoCatalogo.Propiedades
+                .FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "0";
+            if (tipo.HasValue && int.TryParse(unidadesStr, out var unidades) && unidades > 0)
+                creditosGanados.Add(new CreditoGanado(tipo.Value, unidades));
         }
         else
         {

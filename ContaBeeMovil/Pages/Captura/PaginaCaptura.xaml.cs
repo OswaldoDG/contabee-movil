@@ -87,10 +87,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 OnPropertyChanged(nameof(CreditosAutoservicio));
                 OnPropertyChanged(nameof(TieneCreditosAutoservicio));
                 OnPropertyChanged(nameof(CreditosActivos));
-                if (!TieneCreditosAutoservicio && UsarAutoservicio)
-                    UsarAutoservicio = false;
+                SincronizarTipoCredito();
             }
         };
+
+        SincronizarTipoCredito();
     }
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
@@ -240,6 +241,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private async Task CargarTarjetasYRefrescarAsync()
     {
         await _servicioSesion.GetLicenciaAsync();
+        SincronizarTipoCredito();
         if (AppState.Instance.Tarjetas is null)
             await _servicioSesion.GetTarjetasAsync();
         RefrescarTarjetas();
@@ -724,9 +726,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
-    private void OnSeleccionarCaptura(object sender, TappedEventArgs e)      => UsarAutoservicio = false;
-    private void OnSeleccionarAutoservicio(object sender, TappedEventArgs e) => UsarAutoservicio = true;
-    private void OnCambiarTipoCredito(object sender, TappedEventArgs e)      => UsarAutoservicio = !UsarAutoservicio;
+    private void SincronizarTipoCredito() => UsarAutoservicio = TieneCreditosAutoservicio;
 
     private async Task EnviarAsync()
     {
