@@ -398,7 +398,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // ── Tipo de crédito de captura (Captura vs Autoservicio) ─────────────────
 
     public int  CreditosAutoservicio      => AppState.Instance.Licenciamiento?.CreditosAutoDisponibles ?? 0;
-    public bool TieneCreditosAutoservicio => true; // [TEMPORAL] forzado para preview visual
+    public bool TieneCreditosAutoservicio => CreditosAutoservicio > 0;
 
     private bool _usarAutoservicio;
     public bool UsarAutoservicio
@@ -420,7 +420,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public bool UsarCaptura => !UsarAutoservicio;
 
     // Tipo y número del crédito activo (separados para darles tamaños distintos), y su color
-    public string TipoCreditoActivo => UsarAutoservicio ? "Autoservicio" : "Captura";
+    public string TipoCreditoActivo => UsarAutoservicio ? "Auto" : "Captura";
     public int    CreditosActivos   => UsarAutoservicio ? CreditosAutoservicio : CreditosCaptura;
     public Color ColorCreditoActivo => UsarAutoservicio
         ? UIHelpers.GetColor("Auto")
