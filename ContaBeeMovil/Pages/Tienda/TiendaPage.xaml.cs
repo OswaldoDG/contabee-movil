@@ -372,14 +372,14 @@ public partial class TiendaPage : ContentPage
             _logs.Log($"Tienda: completar backend — completado={completado}");
         }
 
-        var tiposResaltar = new List<TipoCreditoResaltar>();
+        var creditosGanados = new List<CreditoGanado>();
 
         if (completado)
         {
             await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
             _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
 
-            // Snapshot de créditos antes del refresh para detectar qué tipo(s) aumentaron.
+            // Snapshot de créditos antes del refresh para detectar qué tipo(s) aumentaron y cuánto.
             var licAntes = AppState.Instance.Licenciamiento;
             int capAntes   = licAntes?.CreditosDisponibles      ?? 0;
             int autoAntes  = licAntes?.CreditosAutoDisponibles  ?? 0;
@@ -389,9 +389,12 @@ public partial class TiendaPage : ContentPage
             _logs.Log("Tienda: licencia actualizada");
 
             var licDespues = AppState.Instance.Licenciamiento;
-            if ((licDespues?.CreditosDisponibles      ?? 0) > capAntes)   tiposResaltar.Add(TipoCreditoResaltar.Captura);
-            if ((licDespues?.CreditosAutoDisponibles  ?? 0) > autoAntes)  tiposResaltar.Add(TipoCreditoResaltar.Autoservicio);
-            if ((licDespues?.CreditosColabDisponibles ?? 0) > colabAntes) tiposResaltar.Add(TipoCreditoResaltar.Colaboracion);
+            int dCap   = (licDespues?.CreditosDisponibles      ?? 0) - capAntes;
+            int dAuto  = (licDespues?.CreditosAutoDisponibles  ?? 0) - autoAntes;
+            int dColab = (licDespues?.CreditosColabDisponibles ?? 0) - colabAntes;
+            if (dCap   > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Captura,      dCap));
+            if (dAuto  > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Autoservicio, dAuto));
+            if (dColab > 0) creditosGanados.Add(new CreditoGanado(TipoCreditoResaltar.Colaboracion, dColab));
         }
         else
         {
@@ -406,8 +409,8 @@ public partial class TiendaPage : ContentPage
                 await _toast.MostrarAsync("¡Compra exitosa!", ToastIcono.Info, ToastPosicion.Bottom);
                 DashboardPage.PendienteActualizar = true;   // recarga estadísticas del dashboard
                 await Shell.Current.GoToAsync("..");        // vuelve de Tienda al MainTabbedPage
-                if (tiposResaltar.Count > 0)
-                    MainTabbedPage.SolicitarResaltarCreditos(tiposResaltar.ToArray());
+                if (creditosGanados.Count > 0)
+                    MainTabbedPage.SolicitarResaltarCreditos(creditosGanados.ToArray());
             }
             else
             {

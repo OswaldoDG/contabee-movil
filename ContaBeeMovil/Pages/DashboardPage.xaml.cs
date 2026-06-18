@@ -32,6 +32,6 @@ public partial class DashboardPage : ContentPage
         await _viewModel.LoadDataAsync(forzar);
     }
 
-    public void ResaltarCreditos(params TipoCreditoResaltar[] tipos)
-        => Actividad.ResaltarCreditos(tipos);
+    public void ResaltarCreditos(params CreditoGanado[] creditos)
+        => Actividad.ResaltarCreditos(creditos);
 }

@@ -32,6 +32,7 @@ using ZXing.Net.Maui.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
 using Syncfusion.Maui.Toolkit.Hosting;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 using ContaBee.Pages.Cupones;
 using ContaBee.Services;
 using ContaBee.Models.Configuracion;
@@ -48,6 +49,7 @@ namespace ContaBeeMovil
             var builder = MauiApp.CreateBuilder();
 
             builder.UseMauiApp<App>();
+            builder.UseSkiaSharp();
             builder.UseMaterialMauiIcons();
             builder.UseBarcodeReader();
             builder.UseMauiCommunityToolkit();
