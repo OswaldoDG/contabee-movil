@@ -603,46 +603,6 @@
         }
       }
     },
-    "/crm/asociacionfiscal/{cuentafiscalId}/usuario/{usuarioSecundarioId}/activa/{activa}": {
-      "post": {
-        "tags": [
-          "CRM"
-        ],
-        "parameters": [
-          {
-            "name": "cuentafiscalId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "usuarioSecundarioId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          },
-          {
-            "name": "activa",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
     "/crm/rfc/ids": {
       "post": {
         "tags": [

@@ -37,6 +37,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private const string PrefNotas     = "captura_notas";
     private const string PrefSoloEvidencia = "captura_solo_evidencia";
     private const string PrefCapturaRemota = "captura_remota";
+    private const string PrefUrgente       = "captura_urgente";
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -112,6 +113,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         base.OnAppearing();
 
+        PuedeSerUrgente = DateTime.Now.Hour < 20;
         SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
 
         _ = CargarTarjetasYRefrescarAsync();
@@ -300,6 +302,30 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
+    private bool _esUrgente;
+    public bool EsUrgente
+    {
+        get => _esUrgente;
+        set
+        {
+            if (_esUrgente == value) return;
+            _esUrgente = value;
+            Preferences.Default.Set(PrefUrgente, value);
+            OnPropertyChanged();
+        }
+    }
+
+    private bool _puedeSerUrgente;
+    public bool PuedeSerUrgente
+    {
+        get => _puedeSerUrgente;
+        private set
+        {
+            _puedeSerUrgente = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool MostrarCapturaRemota   => SoloEvidencia;
     public bool MostrarMontoTicketInput => SoloEvidencia && !CapturaRemota;
 
@@ -457,6 +483,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(CapturaRemota));
         OnPropertyChanged(nameof(MostrarCapturaRemota));
         OnPropertyChanged(nameof(MostrarMontoTicketInput));
+        _esUrgente = Preferences.Default.Get(PrefUrgente, false);
+        OnPropertyChanged(nameof(EsUrgente));
 
         // Forma de pago
         var codigoFP = Preferences.Default.Get(PrefFormaPago, string.Empty);
@@ -739,6 +767,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
                 CapturaRemota = SoloEvidencia && CapturaRemota,
+                Urgente = EsUrgente && DateTime.Now.Hour < 20,
                 ProcesoAsociadoId = _procesoAsociadoId
             };
 
@@ -843,6 +872,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 CapturaSeleccionada = null;
                 SoloEvidencia = false;
                 CapturaRemota = false;
+                EsUrgente = false;
                 await _servicioSesion.GetLicenciaAsync();
                 await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
