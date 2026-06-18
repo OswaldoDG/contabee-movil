@@ -27,6 +27,10 @@ public class EquipoUsuarioItem
     public ICommand? ConfigurarCommand { get; set; }
     public bool MostrarConfigurar { get; set; }
     public double SwipeItemWidth { get; set; }
+    // Para ocultar de nuevo al usuario en sesión: agregar
+    // .Where(u => _miEmail == null || !string.Equals(u.Email, _miEmail, StringComparison.OrdinalIgnoreCase))
+    // antes del .Select en ActualizarLista() y eliminar la asignación de EsUsuarioPropio.
+    public bool EsUsuarioPropio { get; set; }
 
     public EquipoUsuarioItem(CuentaUsuario u)
     {
@@ -217,17 +221,21 @@ public class EquipoViewModel : INotifyPropertyChanged
 
         var items = (_appState.MisUsuarios ?? [])
             .Where(u => u.TipoCuenta != TipoCuentaUsuario.UsuarioCaptura)
-            .Where(u => _miEmail == null || !string.Equals(u.Email, _miEmail, StringComparison.OrdinalIgnoreCase))
             .Select(u =>
             {
+                bool esPropio = _miEmail != null &&
+                                string.Equals(u.Email, _miEmail, StringComparison.OrdinalIgnoreCase);
                 var item = new EquipoUsuarioItem(u);
                 item.SwipeItemWidth    = swipeWidth;
                 item.MostrarConfigurar = esPrimario;
-                item.DeleteCommand     = new Command(async () => await ConfirmarEliminarAsync(item));
+                item.EsUsuarioPropio   = esPropio;
+                if (!esPropio)
+                    item.DeleteCommand = new Command(async () => await ConfirmarEliminarAsync(item));
                 if (esPrimario)
                     item.ConfigurarCommand = new Command(async () => await AbrirPropiedadesAsync(item));
                 return item;
             })
+            .OrderByDescending(item => item.EsUsuarioPropio)
             .ToList();
         Usuarios    = new ObservableCollection<EquipoUsuarioItem>(items);
         SinUsuarios = Usuarios.Count == 0;
@@ -238,7 +246,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     {
         var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
         if (cfid == null) return;
-        var popup = new PropiedadesUsuarioPopup(_servicioCrm, _toast, cfid.Value, item.Id, item.Nombre);
+        var popup = new PropiedadesUsuarioPopup(_servicioCrm, _toast, cfid.Value, item.Id, item.Nombre, item.EsUsuarioPropio);
         await Application.Current!.Windows[0].Page!.ShowPopupAsync(popup);
     }
 

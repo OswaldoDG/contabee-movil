@@ -27,7 +27,7 @@ public static class UIHelpers
             FontAttributes    = FontAttributes.Bold,
             FontSize          = 15,
             HorizontalOptions = LayoutOptions.Center,
-            TextColor         = seleccionado ? GetColor("PrimaryText") : GetColor("SecondaryText"),
+            TextColor         = seleccionado ? GetColor("OnPrimary") : GetColor("SecondaryText"),
         };
 
         var borde = new Border

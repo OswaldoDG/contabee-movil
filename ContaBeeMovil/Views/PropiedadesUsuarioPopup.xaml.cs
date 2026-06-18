@@ -14,7 +14,7 @@ public partial class PropiedadesUsuarioPopup : Popup
     private List<PropiedadUsuarioCF> _originales = [];
     private bool _valorOriginalCaptura;
 
-    public PropiedadesUsuarioPopup(IServicioCrm servicioCrm, IServicioToast toast, Guid cfid, Guid usuarioId, string nombre)
+    public PropiedadesUsuarioPopup(IServicioCrm servicioCrm, IServicioToast toast, Guid cfid, Guid usuarioId, string nombre, bool esPropio = false)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
@@ -22,7 +22,8 @@ public partial class PropiedadesUsuarioPopup : Popup
         _cfid        = cfid;
         _usuarioId   = usuarioId;
 
-        LblTitulo.Text = nombre;
+        LblTitulo.Text    = nombre;
+        BadgeYo.IsVisible = esPropio;
 
         var info = DeviceDisplay.MainDisplayInfo;
         double density = info.Density > 0 ? info.Density : 1;
