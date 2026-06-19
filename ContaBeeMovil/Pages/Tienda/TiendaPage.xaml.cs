@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using Contabee.Api.abstractions;
 using Contabee.Api.Ecommerce;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -35,6 +36,14 @@ public partial class TiendaPage : ContentPage
     private FlexLayout? _tabsCategorias;
     private VerticalStackLayout? _estadoVacio;
     private VerticalStackLayout? _debugCompraDirecta;
+    private Label? _descripcionCategoria;
+
+    private static readonly Dictionary<string, string> DescripcionesCategoria = new()
+    {
+        ["CREDITOS_CAPTURA"]      = "Captura tu ticket y ContaBee genera la factura automáticamente.",
+        ["CREDITOS_COLABORACION"] = "Úsalos para crear comprobaciones y devoluciones.",
+        ["CREDITOS_AUTOSERVICIO"] = "Captura tu ticket y genera tu factura tú mismo, desde nuestra app de escritorio.",
+    };
 
     private List<DtoProducto> _todosLosProductos = [];
     private List<CategoriaTabModel> _categorias = [];
@@ -44,9 +53,10 @@ public partial class TiendaPage : ContentPage
 
     private static readonly (string Clave, string Nombre)[] CategoriasConfig =
     [
-        ("CREDITOS_CAPTURA",      "Captura"),
-        ("CREDITOS_COLABORACION", "Colaboración"),
-        ("REGALOS",               "Regalos"),
+        ("CREDITOS_CAPTURA",       "Captura"),
+        ("CREDITOS_COLABORACION",  "Colaboración"),
+        ("CREDITOS_AUTOSERVICIO",  "Autoservicio"),
+        ("REGALOS",                "Regalos"),
     ];
 
     public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs)
@@ -64,11 +74,12 @@ public partial class TiendaPage : ContentPage
     {
         base.OnAppearing();
 
-        _loadingOverlay   = this.FindByName<View>("LoadingOverlay");
-        _listaProductos   = this.FindByName<CollectionView>("ListaProductos");
-        _tabsCategorias   = this.FindByName<FlexLayout>("TabsCategorias");
-        _estadoVacio      = this.FindByName<VerticalStackLayout>("EstadoVacio");
+        _loadingOverlay     = this.FindByName<View>("LoadingOverlay");
+        _listaProductos     = this.FindByName<CollectionView>("ListaProductos");
+        _tabsCategorias     = this.FindByName<FlexLayout>("TabsCategorias");
+        _estadoVacio        = this.FindByName<VerticalStackLayout>("EstadoVacio");
         _debugCompraDirecta = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
+        _descripcionCategoria = this.FindByName<Label>("DescripcionCategoria");
 
         if (_debugCompraDirecta is not null)
             _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
@@ -109,68 +120,10 @@ public partial class TiendaPage : ContentPage
                 return;
             }
 
-            // ── Créditos captura ──────────────────────────────────────────────
-            var categoriaCreditos = resultado.Payload.FirstOrDefault(c => c.Clave == "CREDITOS");
-            if (categoriaCreditos?.Productos is not null)
-            {
-                var productosCaptura = categoriaCreditos.Productos
-                    .Where(p => p.Propiedades.Any(x => x.Propiedad == "credcaptura" && x.Valor == "true"))
-                    .Where(p => p.Precios.Any(pr => pr.Tipo == TipoPrecio.Publico && pr.Precio > 0))
-                    .OrderBy(p =>
-                    {
-                        var prop = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto");
-                        return int.TryParse(prop?.Valor, out var u) ? u : 0;
-                    })
-                    .ToList();
-
-                _todosLosProductos.AddRange(productosCaptura);
-                _logs.Log($"Tienda: {productosCaptura.Count} productos créditos captura encontrados");
-
-                var iapIds = productosCaptura.Select(p => $"contabee.creditos.{p.Clave.ToLower()}").ToArray();
-                var productosStore = (await _servicioIAP.ObtenerProductosAsync(iapIds)).ToList();
-                var disponibleEnTienda = productosStore.Count > 0;
-                _logs.Log($"Tienda: store respondió {productosStore.Count} productos — disponible={disponibleEnTienda}");
-
-                List<ProductoIAPModel> modelos;
-                if (disponibleEnTienda)
-                {
-                    modelos = productosStore.Select(sp => new ProductoIAPModel
-                    {
-                        Clave              = sp.ProductId,
-                        Nombre             = sp.Name.Contains('(') ? sp.Name[..sp.Name.IndexOf('(')].Trim() : sp.Name,
-                        Unidades           = ObtenerUnidades(sp.ProductId),
-                        PrecioTexto        = sp.LocalizedPrice,
-                        PrecioValor        = sp.MicrosPrice / 1_000_000.0,
-                        DisponibleEnTienda = true,
-                        Imagen             = ImagenParaProducto(BuscarProductoEnCatalogo(sp.ProductId)?.Clave),
-                    })
-                    .OrderBy(m => m.PrecioValor)
-                    .ToList();
-                }
-                else
-                {
-                    modelos = productosCaptura.Select(p =>
-                    {
-                        var precio   = p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
-                        var unidades = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "?";
-                        return new ProductoIAPModel
-                        {
-                            Clave              = $"contabee.creditos.{p.Clave.ToLower()}",
-                            Nombre             = p.Nombre,
-                            Unidades           = unidades,
-                            PrecioTexto        = $"${precio.Precio:N2} MXN",
-                            PrecioValor        = precio.Precio,
-                            DisponibleEnTienda = false,
-                            Imagen             = ImagenParaProducto(p.Clave),
-                        };
-                    })
-                    .OrderBy(m => m.PrecioValor)
-                    .ToList();
-                }
-
-                var tabCaptura = _categorias.First(c => c.Clave == "CREDITOS_CAPTURA");
-                tabCaptura.Productos = modelos;
-            }
+            // ── Créditos por categoría (captura / colaboración / autoservicio) ──
+            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOS",      "credcaptura", "CREDITOS_CAPTURA",      "Captura",      "captura");
+            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOSCOLAB", "credcolab",   "CREDITOS_COLABORACION", "Colaboración", "colaboracion");
+            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOSAUTO",  "credauto",    "CREDITOS_AUTOSERVICIO", "Autoservicio", "autoservicio");
 
             ActualizarUI();
         }
@@ -178,6 +131,65 @@ public partial class TiendaPage : ContentPage
         {
             SetCargando(false);
         }
+    }
+
+    private async Task CargarCategoriaCreditosAsync(
+        ICollection<DtoCategoriasProducto> catalogo,
+        string backendClave, string propiedadFiltro, string tabClave, string nombreTipo, string imagenCategoria)
+    {
+        var categoria = catalogo.FirstOrDefault(c => c.Clave == backendClave);
+        if (categoria?.Productos is null) return;
+
+        var productos = categoria.Productos
+            .Where(p => p.Propiedades.Any(x => x.Propiedad == propiedadFiltro && x.Valor == "true"))
+            .Where(p => p.Precios.Any(pr => pr.Tipo == TipoPrecio.Publico && pr.Precio > 0))
+            .OrderBy(p =>
+            {
+                var prop = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto");
+                return int.TryParse(prop?.Valor, out var u) ? u : 0;
+            })
+            .ToList();
+
+        _todosLosProductos.AddRange(productos);
+        _logs.Log($"Tienda: {productos.Count} productos {tabClave} encontrados");
+
+        var iapIds = productos.Select(p => $"contabee.{backendClave.ToLower()}.{p.Clave.ToLower()}").ToArray();
+        var productosStore = (await _servicioIAP.ObtenerProductosAsync(iapIds)).ToList();
+        var disponibleEnTienda = productosStore.Count > 0;
+        _logs.Log($"Tienda: store respondió {productosStore.Count} productos para {tabClave} — ids={string.Join(",", iapIds)} disponible={disponibleEnTienda}");
+
+        List<ProductoIAPModel> modelos = disponibleEnTienda
+            ? productosStore.Select(sp => new ProductoIAPModel
+            {
+                Clave              = sp.ProductId,
+                Nombre             = sp.Name.Contains('(') ? sp.Name[..sp.Name.IndexOf('(')].Trim() : sp.Name,
+                Unidades           = ObtenerUnidades(sp.ProductId),
+                PrecioTexto        = sp.LocalizedPrice,
+                PrecioValor        = sp.MicrosPrice / 1_000_000.0,
+                DisponibleEnTienda = true,
+                Imagen             = ImagenParaUnidades(ObtenerUnidades(sp.ProductId), imagenCategoria),
+            })
+            .OrderBy(m => m.PrecioValor)
+            .ToList()
+            : productos.Select(p =>
+            {
+                var precio   = p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
+                var unidades = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "?";
+                return new ProductoIAPModel
+                {
+                    Clave              = $"contabee.{backendClave.ToLower()}.{p.Clave.ToLower()}",
+                    Nombre             = $"Paquete {unidades} Créditos {nombreTipo}",
+                    Unidades           = unidades,
+                    PrecioTexto        = $"${precio.Precio:N2} MXN",
+                    PrecioValor        = precio.Precio,
+                    DisponibleEnTienda = false,
+                    Imagen             = ImagenParaUnidades(unidades, imagenCategoria),
+                };
+            })
+            .OrderBy(m => m.PrecioValor)
+            .ToList();
+
+        _categorias.First(c => c.Clave == tabClave).Productos = modelos;
     }
 
     private void ActualizarUI()
@@ -209,6 +221,13 @@ public partial class TiendaPage : ContentPage
     private void MostrarCategoria(CategoriaTabModel cat)
     {
         var tieneProductos = cat.Productos.Count > 0;
+
+        if (_descripcionCategoria is not null)
+        {
+            DescripcionesCategoria.TryGetValue(cat.Clave, out var desc);
+            _descripcionCategoria.Text      = desc ?? string.Empty;
+            _descripcionCategoria.IsVisible = !string.IsNullOrEmpty(desc);
+        }
 
         if (_listaProductos is not null)
         {
@@ -353,13 +372,24 @@ public partial class TiendaPage : ContentPage
             _logs.Log($"Tienda: completar backend — completado={completado}");
         }
 
+        var creditosGanados = new List<CreditoGanado>();
+
         if (completado)
         {
             await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
             _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
 
-            await _servicioSesion.GetLicenciaAsync();
-            _logs.Log("Tienda: licencia actualizada");
+            // Determinamos tipo y cantidad desde los metadatos del producto (sin llamar al servidor).
+            // GetLicenciaAsync se llama después de la animación en MainTabbedPage para evitar el drop visual.
+            var pid = compra.ProductId.ToLower();
+            TipoCreditoResaltar? tipo = pid.Contains("creditoscolab") ? TipoCreditoResaltar.Colaboracion
+                                      : pid.Contains("creditosauto")  ? TipoCreditoResaltar.Autoservicio
+                                      : pid.Contains("creditos")      ? TipoCreditoResaltar.Captura
+                                      : null;
+            var unidadesStr = productoCatalogo.Propiedades
+                .FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "0";
+            if (tipo.HasValue && int.TryParse(unidadesStr, out var unidades) && unidades > 0)
+                creditosGanados.Add(new CreditoGanado(tipo.Value, unidades));
         }
         else
         {
@@ -370,9 +400,17 @@ public partial class TiendaPage : ContentPage
         if (!silencioso)
         {
             if (completado)
-                await _servicioAlerta.MostrarAsync("¡Compra exitosa!", $"Tu {productoCatalogo.Nombre} ya está disponible en tu cuenta.", verBotonCancelar: false, confirmarText: "Aceptar");
+            {
+                await _toast.MostrarAsync("¡Compra exitosa!", ToastIcono.Info, ToastPosicion.Bottom, 1000);
+                DashboardPage.PendienteActualizar = true;   // recarga estadísticas del dashboard
+                await Shell.Current.GoToAsync("..");        // vuelve de Tienda al MainTabbedPage
+                if (creditosGanados.Count > 0)
+                    MainTabbedPage.SolicitarResaltarCreditos(creditosGanados.ToArray());
+            }
             else
+            {
                 await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
+            }
         }
 
         return completado;
@@ -409,7 +447,7 @@ public partial class TiendaPage : ContentPage
             if (compra is null)
             {
                 _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
+                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
                 return;
             }
 
@@ -418,12 +456,12 @@ public partial class TiendaPage : ContentPage
         catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
         {
             _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
+            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
         }
         catch (Exception ex)
         {
             _logs.Log($"Tienda: excepción en compra — {ex.GetType().Name}: {ex.Message}");
-            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error);
+            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error, ToastPosicion.Bottom, 1000);
         }
         finally
         {
@@ -452,7 +490,7 @@ public partial class TiendaPage : ContentPage
             if (compra is null)
             {
                 _logs.Log("Tienda: compra directa — cancelada por el usuario");
-                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
+                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
                 return;
             }
 
@@ -461,12 +499,12 @@ public partial class TiendaPage : ContentPage
         catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
         {
             _logs.Log($"Tienda: compra directa — cancelada ({ex.Message})");
-            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning);
+            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
         }
         catch (Exception ex)
         {
             _logs.Log($"Tienda: compra directa — excepción {ex.GetType().Name}: {ex.Message}");
-            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error);
+            await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error, ToastPosicion.Bottom, 1000);
         }
         finally
         {
@@ -648,8 +686,28 @@ public partial class TiendaPage : ContentPage
         _todosLosProductos.FirstOrDefault(p =>
             iapId.EndsWith(p.Clave, StringComparison.OrdinalIgnoreCase));
 
-    private static string ImagenParaProducto(string? clave) =>
-        string.IsNullOrEmpty(clave) ? "contabee.svg" : $"{clave.ToLower()}.jpeg";
+    private static readonly Dictionary<string, HashSet<string>> _unidadesConImagen = new()
+    {
+        ["captura"]      = ["15", "30", "50", "100", "250", "500"],
+        ["colaboracion"] = ["10", "50", "100", "250", "500"],
+        ["autoservicio"] = ["15", "30", "50", "100", "250", "500"],
+    };
+
+    private static readonly Dictionary<string, string> _imagenFallback = new()
+    {
+        ["captura"]      = "captura15.jpeg",
+        ["colaboracion"] = "colaboracion10.jpeg",
+        ["autoservicio"] = "autoservicio15.jpeg",
+    };
+
+    private static string ImagenParaUnidades(string? unidades, string imagenCategoria)
+    {
+        if (!string.IsNullOrEmpty(unidades) &&
+            _unidadesConImagen.TryGetValue(imagenCategoria, out var validos) &&
+            validos.Contains(unidades))
+            return $"{imagenCategoria}{unidades}.jpeg";
+        return _imagenFallback.TryGetValue(imagenCategoria, out var fallback) ? fallback : "captura15.jpeg";
+    }
 
     private string ObtenerUnidades(string iapId) =>
         BuscarProductoEnCatalogo(iapId)

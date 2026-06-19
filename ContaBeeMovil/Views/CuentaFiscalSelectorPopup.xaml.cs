@@ -122,11 +122,11 @@ public partial class CuentaFiscalSelectorPopup : Popup
         bool nombre = AppState.Instance.MostrarNombreFiscal;
 
         BgRfc.BackgroundColor    = nombre ? Colors.Transparent : UIHelpers.GetColor("Primary");
-        LblRfc.TextColor         = nombre ? UIHelpers.GetColor("SecondaryText") : UIHelpers.GetColor("PrimaryText");
+        LblRfc.TextColor         = nombre ? UIHelpers.GetColor("SecondaryText") : UIHelpers.GetColor("OnPrimary");
         LblRfc.FontAttributes    = nombre ? FontAttributes.None : FontAttributes.Bold;
 
         BgNombre.BackgroundColor = nombre ? UIHelpers.GetColor("Primary") : Colors.Transparent;
-        LblNombre.TextColor      = nombre ? UIHelpers.GetColor("PrimaryText") : UIHelpers.GetColor("SecondaryText");
+        LblNombre.TextColor      = nombre ? UIHelpers.GetColor("OnPrimary") : UIHelpers.GetColor("SecondaryText");
         LblNombre.FontAttributes = nombre ? FontAttributes.Bold : FontAttributes.None;
     }
 }

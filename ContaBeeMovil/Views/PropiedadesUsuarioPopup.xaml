@@ -22,11 +22,24 @@
 
             <!-- Encabezado -->
             <VerticalStackLayout Grid.Row="0" Spacing="8">
-                <Label x:Name="LblTitulo"
-                       FontAttributes="Bold"
-                       FontSize="18"
-                       HorizontalOptions="Center"
-                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                    <Label x:Name="LblTitulo"
+                           FontAttributes="Bold"
+                           FontSize="18"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                    <Border x:Name="BadgeYo"
+                            IsVisible="False"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 4"
+                            Padding="6,2"
+                            VerticalOptions="Center">
+                        <Label Text="Yo"
+                               FontSize="10"
+                               TextColor="{toolkit:AppThemeResource OnPrimary}"
+                               FontAttributes="Bold" />
+                    </Border>
+                </HorizontalStackLayout>
                 <BoxView Style="{StaticResource Divider}" />
             </VerticalStackLayout>
 

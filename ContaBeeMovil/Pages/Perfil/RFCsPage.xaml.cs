@@ -55,7 +55,7 @@ public partial class RFCsPage : ContentPage
         {            
             Nombre         = c.CuentaFiscal?.Nombre ?? string.Empty,
             Rfc            = c.Rfc ?? "—",
-            Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
+            Regimen        = ObtenerDescripcionRegimen(c.CuentaFiscal?.ClaveRegimenFiscal ?? c.ClaveRegimenFiscal),
             SwipeItemWidth = swipeWidth,
             PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
             EsPrimaria      = c.TipoCuenta == TipoCuenta.Primaria,

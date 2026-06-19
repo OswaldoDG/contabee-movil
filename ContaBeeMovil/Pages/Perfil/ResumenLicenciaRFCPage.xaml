@@ -32,59 +32,100 @@
                     </Grid>
                 </Border>
 
-                <!-- Créditos de captura -->
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="Créditos de captura"
-                           Style="{StaticResource Caption1}"
-                           FontAttributes="Bold"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}"
-                           Margin="4,0" />
-                    <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                            StrokeShape="RoundRectangle 8"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            StrokeThickness="1"
-                            Padding="10,8"
-                            HorizontalOptions="Center"
-                            MinimumWidthRequest="140">
-                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
-                            <Label x:Name="LblDisponibles"
-                                   Text="—"
-                                   FontSize="36"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource Primary}" />
-                            <Label Text="Disponibles"
-                                   Style="{StaticResource Caption1}"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                        </VerticalStackLayout>
-                    </Border>
-                    <!--<Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
-                            StrokeShape="RoundRectangle 8"
-                            Stroke="{toolkit:AppThemeResource Accent1}"
-                            StrokeThickness="1"
-                            Padding="10,8"
-                            HorizontalOptions="Center"
-                            MinimumWidthRequest="140">
-                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
-                            <Label x:Name="LblConsumidos"
-                                   Text="—"
-                                   FontSize="36"
-                                   FontAttributes="Bold"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                            <Label Text="Consumidos"
-                                   Style="{StaticResource Caption1}"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
-                        </VerticalStackLayout>
-                    </Border>
-                    <Label x:Name="LblTotal"
-                           Text="de 0 en total"
-                           Style="{StaticResource Caption1}"
-                           HorizontalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />-->
-                </VerticalStackLayout>
+                <!-- Los tres tipos de créditos -->
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="12">
+
+                    <!-- Captura -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                        <Label Text="Captura"
+                               Style="{StaticResource Caption1}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               Margin="4,0" />
+                        <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                Padding="8,12"
+                                HorizontalOptions="Fill">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label x:Name="LblCreditosCaptura"
+                                       Text="—"
+                                       FontSize="36"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource Captura}" />
+                                <Label Text="disponibles"
+                                       Style="{StaticResource Caption1}"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Colaboración -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="Colaboración"
+                               Style="{StaticResource Caption1}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               Margin="4,0" />
+                        <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                Padding="8,12"
+                                HorizontalOptions="Fill">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label x:Name="LblCreditosColab"
+                                       Text="—"
+                                       FontSize="36"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource Colab}" />
+                                <Label Text="disponibles"
+                                       Style="{StaticResource Caption1}"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Autoservicio -->
+                    <VerticalStackLayout Grid.Column="2" Spacing="6">
+                        <Label Text="Autoservicio"
+                               Style="{StaticResource Caption1}"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               HorizontalTextAlignment="Center"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               Margin="4,0" />
+                        <Border BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                                StrokeShape="RoundRectangle 8"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                Padding="8,12"
+                                HorizontalOptions="Fill">
+                            <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                                <Label x:Name="LblCreditosAuto"
+                                       Text="—"
+                                       FontSize="36"
+                                       FontAttributes="Bold"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource Auto}" />
+                                <Label Text="disponibles"
+                                       Style="{StaticResource Caption1}"
+                                       HorizontalOptions="Center"
+                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                </Grid>
 
             </VerticalStackLayout>
         </ScrollView>

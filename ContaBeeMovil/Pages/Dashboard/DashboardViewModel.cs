@@ -21,6 +21,7 @@ public class DashboardViewModel : INotifyPropertyChanged
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioEcommerce _servicioEcommerce;
+    private readonly IServicioSesion _servicioSesion;
     private readonly IServicioLogs _logs;
 
     private const string CacheDataKey        = "Dashboard_Actividad_Data";
@@ -42,11 +43,12 @@ public class DashboardViewModel : INotifyPropertyChanged
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
-    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce, IServicioLogs logs)
+    public DashboardViewModel(IServicioTranscript servicioTranscript, IServicioAlerta servicioAlerta, IServicioEcommerce servicioEcommerce, IServicioSesion servicioSesion, IServicioLogs logs)
     {
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
         _servicioEcommerce = servicioEcommerce;
+        _servicioSesion = servicioSesion;
         _logs = logs;
         _mes = DateTime.Now.Month;
         _anio = DateTime.Now.Year;
@@ -69,6 +71,12 @@ public class DashboardViewModel : INotifyPropertyChanged
             else if (e.PropertyName is nameof(AppState.CuponesVersion))
             {
                 _ = CargarCuponBienvenidaAsync();
+            }
+            else if (e.PropertyName is nameof(AppState.Licenciamiento))
+            {
+                OnPropertyChanged(nameof(CreditosCapturaDisponibles));
+                OnPropertyChanged(nameof(CreditosColabDisponibles));
+                OnPropertyChanged(nameof(CreditosAutoDisponibles));
             }
         };
     }
@@ -105,6 +113,10 @@ public class DashboardViewModel : INotifyPropertyChanged
         get => _creditosRestantes;
         set { _creditosRestantes = value; OnPropertyChanged(); }
     }
+
+    public int CreditosCapturaDisponibles  => AppState.Instance.Licenciamiento?.CreditosDisponibles     ?? 0;
+    public int CreditosColabDisponibles    => AppState.Instance.Licenciamiento?.CreditosColabDisponibles ?? 0;
+    public int CreditosAutoDisponibles     => AppState.Instance.Licenciamiento?.CreditosAutoDisponibles  ?? 0;
 
     public int Emitidas
     {
@@ -230,7 +242,8 @@ public class DashboardViewModel : INotifyPropertyChanged
             LimpiarCache();
             await Task.WhenAll(
                 CargarEstadisticasAsync(forzarActualizacion: true),
-                CargarCuponBienvenidaAsync());
+                CargarCuponBienvenidaAsync(),
+                _servicioSesion.GetLicenciaAsync());
         }
         finally
         {
@@ -338,7 +351,8 @@ public class DashboardViewModel : INotifyPropertyChanged
             SinActividad = false;
             TieneError   = false;
             AplicarDatos(resultado.Payload);
-            _logs.Info($"[Dashboard] OK — Emitidas={resultado.Payload.Emitidas} Pendientes={resultado.Payload.Pendientes} Declinadas={resultado.Payload.Declinadas}");
+            var p = resultado.Payload;
+            _logs.Info($"[Dashboard] OK — Ano={p.Ano} Mes={p.Mes} Solicitudes={p.Solicitudes} Emitidas={p.Emitidas} Pendientes={p.Pendientes} Declinadas={p.Declinadas} CreditosAdquiridos={p.CreditosAdquiridos} CreditosRestantes={p.CreditosRestantes} TotalFacturado={p.TotalFacturado}");
 
             if (esMesActual)
             {

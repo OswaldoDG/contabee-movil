@@ -70,15 +70,6 @@
                                Margin="4,-8,0,0"
                                IsVisible="False" />
 
-                        <views:SelectorFlotante x:Name="SelectorRegimen"
-                                                Titulo="Regimen" />
-
-                        <Label x:Name="LblRegimenError"
-                               TextColor="{toolkit:AppThemeResource Error}"
-                               FontSize="12"
-                               Margin="4,-8,0,0"
-                               IsVisible="False" />
-
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                             <views:SelectorFlotante x:Name="SelectorPersona"
                                                     Titulo="Persona"
@@ -128,6 +119,24 @@
                                TextColor="{toolkit:AppThemeResource Error}"
                                FontSize="12"
                                Margin="4,-8,0,0"
+                               IsVisible="False" />
+
+                        <views:SelectorFlotante x:Name="SelectorRegimen"
+                                                Titulo="Regimen" />
+
+                        <Label x:Name="LblRegimenError"
+                               TextColor="{toolkit:AppThemeResource Error}"
+                               FontSize="12"
+                               Margin="4,-8,0,0"
+                               IsVisible="False" />
+
+                        <Label x:Name="LblEdicionBloqueado"
+                               Text="El tipo de persona y el régimen no se pueden editar. Si necesitas cambiarlos, elimina la cuenta fiscal y regístrala de nuevo."
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               FontSize="12"
+                               LineBreakMode="WordWrap"
+                               HorizontalTextAlignment="Justify"
+                               Margin="4,-4,0,0"
                                IsVisible="False" />
 
                         <Label x:Name="LblDireccionError"

@@ -267,6 +267,20 @@ public partial class PaginaComprobaciones : ContentPage
             return;
         }
 
+        var creditosColab = AppState.Instance.Licenciamiento?.CreditosColabDisponibles ?? 0;
+        if (creditosColab <= 0)
+        {
+            var irATienda = await _servicioAlerta.MostrarAsync(
+                "Sin créditos de colaboración",
+                "Necesitas créditos de colaboración para crear comprobaciones. Adquiere más en la Tienda.",
+                verBotonCancelar: true,
+                cancelarText: "Cerrar",
+                confirmarText: "Ir a Tienda");
+            if (irATienda)
+                await Shell.Current.GoToAsync("TiendaPage");
+            return;
+        }
+
         _abriendoPopup = true;
 
         try
@@ -326,13 +340,22 @@ public partial class PaginaComprobaciones : ContentPage
             if (!respuesta.Ok)
             {
                 MostrarOverlayCarga = false;
-                await _servicioAlerta.MostrarAsync(
-                    "Error",
-                    respuesta.Error?.Mensaje ?? "No se pudo crear la comprobación.",
-                    verBotonCancelar: false,
-                    confirmarText: "OK");
+                var sinCreditos = respuesta.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired
+                               || respuesta.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
+                var irATienda = await _servicioAlerta.MostrarAsync(
+                    sinCreditos ? "Sin créditos" : "Error",
+                    sinCreditos
+                        ? "No tienes créditos de colaboración suficientes. Adquiere más en la Tienda."
+                        : respuesta.Error?.Mensaje ?? "No se pudo crear la comprobación.",
+                    verBotonCancelar: sinCreditos,
+                    cancelarText: "Cerrar",
+                    confirmarText: sinCreditos ? "Ir a Tienda" : "Aceptar");
+                if (irATienda && sinCreditos)
+                    await Shell.Current.GoToAsync("TiendaPage");
                 return;
             }
+
+            await _servicioSesion.GetLicenciaAsync();
 
             // Tras crear, mostrar únicamente la comprobación recién creada
             // (no recargar el listado completo del periodo).

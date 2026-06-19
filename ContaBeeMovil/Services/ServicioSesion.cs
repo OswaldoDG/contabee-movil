@@ -182,7 +182,9 @@ public class ServicioSesion : IServicioSesion
 
         if (respuesta.Ok)
         {
-            _appState.Licenciamiento = respuesta.Payload;
+            var p = respuesta.Payload;
+            _logs.Log($"[Licencia] OK → Disponibles={p?.CreditosDisponibles} Adquiridos={p?.CreditosAdquiridos} Consumo={p?.CreditosCapturaConsumo} LicCap={p?.LicenciasCaptura} LicColab={p?.LicenciasColaboracion}");
+            _appState.Licenciamiento = p;
             return;
         }
 
@@ -217,10 +219,13 @@ public class ServicioSesion : IServicioSesion
 
     public async Task GetAsociacionesFiscalesAsync()
     {
+        _logs.Log("[CuentasFiscales] GET asociaciones fiscales");
+
         var respuesta = await _servicioCrm.GetAsociacionesFiscales();
 
         if (respuesta.Ok)
         {
+            _logs.Log($"[CuentasFiscales] OK → {respuesta.Payload?.Count ?? 0} cuenta(s)");
             AplicarCuentasFiscales(respuesta.Payload ?? []);
             await GetMisUsuariosAsync();
             return;
@@ -250,6 +255,8 @@ public class ServicioSesion : IServicioSesion
 
         if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
             return;
+
+        _logs.Error($"[CuentasFiscales] ERROR → HttpCode={respuesta.HttpCode} Mensaje={respuesta.Error?.Mensaje}");
 
         await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
             ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"

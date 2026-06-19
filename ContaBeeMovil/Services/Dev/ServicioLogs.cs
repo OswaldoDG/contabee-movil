@@ -32,8 +32,8 @@ public class ServicioLogs : IServicioLogs
         {
             var logs = AppState.Instance.Logs;
             if (logs.Count >= LimiteEntradasMemoria)
-                logs.RemoveAt(0);
-            logs.Add(entrada);
+                logs.RemoveAt(logs.Count - 1);
+            logs.Insert(0, entrada);
         });
         _ = EscribirEnArchivoAsync(entrada.TextoCompleto);
     }

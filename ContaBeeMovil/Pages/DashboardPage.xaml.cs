@@ -1,3 +1,4 @@
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Dashboard;
 
 namespace ContaBeeMovil.Pages;
@@ -30,4 +31,13 @@ public partial class DashboardPage : ContentPage
         PendienteActualizar = false;
         await _viewModel.LoadDataAsync(forzar);
     }
+
+    public void ResaltarCreditos(params CreditoGanado[] creditos)
+        => Actividad.ResaltarCreditos(creditos);
+
+    public Task ResaltarCreditosAsync(params CreditoGanado[] creditos)
+        => Actividad.ResaltarCreditosAsync(creditos);
+
+    public void RestaurarBindingsCreditos()
+        => Actividad.RestaurarBindingsCreditos();
 }

@@ -22,7 +22,7 @@
             <Button Grid.Column="1"
                     Text="Ver detalles"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    TextColor="{toolkit:AppThemeResource PrimaryText}"
+                    TextColor="{toolkit:AppThemeResource OnPrimary}"
                     CornerRadius="12"
                     Padding="10,2"
                     FontSize="12"
@@ -118,9 +118,11 @@
             <!-- Header debug (modo dev) -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
+            <!--
             <VerticalStackLayout x:Name="DebugCompraDirecta"
                                  Grid.Row="0"
                                  Padding="10,8,10,0"
@@ -132,16 +134,26 @@
                        HorizontalOptions="Center"/>
                 <Button Text="Comprar captura15 directo"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
+                        TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         Padding="16,12"
                         HorizontalOptions="Fill"
                         Clicked="OnCompraDirectaClicked"/>
             </VerticalStackLayout>
+            -->
+
+            <!-- Descripción de la categoría activa -->
+            <Label x:Name="DescripcionCategoria"
+                   Grid.Row="1"
+                   IsVisible="False"
+                   Margin="16,10,16,2"
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                   HorizontalTextAlignment="Center"/>
 
             <!-- Grid de productos -->
             <CollectionView x:Name="ListaProductos"
-                            Grid.Row="1"
+                            Grid.Row="2"
                             SelectionMode="None"
                             Margin="10,10">
                 <CollectionView.ItemsLayout>
@@ -161,7 +173,7 @@
                                            Aspect="AspectFill"
                                            HorizontalOptions="Fill"/>
                                     <Label Text="{Binding Nombre}"
-                                           Style="{StaticResource Body1}"
+                                           FontSize="15"
                                            FontAttributes="Bold"
                                            HorizontalOptions="Center"
                                            HorizontalTextAlignment="Center"
@@ -170,14 +182,24 @@
                                     <Button Text="Comprar"
                                             IsEnabled="{Binding DisponibleEnTienda}"
                                             BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                            TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                            TextColor="{toolkit:AppThemeResource OnPrimary}"
                                             CornerRadius="10"
                                             Margin="10,0,10,10"
                                             FontAttributes="Bold"
                                             FontSize="13"
                                             HorizontalOptions="Fill"
                                             CommandParameter="{Binding .}"
-                                            Clicked="OnComprarClicked"/>
+                                            Clicked="OnComprarClicked">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding DisponibleEnTienda}"
+                                                         Value="False">
+                                                <Setter Property="Text" Value="Próximamente"/>
+                                                <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
+                                                <Setter Property="Opacity" Value="0.5"/>
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
                                 </VerticalStackLayout>
                             </Border>
                             <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
@@ -186,7 +208,8 @@
                                     Padding="10,5"
                                     HorizontalOptions="End"
                                     VerticalOptions="Start"
-                                    ZIndex="10">
+                                    ZIndex="10"
+                                    IsVisible="{Binding DisponibleEnTienda}">
                                 <Border.Shadow>
                                     <Shadow Brush="#000000" Offset="0,4" Radius="5" Opacity="0.3"/>
                                 </Border.Shadow>
@@ -203,7 +226,7 @@
 
             <!-- Estado vacío — "Próximamente" -->
             <VerticalStackLayout x:Name="EstadoVacio"
-                                 Grid.Row="1"
+                                 Grid.Row="2"
                                  IsVisible="False"
                                  VerticalOptions="Center"
                                  HorizontalOptions="Center"

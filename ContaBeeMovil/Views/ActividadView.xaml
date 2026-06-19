@@ -19,7 +19,7 @@
                      IsVisible="{Binding MostrarContenido}"
                      Background="{toolkit:AppThemeResource Background}">
           <ScrollView x:Name="MainScroll" VerticalScrollBarVisibility="Never">
-            <Grid RowDefinitions="Auto,Auto,Auto,*"
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,*"
                   RowSpacing="10"
                   Padding="0,5,0,0"
                   HeightRequest="{Binding Source={x:Reference MainScroll}, Path=Height}">
@@ -42,7 +42,114 @@
                     </HorizontalStackLayout>
                 </Border>
 
-                <Border Grid.Row="1"
+                <!-- Créditos de licenciamiento — tap para ciclar visibilidad -->
+                <Grid Grid.Row="1"
+                      ColumnSpacing="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition x:Name="ColAuto" Width="*" />
+                        <ColumnDefinition x:Name="ColColab" Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCreditosTapped" />
+                    </Grid.GestureRecognizers>
+
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Border x:Name="BorderCaptura"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="0"
+                                HorizontalOptions="Fill">
+                            <Grid RowDefinitions="4,*">
+                                <BoxView Grid.Row="0" Color="{toolkit:AppThemeResource Captura}" />
+                                <Label x:Name="LabelCaptura" Grid.Row="1"
+                                       Text="{Binding CreditosCapturaDisponibles}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       Padding="0,8"
+                                       HorizontalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Label Text="Captura"
+                               FontSize="11"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Badge "+N" de la animación de compra (box de Captura) -->
+                    <Label x:Name="BadgeCaptura" Grid.Column="0" Text="+21" IsVisible="False"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
+                           TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
+                           ZIndex="10" />
+
+                    <VerticalStackLayout x:Name="VStackColab" Grid.Column="2" Spacing="4">
+                        <Border x:Name="BorderColab"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="0"
+                                HorizontalOptions="Fill">
+                            <Grid RowDefinitions="4,*">
+                                <BoxView Grid.Row="0" Color="{toolkit:AppThemeResource Colab}" />
+                                <Label x:Name="LabelColab" Grid.Row="1"
+                                       Text="{Binding CreditosColabDisponibles}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       Padding="0,8"
+                                       HorizontalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Label Text="Colaboración"
+                               FontSize="11"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Badge "+N" de la animación de compra (box de Colaboración) -->
+                    <Label x:Name="BadgeColab" Grid.Column="2" Text="+21" IsVisible="False"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
+                           TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
+                           ZIndex="10" />
+
+                    <VerticalStackLayout x:Name="VStackAuto" Grid.Column="1" Spacing="4">
+                        <Border x:Name="BorderAuto"
+                                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                                Stroke="{toolkit:AppThemeResource Accent1}"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="0"
+                                HorizontalOptions="Fill">
+                            <Grid RowDefinitions="4,*">
+                                <BoxView Grid.Row="0" Color="{toolkit:AppThemeResource Auto}" />
+                                <Label x:Name="LabelAuto" Grid.Row="1"
+                                       Text="{Binding CreditosAutoDisponibles}"
+                                       FontSize="22"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       Padding="0,8"
+                                       HorizontalOptions="Center" />
+                            </Grid>
+                        </Border>
+                        <Label Text="Autoservicio"
+                               FontSize="11"
+                               TextColor="{toolkit:AppThemeResource StatLabel}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+
+                    <!-- Badge "+N" de la animación de compra (box de Autoservicio) -->
+                    <Label x:Name="BadgeAuto" Grid.Column="1" Text="+21" IsVisible="False"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
+                           TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
+                           ZIndex="10" />
+
+                </Grid>
+
+                <Border Grid.Row="2"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 10"
@@ -64,10 +171,11 @@
                     </Label>
                 </Border>
 
-                <Grid Grid.Row="2"
-                      ColumnDefinitions="*,*,*,*"
+                <Grid Grid.Row="3"
+                      ColumnDefinitions="*,*,*"
                       ColumnSpacing="5">
 
+                    <!--
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
                                 Stroke="Transparent"
@@ -85,8 +193,9 @@
                                TextColor="{toolkit:AppThemeResource StatLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
+                    -->
 
-                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
@@ -104,7 +213,7 @@
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Grid.Column="2" Spacing="4">
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
                         <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
@@ -122,7 +231,7 @@
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Grid.Column="3" Spacing="4">
+                    <VerticalStackLayout Grid.Column="2" Spacing="4">
                         <Border BackgroundColor="{toolkit:AppThemeResource DarkSurface}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
@@ -142,7 +251,7 @@
 
                 </Grid>
 
-                <Border Grid.Row="3"
+                <Border Grid.Row="4"
                         IsVisible="{Binding SinActividad, Converter={toolkit:InvertedBoolConverter}}"
                         BackgroundColor="{toolkit:AppThemeResource Background}"
                         Stroke="Transparent"

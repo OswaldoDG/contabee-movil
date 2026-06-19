@@ -1,4 +1,6 @@
 using Contabee.Api.Crm;
+using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -22,6 +24,14 @@ public partial class MainTabbedPage : ContentPage
     private bool _estabaOffline;
 
     internal static event Action? EquipoRequested;
+    internal static event Action<CreditoGanado[]>? ResaltarCreditosRequested;
+
+    /// <summary>
+    /// Pide al dashboard mostrarse (tab 0) y resaltar las tarjetas de los créditos que aumentaron.
+    /// Lo usa el flujo de compra tras una compra exitosa.
+    /// </summary>
+    internal static void SolicitarResaltarCreditos(params CreditoGanado[] creditos)
+        => ResaltarCreditosRequested?.Invoke(creditos);
 
     public MainTabbedPage(IServiceProvider services)
     {
@@ -53,6 +63,7 @@ public partial class MainTabbedPage : ContentPage
         };
 
         EquipoRequested += ForceEquipoTab;
+        ResaltarCreditosRequested += OnResaltarCreditosRequested;
 
         AppState.Instance.PropertyChanged += (_, e) =>
         {
@@ -91,6 +102,18 @@ public partial class MainTabbedPage : ContentPage
             _ = toast.MostrarAsync("Conexión Restaurada", ToastIcono.Info, ToastPosicion.Bottom);
         }
         _estabaOffline = offline;
+    }
+
+    private async void OnResaltarCreditosRequested(CreditoGanado[] creditos)
+    {
+        if (_currentIndex != 0) SwitchToTab(0);   // pone Dashboard + fade de 140ms
+        await Task.Delay(280);                     // deja asentar el fade antes de animar
+        await _dashboardPage.ResaltarCreditosAsync(creditos);
+        // El label quedó en el valor final con el binding roto (Text directo). Primero sincronizamos
+        // con el servidor —sin efecto visual, el binding está roto— y SOLO DESPUÉS restauramos el
+        // binding: así evalúa al valor real (= valor final) y no salta al valor viejo y de vuelta.
+        await App.Services.GetRequiredService<IServicioSesion>().GetLicenciaAsync();
+        _dashboardPage.RestaurarBindingsCreditos();
     }
 
     private void ForceEquipoTab()
