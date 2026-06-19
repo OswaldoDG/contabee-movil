@@ -3085,6 +3085,9 @@
           "urgente": {
             "type": "boolean",
             "nullable": true
+          },
+          "esAutoservicio": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -3179,6 +3182,9 @@
           "urgente": {
             "type": "boolean"
           },
+          "esAutoservicio": {
+            "type": "boolean"
+          },
           "creditosDisponibles": {
             "type": "integer",
             "format": "int64"
@@ -3264,6 +3270,9 @@
             "type": "boolean"
           },
           "urgente": {
+            "type": "boolean"
+          },
+          "esAutoservicio": {
             "type": "boolean"
           }
         },

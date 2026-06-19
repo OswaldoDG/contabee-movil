@@ -82,16 +82,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(AppState.Licenciamiento))
-            {
-                OnPropertyChanged(nameof(CreditosCaptura));
-                OnPropertyChanged(nameof(CreditosAutoservicio));
-                OnPropertyChanged(nameof(TieneCreditosAutoservicio));
-                OnPropertyChanged(nameof(CreditosActivos));
-                SincronizarTipoCredito();
-            }
+                RefrescarCreditos();
         };
-
-        SincronizarTipoCredito();
     }
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
@@ -120,6 +112,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     protected override void OnAppearing()
     {
         base.OnAppearing();
+
+        // Shell.TitleView no refresca bindings cuando la página estuvo en segundo plano
+        RefrescarCreditos();
 
         PuedeSerUrgente = DateTime.Now.Hour < 20;
         SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
@@ -241,7 +236,6 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private async Task CargarTarjetasYRefrescarAsync()
     {
         await _servicioSesion.GetLicenciaAsync();
-        SincronizarTipoCredito();
         if (AppState.Instance.Tarjetas is null)
             await _servicioSesion.GetTarjetasAsync();
         RefrescarTarjetas();
@@ -394,13 +388,35 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
-    public int  CreditosCaptura  =>
-        AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
+    public int  CreditosCaptura  => AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
 
     // ── Tipo de crédito de captura (Captura vs Autoservicio) ─────────────────
 
     public int  CreditosAutoservicio      => AppState.Instance.Licenciamiento?.CreditosAutoDisponibles ?? 0;
+    public bool TieneCreditosCaptura      => CreditosCaptura > 0;
     public bool TieneCreditosAutoservicio => CreditosAutoservicio > 0;
+    public bool SoloCaptura               => TieneCreditosCaptura && !TieneCreditosAutoservicio;
+    public bool SoloAutoservicio          => !TieneCreditosCaptura && TieneCreditosAutoservicio;
+    public bool TieneAmbosCreditos        => TieneCreditosCaptura && TieneCreditosAutoservicio;
+    public bool SinCreditos               => !TieneCreditosCaptura && !TieneCreditosAutoservicio;
+
+    private void RefrescarCreditos()
+    {
+        OnPropertyChanged(nameof(CreditosCaptura));
+        OnPropertyChanged(nameof(CreditosAutoservicio));
+        OnPropertyChanged(nameof(TieneCreditosCaptura));
+        OnPropertyChanged(nameof(TieneCreditosAutoservicio));
+        OnPropertyChanged(nameof(SoloCaptura));
+        OnPropertyChanged(nameof(SoloAutoservicio));
+        OnPropertyChanged(nameof(TieneAmbosCreditos));
+        OnPropertyChanged(nameof(SinCreditos));
+        OnPropertyChanged(nameof(CreditosActivos));
+
+        if (TieneCreditosAutoservicio)   // SoloAutoservicio o Ambos → autoservicio por defecto
+            UsarAutoservicio = true;
+        else                             // SoloCaptura o SinCreditos
+            UsarAutoservicio = false;
+    }
 
     private bool _usarAutoservicio;
     public bool UsarAutoservicio
@@ -476,6 +492,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             _estaEnviando = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(OpacidadCreditos));
             if (value)
             {
                 _progressDrawable.Progress = 0f;
@@ -483,6 +500,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             }
         }
     }
+
+    // Mientras se envía, el badge de créditos se atenúa y deja de ser interactivo.
+    public double OpacidadCreditos => EstaEnviando ? 0.4 : 1.0;
 
     /// <summary>
     /// Anima suavemente el arco desde su valor actual hasta <paramref name="target"/>.
@@ -726,20 +746,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
-    private void SincronizarTipoCredito() => UsarAutoservicio = TieneCreditosAutoservicio;
+    private void OnCambiarTipoCredito(object sender, TappedEventArgs e) => UsarAutoservicio = !UsarAutoservicio;
 
     private async Task EnviarAsync()
     {
-        if (UsarAutoservicio)
-        {
-            await _servicioAlerta.MostrarAsync(
-                "Próximamente",
-                "La captura con créditos de autoservicio estará disponible muy pronto. Por ahora puedes usar tus créditos de captura.",
-                verBotonCancelar: false,
-                confirmarText: "Entendido");
-            return;
-        }
-
         if (AppState.Instance.ModoOffline)
         {
             await _servicioAlerta.MostrarAsync("Sin conexión", "Tus fotos están guardadas. Envíalas cuando recuperes internet.");
@@ -780,8 +790,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             return;
         }
 
-        // ── Punto 2: Validar créditos disponibles en AppState ────────────────
-        var creditosAppState = AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0;
+        // ── Punto 2: Validar créditos disponibles en AppState (del tipo activo) ─
+        var creditosAppState = CreditosActivos;
         if (creditosAppState <= 0)
         {
             await _servicioToast.MostrarAsync("No tienes créditos suficientes.", ToastIcono.Error, ToastPosicion.Bottom);
@@ -826,7 +836,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 DesglosarIEPS = DesglosarIeps,
                 CapturaRemota = SoloEvidencia && CapturaRemota,
                 Urgente = EsUrgente && DateTime.Now.Hour < 20,
-                ProcesoAsociadoId = _procesoAsociadoId
+                ProcesoAsociadoId = _procesoAsociadoId,
+                EsAutoservicio = UsarAutoservicio
             };
 
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);

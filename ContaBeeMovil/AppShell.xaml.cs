@@ -6,7 +6,6 @@ using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
-using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.Equipo;
@@ -17,6 +16,7 @@ using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;
 using ContaBee.Pages.Cupones;
+using ContaBeeMovil.Pages.Dev;
 
 namespace ContaBeeMovil
 {
@@ -273,6 +273,7 @@ namespace ContaBeeMovil
             FlyoutIsPresented = false;
             await GoToAsync(nameof(LogsPage));
         }
+
         private async void OnCuponesClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
