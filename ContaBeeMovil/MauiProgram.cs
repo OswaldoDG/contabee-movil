@@ -15,7 +15,6 @@ using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Pages.Equipo;
-using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.SinConexion;
@@ -36,6 +35,7 @@ using SkiaSharp.Views.Maui.Controls.Hosting;
 using ContaBee.Pages.Cupones;
 using ContaBee.Services;
 using ContaBee.Models.Configuracion;
+using ContaBeeMovil.Pages.Dev;
 
 
 namespace ContaBeeMovil

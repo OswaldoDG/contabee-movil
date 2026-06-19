@@ -15,6 +15,18 @@ App móvil de **facturación fiscal y contabilidad** para México, dirigida a pe
 
 ---
 
+## Tipos de crédito que maneja ContaBee
+
+El modelo de negocio se basa en **créditos**. Cada crédito habilita un flujo distinto de captura y generación de CFDI:
+
+| Tipo de crédito | Quién captura el ticket | Quién genera el CFDI | Dónde |
+|---|---|---|---|
+| **Captura** | El usuario | **ContaBee** (delegado) | El usuario toma la captura de su ticket y delega la captura y generación del CFDI a ContaBee |
+| **Autoservicio** | El usuario | **El propio usuario** | El usuario toma la captura de su ticket y él mismo realiza la captura y generación del CFDI desde la app de escritorio |
+| **Colaboración** | — | — | Habilita al usuario para crear una **comprobación** o una **devolución** |
+
+---
+
 ## Stack técnico
 
 | Capa | Tecnología |

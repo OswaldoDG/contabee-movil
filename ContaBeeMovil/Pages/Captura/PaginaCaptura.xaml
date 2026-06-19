@@ -21,9 +21,10 @@
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
                    VerticalOptions="Center" />
 
-            <!-- Badge: solo cuando NO hay créditos de autoservicio. Banner simple original. -->
+            <!-- Badge: solo créditos de captura (sin autoservicio). -->
             <Border Grid.Column="1"
-                    IsVisible="{Binding TieneCreditosAutoservicio, Converter={StaticResource InvertedBoolConverter}}"
+                    IsVisible="{Binding SoloCaptura}"
+                    Opacity="{Binding OpacidadCreditos}"
                     StrokeShape="RoundRectangle 10"
                     Stroke="Transparent"
                     StrokeThickness="0"
@@ -43,15 +44,61 @@
                 </HorizontalStackLayout>
             </Border>
 
-            <!-- Badge de créditos de autoservicio (se muestra cuando TieneCreditosAutoservicio).
-                 Se selecciona automáticamente; no es interactivo. -->
+            <!-- Badge: solo créditos de autoservicio (sin captura). -->
             <Border Grid.Column="1"
-                    IsVisible="{Binding TieneCreditosAutoservicio}"
+                    IsVisible="{Binding SoloAutoservicio}"
+                    Opacity="{Binding OpacidadCreditos}"
+                    StrokeShape="RoundRectangle 10"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Auto}"
+                    Padding="10,7"
+                    VerticalOptions="Center">
+                <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                    <Label Text="{Binding CreditosAutoservicio}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                    <Label Text="créditos"
+                           FontSize="12"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!-- Badge: sin créditos de ningún tipo. -->
+            <Border Grid.Column="1"
+                    IsVisible="{Binding SinCreditos}"
+                    Opacity="{Binding OpacidadCreditos}"
+                    StrokeShape="RoundRectangle 10"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    BackgroundColor="{toolkit:AppThemeResource Error}"
+                    Padding="10,7"
+                    VerticalOptions="Center">
+                <Label Text="Sin créditos"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <!-- Selector de tipo de crédito (ambos disponibles): dos secciones.
+                 Izquierda: color del tipo + nombre.  Derecha: fondo claro + número.
+                 Toda la píldora es tocable y alterna Captura <-> Autoservicio. -->
+            <Border Grid.Column="1"
+                    IsVisible="{Binding TieneAmbosCreditos}"
+                    Opacity="{Binding OpacidadCreditos}"
+                    InputTransparent="{Binding EstaEnviando}"
                     Stroke="Transparent"
                     StrokeThickness="0"
                     BackgroundColor="Transparent"
                     Padding="0"
                     VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCambiarTipoCredito" />
+                </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,Auto" VerticalOptions="Center">
                     <!-- Sección derecha (ATRÁS): fondo claro + número.
                          Margin negativo: su borde izquierdo se mete debajo de la box de color. -->
