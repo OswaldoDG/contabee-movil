@@ -99,23 +99,29 @@ public static class AnimacionesCredito
         badge.Text = $"+{n}";
         badge.TranslationY = 0;
         badge.Opacity = 0;
+        badge.Scale = 0.3;
         badge.IsVisible = true;
 
         // Pop del borde sutil (crece poco) + aparición del "+N".
         _ = border.ScaleToAsync(1.05, 160, Easing.CubicOut)
                   .ContinueWith(_ => border.ScaleToAsync(1.0, 240, Easing.CubicIn));
+
+        // El "+N" entra de golpe con overshoot (pop) para que sea bien notorio.
         await Task.WhenAll(
-            badge.FadeToAsync(1, 120, Easing.CubicOut),
+            badge.FadeToAsync(1, 110, Easing.CubicOut),
+            badge.ScaleToAsync(1.5, 200, Easing.CubicOut),
             TweenGrosor(border, grosorOrig, 3, 160));
+        await badge.ScaleToAsync(1.2, 130, Easing.CubicIn);   // asienta el rebote
 
         // El "+N" sube y se desvanece mientras el número cuenta hasta el nuevo valor.
         await Task.WhenAll(
-            badge.TranslateToAsync(0, -40, 760, Easing.CubicOut),
-            badge.FadeToAsync(0, 760, Easing.CubicIn),
-            ContarLabel(numero, desde, hasta, 760));
+            badge.TranslateToAsync(0, -56, 820, Easing.CubicOut),
+            badge.FadeToAsync(0, 820, Easing.CubicIn),
+            ContarLabel(numero, desde, hasta, 820));
 
         badge.IsVisible = false;
         badge.TranslationY = 0;
+        badge.Scale = 1;
         await TweenGrosor(border, 3, grosorOrig, 200);
         border.Stroke = strokeOrig;
     }

@@ -37,4 +37,7 @@ public partial class DashboardPage : ContentPage
 
     public Task ResaltarCreditosAsync(params CreditoGanado[] creditos)
         => Actividad.ResaltarCreditosAsync(creditos);
+
+    public void RestaurarBindingsCreditos()
+        => Actividad.RestaurarBindingsCreditos();
 }

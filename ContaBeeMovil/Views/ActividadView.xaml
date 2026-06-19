@@ -81,7 +81,7 @@
 
                     <!-- Badge "+N" de la animación de compra (box de Captura) -->
                     <Label x:Name="BadgeCaptura" Grid.Column="0" Text="+21" IsVisible="False"
-                           InputTransparent="True" FontSize="16" FontAttributes="Bold"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
                            TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
                            ZIndex="10" />
 
@@ -112,7 +112,7 @@
 
                     <!-- Badge "+N" de la animación de compra (box de Colaboración) -->
                     <Label x:Name="BadgeColab" Grid.Column="2" Text="+21" IsVisible="False"
-                           InputTransparent="True" FontSize="16" FontAttributes="Bold"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
                            TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
                            ZIndex="10" />
 
@@ -143,7 +143,7 @@
 
                     <!-- Badge "+N" de la animación de compra (box de Autoservicio) -->
                     <Label x:Name="BadgeAuto" Grid.Column="1" Text="+21" IsVisible="False"
-                           InputTransparent="True" FontSize="16" FontAttributes="Bold"
+                           InputTransparent="True" FontSize="24" FontAttributes="Bold"
                            TextColor="#16A34A" HorizontalOptions="Center" VerticalOptions="Start"
                            ZIndex="10" />
 

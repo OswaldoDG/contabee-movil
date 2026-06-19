@@ -109,8 +109,11 @@ public partial class MainTabbedPage : ContentPage
         if (_currentIndex != 0) SwitchToTab(0);   // pone Dashboard + fade de 140ms
         await Task.Delay(280);                     // deja asentar el fade antes de animar
         await _dashboardPage.ResaltarCreditosAsync(creditos);
-        // Después de la animación: sincroniza con el servidor y restaura el binding con el valor real.
+        // El label quedó en el valor final con el binding roto (Text directo). Primero sincronizamos
+        // con el servidor —sin efecto visual, el binding está roto— y SOLO DESPUÉS restauramos el
+        // binding: así evalúa al valor real (= valor final) y no salta al valor viejo y de vuelta.
         await App.Services.GetRequiredService<IServicioSesion>().GetLicenciaAsync();
+        _dashboardPage.RestaurarBindingsCreditos();
     }
 
     private void ForceEquipoTab()

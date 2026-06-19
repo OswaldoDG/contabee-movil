@@ -8,6 +8,10 @@ public partial class ActividadView : ContentView
     // 0 = Captura + Colab + Auto  |  1 = Captura + Colab  |  2 = Solo Captura
     private int _modoCreditos;
 
+    // Labels cuyo binding quedó roto por la animación (Text seteado directo), pendientes de
+    // restaurar tras GetLicenciaAsync para evitar el salto visual al final.
+    private readonly List<(Label numero, string bindingPath)> _bindingsPendientes = new();
+
     public ActividadView()
     {
         InitializeComponent();
@@ -32,15 +36,18 @@ public partial class ActividadView : ContentView
     }
 
     public void ResaltarCreditos(params CreditoGanado[] creditos)
-        => _ = ResaltarCreditosAsync(creditos);
+        => _ = ResaltarCreditosAsync(creditos)
+            .ContinueWith(_ => MainThread.BeginInvokeOnMainThread(RestaurarBindingsCreditos));
 
     /// <summary>
     /// Muestra el valor viejo, sube el "+N" y cuenta hasta el nuevo valor para cada crédito ganado.
-    /// Restaura el data binding del label al terminar; llama GetLicenciaAsync después de awaitar.
+    /// Deja el label mostrando el valor final con el binding roto; el caller DEBE llamar
+    /// GetLicenciaAsync y luego <see cref="RestaurarBindingsCreditos"/> para evitar el salto visual.
     /// Solo anima las tarjetas visibles según el modo de créditos actual.
     /// </summary>
     public Task ResaltarCreditosAsync(params CreditoGanado[] creditos)
     {
+        _bindingsPendientes.Clear();
         var tareas = new List<Task>();
         foreach (var c in creditos)
         {
@@ -56,16 +63,24 @@ public partial class ActividadView : ContentView
             // El label aún muestra el valor viejo (GetLicenciaAsync no se ha llamado).
             int desde = int.TryParse(numero.Text, out var v) ? v : 0;
             int hasta = desde + c.Cantidad;
-            tareas.Add(AnimarConBinding(border, badge, numero, desde, hasta, UIHelpers.GetColor(colorKey), bindingPath));
+            // MasNConConteo rompe el binding (setea Text directo) y deja el label en `hasta`.
+            // Se restaura recién en RestaurarBindingsCreditos, tras sincronizar el licenciamiento.
+            _bindingsPendientes.Add((numero, bindingPath));
+            tareas.Add(AnimacionesCredito.MasNConConteo(border, badge, numero, desde, hasta, UIHelpers.GetColor(colorKey)));
         }
         return tareas.Count > 0 ? Task.WhenAll(tareas) : Task.CompletedTask;
     }
 
-    private static async Task AnimarConBinding(Border border, Label badge, Label numero, int desde, int hasta, Color color, string bindingPath)
+    /// <summary>
+    /// Restaura el data binding de los labels animados. Debe llamarse DESPUÉS de GetLicenciaAsync
+    /// para que el binding se evalúe contra el valor real del servidor (= valor final de la
+    /// animación) y el label no salte al valor viejo y de vuelta.
+    /// </summary>
+    public void RestaurarBindingsCreditos()
     {
-        await AnimacionesCredito.MasNConConteo(border, badge, numero, desde, hasta, color);
-        // ContarLabel rompe el binding (setea Text directamente); lo restauramos aquí.
-        numero.SetBinding(Label.TextProperty, new Binding(bindingPath));
+        foreach (var (numero, bindingPath) in _bindingsPendientes)
+            numero.SetBinding(Label.TextProperty, new Binding(bindingPath));
+        _bindingsPendientes.Clear();
     }
 
     private void AplicarModoCreditos()
