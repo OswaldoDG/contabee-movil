@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Views;
+using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Views;
 
@@ -28,6 +29,11 @@ public partial class CrearComprobacionPopup : Popup
 
         CardBorder.WidthRequest = Math.Min(screenWidth - 40, 420);
         CardBorder.MaximumHeightRequest = Math.Max(320, Math.Min(screenHeight - 64, 680));
+
+        var creditos = AppState.Instance.Licenciamiento?.CreditosColabDisponibles ?? 0;
+        BadgeColab.IsVisible      = creditos > 0;
+        BadgeSinCreditos.IsVisible = creditos <= 0;
+        LblCreditosColab.Text     = creditos.ToString();
 
         var hoy = DateTime.Today;
         LblCreacion.Text = DateTime.Now.ToString("d/M/yyyy");

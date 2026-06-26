@@ -22,24 +22,34 @@
 
             <!-- Encabezado -->
             <VerticalStackLayout Grid.Row="0" Spacing="8">
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                    <Label x:Name="LblTitulo"
-                           FontAttributes="Bold"
-                           FontSize="18"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                    <Border x:Name="BadgeYo"
-                            IsVisible="False"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            StrokeThickness="0"
-                            StrokeShape="RoundRectangle 4"
-                            Padding="6,2"
-                            VerticalOptions="Center">
-                        <Label Text="Yo"
-                               FontSize="10"
-                               TextColor="{toolkit:AppThemeResource OnPrimary}"
-                               FontAttributes="Bold" />
-                    </Border>
-                </HorizontalStackLayout>
+                <Grid ColumnDefinitions="*,Auto" HorizontalOptions="Fill">
+                    <HorizontalStackLayout Grid.Column="0"
+                                          HorizontalOptions="Center"
+                                          Spacing="8">
+                        <Label x:Name="LblTitulo"
+                               FontAttributes="Bold"
+                               FontSize="18"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               VerticalOptions="Center" />
+                        <Border x:Name="BadgeYo"
+                                IsVisible="False"
+                                BackgroundColor="{toolkit:AppThemeResource Primary}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 4"
+                                Padding="6,2"
+                                VerticalOptions="Center">
+                            <Label Text="Yo"
+                                   FontSize="10"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                   FontAttributes="Bold" />
+                        </Border>
+                    </HorizontalStackLayout>
+                    <Switch x:Name="SwitchActiva"
+                            Grid.Column="1"
+                            OnColor="{toolkit:AppThemeResource Primary}"
+                            Scale="0.9"
+                            VerticalOptions="Center" />
+                </Grid>
                 <BoxView Style="{StaticResource Divider}" />
             </VerticalStackLayout>
 
@@ -51,7 +61,7 @@
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
                     <!-- Toggle: UsuarioCaptura -->
-                    <Grid ColumnDefinitions="*,Auto">
+                    <Grid x:Name="FilaCaptura" ColumnDefinitions="*,Auto">
                         <Label Text="Puede Capturar"
                                VerticalOptions="Center"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
@@ -64,20 +74,45 @@
                                 Margin="0,0,8,0" />
                     </Grid>
 
+                    <!-- Panel debug (solo modo dev) -->
+                    <Border x:Name="PanelDebug"
+                            IsVisible="False"
+                            BackgroundColor="#1A1A1A"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1"
+                            Stroke="#00FF99"
+                            Margin="0,8,0,0">
+                        <Label x:Name="LblDebugInfo"
+                               TextColor="#00FF99"
+                               FontSize="11"
+                               FontFamily="Courier New"
+                               LineBreakMode="WordWrap"
+                               Padding="10,8" />
+                    </Border>
+
                 </VerticalStackLayout>
 
                 <!-- Spinner overlay mientras carga o guarda -->
-                <ActivityIndicator x:Name="Spinner"
-                                   IsRunning="False"
-                                   IsVisible="False"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center"
-                                   Color="{toolkit:AppThemeResource Primary}" />
+                <VerticalStackLayout x:Name="SpinnerPanel"
+                                     IsVisible="False"
+                                     Spacing="10"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <ActivityIndicator x:Name="Spinner"
+                                       IsRunning="False"
+                                       HorizontalOptions="Center"
+                                       Color="{toolkit:AppThemeResource Primary}" />
+                    <Label x:Name="LblSpinner"
+                           IsVisible="False"
+                           HorizontalOptions="Center"
+                           FontSize="13"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                </VerticalStackLayout>
             </Grid>
 
             <!-- Botones -->
             <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Text="Cancelar"
+                <Button Text="Cerrar"
                         Style="{StaticResource SecondaryButton}"
                         Clicked="OnCancelar" />
                 <Button x:Name="BtnGuardar"

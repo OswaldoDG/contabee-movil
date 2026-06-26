@@ -1,4 +1,5 @@
 using CommunityToolkit.Maui.Views;
+using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Views;
 
@@ -13,6 +14,11 @@ public partial class CrearDevolucionPopup : Popup
 
         var screenWidth = DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
         CardBorder.WidthRequest = Math.Min(screenWidth - 40, 420);
+
+        var creditos = AppState.Instance.Licenciamiento?.CreditosColabDisponibles ?? 0;
+        BadgeColab.IsVisible       = creditos > 0;
+        BadgeSinCreditos.IsVisible = creditos <= 0;
+        LblCreditosColab.Text      = creditos.ToString();
     }
 
     private async void OnCancelar(object sender, EventArgs e)

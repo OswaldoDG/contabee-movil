@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core.Extensions;
 using Contabee.Api.abstractions;
 using TarjetaDto = Contabee.Api.Crm.TarjetaUsuario;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages.AccesoSuspendido;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
@@ -75,13 +76,19 @@ public class ServicioSesion : IServicioSesion
 
     public Task<string?> LeeRefreshTokenAsync() => LeeContenidoClave(CLAVE_REFRESH_TOKEN);
 
-    public Task LimpiaTokensAsync()
+    public Task LimpiaTokensAsync(bool conservarLoginLess = false)
     {
         SecureStorage.Remove(CLAVE_ACCESS_TOKEN);
         SecureStorage.Remove(CLAVE_REFRESH_TOKEN);
         SecureStorage.Remove(CLAVE_EXPIRACION);
-        SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
-        _appState.EsLoginLess = false;
+        // Para un usuario loginless conservamos el token: la asociación pudo haber
+        // sido solo DESACTIVADA (reversible) y el token sigue siendo válido tras
+        // reactivar, así que lo necesitamos para reanudar la sesión automáticamente.
+        if (!conservarLoginLess)
+        {
+            SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
+            _appState.EsLoginLess = false;
+        }
         Preferences.Set("TieneSesion", false);
         return Task.CompletedTask;
     }
@@ -384,7 +391,13 @@ public class ServicioSesion : IServicioSesion
     public async Task VerificarSesionAlReanudarAsync()
     {
         if (!Preferences.Get("TieneSesion", false))
+        {
+            // Usuario loginless con acceso suspendido (asociación desactivada): el token
+            // sigue válido, así que intentamos reanudar por si ya fue reactivada.
+            if (!string.IsNullOrEmpty(await LeeTokenLoginLessAsync()))
+                await IntentarReanudarLoginLessAsync();
             return;
+        }
 
         await GetTarjetasAsync();
 
@@ -445,7 +458,9 @@ public class ServicioSesion : IServicioSesion
 
         if (_appState.CuentasFiscales == null || _appState.CuentasFiscales.Count == 0)
         {
-            await LimpiaTokensAsync();
+            bool esLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
+
+            await LimpiaTokensAsync(conservarLoginLess: esLoginLess);
             SecureStorage.Remove(CLAVE_EXPIRACION);
             _appState.Perfil = null;
             _appState.CuentaFiscalActual = null;
@@ -455,9 +470,21 @@ public class ServicioSesion : IServicioSesion
 
             await MainThread.InvokeOnMainThreadAsync(async () =>
             {
-                var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-                Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-                await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
+                if (esLoginLess)
+                {
+                    // La asociación pudo haber sido solo desactivada. Mostramos una
+                    // pantalla de acceso suspendido que permite reintentar (cuando se
+                    // reactive) sin perder el token loginless.
+                    var pagina = _serviceProvider.GetRequiredService<PaginaAccesoSuspendido>();
+                    Application.Current!.Windows[0].Page = new NavigationPage(pagina);
+                    await toast.MostrarAsync("Tu acceso fue desactivado", ToastIcono.Warning, ToastPosicion.Bottom);
+                }
+                else
+                {
+                    var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
+                    Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
+                    await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
+                }
             });
         }
         else
@@ -489,6 +516,30 @@ public class ServicioSesion : IServicioSesion
             var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
             Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
         });
+    }
+
+    public async Task<bool> IntentarReanudarLoginLessAsync()
+    {
+        var token = await LeeTokenLoginLessAsync();
+        if (string.IsNullOrEmpty(token)) return false;
+
+        var dispositivoId = await LeeIdDeDispositivo();
+        var loginR = await _servicioIdentidad.IniciarSesion(token, "Password", dispositivoId, recordarme: false);
+        if (!loginR.Ok || loginR.Payload is null)
+        {
+            // Sigue desactivada (o el token fue revocado): permanece suspendido.
+            _logs.Warn($"[LoginLess] Reanudar acceso falló. Ok={loginR.Ok} Error={loginR.Error?.Codigo}");
+            return false;
+        }
+
+        await GuardaTokenAsync(loginR.Payload.AccessToken, loginR.Payload.RefreshToken);
+        await GuardaExpiracionAsync(DateTime.Now.AddSeconds(loginR.Payload.ExpiresIn));
+        await PosLoginAsync();
+        if (_posLoginAbortado) return false;
+
+        await MainThread.InvokeOnMainThreadAsync(() =>
+            Application.Current!.Windows[0].Page = _serviceProvider.GetRequiredService<AppShell>());
+        return true;
     }
 
     public Task GuardaTokenLoginLessAsync(string token)

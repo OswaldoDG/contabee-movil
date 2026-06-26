@@ -294,6 +294,25 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         return r;
     }
 
+    public async Task<RespuestaPayload<CuentaUsuarioResultadoPaginado>> BuscarUsuarios(Guid cfid, Busqueda busqueda)
+    {
+        RespuestaPayload<CuentaUsuarioResultadoPaginado> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.Buscar4Async(cfid, busqueda);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Buscar Usuarios");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<CuentaUsuario>> CrearUsuarioCaptura(CreaUsuarioCaptura usuarioCaptura, Guid cfid)
     {
         RespuestaPayload<CuentaUsuario> r = new();
