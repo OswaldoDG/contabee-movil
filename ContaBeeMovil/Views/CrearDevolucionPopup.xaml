@@ -23,7 +23,7 @@
 
         <VerticalStackLayout Spacing="12"
                              MinimumWidthRequest="280">
-            <Label Text="Crear Devolución"
+            <Label Text="Crear Reembolso"
                    FontAttributes="Bold"
                    FontSize="20"
                    HorizontalOptions="Center"

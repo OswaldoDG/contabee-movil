@@ -72,6 +72,9 @@ public partial class ManualRegistroPage : ContentPage
 
     private bool EsFisica => SelectorPersona.IndiceSeleccionado == 0;
 
+    public bool NavegaAHome { get; set; }
+    public bool RegistroExitoso { get; private set; }
+
     public ManualRegistroPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs, IServicioToast servicioToast)
     {
         InitializeComponent();
@@ -408,23 +411,31 @@ public partial class ManualRegistroPage : ContentPage
                 AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
             }
 
-            if (Navigation.NavigationStack.Count > 1)
+            var toastMsg = _esEdicion
+                ? "Cuenta fiscal actualizada correctamente."
+                : "Cuenta fiscal registrada correctamente.";
+
+            if (NavegaAHome)
+            {
+                // Navegar via pop normal — RegistrarRFCsPage.OnAppearing detecta
+                // RegistroExitoso y navega a home desde un contexto Shell válido.
+                RegistroExitoso = true;
+                await Navigation.PopAsync();
+                return;
+            }
+            else if (Navigation.NavigationStack.Count > 1)
             {
                 var stack = Navigation.NavigationStack;
                 if (stack.Count >= 2 && stack[^2] is RegistrarRFCsPage registrarPage)
                     Navigation.RemovePage(registrarPage);
 
                 await Navigation.PopAsync();
-                await _servicioToast.MostrarAsync(_esEdicion
-                    ? "Cuenta fiscal actualizada correctamente."
-                    : "Cuenta fiscal registrada correctamente.");
+                await _servicioToast.MostrarAsync(toastMsg);
             }
             else if (Shell.Current is not null)
             {
                 await Shell.Current.GoToAsync(nameof(RFCsPage));
-                await _servicioToast.MostrarAsync(_esEdicion
-                    ? "Cuenta fiscal actualizada correctamente."
-                    : "Cuenta fiscal registrada correctamente.");
+                await _servicioToast.MostrarAsync(toastMsg);
             }
         }
         catch (HttpRequestException ex)

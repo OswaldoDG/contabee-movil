@@ -30,9 +30,11 @@ public partial class ActividadView : ContentView
 
     private void OnCreditosTapped(object sender, TappedEventArgs e)
     {
-        _modoCreditos = (_modoCreditos + 1) % 3;
-        Preferences.Default.Set(PrefModoCreditos, _modoCreditos);
-        AplicarModoCreditos();
+        // Desactivado. Para reactivar: descomentar el GestureRecognizer en ActividadView.xaml
+        // y descomentar las siguientes 3 líneas:
+        //_modoCreditos = (_modoCreditos + 1) % 3;
+        //Preferences.Default.Set(PrefModoCreditos, _modoCreditos);
+        //AplicarModoCreditos();
     }
 
     public void ResaltarCreditos(params CreditoGanado[] creditos)

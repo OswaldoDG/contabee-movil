@@ -41,7 +41,7 @@ public partial class TiendaPage : ContentPage
     private static readonly Dictionary<string, string> DescripcionesCategoria = new()
     {
         ["CREDITOS_CAPTURA"]      = "Captura tu ticket y ContaBee genera la factura automáticamente.",
-        ["CREDITOS_COLABORACION"] = "Úsalos para crear comprobaciones y devoluciones.",
+        ["CREDITOS_COLABORACION"] = "Úsalos para crear comprobaciones y reembolsos.",
         ["CREDITOS_AUTOSERVICIO"] = "Captura tu ticket y genera tu factura tú mismo, desde nuestra app de escritorio.",
     };
 

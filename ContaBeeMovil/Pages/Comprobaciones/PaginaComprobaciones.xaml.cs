@@ -161,6 +161,22 @@ public partial class PaginaComprobaciones : ContentPage
         _ = RecargarConUltimosFiltrosAsync();
     }
 
+    /// <summary>
+    /// Invalida los resultados cacheados (que pertenecen a la cuenta fiscal anterior)
+    /// y deja la página marcada para recargar. La llama <see cref="MainTabbedPage"/>
+    /// al detectar un cambio de cuenta fiscal activa.
+    /// </summary>
+    public void InvalidarConsulta()
+    {
+        _ultimaBusqueda = null;
+        Elementos = null;
+        TotalEncontrados = 0;
+        PaginaActual = 1;
+        TotalPaginas = 1;
+        ConsultaEjecutada = false;
+        PendienteActualizarListado = true;
+    }
+
     private async Task RecargarConUltimosFiltrosAsync()
     {
         if (_ultimaBusqueda is null)

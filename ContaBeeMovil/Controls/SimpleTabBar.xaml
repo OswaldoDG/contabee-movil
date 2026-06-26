@@ -86,7 +86,7 @@
                    BackgroundColor="Transparent"
                    IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblDevoluciones"
-                   Text="Devoluciones"
+                   Text="Reembolsos"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                    FontSize="8"
                    HorizontalOptions="Center" />

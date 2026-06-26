@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-06-26 — Fix: listados con datos de la cuenta fiscal anterior al cambiar de cuenta
+
+**Bug:** Al cambiar de cuenta fiscal, las pestañas de listado (Facturación, Devoluciones, Comprobaciones) seguían mostrando los resultados de la búsqueda hecha con la cuenta anterior.
+
+**Causa:** Las páginas de listado son singletons embebidos en `MainTabbedPage` (swap de `Content`, nunca se destruyen) y cachean sus resultados (`Elementos`, `_ultimaBusqueda`, `ConsultaEjecutada`). El selector de cuenta vive en el header global (`RfcCpBarView`). Al cambiar de cuenta se refrescaban licencia/usuarios/dashboard/filtros, pero **ninguna página de listado invalidaba su caché**, y `OnTabActivated` solo recarga si hay flag `PendienteActualizar*`.
+
+**Hecho:**
+- `MainTabbedPage`: reacciona a la transición de `AppState.EstaActualizandoCF` `true → false` (`OnEstadoActualizacionCFCambiado` → `RefrescarListadosPorCambioDeCuenta`). Invalida el caché de las 3 páginas y reactiva la pestaña visible (`ActivarTabActual`) para recarga inmediata.
+- `FacturacionPage`, `PaginaDevoluciones`, `PaginaComprobaciones`: nuevo método público `InvalidarConsulta()` que limpia resultados/paginación/`_ultimaBusqueda`, baja `ConsultaEjecutada` y activa el flag `PendienteActualizar*`.
+
+**Decisiones tomadas:**
+- Se escucha `EstaActualizandoCF` (no `CuentaFiscalActual`) para evitar una carrera: `CuentaFiscalActual` cambia *antes* de refrescar licencia/usuarios; recargar ahí resolvería nombres con la lista de usuarios vieja. La transición a `false` garantiza datos consistentes.
+- Pestaña visible recarga al instante; las inactivas recargan al activarse (sin queries de red de más). El Dashboard ya estaba cubierto por su propia suscripción a `CuentaFiscalActual`.
+
+---
+
 ## 2026-06-11 — Mostrar solo lo recién creado + color botones DatePicker
 
 **Hecho:**

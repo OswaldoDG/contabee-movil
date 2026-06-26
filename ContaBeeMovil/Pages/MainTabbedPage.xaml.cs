@@ -22,6 +22,7 @@ public partial class MainTabbedPage : ContentPage
 
     private int _currentIndex = -1;
     private bool _estabaOffline;
+    private bool _estabaActualizandoCF;
 
     internal static event Action? EquipoRequested;
     internal static event Action<CreditoGanado[]>? ResaltarCreditosRequested;
@@ -72,6 +73,8 @@ public partial class MainTabbedPage : ContentPage
                 MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
             else if (e.PropertyName == nameof(AppState.ModoOffline))
                 MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
+            else if (e.PropertyName == nameof(AppState.EstaActualizandoCF))
+                MainThread.BeginInvokeOnMainThread(OnEstadoActualizacionCFCambiado);
         };
 
         ActualizarVisibilidadEquipo();
@@ -102,6 +105,32 @@ public partial class MainTabbedPage : ContentPage
             _ = toast.MostrarAsync("Conexión Restaurada", ToastIcono.Info, ToastPosicion.Bottom);
         }
         _estabaOffline = offline;
+    }
+
+    /// <summary>
+    /// Detecta el fin de un cambio de cuenta fiscal activa (transición true → false de
+    /// <see cref="AppState.EstaActualizandoCF"/>, momento en que la cuenta y sus datos —licencia,
+    /// usuarios— ya están refrescados) e invalida los resultados cacheados de las pestañas de
+    /// listado para que no muestren datos de la cuenta anterior.
+    /// </summary>
+    private void OnEstadoActualizacionCFCambiado()
+    {
+        var actualizando = AppState.Instance.EstaActualizandoCF;
+        if (_estabaActualizandoCF && !actualizando)
+            RefrescarListadosPorCambioDeCuenta();
+        _estabaActualizandoCF = actualizando;
+    }
+
+    private void RefrescarListadosPorCambioDeCuenta()
+    {
+        // Las pestañas inactivas quedan marcadas para recargar al activarse; el Dashboard
+        // ya se refresca por su propia suscripción a CuentaFiscalActual.
+        _facturacionPage.InvalidarConsulta();
+        _devolucionesPage.InvalidarConsulta();
+        _comprobacionesPage.InvalidarConsulta();
+
+        // La pestaña visible se recarga de inmediato.
+        ActivarTabActual();
     }
 
     private async void OnResaltarCreditosRequested(CreditoGanado[] creditos)
@@ -161,7 +190,7 @@ public partial class MainTabbedPage : ContentPage
             case 2:
                 PageContainer.Content = _devolucionesView;
                 PageContainer.BindingContext = _devolucionesPage.BindingContext;
-                LabelTitulo.Text = "Devoluciones";
+                LabelTitulo.Text = "Reembolsos";
                 break;
 
             case 3:

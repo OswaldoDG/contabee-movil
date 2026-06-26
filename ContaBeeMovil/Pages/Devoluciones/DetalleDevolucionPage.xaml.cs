@@ -166,7 +166,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                     return;
                 }
 
-                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo obtener la devolución.", verBotonCancelar: false, confirmarText: "OK");
+                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo obtener el reembolso.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
 
@@ -311,7 +311,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             var res = await _servicioTranscript.ActualizarDevolucionAsync(_devolucion.Id, req);
             if (!res.Ok || res.Payload is null)
             {
-                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar la devolución.", verBotonCancelar: false, confirmarText: "OK");
+                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo actualizar el reembolso.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
 
@@ -330,8 +330,8 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         if (_devolucion is null) return;
 
         var confirmar = await _servicioAlerta.MostrarAsync(
-            "Eliminar devolución",
-            "¿Deseas eliminar esta devolución?",
+            "Eliminar reembolso",
+            "¿Deseas eliminar este reembolso?",
             confirmarText: "Eliminar",
             cancelarText: "Cancelar");
 
@@ -343,7 +343,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             var res = await _servicioTranscript.EliminarDevolucionAsync(_devolucion.Id);
             if (!res.Ok)
             {
-                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo eliminar la devolución.", verBotonCancelar: false, confirmarText: "OK");
+                await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo eliminar el reembolso.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }
 

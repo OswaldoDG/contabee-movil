@@ -50,14 +50,15 @@ public partial class RFCsPage : ContentPage
         double swipeWidth = cardWidth * 0.75;
 
         var cuentas = AppState.Instance.CuentasFiscales ?? new List<AsociacionCuentaFiscalCompleta>();
-        var esLoginLess = AppState.Instance.EsLoginLess;
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
-        {            
+        {
             Nombre         = c.CuentaFiscal?.Nombre ?? string.Empty,
             Rfc            = c.Rfc ?? "—",
             Regimen        = ObtenerDescripcionRegimen(c.CuentaFiscal?.ClaveRegimenFiscal ?? c.ClaveRegimenFiscal),
             SwipeItemWidth = swipeWidth,
-            PuedeEliminar  = !esLoginLess || c.TipoCuenta == TipoCuenta.Primaria,
+            // Solo se puede eliminar (swipe) una cuenta de la que eres titular (primaria).
+            // En cuentas secundarias el botón de swipe queda oculto.
+            PuedeEliminar  = c.TipoCuenta == TipoCuenta.Primaria,
             EsPrimaria      = c.TipoCuenta == TipoCuenta.Primaria,
             DeleteCommand  = new Command(async () => await ConfirmarEliminar(c)),
             OpenCommand    = new Command(async () => await AbrirEdicion(c), () => c.TipoCuenta == TipoCuenta.Primaria),
@@ -121,7 +122,7 @@ public partial class RFCsPage : ContentPage
             return;
         }
 
-        if (AppState.Instance.EsLoginLess && cuenta.TipoCuenta != TipoCuenta.Primaria)
+        if (cuenta.TipoCuenta != TipoCuenta.Primaria)
         {
             await _servicioAlerta.MostrarAsync(
                 "No permitido",
