@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             x:Class="ContaBeeMovil.Views.FiltrosEquipoView">
+
+    <Border Style="{StaticResource FiltersStyle}" Padding="8">
+        <VerticalStackLayout Spacing="8">
+
+            <VerticalStackLayout x:Name="PanelFiltros" Spacing="8">
+
+                <Border BackgroundColor="{toolkit:AppThemeResource Background}"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="1"
+                        Stroke="{toolkit:AppThemeResource Accent1}"
+                        Padding="12,0">
+                    <Entry x:Name="EntryTexto"
+                           Placeholder="nombre/email"
+                           FontSize="14"
+                           PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           BackgroundColor="Transparent"
+                           HeightRequest="44"
+                           Keyboard="Text" />
+                </Border>
+
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" VerticalOptions="Center">
+
+                    <HorizontalStackLayout Grid.Column="0"
+                                           Spacing="6"
+                                           VerticalOptions="Center">
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnToggleCaptura" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <CheckBox x:Name="ChkCaptura"
+                                  Color="{toolkit:AppThemeResource Primary}"
+                                  VerticalOptions="Center" />
+                        <Label Text="Puede capturar"
+                               FontSize="14"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                    <views:SelectorFlotante x:Name="SelectorEstado"
+                                            Grid.Column="1"
+                                            Titulo="Estado"
+                                            IndicePlaceholder="0" />
+                </Grid>
+
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"
+                  ColumnSpacing="8"
+                  VerticalOptions="Center">
+
+                <views:SelectorFlotante x:Name="SelectorOrden"
+                                        Grid.Column="0"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Center" />
+
+                <Border Grid.Column="1"
+                        Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnToggleOrden" />
+                    </Border.GestureRecognizers>
+                    <mi:MauiIcon x:Name="IconOrden"
+                                 Style="{StaticResource CircleIconLabel}"
+                                 Icon="{mi:Material Icon=ArrowDownward}" />
+                </Border>
+
+                <Border x:Name="BtnFiltroActivo"
+                        Grid.Column="2"
+                        Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
+                    </Border.GestureRecognizers>
+                    <mi:MauiIcon x:Name="IconFiltro"
+                                 Icon="{mi:Material Icon=FilterList}"
+                                 IconSize="22"
+                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
+                </Border>
+
+                <Border x:Name="BtnBuscar"
+                        Grid.Column="3"
+                        BackgroundColor="{toolkit:AppThemeResource Primary}"
+                        StrokeShape="RoundRectangle 20"
+                        StrokeThickness="0"
+                        HeightRequest="44"
+                        WidthRequest="44"
+                        Padding="0"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnBuscarTapped" />
+                    </Border.GestureRecognizers>
+                    <mi:MauiIcon Icon="{mi:Material Icon=Search}"
+                                 IconSize="20"
+                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center" />
+                </Border>
+
+                <Border Grid.Column="4"
+                        Style="{StaticResource CircleIconButton}"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnToggleExpandir" />
+                    </Border.GestureRecognizers>
+                    <mi:MauiIcon x:Name="IconExpandir"
+                                 Style="{StaticResource CircleIconLabel}"
+                                 Icon="{mi:Material Icon=KeyboardArrowUp}" />
+                </Border>
+            </Grid>
+
+        </VerticalStackLayout>
+    </Border>
+
+</ContentView>

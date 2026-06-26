@@ -8,7 +8,7 @@ public interface IServicioSesion
     Task GuardaTokenAsync(string accessToken, string refreshToken);
     Task<string?> LeeAccessTokenAsync();
     Task<string?> LeeRefreshTokenAsync();
-    Task LimpiaTokensAsync();
+    Task LimpiaTokensAsync(bool conservarLoginLess = false);
     Task GuardaEmailAsync(string email);
     Task<string?> LeeEmailAsync();
     Task LimpiaEmailAsync();
@@ -27,4 +27,5 @@ public interface IServicioSesion
     Task PostEliminarCuentaAsync();
     Task GuardaTokenLoginLessAsync(string token);
     Task<string?> LeeTokenLoginLessAsync();
+    Task<bool> IntentarReanudarLoginLessAsync();
 }

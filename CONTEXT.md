@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-06-25 — Acceso suspendido loginless (desactivar/reactivar asociación)
+
+**Problema:** Al desactivar una asociación (reversible), el backend devuelve 403 `"no pertenece a la cuenta fiscal"` y `GetAsociacionesFiscales` deja de listar la cuenta — idéntico a una desvinculación real. La app trataba ambos casos igual y `LimpiaTokensAsync` borraba `CLAVE_TOKEN_LOGINLESS`, así que al reactivar el usuario loginless ya no podía auto-loguearse.
+
+**Hecho (todo en `ServicioSesion.cs` + nueva página):**
+- `LimpiaTokensAsync(bool conservarLoginLess = false)`: para loginless conserva el token (sigue válido tras reactivar). Logout manual (`CerrarSesionAsync`) sigue borrándolo.
+- `ProcesarDesvinculacionAsync`: si es loginless y se queda sin cuentas → conserva token y navega a `PaginaAccesoSuspendido` (no a `PaginaLogin`).
+- `IntentarReanudarLoginLessAsync()`: re-ejecuta `IniciarSesion(tokenLoginLess,…)`; si OK, `PosLogin` + navega a `AppShell`; si falla, sigue suspendido.
+- `VerificarSesionAlReanudarAsync`: si no hay sesión pero sí token loginless → auto-reintenta al reanudar la app.
+- Nueva `Pages/AccesoSuspendido/PaginaAccesoSuspendido` (registrada en DI): "Tu acceso fue desactivado" con botones **Reintentar** y **Volver a iniciar sesión** (este último sí limpia el token loginless).
+
+**Decisiones:** confirmado con backend que el token loginless sigue válido tras reactivar, así que no se distingue desactivada vs desvinculada en el momento del 403 — se conserva el token y se deja que el reintento resuelva (si es desvinculación real, simplemente nunca funciona y el usuario usa "Volver a login").
+
+---
+
 ## 2026-06-11 — Mostrar solo lo recién creado + color botones DatePicker
 
 **Hecho:**

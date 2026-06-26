@@ -14,6 +14,7 @@ public interface
     Task<Respuesta> CambiarContrasena(string actual, string nueva);
     Task<Respuesta> RestablecerContrasena(string password, string token);
     Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid);
+    Task<RespuestaPayload<CuentaUsuarioResultadoPaginado>> BuscarUsuarios(Guid cfid, Busqueda busqueda);
     Task<Respuesta> EliminarCuenta(string password);
     Task<RespuestaPayload<CuentaUsuario>> CrearUsuarioCaptura(CreaUsuarioCaptura usuarioCaptura, Guid cfid);
     Task<RespuestaPayload<RespuestaTokenVinculacion>> GetTokenVinculacion(string dispositivoId, bool enSesion = false);

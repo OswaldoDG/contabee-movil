@@ -270,6 +270,30 @@ public class ServicioCrm(HttpClient httpClient) : IServicioCrm
         return r;
     }
 
+    public async Task<Respuesta> SetActivaAsociacion(Guid cfid, Guid usuarioId, bool activa)
+    {
+        Respuesta r = new();
+        try
+        {
+            await servicioCrm.ActivaAsync(cfid, usuarioId, activa);
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 403)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = System.Net.HttpStatusCode.Forbidden, Origen = "ServicioCrm-SetActivaAsociacion" };
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso { Mensaje = ex.Response, HttpCode = (System.Net.HttpStatusCode)ex.StatusCode, Origen = "ServicioCrm-SetActivaAsociacion" };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioCrm-SetActivaAsociacion");
+        }
+        return r;
+    }
+
     public async Task<Respuesta> EliminarPropiedadUsuario(Guid cfid, Guid usuarioId, string prop)
     {
         Respuesta r = new();

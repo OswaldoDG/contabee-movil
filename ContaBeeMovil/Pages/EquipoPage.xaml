@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
+             xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.EquipoPage"
              x:DataType="vm:EquipoViewModel"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
@@ -42,15 +43,18 @@
                     <Border.Shadow>
                         <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
                     </Border.Shadow>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
-                    </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="5,*">
                         <BoxView Grid.Column="0"
                                  BackgroundColor="{toolkit:AppThemeResource Primary}"
                                  WidthRequest="4" CornerRadius="2"
-                                 VerticalOptions="Fill" />
+                                 VerticalOptions="Fill">
+                            <BoxView.Triggers>
+                                <DataTrigger TargetType="BoxView" Binding="{Binding AsociacionActiva}" Value="False">
+                                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                                </DataTrigger>
+                            </BoxView.Triggers>
+                        </BoxView>
 
                         <Grid Grid.Column="1"
                               Padding="5"
@@ -64,6 +68,11 @@
                                     StrokeThickness="0"
                                     BackgroundColor="{toolkit:AppThemeResource Primary}"
                                     VerticalOptions="Center">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding AsociacionActiva}" Value="False">
+                                        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
                                 <Label Text="{Binding Iniciales}"
                                        FontSize="10"
                                        FontAttributes="Bold"
@@ -115,9 +124,6 @@
                     <Border.Shadow>
                         <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
                     </Border.Shadow>
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
-                    </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="5,*">
                         <BoxView Grid.Column="0"
@@ -211,57 +217,28 @@
 
     </ContentPage.Resources>
 
-    <Grid BackgroundColor="{toolkit:AppThemeResource Background}"
-          RowDefinitions="Auto,*">
+    <Grid BackgroundColor="{toolkit:AppThemeResource Background}">
 
-        <!-- DEBUG: perfil info -->
-        <Border Grid.Row="0"
-                IsVisible="{Binding EsDev}"
-                BackgroundColor="#222"
-                Padding="10,6"
-                Margin="8,4">
-            <Label Text="{Binding PerfilInfo}"
-                   TextColor="#00FF99"
-                   FontSize="11"
-                   FontFamily="Courier New"
-                   LineBreakMode="WordWrap" />
-        </Border>
+        <Border Padding="0"
+                BackgroundColor="{toolkit:AppThemeResource Accent1}"
+                StrokeShape="RoundRectangle 1,1,0,0">
+            <Grid RowDefinitions="Auto,*">
 
-        <Grid Grid.Row="1">
+                <views:FiltrosEquipoView x:Name="PanelFiltros"
+                                         BuscarCommand="{Binding BuscarEquipoCommand}" />
 
-        <!-- Empty state -->
-        <VerticalStackLayout IsVisible="{Binding MostrarVacio}"
-                             VerticalOptions="Center"
-                             HorizontalOptions="Center"
-                             Spacing="12">
-            <mi:MauiIcon Icon="{mi:Material Icon=GroupOff}"
-                         IconSize="56"
-                         IconColor="{toolkit:AppThemeResource SecondaryText}"
-                         HorizontalOptions="Center" />
-            <Label Text="Sin usuarios vinculados"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}"
-                   FontSize="15"
-                   HorizontalOptions="Center" />
-        </VerticalStackLayout>
-
-        <!-- Lista de usuarios -->
-        <RefreshView
-                     Command="{Binding PullRefreshCommand}"
-                     IsRefreshing="{Binding EstaRefrescando}"
-                     RefreshColor="{toolkit:AppThemeResource Icon}"
-                     Background="{toolkit:AppThemeResource Background}">
-        <CollectionView ItemsSource="{Binding Usuarios}"
-                        ItemTemplate="{StaticResource ItemSelector}"
-                        Margin="0,4">
-        </CollectionView>
-        </RefreshView>
-
-        <!-- Spinner de carga centrado -->
-        <ActivityIndicator IsRunning="{Binding EstaCargando}"
-                           IsVisible="{Binding EstaCargando}"
-                           Color="{toolkit:AppThemeResource Primary}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
+                <Grid Grid.Row="1">
+                    <views:ResultadosListaView
+                        EstaCargando="{Binding EstaCargando}"
+                        Elementos="{Binding Elementos}"
+                        TotalEncontrados="{Binding TotalEncontrados}"
+                        PaginaActual="{Binding PaginaActual}"
+                        TotalPaginas="{Binding TotalPaginas}"
+                        ConsultaEjecutada="{Binding ConsultaEjecutada}"
+                        AnteriorCommand="{Binding PaginaAnteriorCommand}"
+                        SiguienteCommand="{Binding PaginaSiguienteCommand}"
+                        ItemTapCommand="{Binding ItemTapCommand}"
+                        PlantillaItem="{StaticResource ItemSelector}" />
 
         <!-- FAB expandible -->
         <VerticalStackLayout
@@ -366,7 +343,9 @@
 
         </VerticalStackLayout>
 
-        </Grid><!-- /Grid.Row=1 wrapper -->
+                </Grid>
+            </Grid>
+        </Border>
 
     </Grid>
 

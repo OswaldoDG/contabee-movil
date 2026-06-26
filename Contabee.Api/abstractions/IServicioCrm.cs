@@ -18,4 +18,5 @@ public interface IServicioCrm
     Task<RespuestaPayload<List<PropiedadUsuarioCF>>> GetPropiedadesUsuario(Guid cfid, Guid usuarioId);
     Task<Respuesta> SetPropiedadUsuario(Guid cfid, Guid usuarioId, string prop, string valor);
     Task<Respuesta> EliminarPropiedadUsuario(Guid cfid, Guid usuarioId, string prop);
+    Task<Respuesta> SetActivaAsociacion(Guid cfid, Guid usuarioId, bool activa);
 }

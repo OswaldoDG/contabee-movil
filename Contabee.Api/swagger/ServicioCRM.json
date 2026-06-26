@@ -603,6 +603,46 @@
         }
       }
     },
+    "/crm/asociacionfiscal/{cuentafiscalId}/usuario/{usuarioSecundarioId}/activa/{activa}": {
+      "post": {
+        "tags": [
+          "CRM"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "usuarioSecundarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "activa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/crm/rfc/ids": {
       "post": {
         "tags": [
@@ -2361,6 +2401,55 @@
           },
           {
             "name": "UsuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.crm.usuarios.PropiedadUsuarioCF"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/crm/cuentafiscal/{cfid}/propiedades": {
+      "get": {
+        "tags": [
+          "PropiedadesUsuarioCF"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
             "in": "path",
             "required": true,
             "schema": {

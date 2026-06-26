@@ -62,17 +62,23 @@ public partial class EquipoPage : ContentPage
         SubBotonesPanel.TranslationY = 0;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnAppearing()
     {
         base.OnAppearing();
-        if (AppState.Instance.ModoOffline) return;
-        await _viewModel.CargarAsync();
+        EjecutarBusquedaInicial();
     }
 
-    public async void OnTabActivated()
+    public void OnTabActivated()
+    {
+        EjecutarBusquedaInicial();
+    }
+
+    private void EjecutarBusquedaInicial()
     {
         if (AppState.Instance.ModoOffline) return;
-        await Task.Yield();
-        await _viewModel.CargarAsync();
+        if (_viewModel.ConsultaEjecutada) return;
+
+        PanelFiltros.RestaurarEstado();
+        _viewModel.BuscarEquipoCommand.Execute(PanelFiltros.BusquedaActual);
     }
 }

@@ -2097,6 +2097,71 @@
         }
       }
     },
+    "/usuarios/cuentafiscal/{cuentaFiscalId}/buscar": {
+      "post": {
+        "tags": [
+          "Usuarios"
+        ],
+        "parameters": [
+          {
+            "name": "cuentaFiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Busqueda"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Busqueda"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Busqueda"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuarioResultadoPaginado"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuarioResultadoPaginado"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuarioResultadoPaginado"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/usuarios/dispositivo/{dispositivoId}": {
       "delete": {
         "tags": [
@@ -2536,6 +2601,9 @@
           "estado": {
             "$ref": "#/components/schemas/EstadoCuenta"
           },
+          "asociacionActiva": {
+            "type": "boolean"
+          },
           "fechaRegistro": {
             "type": "string",
             "format": "date-time"
@@ -2564,6 +2632,9 @@
             "nullable": true
           },
           "esCaptura": {
+            "type": "boolean"
+          },
+          "puedeCapturar": {
             "type": "boolean"
           },
           "esLoginless": {
