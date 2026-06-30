@@ -74,6 +74,51 @@
                 </Border>
             </Grid>
 
+            <!-- Título + badge de créditos de colaboración -->
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                <Label Grid.Column="0"
+                       Text="Crear Devolución"
+                       FontAttributes="Bold"
+                       FontSize="20"
+                       HorizontalOptions="Center"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Border x:Name="BadgeColab"
+                        Grid.Column="1"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        BackgroundColor="{toolkit:AppThemeResource Colab}"
+                        Padding="10,5"
+                        VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                        <Label x:Name="LblCreditosColab"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="White"
+                               VerticalOptions="Center" />
+                        <Label Text="créditos"
+                               FontSize="11"
+                               TextColor="White"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border x:Name="BadgeSinCreditos"
+                        Grid.Column="1"
+                        IsVisible="False"
+                        StrokeShape="RoundRectangle 10"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        BackgroundColor="{toolkit:AppThemeResource Error}"
+                        Padding="10,5"
+                        VerticalOptions="Center">
+                    <Label Text="Sin créditos"
+                           FontSize="11"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
             <Editor x:Name="EntryDescripcion"
                     Placeholder="Descripción"
                     AutoSize="TextChanges"
