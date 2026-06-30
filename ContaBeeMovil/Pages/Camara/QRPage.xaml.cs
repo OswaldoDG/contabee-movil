@@ -1,5 +1,3 @@
-using Contabee.Api.abstractions;
-using Contabee.Api.Crm;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -10,7 +8,6 @@ namespace ContaBeeMovil.Pages.Camara;
 
 public partial class QRPage : ContentPage
 {
-    private readonly IServicioCrm _servicioCrm;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
     private bool _isProcessing;
@@ -20,10 +17,14 @@ public partial class QRPage : ContentPage
     /// </summary>
     public Func<string, Task>? AlObtenerUrl { get; set; }
 
-    public QRPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    /// <summary>
+    /// Invocado cuando se detecta el QR demo. El llamador maneja preview, registro y feedback.
+    /// </summary>
+    public Func<Task>? AlRegistrarDemo { get; set; }
+
+    public QRPage(IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
-        _servicioCrm = servicioCrm;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
 
@@ -93,7 +94,9 @@ public partial class QRPage : ContentPage
     {
         if (url.Equals(DemoQrUrl, StringComparison.OrdinalIgnoreCase))
         {
-            await RegistrarRfcDemoAsync();
+            await Navigation.PopModalAsync();
+            if (AlRegistrarDemo != null)
+                await AlRegistrarDemo();
             return;
         }
 
@@ -101,52 +104,6 @@ public partial class QRPage : ContentPage
         await Navigation.PopModalAsync();
         if (AlObtenerUrl != null)
             await AlObtenerUrl(url);
-    }
-
-    private async Task RegistrarRfcDemoAsync()
-    {
-        LoadingOverlay.IsVisible = true;
-
-        var modelo = new CuentaFiscalMinima
-        {
-            Tipo               = TipoPersonaFiscal.Fisica,
-            Rfc                = "DEMO800101AA1",
-            Nombre             = "Empresa Demo ContaBee",
-            CodigoPostal       = "01000",
-            Compartido         = false,
-            ClaveRegimenFiscal = "612"
-        };
-
-        var respuesta = await _servicioCrm.RegistrarCuentaFiscalMinima(modelo);
-
-        if (respuesta.Ok)
-        {
-            var cuentas = await _servicioCrm.GetAsociacionesFiscales();
-            if (cuentas.Ok && cuentas.Payload != null)
-            {
-                AppState.Instance.CuentasFiscales = cuentas.Payload;
-                AppState.Instance.CuentaFiscalActual ??= cuentas.Payload.FirstOrDefault();
-            }
-
-            LoadingOverlay.IsVisible = false;
-            await Navigation.PopModalAsync();
-
-            if (Shell.Current != null)
-                await Shell.Current.GoToAsync("..");
-            else
-            {
-                var shell = MauiProgram.Services.GetRequiredService<AppShell>();
-                Application.Current!.Windows[0].Page = shell;
-            }
-        }
-        else
-        {
-            LoadingOverlay.IsVisible = false;
-            var mensaje = respuesta.Error?.Mensaje ?? "Error al registrar la cuenta demo.";
-            await _servicioAlerta.MostrarAsync("Error", mensaje, verBotonCancelar: false, confirmarText: "OK");
-            _isProcessing = false;
-            BarcodeReader.IsDetecting = true;
-        }
     }
 
     private void ReactivarEscaner()

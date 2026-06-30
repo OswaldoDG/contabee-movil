@@ -50,10 +50,11 @@
                         <ColumnDefinition x:Name="ColAuto" Width="*" />
                         <ColumnDefinition x:Name="ColColab" Width="*" />
                     </Grid.ColumnDefinitions>
+                    <!--
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCreditosTapped" />
                     </Grid.GestureRecognizers>
-
+                    -->
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <Border x:Name="BorderCaptura"
                                 BackgroundColor="{toolkit:AppThemeResource CardBackground}"

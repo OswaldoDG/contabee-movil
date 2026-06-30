@@ -234,6 +234,22 @@ public partial class FacturacionPage : ContentPage
         PanelFiltros.IrARecientes();
     }
 
+    /// <summary>
+    /// Invalida los resultados cacheados (que pertenecen a la cuenta fiscal anterior)
+    /// y deja la página marcada para recargar. La llama <see cref="MainTabbedPage"/>
+    /// al detectar un cambio de cuenta fiscal activa.
+    /// </summary>
+    public void InvalidarConsulta()
+    {
+        _ultimaBusqueda = null;
+        Elementos = null;
+        TotalEncontrados = 0;
+        PaginaActual = 1;
+        TotalPaginas = 1;
+        ConsultaEjecutada = false;
+        PendienteActualizarFacturas = true;
+    }
+
     // ── Handlers ─────────────────────────────────────────────────────────────────
 
     private async void OnAbrirCaptura(object sender, TappedEventArgs e)

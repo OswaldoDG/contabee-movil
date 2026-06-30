@@ -45,7 +45,7 @@ public partial class PaginaDevoluciones : ContentPage
 		private set { _mostrarOverlayCarga = value; OnPropertyChanged(); }
 	}
 
-	private string _textoOverlayCarga = "Cargando devoluciones...";
+	private string _textoOverlayCarga = "Cargando reembolsos...";
 	public string TextoOverlayCarga
 	{
 		get => _textoOverlayCarga;
@@ -170,6 +170,22 @@ public partial class PaginaDevoluciones : ContentPage
 		_ = RecargarConUltimosFiltrosAsync();
 	}
 
+	/// <summary>
+	/// Invalida los resultados cacheados (que pertenecen a la cuenta fiscal anterior)
+	/// y deja la página marcada para recargar. La llama <see cref="MainTabbedPage"/>
+	/// al detectar un cambio de cuenta fiscal activa.
+	/// </summary>
+	public void InvalidarConsulta()
+	{
+		_ultimaBusqueda = null;
+		Elementos = null;
+		TotalEncontrados = 0;
+		PaginaActual = 1;
+		TotalPaginas = 1;
+		ConsultaEjecutada = false;
+		PendienteActualizarListado = true;
+	}
+
 	private async Task OnBuscarDevoluciones(Busqueda busqueda)
 	{
 		if (AppState.Instance.ModoOffline) return;
@@ -232,7 +248,7 @@ public partial class PaginaDevoluciones : ContentPage
 				"Error",
 				!string.IsNullOrWhiteSpace(ex.Response)
 					? ex.Response
-					: "No se pudieron cargar las devoluciones. Intenta de nuevo.",
+					: "No se pudieron cargar los reembolsos. Intenta de nuevo.",
 				verBotonCancelar: false,
 				confirmarText: "OK");
 		}
@@ -241,7 +257,7 @@ public partial class PaginaDevoluciones : ContentPage
 			_logs.Log($"[PaginaDevoluciones] {ex.GetType().Name}: {ex.Message}");
 			await _servicioAlerta.MostrarAsync(
 				"Error",
-				"No se pudieron cargar las devoluciones. Intenta de nuevo.",
+				"No se pudieron cargar los reembolsos. Intenta de nuevo.",
 				verBotonCancelar: false,
 				confirmarText: "OK");
 		}
@@ -266,7 +282,7 @@ public partial class PaginaDevoluciones : ContentPage
 		{
 			var irATienda = await _servicioAlerta.MostrarAsync(
 				"Sin créditos de colaboración",
-				"Necesitas créditos de colaboración para crear devoluciones. Adquiere más en la Tienda.",
+				"Necesitas créditos de colaboración para crear reembolsos. Adquiere más en la Tienda.",
 				verBotonCancelar: true,
 				cancelarText: "Cerrar",
 				confirmarText: "Ir a Tienda");
@@ -302,7 +318,7 @@ public partial class PaginaDevoluciones : ContentPage
 				Descripcion = descripcion
 			};
 
-            TextoOverlayCarga = "Creando devolución...";
+            TextoOverlayCarga = "Creando reembolso...";
 			MostrarOverlayCarga = true;
 			var respuesta = await _servicioTranscript.CrearDevolucionAsync(request);
 			if (!respuesta.Ok)
@@ -314,7 +330,7 @@ public partial class PaginaDevoluciones : ContentPage
 					sinCreditos ? "Sin créditos" : "Error",
 					sinCreditos
 						? "No tienes créditos de colaboración suficientes. Adquiere más en la Tienda."
-						: respuesta.Error?.Mensaje ?? "No se pudo crear la devolución.",
+						: respuesta.Error?.Mensaje ?? "No se pudo crear el reembolso.",
 					verBotonCancelar: sinCreditos,
 					cancelarText: "Cerrar",
 					confirmarText: sinCreditos ? "Ir a Tienda" : "Aceptar");
@@ -347,7 +363,7 @@ public partial class PaginaDevoluciones : ContentPage
 			_logs.Log($"[PaginaDevoluciones-Crear] {ex.GetType().Name}: {ex.Message}");
 			await _servicioAlerta.MostrarAsync(
 				"Error",
-				"No se pudo abrir o crear la devolución.",
+				"No se pudo abrir o crear el reembolso.",
 				verBotonCancelar: false,
 				confirmarText: "OK");
 		}

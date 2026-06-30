@@ -6,7 +6,7 @@
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              x:Class="ContaBeeMovil.Pages.Devoluciones.PaginaDevoluciones"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
-             Title="Devoluciones">
+             Title="Reembolsos">
 
     <Grid>
         <Border Grid.Row="0"
