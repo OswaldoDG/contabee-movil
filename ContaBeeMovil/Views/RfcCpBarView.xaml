@@ -3,54 +3,86 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Views.RfcCpBarView">
 
-    <Grid x:Name="RootGrid"
-          ColumnDefinitions="Auto,*,Auto"
-          BackgroundColor="{toolkit:AppThemeResource Primary}"
-          Padding="12,6">
+    <Grid>
 
-        <mi:MauiIcon Grid.Column="0"
-                     x:Name="IconRfc"
-                     Icon="{mi:Material Icon=Person}"
-                     IconSize="24"
-                     IconColor="{toolkit:AppThemeResource OnPrimary}"
-                     VerticalOptions="Center">
-            <mi:MauiIcon.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
-            </mi:MauiIcon.GestureRecognizers>
-        </mi:MauiIcon>
+        <Grid x:Name="RootGrid"
+              ColumnDefinitions="Auto,*,Auto"
+              BackgroundColor="{toolkit:AppThemeResource Primary}"
+              Padding="12,6">
 
-        <Grid Grid.Column="1"
-              HorizontalOptions="Center"
-              VerticalOptions="Center">
-            <Label x:Name="LabelRfcCp"
-                   Text="? - ?"
-                   FontSize="13"
-                   FontAttributes="Bold"
+            <Label Grid.Column="0"
+                   x:Name="IconRfc"
+                   Text="{x:Static f:FluentUIFilled.person_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="24"
                    TextColor="{toolkit:AppThemeResource OnPrimary}"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center" />
-            <ActivityIndicator x:Name="SpinnerRfc"
-                               IsRunning="False"
-                               IsVisible="False"
-                               Color="{toolkit:AppThemeResource OnPrimary}"
-                               WidthRequest="20"
-                               HeightRequest="20"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center" />
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRfcButtonTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Grid Grid.Column="1"
+                  HorizontalOptions="Center"
+                  VerticalOptions="Center">
+                <Label x:Name="LabelRfcCp"
+                       Text="? - ?"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource OnPrimary}"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+                <ActivityIndicator x:Name="SpinnerRfc"
+                                   IsRunning="False"
+                                   IsVisible="False"
+                                   Color="{toolkit:AppThemeResource OnPrimary}"
+                                   WidthRequest="20"
+                                   HeightRequest="20"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+            </Grid>
+
+            <Label Grid.Column="2"
+                   x:Name="IconCp"
+                   Text="{x:Static f:FluentUIFilled.location_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="24"
+                   TextColor="{toolkit:AppThemeResource OnPrimary}"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCpButtonTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
         </Grid>
 
-        <mi:MauiIcon Grid.Column="2"
-                     x:Name="IconCp"
-                     Icon="{mi:Material Icon=LocationOn}"
-                     IconSize="24"
-                     IconColor="{toolkit:AppThemeResource OnPrimary}"
-                     VerticalOptions="Center">
-            <mi:MauiIcon.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnCpButtonTapped" />
-            </mi:MauiIcon.GestureRecognizers>
-        </mi:MauiIcon>
+        <!-- Estado sin cuenta fiscal: aviso + acción para refrescar -->
+        <Grid x:Name="SinCuentaBar"
+              IsVisible="False"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="10"
+              BackgroundColor="{toolkit:AppThemeResource Primary}"
+              Padding="12,6">
+            <Label Grid.Column="0"
+                   Text="No tienes cuentas fiscales"
+                   FontSize="13"
+                   TextColor="{toolkit:AppThemeResource OnPrimary}"
+                   VerticalOptions="Center" />
+            <Label Grid.Column="1"
+                   Text="Actualizar"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextDecorations="Underline"
+                   TextColor="{toolkit:AppThemeResource OnPrimary}"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnActualizarAccesoTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
 
     </Grid>
 

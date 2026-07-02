@@ -21,12 +21,12 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <mi:MauiIcon x:Name="IconInicio"
-                         Icon="{mi:Material Icon=Home}"
-                         IconSize="22"
-                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
-                         BackgroundColor="Transparent"
-                         HorizontalOptions="Center" />
+            <Label x:Name="IconInicio"
+                   Text="{x:Static f:FluentUIFilled.home_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="22"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                   HorizontalOptions="Center" />
             <Label x:Name="LblInicio"
                    Text="Inicio"
                    FontSize="8"
@@ -50,12 +50,12 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <mi:MauiIcon x:Name="IconFacturacion"
-                   Icon="{mi:Material Icon=Receipt}"
-                   IconSize="22"
+            <Label x:Name="IconFacturacion"
+                   Text="{x:Static f:FluentUIFilled.receipt_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="22"
                    HorizontalOptions="Center"
-                   BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblFacturacion"
                    Text="Facturación"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}"
@@ -79,12 +79,12 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <mi:MauiIcon x:Name="IconDevoluciones"
-                   Icon="{mi:Material Icon=CurrencyExchange}"
-                   IconSize="22"
+            <Label x:Name="IconDevoluciones"
+                   Text="{x:Static f:FluentUIFilled.arrow_swap_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="22"
                    HorizontalOptions="Center"
-                   BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblDevoluciones"
                    Text="Reembolsos"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}"
@@ -108,12 +108,12 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <mi:MauiIcon x:Name="IconComprobaciones"
-                   Icon="{mi:Material Icon=FactCheck}"
-                   IconSize="22"
+            <Label x:Name="IconComprobaciones"
+                   Text="{x:Static f:FluentUIFilled.clipboard_checkmark_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="22"
                    HorizontalOptions="Center"
-                   BackgroundColor="Transparent"
-                   IconColor="{toolkit:AppThemeResource SecondaryIcon}" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblComprobaciones"
                    Text="Comprobaciones"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}"
@@ -137,12 +137,12 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabEquipo_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <mi:MauiIcon x:Name="IconEquipo"
-                         Icon="{mi:Material Icon=Group}"
-                         IconSize="22"
-                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
-                         BackgroundColor="Transparent"
-                         HorizontalOptions="Center" />
+            <Label x:Name="IconEquipo"
+                   Text="{x:Static f:FluentUIFilled.people_20_filled}"
+                   FontFamily="FluentUIFilled"
+                   FontSize="22"
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                   HorizontalOptions="Center" />
             <Label x:Name="LblEquipo"
                    Text="Equipo"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}"

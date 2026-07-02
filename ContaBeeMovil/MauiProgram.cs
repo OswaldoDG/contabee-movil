@@ -18,7 +18,6 @@ using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.SinConexion;
-using ContaBeeMovil.Pages.AccesoSuspendido;
 using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
@@ -83,6 +82,7 @@ namespace ContaBeeMovil
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 fonts.AddFont("SegoeUI-Semibold.ttf", "SegoeSemibold");
                 fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
+                fonts.AddFont("FluentSystemIcons-Filled.ttf", Fonts.FluentUIFilled.FontFamily);
             });
 
 #if DEBUG
@@ -94,6 +94,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioAlmacenamiento, ServicioAlmacenamiento>();
             builder.Services.AddSingleton<DeviceService>();
             builder.Services.AddSingleton<IServicioSesion, ServicioSesion>();
+            builder.Services.AddSingleton<ContaBeeMovil.Services.Sesion.ICoordinadorSesion, ContaBeeMovil.Services.Sesion.CoordinadorSesion>();
             builder.Services.AddSingleton<IServicioAlerta, ServicioAlerta>();
             builder.Services.AddSingleton(AppState.Instance);
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
@@ -184,7 +185,6 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<TiendaPage>();
             builder.Services.AddTransient<LogsPage>();
             builder.Services.AddTransient<PaginaSinConexion>();
-            builder.Services.AddTransient<PaginaAccesoSuspendido>();
             // Cámara pages and view models
             builder.Services.AddTransient<TomarFotoPageModel>();
             builder.Services.AddTransient<TomarFotoPage>();

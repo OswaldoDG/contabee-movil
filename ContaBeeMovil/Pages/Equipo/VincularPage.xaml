@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.Equipo.VincularPage"
              x:DataType="vm:VincularViewModel"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
@@ -133,9 +134,9 @@
                                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                                         HorizontalOptions="Start"
                                         Padding="1">
-                                    <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
-                                                 IconSize="20"
-                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
+                                    <Label Text="{x:Static f:FluentUI.person_add_20_regular}" FontFamily="FluentUI"
+                                                 FontSize="20"
+                                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                  HorizontalOptions="Center"
                                                  VerticalOptions="Center" />
                                 </Border>
@@ -205,18 +206,18 @@
                                              WidthRequest="4" CornerRadius="2"
                                              VerticalOptions="Fill"
                                              HorizontalOptions="Center"/>
-                                    <mi:MauiIcon Grid.Column="1"
-                                                 Icon="{mi:Material Icon=SpatialAudioOff}"
-                                                 IconSize="22"
-                                                 IconColor="{toolkit:AppThemeResource Icon}"
+                                    <Label Grid.Column="1"
+                                                 Text="{x:Static f:FluentUIFilled.person_link_20_filled}" FontFamily="FluentUIFilled"
+                                                 FontSize="22"
+                                                 TextColor="{toolkit:AppThemeResource Icon}"
                                                  VerticalOptions="Center" />
                                     <Label Grid.Column="2" Text="Vincularme"
                                            Style="{StaticResource Body1}"
                                            VerticalOptions="Center" />
-                                    <mi:MauiIcon Grid.Column="3"
-                                                 Icon="{mi:Material Icon=ChevronRight}"
-                                                 IconSize="16"
-                                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                    <Label Grid.Column="3"
+                                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                                 FontSize="16"
+                                                 TextColor="{toolkit:AppThemeResource SecondaryText}"
                                                  VerticalOptions="Center" />
                                 </Grid>
                             </Border>
@@ -315,9 +316,9 @@
                                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                                         HorizontalOptions="Start"
                                         Padding="1">
-                                    <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
-                                                 IconSize="20"
-                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
+                                    <Label Text="{x:Static f:FluentUIFilled.person_add_20_filled}" FontFamily="FluentUIFilled"
+                                                 FontSize="20"
+                                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                  HorizontalOptions="Center"
                                                  VerticalOptions="Center" />
                                 </Border>
@@ -385,9 +386,9 @@
                                     HorizontalOptions="Center"
                                     Margin="32,0,0,0">
                                 <HorizontalStackLayout Spacing="8">
-                                    <mi:MauiIcon Icon="{mi:Material Icon=SpatialAudioOff}"
-                                                 IconSize="18"
-                                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
+                                    <Label Text="{x:Static f:FluentUIFilled.person_link_20_filled}" FontFamily="FluentUIFilled"
+                                                 FontSize="18"
+                                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                  VerticalOptions="Center" />
                                     <Label Text="Vincularme"
                                            FontSize="14"

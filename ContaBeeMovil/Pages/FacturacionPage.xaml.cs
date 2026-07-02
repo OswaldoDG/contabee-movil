@@ -1,3 +1,4 @@
+using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using CommunityToolkit.Maui.Views;
@@ -264,7 +265,10 @@ public partial class FacturacionPage : ContentPage
     {
         if (AppState.Instance.CuentaFiscalActual is null)
         {
-            await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
+            // Sin cuenta seleccionada: solo ofrecemos el selector si hay cuentas. En modo
+            // limitado (0 cuentas) no hay nada que elegir → no abrimos un popup vacío.
+            if (AppState.Instance.CuentasFiscales is { Count: > 0 })
+                await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
             return;
         }
 
@@ -294,6 +298,22 @@ public partial class FacturacionPage : ContentPage
             if (TotalPaginas < 1) TotalPaginas = 1;
             ConsultaEjecutada = true;
 
+        }
+        catch (ApiException ex)
+        {
+            _logs.Log($"[FacturacionPage] ApiException Status={ex.StatusCode} Body={ex.Response}");
+
+            // Asociación desactivada/eliminada (403): el CoordinadorSesion reconcilia la
+            // sesión y avisa con toast. Aquí solo dejamos el listado vacío; sin error genérico.
+            if (CodigosErrorApi.EsAsociacionInactiva((System.Net.HttpStatusCode)ex.StatusCode, ex.Response))
+            {
+                Elementos = [];
+                TotalEncontrados = 0;
+                ConsultaEjecutada = true;
+                return;
+            }
+
+            await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {

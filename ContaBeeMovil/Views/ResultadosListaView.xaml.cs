@@ -125,6 +125,18 @@ public partial class ResultadosListaView : ContentView
         set => SetValue(ItemTapCommandProperty, value);
     }
 
+    // Permite a páginas con gestos propios (p.ej. Equipo con SwipeView + tap en la celda)
+    // desactivar la selección del CollectionView y evitar el conflicto de gestos.
+    public static readonly BindableProperty ModoSeleccionProperty =
+        BindableProperty.Create(nameof(ModoSeleccion), typeof(SelectionMode), typeof(ResultadosListaView), SelectionMode.Single,
+            propertyChanged: (b, _, v) => ((ResultadosListaView)b).Lista.SelectionMode = (SelectionMode)v);
+
+    public SelectionMode ModoSeleccion
+    {
+        get => (SelectionMode)GetValue(ModoSeleccionProperty);
+        set => SetValue(ModoSeleccionProperty, value);
+    }
+
     // ── Constructor ──────────────────────────────────────────────────────────────
 
     public ResultadosListaView()

@@ -85,7 +85,6 @@ public class EquipoViewModel : INotifyPropertyChanged
     public ICommand BuscarEquipoCommand { get; }
     public ICommand PaginaAnteriorCommand { get; }
     public ICommand PaginaSiguienteCommand { get; }
-    public ICommand ItemTapCommand { get; }
     public ICommand ToggleFabCommand { get; }
     public ICommand AgregarSinCuentaCommand { get; }
     public ICommand AgregarConCuentaCommand { get; }
@@ -103,7 +102,6 @@ public class EquipoViewModel : INotifyPropertyChanged
         BuscarEquipoCommand      = new Command<Busqueda>(async b => await OnBuscarEquipo(b));
         PaginaAnteriorCommand    = new Command(async () => await EjecutarBusqueda(PaginaActual - 1));
         PaginaSiguienteCommand   = new Command(async () => await EjecutarBusqueda(PaginaActual + 1));
-        ItemTapCommand           = new Command<EquipoUsuarioItem>(item => item?.ConfigurarCommand?.Execute(null));
         ToggleFabCommand         = new Command(() => FabExpandido = !FabExpandido);
         AgregarSinCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: false));
         AgregarConCuentaCommand  = new Command(async () => await AgregarAsync(esConCuenta: true));
@@ -277,7 +275,6 @@ public class EquipoViewModel : INotifyPropertyChanged
                     item.ConfigurarCommand = new Command(async () => await AbrirPropiedadesAsync(item));
                 return item;
             })
-            .OrderByDescending(item => item.EsUsuarioPropio)
             .ToList();
     }
 

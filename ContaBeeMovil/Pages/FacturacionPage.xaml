@@ -4,6 +4,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.FacturacionPage"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              Title="Comprobantes">
@@ -28,10 +29,10 @@
                 Padding="10,5"
                 Margin="8,2,8,4">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <mi:MauiIcon Grid.Column="0"
-                                     Icon="{mi:Material Icon=Warning}"
-                                     IconSize="18"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                        <Label Grid.Column="0"
+                                     Text="{x:Static f:FluentUIFilled.warning_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="18"
+                                     TextColor="{toolkit:AppThemeResource Icon}"
                                      VerticalOptions="Center" />
                         <Label Grid.Column="1"
                        Text="No tienes créditos de captura disponibles."
@@ -73,7 +74,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAbrirCaptura" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+                <Label Text="{x:Static f:FluentUIFilled.camera_20_filled}" FontFamily="FluentUIFilled"
                              Style="{StaticResource FabIcon}" />
             </Border>
 

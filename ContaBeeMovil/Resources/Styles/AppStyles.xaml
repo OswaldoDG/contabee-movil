@@ -245,10 +245,12 @@
         <Setter Property="ErrorLabelStyle" Value="{StaticResource errorLabelStyleLight}"/>
     </Style>
 
-    <!-- Leading icon inside SfTextInputLayout -->
-    <Style x:Key="InputLeadingIcon" TargetType="mi:MauiIcon">
-        <Setter Property="IconSize" Value="20"/>
-        <Setter Property="IconColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
+
+    <!-- Leading icon inside SfTextInputLayout (Label con fuente de íconos FluentUI) -->
+    <Style x:Key="InputLeadingIcon" TargetType="Label">
+        <Setter Property="FontFamily" Value="FluentUI"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
 
@@ -258,14 +260,6 @@
         <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}"/>
         <Setter Property="StrokeThickness" Value="0"/>
         <Setter Property="Padding" Value="14,10"/>
-    </Style>
-
-    <!-- Error banner icon -->
-    <Style x:Key="ErrorBannerIcon" TargetType="mi:MauiIcon">
-        <Setter Property="Icon" Value="{mi:Material Icon=Error}"/>
-        <Setter Property="IconSize" Value="18"/>
-        <Setter Property="IconColor" Value="{toolkit:AppThemeResource Error}"/>
-        <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
 
     <!-- Error banner text -->
@@ -289,10 +283,11 @@
         <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <!-- Icon inside CircleIconButton -->
-    <Style x:Key="CircleIconLabel" TargetType="mi:MauiIcon">
-        <Setter Property="IconSize" Value="15"/>
-        <Setter Property="IconColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
+    <!-- Icon inside CircleIconButton (Label con fuente de íconos FluentUI) -->
+    <Style x:Key="CircleIconLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="FluentUI"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource SecondaryText}"/>
         <Setter Property="HorizontalOptions" Value="Center"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>
@@ -487,9 +482,10 @@
     </Style>
 
     <!-- Ícono dentro del FAB -->
-    <Style x:Key="FabIcon" TargetType="mi:MauiIcon">
-        <Setter Property="IconSize" Value="22"/>
-        <Setter Property="IconColor" Value="{toolkit:AppThemeResource OnPrimary}"/>
+    <Style x:Key="FabIcon" TargetType="Label">
+        <Setter Property="FontFamily" Value="FluentUI"/>
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}"/>
         <Setter Property="HorizontalOptions" Value="Center"/>
         <Setter Property="VerticalOptions" Value="Center"/>
     </Style>

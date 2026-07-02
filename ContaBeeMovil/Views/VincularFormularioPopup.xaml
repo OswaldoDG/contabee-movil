@@ -3,6 +3,7 @@
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
+               xmlns:f="clr-namespace:Fonts"
                x:Class="ContaBeeMovil.Views.VincularFormularioPopup"
                x:DataType="vm:VincularViewModel"
                BackgroundColor="Transparent"
@@ -100,7 +101,13 @@
                         IsEnabled="{Binding PuedeVincular}"
                         CornerRadius="10"
                         HeightRequest="44"
+                        ContentLayout="Left,6"
                         FontAttributes="Bold">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FluentUIFilled"
+                                         Glyph="{x:Static f:FluentUIFilled.link_person_20_filled}"
+                                         Color="{toolkit:AppThemeResource PrimaryText}" />
+                    </Button.ImageSource>
                     <Button.Triggers>
                         <Trigger TargetType="Button" Property="IsEnabled" Value="True">
                             <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}" />

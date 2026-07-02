@@ -175,6 +175,20 @@ public partial class AppState : ObservableObject
         set => SetProperty(ref _estaActualizandoCF, value);
     }
 
+    // ── MostrarCargaGlobal ────────────────────────────────────────────────────
+    private bool _mostrarCargaGlobal;
+
+    /// <summary>
+    /// Muestra un overlay de carga a pantalla completa. Lo usa la reconciliación de sesión
+    /// (recarga tras desactivación/eliminación de asociación o recuperación de acceso) para
+    /// que el usuario perciba que la app está actualizándose. No persiste.
+    /// </summary>
+    public bool MostrarCargaGlobal
+    {
+        get => _mostrarCargaGlobal;
+        set => SetProperty(ref _mostrarCargaGlobal, value);
+    }
+
     // ── DireccionFiscalActual ──────────────────────────────────────────────────
     private DireccionFiscal? _direccionFiscalActual;
 

@@ -27,7 +27,7 @@ public partial class CambiarContrasenaPage : ContentPage
         ContrasenaActualEntry.IsPassword = !_mostrarContrasenas;
         NuevaContrasenaEntry.IsPassword = !_mostrarContrasenas;
         ConfirmarContrasenaEntry.IsPassword = !_mostrarContrasenas;
-        ToggleContrasenas.Icon(_mostrarContrasenas ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
+        ToggleContrasenas.Text = _mostrarContrasenas ? FluentUI.eye_off_20_regular : FluentUI.eye_20_regular;
     }
 
     private void OnNuevaContrasenaTextChanged(object? sender, TextChangedEventArgs e)
@@ -84,10 +84,10 @@ public partial class CambiarContrasenaPage : ContentPage
         var tieneNumero = pwd.Any(char.IsDigit);
         var tieneEspecial = Regex.IsMatch(pwd, @"[@#\$%&._]");
 
-        IconMin6.IconColor = esMin6 ? success : disabled;
-        IconMayus.IconColor = tieneMayus ? success : disabled;
-        IconNumero.IconColor = tieneNumero ? success : disabled;
-        IconEspecial.IconColor = tieneEspecial ? success : disabled;
+        IconMin6.TextColor = esMin6 ? success : disabled;
+        IconMayus.TextColor = tieneMayus ? success : disabled;
+        IconNumero.TextColor = tieneNumero ? success : disabled;
+        IconEspecial.TextColor = tieneEspecial ? success : disabled;
     }
 
     private void ActualizarEstadoBoton()

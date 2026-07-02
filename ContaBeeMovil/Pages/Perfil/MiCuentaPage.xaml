@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.MiCuentaPage"
              Title="Mi cuenta"
@@ -25,10 +26,10 @@
                              BackgroundColor="{toolkit:AppThemeResource Primary}"
                              WidthRequest="4" CornerRadius="2"
                              VerticalOptions="Fill" />
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=Mail}"
-                                     IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                        <Label Grid.Column="1"
+                                     Text="{x:Static f:FluentUIFilled.mail_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="22"
+                                     TextColor="{toolkit:AppThemeResource Icon}"
                                      VerticalOptions="Center" />
                         <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                             <Label Text="Correo en sesión"
@@ -47,10 +48,10 @@
                              BackgroundColor="{toolkit:AppThemeResource Primary}"
                              WidthRequest="4" CornerRadius="2"
                              VerticalOptions="Fill" />
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=Smartphone}"
-                                     IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                        <Label Grid.Column="1"
+                                     Text="{x:Static f:FluentUIFilled.phone_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="22"
+                                     TextColor="{toolkit:AppThemeResource Icon}"
                                      VerticalOptions="Center" />
                         <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                             <Label Text="ID del dispositivo"
@@ -72,10 +73,10 @@
                              BackgroundColor="{toolkit:AppThemeResource Primary}"
                              WidthRequest="4" CornerRadius="2"
                              VerticalOptions="Fill" />
-                        <mi:MauiIcon Grid.Column="1"
-                                     Icon="{mi:Material Icon=Key}"
-                                     IconSize="22"
-                                     IconColor="{toolkit:AppThemeResource Icon}"
+                        <Label Grid.Column="1"
+                                     Text="{x:Static f:FluentUIFilled.key_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="22"
+                                     TextColor="{toolkit:AppThemeResource Icon}"
                                      VerticalOptions="Center" />
                         <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                             <Label Text="Cambiar contraseña"
@@ -84,10 +85,10 @@
                                FontSize="12"
                                TextColor="{toolkit:AppThemeResource SecondaryText}" />
                         </VerticalStackLayout>
-                        <mi:MauiIcon Grid.Column="3"
-                                     Icon="{mi:Material Icon=ChevronRight}"
-                                     IconSize="16"
-                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                        <Label Grid.Column="3"
+                                     Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                     FontSize="16"
+                                     TextColor="{toolkit:AppThemeResource SecondaryText}"
                                      VerticalOptions="Center" />
                     </Grid>
                 </Border>
@@ -110,10 +111,10 @@
                          BackgroundColor="{toolkit:AppThemeResource Primary}"
                          WidthRequest="4" CornerRadius="2"
                          VerticalOptions="Fill" />
-                    <mi:MauiIcon Grid.Column="1"
-                                 Icon="{mi:Material Icon=Security}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                    <Label Grid.Column="1"
+                                 Text="{x:Static f:FluentUIFilled.shield_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource Icon}"
                                  VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                         <Label Text="Aviso de privacidad"
@@ -122,10 +123,10 @@
                            FontSize="12"
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                     </VerticalStackLayout>
-                    <mi:MauiIcon Grid.Column="3"
-                                 Icon="{mi:Material Icon=ChevronRight}"
-                                 IconSize="16"
-                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                    <Label Grid.Column="3"
+                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                 FontSize="16"
+                                 TextColor="{toolkit:AppThemeResource SecondaryText}"
                                  VerticalOptions="Center" />
                 </Grid>
             </Border>
@@ -139,10 +140,10 @@
                          BackgroundColor="{toolkit:AppThemeResource Primary}"
                          WidthRequest="4" CornerRadius="2"
                          VerticalOptions="Fill" />
-                    <mi:MauiIcon Grid.Column="1"
-                                 Icon="{mi:Material Icon=Description}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                    <Label Grid.Column="1"
+                                 Text="{x:Static f:FluentUIFilled.document_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource Icon}"
                                  VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="2">
                         <Label Text="Términos del servicio"
@@ -151,18 +152,18 @@
                            FontSize="12"
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                     </VerticalStackLayout>
-                    <mi:MauiIcon Grid.Column="3"
-                                 Icon="{mi:Material Icon=ChevronRight}"
-                                 IconSize="16"
-                                 IconColor="{toolkit:AppThemeResource SecondaryText}"
+                    <Label Grid.Column="3"
+                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                 FontSize="16"
+                                 TextColor="{toolkit:AppThemeResource SecondaryText}"
                                  VerticalOptions="Center" />
                 </Grid>
             </Border>
 
-            <BoxView Style="{StaticResource Divider}" />
+            <BoxView x:Name="Divide" Style="{StaticResource Divider}" />
 
             <!-- ── Zona de peligro ── -->
-            <Label Text="Zona de peligro"
+            <Label x:Name="DangerZone" Text="Zona de peligro"
                Style="{StaticResource SectionHeader}"
                TextColor="{toolkit:AppThemeResource Error}" />
 
@@ -175,10 +176,10 @@
                          BackgroundColor="{toolkit:AppThemeResource Error}"
                          WidthRequest="4" CornerRadius="2"
                          VerticalOptions="Fill" />
-                    <mi:MauiIcon Grid.Column="1"
-                                 Icon="{mi:Material Icon=Delete}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource Error}"
+                    <Label Grid.Column="1"
+                                 Text="{x:Static f:FluentUIFilled.delete_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource Error}"
                                  VerticalOptions="Center" />
                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="1">
                         <Label Text="Eliminar cuenta"
@@ -188,10 +189,10 @@
                            FontSize="10"
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                     </VerticalStackLayout>
-                    <mi:MauiIcon Grid.Column="3"
-                                 Icon="{mi:Material Icon=ChevronRight}"
-                                 IconSize="16"
-                                 IconColor="{toolkit:AppThemeResource Error}"
+                    <Label Grid.Column="3"
+                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                 FontSize="16"
+                                 TextColor="{toolkit:AppThemeResource Error}"
                                  VerticalOptions="Center" />
                 </Grid>
             </Border>

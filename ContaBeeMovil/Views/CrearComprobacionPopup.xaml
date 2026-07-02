@@ -4,6 +4,7 @@
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                xmlns:views="clr-namespace:ContaBeeMovil.Views"
                xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+               xmlns:f="clr-namespace:Fonts"
                x:Class="ContaBeeMovil.Views.CrearComprobacionPopup"
                BackgroundColor="Transparent"
                CanBeDismissedByTappingOutsideOfPopup="False">
@@ -104,9 +105,9 @@
                         Padding="8,2"
                         VerticalOptions="Center">
                     <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
-                        <mi:MauiIcon Icon="{mi:Material Icon=CalendarMonth}"
-                                     IconSize="16"
-                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                        <Label Text="{x:Static f:FluentUI.calendar_ltr_20_regular}" FontFamily="FluentUI"
+                                     FontSize="16"
+                                     TextColor="{toolkit:AppThemeResource SecondaryText}"
                                      VerticalOptions="Center" />
                         <DatePicker x:Name="PickerCierre"
                                     Format="dd/MM/yyyy"

@@ -335,10 +335,10 @@
                                      Spacing="8"
                                      Grid.Row="0"
                                      IsVisible="{Binding TieneCapturas, Converter={StaticResource InvertedBoolConverter}}">
-                    <mi:MauiIcon Icon="{mi:Material Icon=FileCopy}"
-                                 IconSize="52"
+                    <Label Text="{x:Static f:FluentUI.copy_20_regular}" FontFamily="FluentUI"
+                                 FontSize="52"
                                  HorizontalOptions="Center"
-                                 IconColor="{toolkit:AppThemeResource SecondaryText}" />
+                                 TextColor="{toolkit:AppThemeResource SecondaryText}" />
                     <Label Text="Sin Capturas"
                            FontSize="18"
                            FontAttributes="Bold"
@@ -397,9 +397,9 @@
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=EliminarCapturaCommand}"
                                                     CommandParameter="{Binding .}" />
                                             </Border.GestureRecognizers>
-                                            <mi:MauiIcon Icon="{mi:Material Icon=Delete}"
-                                                         IconSize="20"
-                                                         IconColor="White"
+                                            <Label Text="{x:Static f:FluentUI.delete_20_regular}" FontFamily="FluentUI"
+                                                         FontSize="20"
+                                                         TextColor="White"
                                                          HorizontalOptions="Center"
                                                          VerticalOptions="Center"
                                                          InputTransparent="True" />
@@ -522,8 +522,12 @@
                         Padding="14,0"
                         FontSize="15"
                         FontAttributes="Bold"
-                        ContentLayout="Left,6"
-                        mi:MauiIcon.Value="{mi:Material Icon=Upload}">
+                        ContentLayout="Left,6">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FluentUI"
+                                         Glyph="{x:Static f:FluentUI.arrow_upload_20_regular}"
+                                         Color="{toolkit:AppThemeResource OnPrimary}" />
+                    </Button.ImageSource>
                     <Button.Triggers>
                         <DataTrigger TargetType="Button"
                                      Binding="{Binding PuedeEnviar}"

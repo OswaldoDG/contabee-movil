@@ -12,15 +12,15 @@
     <ContentPage.ToolbarItems>
         <ToolbarItem Clicked="OnEditarClicked" Order="Primary" Priority="0">
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="FluentUI"
-                                 Glyph="{x:Static f:FluentUI.edit_20_regular}"
+                <FontImageSource FontFamily="FluentUIFilled"
+                                 Glyph="{x:Static f:FluentUIFilled.edit_20_filled}"  
                                  Color="{toolkit:AppThemeResource PrimaryText}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
         <ToolbarItem Clicked="OnEliminarClicked" Order="Primary" Priority="1">
             <ToolbarItem.IconImageSource>
-                <FontImageSource FontFamily="FluentUI"
-                                 Glyph="{x:Static f:FluentUI.delete_20_regular}"
+                <FontImageSource FontFamily="FluentUIFilled"
+                                 Glyph="{x:Static f:FluentUIFilled.delete_20_filled}"  
                                  Color="{toolkit:AppThemeResource PrimaryText}" />
             </ToolbarItem.IconImageSource>
         </ToolbarItem>
@@ -109,7 +109,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding IrCapturaCommand}" />
             </Border.GestureRecognizers>
-            <mi:MauiIcon Icon="{mi:Material Icon=PhotoCamera}"
+            <Label Text="{x:Static f:FluentUIFilled.camera_20_filled}" FontFamily="FluentUIFilled"
                          Style="{StaticResource FabIcon}" />
         </Border>
 

@@ -18,8 +18,8 @@ public partial class PaginaRegistro : ContentPage
         InitializeComponent();
 
         // Inicializar iconos FontAwesome en los ImageButton (usa las extensiones del paquete)
-        // Si tu versión del paquete expone métodos de extensión `.Icon(...)`, se usan aquí.
-        // Si el compilador señala que .Icon(...) no existe, coméntalos y dime el error para ajustar.
+        // Si tu versión del paquete expone métodos de extensión `.Text = ...`, se usan aquí.
+        // Si el compilador señala que .Text = ... no existe, coméntalos y dime el error para ajustar.
         // Actualizar checks iniciales según ViewModel
         _viewModel = viewModel;
         BindingContext = _viewModel;
@@ -56,7 +56,7 @@ public partial class PaginaRegistro : ContentPage
         ConfirmPasswordEntry.IsPassword = isPassword;
         PasswordEntry.IsPassword = isPassword;
 
-        ToggleConfirmPasswordButton.Icon(isPassword ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
+        ToggleConfirmPasswordButton.Text = isPassword ? FluentUI.eye_off_20_regular : FluentUI.eye_20_regular;
     }
 
     async void OnAvisoPrivacidadTapped(object? sender, TappedEventArgs e)
@@ -96,10 +96,10 @@ public partial class PaginaRegistro : ContentPage
             vm.TieneNumero = pwd.Any(char.IsDigit);
             vm.TieneCaracterEspecial = Regex.IsMatch(pwd, @"[@$%&._#]");
 
-            IconMin6.IconColor = vm.EsMinimo6? success : disabled;
-            IconMayus.IconColor = vm.TieneMayuscula ? success : disabled;
-            IconNumero.IconColor = vm.TieneNumero ? success : disabled;
-            IconEspecial.IconColor = vm.TieneCaracterEspecial ? success : disabled;
+            IconMin6.TextColor = vm.EsMinimo6? success : disabled;
+            IconMayus.TextColor = vm.TieneMayuscula ? success : disabled;
+            IconNumero.TextColor = vm.TieneNumero ? success : disabled;
+            IconEspecial.TextColor = vm.TieneCaracterEspecial ? success : disabled;
         }
     }
 }

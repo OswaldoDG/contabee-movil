@@ -59,7 +59,7 @@
                 FontAttributes="Bold"
                 FontSize="16"
                 BackgroundColor="{toolkit:AppThemeResource Primary}"
-                TextColor="White"
+                TextColor="{toolkit:AppThemeResource OnPrimary}"
                 Clicked="BtnCancelar_Clicked" />
 
     </Grid>

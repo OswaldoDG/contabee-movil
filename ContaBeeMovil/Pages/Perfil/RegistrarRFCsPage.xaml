@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.RegistrarRFCsPage"
              Title="Registrar Cuenta Fiscal"
@@ -35,9 +36,9 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="IconManual_Tapped" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=Edit}"
-                             IconSize="32"
-                             IconColor="{toolkit:AppThemeResource OnPrimary}"
+                <Label Text="{x:Static f:FluentUIFilled.edit_20_filled}" FontFamily="FluentUIFilled"
+                             FontSize="32"
+                             TextColor="{toolkit:AppThemeResource OnPrimary}"
                              HorizontalOptions="Center"
                              VerticalOptions="Center" />
             </Border>
@@ -70,9 +71,9 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="IconQr_Tapped" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=QrCode}"
-                             IconSize="32"
-                             IconColor="{toolkit:AppThemeResource OnPrimary}"
+                <Label Text="{x:Static f:FluentUIFilled.qr_code_20_filled}" FontFamily="FluentUIFilled"
+                             FontSize="32"
+                             TextColor="{toolkit:AppThemeResource OnPrimary}"
                              HorizontalOptions="Center"
                              VerticalOptions="Center" />
             </Border>

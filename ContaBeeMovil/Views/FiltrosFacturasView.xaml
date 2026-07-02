@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Views.FiltrosFacturasView">
 
@@ -77,9 +78,9 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleOrden" />
                     </Border.GestureRecognizers>
-                    <mi:MauiIcon x:Name="IconOrden"
+                    <Label x:Name="IconOrden"
                                  Style="{StaticResource CircleIconLabel}"
-                                 Icon="{mi:Material Icon=ArrowDownward}" />
+                                 Text="{x:Static f:FluentUI.arrow_down_20_regular}" FontFamily="FluentUI" />
                 </Border>
 
                 <!-- Embudo: limpiar filtros -->
@@ -91,10 +92,10 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLimpiarFiltrosYActualizar" />
                     </Border.GestureRecognizers>
-                    <mi:MauiIcon x:Name="IconFiltro"
-                                 Icon="{mi:Material Icon=FilterList}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource PrimaryText}"
+                    <Label x:Name="IconFiltro"
+                                 Text="{x:Static f:FluentUI.filter_20_regular}" FontFamily="FluentUI"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource PrimaryText}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
                 </Border>
@@ -113,9 +114,9 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBuscarTapped" />
                     </Border.GestureRecognizers>
-                    <mi:MauiIcon Icon="{mi:Material Icon=Search}"
-                                 IconSize="20"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
+                    <Label Text="{x:Static f:FluentUI.search_20_regular}" FontFamily="FluentUI"
+                                 FontSize="20"
+                                 TextColor="{toolkit:AppThemeResource Icon}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
                 </Border>
@@ -127,9 +128,9 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnToggleExpandir" />
                     </Border.GestureRecognizers>
-                    <mi:MauiIcon x:Name="IconExpandir"
+                    <Label x:Name="IconExpandir"
                                  Style="{StaticResource CircleIconLabel}"
-                                 Icon="{mi:Material Icon=KeyboardArrowUp}" />
+                                 Text="{x:Static f:FluentUI.chevron_up_20_regular}" FontFamily="FluentUI" />
                 </Border>
 
             </Grid>

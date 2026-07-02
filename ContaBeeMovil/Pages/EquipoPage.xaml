@@ -5,6 +5,7 @@
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
+             xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.EquipoPage"
              x:DataType="vm:EquipoViewModel"
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
@@ -24,11 +25,12 @@
                                     StrokeThickness="0"
                                     Padding="5"
                                     WidthRequest="{Binding SwipeItemWidth}">
-                                <Image WidthRequest="26"
-                                       HeightRequest="26"
+                                <Label Text="{x:Static f:FluentUI.delete_20_regular}"
+                                       FontFamily="FluentUI"
+                                       FontSize="24"
+                                       TextColor="{toolkit:AppThemeResource OnPrimary}"
                                        HorizontalOptions="Start"
-                                       VerticalOptions="Center"
-                                       mi:MauiIcon.Value="{mi:Material Icon=Delete}" />
+                                       VerticalOptions="Center" />
                             </Border>
                         </SwipeItemView>
                     </SwipeItems>
@@ -40,9 +42,9 @@
                         Stroke="{toolkit:AppThemeResource Accent1}"
                         StrokeThickness="1"
                         BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
-                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
+                    </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="5,*">
                         <BoxView Grid.Column="0"
@@ -99,13 +101,14 @@
                                        TextColor="{toolkit:AppThemeResource SecondaryText}" />
                             </VerticalStackLayout>
 
-                            <mi:MauiIcon Grid.Column="2"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                         IsVisible="{Binding MostrarConfigurar}"
-                                         HorizontalOptions="End"
-                                         VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                                   FontFamily="FluentUI"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   IsVisible="{Binding MostrarConfigurar}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
                         </Grid>
                     </Grid>
                 </Border>
@@ -114,16 +117,16 @@
 
         <!-- Template para el usuario en sesión: sin swipe, chip "Yo" junto al nombre -->
         <DataTemplate x:Key="TemplatePropio" x:DataType="vm:EquipoUsuarioItem">
-            <SwipeView Margin="16,6">
+            <Grid Margin="16,6">
                 <Border Margin="0"
                         Padding="10,5"
                         StrokeShape="RoundRectangle 10"
                         Stroke="{toolkit:AppThemeResource Accent1}"
                         StrokeThickness="1"
                         BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
-                    <Border.Shadow>
-                        <Shadow Brush="Black" Radius="2" Opacity="0.10" Offset="1,1" />
-                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ConfigurarCommand}" />
+                    </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="5,*">
                         <BoxView Grid.Column="0"
@@ -198,17 +201,18 @@
                                        TextColor="{toolkit:AppThemeResource SecondaryText}" />
                             </VerticalStackLayout>
 
-                            <mi:MauiIcon Grid.Column="2"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
-                                         IsVisible="{Binding MostrarConfigurar}"
-                                         HorizontalOptions="End"
-                                         VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                                   FontFamily="FluentUI"
+                                   FontSize="22"
+                                   TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                   IsVisible="{Binding MostrarConfigurar}"
+                                   HorizontalOptions="End"
+                                   VerticalOptions="Center" />
                         </Grid>
                     </Grid>
                 </Border>
-            </SwipeView>
+            </Grid>
         </DataTemplate>
 
         <vm:EquipoDataTemplateSelector x:Key="ItemSelector"
@@ -237,14 +241,14 @@
                         ConsultaEjecutada="{Binding ConsultaEjecutada}"
                         AnteriorCommand="{Binding PaginaAnteriorCommand}"
                         SiguienteCommand="{Binding PaginaSiguienteCommand}"
-                        ItemTapCommand="{Binding ItemTapCommand}"
+                        ModoSeleccion="None"
                         PlantillaItem="{StaticResource ItemSelector}" />
 
         <!-- FAB expandible -->
         <VerticalStackLayout
                              HorizontalOptions="End"
                              VerticalOptions="End"
-                             Margin="0,0,16,16"
+                             Margin="0,0,10,7"
                              Spacing="12">
 
             <!-- Sub-botones (visibles al expandir) -->
@@ -269,9 +273,9 @@
                             <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
                         </Border.Shadow>
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
-                            <mi:MauiIcon Icon="{mi:Material Icon=PersonAddAlt}"
-                                     IconSize="28"
-                                     IconColor="{toolkit:AppThemeResource OnPrimary}"
+                            <Label Text="{x:Static f:FluentUI.person_add_20_regular}" FontFamily="FluentUI"
+                                     FontSize="28"
+                                     TextColor="{toolkit:AppThemeResource OnPrimary}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Sin cuenta"
@@ -297,9 +301,9 @@
                             <Shadow Brush="Black" Radius="6" Opacity="0.15" Offset="0,3" />
                         </Border.Shadow>
                         <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
-                        <mi:MauiIcon Icon="{mi:Material Icon=PersonAdd}"
-                                     IconSize="28"
-                                     IconColor="{toolkit:AppThemeResource OnPrimary}"
+                        <Label Text="{x:Static f:FluentUIFilled.person_add_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="28"
+                                     TextColor="{toolkit:AppThemeResource OnPrimary}"
                                      HorizontalOptions="Center"
                                      VerticalOptions="Center" />
                             <Label Text="Con Cuenta"
@@ -326,15 +330,15 @@
                     <TapGestureRecognizer Command="{Binding ToggleFabCommand}" />
                 </Border.GestureRecognizers>
                 <Grid>
-                    <mi:MauiIcon Icon="{mi:Material Icon=Add}"
-                                 IconSize="20"
-                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
+                    <Label Text="{x:Static f:FluentUI.add_20_regular}" FontFamily="FluentUI"
+                                 FontSize="20"
+                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabColapsado}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
-                    <mi:MauiIcon Icon="{mi:Material Icon=KeyboardArrowDown}"
-                                 IconSize="20"
-                                 IconColor="{toolkit:AppThemeResource OnPrimary}"
+                    <Label Text="{x:Static f:FluentUI.chevron_down_20_regular}" FontFamily="FluentUI"
+                                 FontSize="20"
+                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabExpandido}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />

@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Perfil.TarjetasPage"
@@ -53,11 +54,12 @@
                                             StrokeThickness="0"
                                             Padding="5"
                                             WidthRequest="{Binding SwipeItemWidth}">
-                                        <Image WidthRequest="26"
-                                               HeightRequest="26"
+                                        <Label Text="{x:Static f:FluentUI.delete_20_regular}"
+                                               FontFamily="FluentUI"
+                                               FontSize="24"
+                                               TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                HorizontalOptions="Start"
-                                               VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"/>
+                                               VerticalOptions="Center"/>
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>
@@ -110,23 +112,14 @@
         </CollectionView>
 
         <!-- FAB -->
-        <Button Text="+"
-                FontSize="30"
-                FontAttributes="Bold"
-                WidthRequest="60"
-                HeightRequest="60"
-                CornerRadius="16"
-                BackgroundColor="{toolkit:AppThemeResource Primary}"
-                TextColor="{toolkit:AppThemeResource PrimaryText}"
-                HorizontalOptions="End"
-                VerticalOptions="End"
-                Margin="0,0,16,28"
-                Clicked="OnAgregarTarjeta">
-            <Button.Shadow>
-                <Shadow Brush="{toolkit:AppThemeResource Shadow}"
-                        Offset="0,4" Radius="8" Opacity="0.5"/>
-            </Button.Shadow>
-        </Button>
+        <Border Style="{StaticResource FabBorder}"
+                Margin="0,0,16,28">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnAgregarTarjeta" />
+            </Border.GestureRecognizers>
+            <Label Text="{x:Static f:FluentUIFilled.add_20_filled}" FontFamily="FluentUIFilled"
+                   Style="{StaticResource FabIcon}" />
+        </Border>
 
         <!-- Overlay de carga -->
         <Grid x:Name="LoadingOverlay"

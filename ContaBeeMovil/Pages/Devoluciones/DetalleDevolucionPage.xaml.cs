@@ -166,6 +166,16 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                     return;
                 }
 
+                // Asociación desactivada/eliminada (403): el CoordinadorSesion reconcilia la
+                // sesión y avisa con toast; aquí solo volvemos al listado (sin error genérico).
+                if (CodigosErrorApi.EsAsociacionInactiva(res.Error?.HttpCode, res.Error?.Mensaje))
+                {
+                    _detalleNoDisponible = true;
+                    PaginaDevoluciones.PendienteActualizarListado = true;
+                    await RegresarAListadoSiSigueAbiertaAsync();
+                    return;
+                }
+
                 await _servicioAlerta.MostrarAsync("Error", res.Error?.Mensaje ?? "No se pudo obtener el reembolso.", verBotonCancelar: false, confirmarText: "OK");
                 return;
             }

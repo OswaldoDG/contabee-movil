@@ -290,7 +290,7 @@ public class DashboardViewModel : INotifyPropertyChanged
                 return;
             }
 
-            // null = error de red/sesión que ya fue manejado por AuthHandler o ForzarReloginAsync
+            // null = error de red/sesión que ya fue manejado por AuthHandler o el CoordinadorSesion
             if (cuentas is null)
                 return;
 
@@ -326,6 +326,17 @@ public class DashboardViewModel : INotifyPropertyChanged
             if (!resultado.Ok || resultado.Payload == null)
             {
                 var errorMsg = resultado.Error?.Mensaje ?? string.Empty;
+
+                // Asociación desactivada/eliminada (403): el CoordinadorSesion ya reconcilia
+                // la sesión (cambia de cuenta / modo limitado) y el Dashboard se recarga solo.
+                // NO mostramos el error de "verifica tu conexión" (sería engañoso).
+                if (CodigosErrorApi.EsAsociacionInactiva(resultado.Error?.HttpCode, errorMsg))
+                {
+                    TieneError   = false;
+                    SinActividad = false;
+                    return;
+                }
+
                 if (errorMsg.Contains("CRM-LIC-INEXISTENTE", StringComparison.OrdinalIgnoreCase))
                 {
                     _logs.Warn($"[Dashboard] Sin actividad (CRM-LIC-INEXISTENTE) para {_mes}/{_anio}");

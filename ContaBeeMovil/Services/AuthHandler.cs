@@ -5,6 +5,7 @@ using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Services.Sesion;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContaBeeMovil.Services;
@@ -45,6 +46,8 @@ public class AuthHandler : DelegatingHandler
     private static readonly SemaphoreSlim _refreshLock = new(1, 1);
     private IServicioLogs? _logs;
     private IServicioLogs Logs => _logs ??= _serviceProvider.GetRequiredService<IServicioLogs>();
+    private ICoordinadorSesion? _coordinador;
+    private ICoordinadorSesion Coordinador => _coordinador ??= _serviceProvider.GetRequiredService<ICoordinadorSesion>();
 
     public AuthHandler(IServiceProvider serviceProvider)
     {
@@ -97,15 +100,27 @@ public class AuthHandler : DelegatingHandler
                 }
                 else
                 {
-                    Logs.Warn("[AuthHandler] Refresh falló — cerrando sesión");
-                    await CerrarSesionAsync(sesion, appState);
+                    // Refresh falló con red disponible → token muerto.
+                    Logs.Warn("[AuthHandler] Refresh falló — token revocado");
+                    await Coordinador.CerrarSesionAsync(MotivoCierre.TokenRevocado);
                     return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
                 }
             }
             else
             {
-                Logs.Info("[AuthHandler] Token expirado sin posibilidad de refresh — cerrando sesión");
-                await CerrarSesionAsync(sesion, appState);
+                // Loginless sin refresh token (instalación legacy anterior al fix de
+                // offline_access): NO borrar el token loginless — es recuperable. Diferimos
+                // a la reanudación (OnResume/arranque), que re-loguea con el token loginless
+                // y sana la sesión con un refresh token nuevo.
+                if (esLoginLess)
+                {
+                    Logs.Warn("[AuthHandler] Loginless sin refresh — se conserva token; sanará al reanudar");
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
+                }
+
+                // Normal sin Recordarme: expiración definitiva → cerrar sesión.
+                Logs.Info("[AuthHandler] Token expirado sin posibilidad de refresh");
+                await Coordinador.CerrarSesionAsync(MotivoCierre.ExpiradoSinRefresh);
                 return new HttpResponseMessage(System.Net.HttpStatusCode.Unauthorized);
             }
         }
@@ -133,11 +148,15 @@ public class AuthHandler : DelegatingHandler
                         System.Text.Encoding.UTF8,
                         response.Content.Headers.ContentType?.MediaType ?? "application/json");
 
-                    if (body.Contains("no pertenece a la cuenta fiscal", StringComparison.OrdinalIgnoreCase))
-                    {
-                        Logs.Warn($"[AuthHandler] Desvinculación detectada — {path}");
-                        _ = sesion.ManejarDesvinculacionAsync();
-                    }
+                    // DIAGNÓSTICO: registrar el body crudo de toda respuesta no-exitosa para
+                    // verificar qué manda el backend (p.ej. diferenciar asociación desactivada
+                    // vs eliminada en el 403).
+                    Logs.Info($"[AuthHandler] {(int)response.StatusCode} {request.Method} {path} — Body: {(string.IsNullOrEmpty(body) ? "(vacío)" : body)}");
+
+                    // Punto único de manejo de respuestas no-exitosas: el coordinador
+                    // decide (403 = asociación desactivada, o mensaje legacy en el body).
+                    // Fire-and-forget: la respuesta se devuelve al llamador de inmediato.
+                    _ = Coordinador.ManejarRespuestaAsync(response.StatusCode, body, path);
                 }
                 catch { }
             }
@@ -228,22 +247,5 @@ public class AuthHandler : DelegatingHandler
             }
         }
         return Task.CompletedTask;
-    }
-
-    private async Task CerrarSesionAsync(IServicioSesion sesion, AppState appState)
-    {
-        Logs.Warn("[AuthHandler] Sesión cerrada por token inválido");
-        await sesion.LimpiaTokensAsync();
-        appState.Perfil = null;
-        appState.CuentasFiscales = null;
-        appState.CuentaFiscalActual = null;
-
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
-            var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-            await toast.MostrarAsync("Tu sesión ha caducado", ToastIcono.Warning, ToastPosicion.Bottom);
-        });
     }
 }

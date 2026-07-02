@@ -213,9 +213,9 @@ public partial class FiltrosFacturasView : ContentView
             if (_ordenAscendente != estado.OrdenAscendente)
             {
                 _ordenAscendente = estado.OrdenAscendente;
-                IconOrden.Icon = _ordenAscendente
-                    ? MaterialIcons.ArrowUpward
-                    : MaterialIcons.ArrowDownward;
+                IconOrden.Text = _ordenAscendente
+                    ? FluentUI.arrow_up_20_regular
+                    : FluentUI.arrow_down_20_regular;
             }
 
             ActualizarPeriodoTexto();
@@ -331,9 +331,9 @@ public partial class FiltrosFacturasView : ContentView
     {
         _expandido = !_expandido;
 
-        IconExpandir.Icon = _expandido
-            ? MaterialIcons.KeyboardArrowUp
-            : MaterialIcons.KeyboardArrowDown;
+        IconExpandir.Text = _expandido
+            ? FluentUI.chevron_up_20_regular
+            : FluentUI.chevron_down_20_regular;
 
         if (_expandido)
         {
@@ -380,43 +380,51 @@ public partial class FiltrosFacturasView : ContentView
     {
         if (TieneFiltrosExtra())
         {
-            IconFiltro.IconColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange);
+            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange);
         }
         else
         {
-            IconFiltro.IconColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
+            IconFiltro.TextColor = ContaBeeMovil.Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
         }
     }
 
     private void OnToggleOrden(object sender, TappedEventArgs e)
     {
         _ordenAscendente = !_ordenAscendente;
-        IconOrden.Icon = _ordenAscendente
-            ? MaterialIcons.ArrowUpward
-            : MaterialIcons.ArrowDownward;
+        IconOrden.Text = _ordenAscendente
+            ? FluentUI.arrow_up_20_regular
+            : FluentUI.arrow_down_20_regular;
         EjecutarBusqueda(BusquedaActual);
     }
 
     private void CargarCreadores()
     {
         var usuarios = AppState.Instance.MisUsuarios ?? [];
-        var cuentaFiscalActualId = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        var cuentaFiscalActual = AppState.Instance.CuentaFiscalActual;
+        var cuentaFiscalActualId = cuentaFiscalActual?.CuentaFiscalId;
         var usuarioSesionId = _emailSesion != null
             ? usuarios.FirstOrDefault(u => string.Equals(u.Email, _emailSesion, StringComparison.OrdinalIgnoreCase))?.Id
             : null;
-
 
         _creadoresIds.Clear();
         var elementosCreador = new List<string> { "Todos" };
         _creadoresIds.Add(string.Empty);
 
-        foreach (var u in usuarios.Where(u => u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura))
+        bool esLoginLessSecundario = AppState.Instance.EsLoginLess
+            && cuentaFiscalActual?.TipoCuenta == Contabee.Api.Crm.TipoCuenta.Secundaria;
+
+        var usuariosFiltrados = esLoginLessSecundario
+            ? usuarios.Where(u => u.Id == cuentaFiscalActual!.UsuarioId)
+            : usuarios.Where(u => u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura
+                                  && u.AsociacionActiva);
+
+        foreach (var u in usuariosFiltrados)
         {
             var nombre = u.Nombre ?? u.UserName ?? u.Email ?? u.Id.ToString();
             if (nombre.Contains('@'))
                 nombre = nombre[..nombre.IndexOf('@')];
 
-            var etiqueta = u.Id == usuarioSesionId
+            var etiqueta = (u.Id == usuarioSesionId || esLoginLessSecundario)
                 ? $"{nombre} (Yo)"
                 : $"{nombre} ({ObtenerEtiquetaTipo(u.TipoCuenta)})";
 

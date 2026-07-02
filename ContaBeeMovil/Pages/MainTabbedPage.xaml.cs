@@ -75,6 +75,8 @@ public partial class MainTabbedPage : ContentPage
                 MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
             else if (e.PropertyName == nameof(AppState.EstaActualizandoCF))
                 MainThread.BeginInvokeOnMainThread(OnEstadoActualizacionCFCambiado);
+            else if (e.PropertyName == nameof(AppState.MostrarCargaGlobal))
+                MainThread.BeginInvokeOnMainThread(ActualizarOverlayCarga);
         };
 
         ActualizarVisibilidadEquipo();
@@ -92,6 +94,11 @@ public partial class MainTabbedPage : ContentPage
         TabBar.SetEquipoVisible(visible);
         if (!visible && _currentIndex == 4)
             SwitchToTab(0);
+    }
+
+    private void ActualizarOverlayCarga()
+    {
+        OverlayCargaGlobal.IsVisible = AppState.Instance.MostrarCargaGlobal;
     }
 
     private void ActualizarModoOffline()

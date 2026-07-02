@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+    xmlns:f="clr-namespace:Fonts"
     xmlns:pages="clr-namespace:ContaBeeMovil.Pages"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     Shell.FlyoutBehavior="Flyout"
@@ -56,18 +57,18 @@
                                      BackgroundColor="{toolkit:AppThemeResource Primary}"
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
-                            <mi:MauiIcon Grid.Column="1"
-                                         Icon="{mi:Material Icon=ShoppingBag}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                            <Label Grid.Column="1"
+                                         Text="{x:Static f:FluentUIFilled.shopping_bag_20_filled}" FontFamily="FluentUIFilled"
+                                         FontSize="22"
+                                         TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Tienda"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
-                            <mi:MauiIcon Grid.Column="3"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="16"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                            <Label Grid.Column="3"
+                                         Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                         FontSize="16"
+                                         TextColor="{toolkit:AppThemeResource SecondaryText}"
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -80,18 +81,18 @@
                                      BackgroundColor="{toolkit:AppThemeResource Primary}"
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
-                            <mi:MauiIcon Grid.Column="1"
-                                         Icon="{mi:Material Icon=Payment}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                            <Label Grid.Column="1"
+                                         Text="{x:Static f:FluentUIFilled.payment_20_filled}" FontFamily="FluentUIFilled"
+                                         FontSize="22"
+                                         TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Tarjetas"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
-                            <mi:MauiIcon Grid.Column="3"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="16"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                            <Label Grid.Column="3"
+                                         Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                         FontSize="16"
+                                         TextColor="{toolkit:AppThemeResource SecondaryText}"
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -105,18 +106,18 @@
                                      BackgroundColor="{toolkit:AppThemeResource Primary}"
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
-                            <mi:MauiIcon Grid.Column="1"
-                                         Icon="{mi:Material Icon=Label}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                            <Label Grid.Column="1"
+                                         Text="{x:Static f:FluentUIFilled.tag_20_filled}" FontFamily="FluentUIFilled"
+                                         FontSize="22"
+                                         TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="RFCs"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
-                            <mi:MauiIcon Grid.Column="3"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="16"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                            <Label Grid.Column="3"
+                                         Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                         FontSize="16"
+                                         TextColor="{toolkit:AppThemeResource SecondaryText}"
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -131,18 +132,18 @@
                              BackgroundColor="{toolkit:AppThemeResource Primary}"
                              WidthRequest="4" CornerRadius="2"
                              VerticalOptions="Fill" />
-                                        <mi:MauiIcon Grid.Column="1"
-                                                     Icon="{mi:Material Icon=ConfirmationNumber}"
-                                                     IconSize="22"
-                                                     IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                                        <Label Grid.Column="1"
+                                                     Text="{x:Static f:FluentUIFilled.ticket_diagonal_20_filled}" FontFamily="FluentUIFilled"
+                                                     FontSize="22"
+                                                     TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                                      VerticalOptions="Center" />
                                         <Label Grid.Column="2" Text="Cupones"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
-                                        <mi:MauiIcon Grid.Column="3"
-                                                     Icon="{mi:Material Icon=ChevronRight}"
-                                                     IconSize="16"
-                                                     IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                        <Label Grid.Column="3"
+                                                     Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                                     FontSize="16"
+                                                     TextColor="{toolkit:AppThemeResource SecondaryText}"
                                                      VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -156,18 +157,18 @@
                                      BackgroundColor="{toolkit:AppThemeResource Primary}"
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
-                            <mi:MauiIcon Grid.Column="1"
-                                         Icon="{mi:Material Icon=Settings}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                            <Label Grid.Column="1"
+                                         Text="{x:Static f:FluentUIFilled.settings_20_filled}" FontFamily="FluentUIFilled"
+                                         FontSize="22"
+                                         TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Mi cuenta"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
-                            <mi:MauiIcon Grid.Column="3"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="16"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                            <Label Grid.Column="3"
+                                         Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                         FontSize="16"
+                                         TextColor="{toolkit:AppThemeResource SecondaryText}"
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -182,18 +183,18 @@
                                      BackgroundColor="{toolkit:AppThemeResource Primary}"
                                      WidthRequest="4" CornerRadius="2"
                                      VerticalOptions="Fill" />
-                            <mi:MauiIcon Grid.Column="1"
-                                         Icon="{mi:Material Icon=SpatialAudioOff}"
-                                         IconSize="22"
-                                         IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                            <Label Grid.Column="1"
+                                         Text="{x:Static f:FluentUIFilled.person_link_20_filled}" FontFamily="FluentUIFilled"
+                                         FontSize="22"
+                                         TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                          VerticalOptions="Center" />
                             <Label Grid.Column="2" Text="Vincularme"
                                    Style="{StaticResource Body1}"
                                    VerticalOptions="Center" />
-                            <mi:MauiIcon Grid.Column="3"
-                                         Icon="{mi:Material Icon=ChevronRight}"
-                                         IconSize="16"
-                                         IconColor="{toolkit:AppThemeResource SecondaryText}"
+                            <Label Grid.Column="3"
+                                         Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                         FontSize="16"
+                                         TextColor="{toolkit:AppThemeResource SecondaryText}"
                                          VerticalOptions="Center" />
                         </Grid>
                     </Border>
@@ -246,10 +247,10 @@
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnBuzonClicked" />
                     </Grid.GestureRecognizers>
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=Email}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                    <Label Grid.Column="0"
+                                 Text="{x:Static f:FluentUIFilled.mail_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Buzón de sugerencias"
                            Style="{StaticResource Body1}"
@@ -260,23 +261,30 @@
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCompartirClicked" />
                     </Grid.GestureRecognizers>
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=Share}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
-                                 VerticalOptions="Center" />
+                    <Label Grid.Column="0"
+           FontFamily="FluentUIFilled"
+           FontSize="22"
+           TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+           VerticalOptions="Center">
+                        <Label.Text>
+                            <OnPlatform x:TypeArguments="x:String">
+                                <On Platform="Android" Value="{x:Static f:FluentUIFilled.share_android_16_filled}" />
+                                <On Platform="iOS" Value="{x:Static f:FluentUIFilled.share_ios_20_filled}" />
+                            </OnPlatform>
+                        </Label.Text>
+                    </Label>
                     <Label Grid.Column="1" Text="Compartir Contabee"
-                           Style="{StaticResource Body1}"
-                           VerticalOptions="Center" />
+           Style="{StaticResource Body1}"
+           VerticalOptions="Center" />
                 </Grid>
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnAcercaDeClicked" />
                     </Grid.GestureRecognizers>
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=Info}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                    <Label Grid.Column="0"
+                                 Text="{x:Static f:FluentUIFilled.info_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Acerca de"
                            Style="{StaticResource Body1}"
@@ -290,10 +298,10 @@
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLogsClicked" />
                     </Grid.GestureRecognizers>
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=BugReport}"
-                                 IconSize="22"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                    <Label Grid.Column="0"
+                                 Text="{x:Static f:FluentUIFilled.bug_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Logs"
                            Style="{StaticResource Body1}"
@@ -304,10 +312,10 @@
                <VerticalStackLayout Spacing="8">
                 <!-- Toggle tema oscuro/claro -->
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="20" HorizontalOptions="Center">
-                    <mi:MauiIcon Grid.Column="0"
-                                 Icon="{mi:Material Icon=LightMode}"
-                                 IconSize="25"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                    <Label Grid.Column="0"
+                                 Text="{x:Static f:FluentUIFilled.weather_sunny_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="25"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Switch Grid.Column="1"
                             x:Name="ThemeSwitch"
@@ -315,10 +323,10 @@
                             ThumbColor="{toolkit:AppThemeResource Primary}"
                             OnColor="{toolkit:AppThemeResource Alternate}"
                             Toggled="OnThemeSwitchToggled" />
-                    <mi:MauiIcon Grid.Column="2"
-                                 Icon="{mi:Material Icon=DarkMode}"
-                                 IconSize="25"
-                                 IconColor="{toolkit:AppThemeResource SecondaryIcon}"
+                    <Label Grid.Column="2"
+                                 Text="{x:Static f:FluentUIFilled.weather_moon_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="25"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                 </Grid>
 

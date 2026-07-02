@@ -220,6 +220,12 @@ public class LoginViewModel : INotifyPropertyChanged
 
             await _servicioSesion.GuardaEmailAsync(Email);
 
+            // Si el dispositivo tenía un token loginless previo (fue secundario), queda
+            // obsoleto al iniciar sesión con una cuenta completa. Lo borramos ANTES de
+            // PosLogin para no marcar erróneamente la sesión como EsLoginLess.
+            if (!string.IsNullOrEmpty(await _servicioSesion.LeeTokenLoginLessAsync()))
+                await _servicioSesion.LimpiaTokenLoginLessAsync();
+
             await _servicioSesion.PosLoginAsync();
 
             await VerificarModoDeveloperAsync();
@@ -240,7 +246,7 @@ public class LoginViewModel : INotifyPropertyChanged
 
             var cuentas = AppState.Instance.CuentasFiscales;
 
-            // null significa que ocurrió un error y ForzarReloginAsync ya navegó al login
+            // null significa que ocurrió un error y el CoordinadorSesion ya navegó al login
             if (cuentas == null)
                 return;
 

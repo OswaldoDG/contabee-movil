@@ -12,14 +12,16 @@ namespace ContaBeeMovil.Pages.Perfil;
 public partial class RFCsPage : ContentPage
 {
     private readonly IServicioCrm _servicioCrm;
+    private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioLogs _logs;
     private bool _autoNavegado;
 
-    public RFCsPage(IServicioCrm servicioCrm, IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public RFCsPage(IServicioCrm servicioCrm, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioCrm = servicioCrm;
+        _servicioSesion = servicioSesion;
         _servicioAlerta = servicioAlerta;
         _logs = logs;
     }
@@ -151,11 +153,7 @@ public partial class RFCsPage : ContentPage
         {
             var actualizadas = await _servicioCrm.GetAsociacionesFiscales();
             if (actualizadas.Ok && actualizadas.Payload != null)
-            {
-                AppState.Instance.CuentasFiscales = actualizadas.Payload;
-                if (AppState.Instance.CuentaFiscalActual?.CuentaFiscalId == cuenta.CuentaFiscalId)
-                    AppState.Instance.CuentaFiscalActual = actualizadas.Payload.FirstOrDefault();
-            }
+                _servicioSesion.AplicarCuentasFiscales(actualizadas.Payload);
             SetLoading(false);
             CargarCuentas();
         }
@@ -180,14 +178,11 @@ public partial class RFCsPage : ContentPage
             var resultado = await _servicioCrm.GetAsociacionesFiscales();
             if (resultado.Ok && resultado.Payload != null)
             {
-                AppState.Instance.CuentasFiscales = resultado.Payload;
-                var actual = AppState.Instance.CuentaFiscalActual;
-                if (actual != null)
-                {
-                    var actualizada = resultado.Payload.FirstOrDefault(c => c.CuentaFiscalId == actual.CuentaFiscalId);
-                    if (actualizada != null)
-                        AppState.Instance.CuentaFiscalActual = actualizada;
-                }
+                // Reconcilia la lista fresca con la cuenta seleccionada:
+                //  - lista vacía            → limpia cuenta actual (y dirección, vía setter)
+                //  - actual ya no está      → selecciona la primera de la lista
+                //  - actual sigue presente  → la refresca con la versión del servidor
+                _servicioSesion.AplicarCuentasFiscales(resultado.Payload);
                 CargarCuentas();
             }
         }

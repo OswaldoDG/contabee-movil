@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Login.PaginaLogin"
@@ -56,7 +57,7 @@
         <VerticalStackLayout x:Name="FormContainer"
                              Grid.Row="1"
                              Spacing="8"
-                             Padding="4,0"
+                             Padding="2,0"
                              VerticalOptions="Center"
                              IsEnabled="{Binding FormHabilitado}">
 
@@ -67,7 +68,7 @@
                                   LeadingViewPosition="Inside"
                                   ShowLeadingView="True">
                 <sf:SfTextInputLayout.LeadingView>
-                    <mi:MauiIcon Icon="{mi:Material Icon=Email}"
+                    <Label Text="{x:Static f:FluentUIFilled.mail_20_filled}" FontFamily="FluentUIFilled"
                                  Style="{StaticResource InputLeadingIcon}" />
                 </sf:SfTextInputLayout.LeadingView>
                 <Entry x:Name="EntryEmail"
@@ -86,7 +87,7 @@
                                   LeadingViewPosition="Inside"
                                   ShowLeadingView="True">
                 <sf:SfTextInputLayout.LeadingView>
-                    <mi:MauiIcon Icon="{mi:Material Icon=Lock}"
+                    <Label Text="{x:Static f:FluentUIFilled.lock_closed_20_filled}" FontFamily="FluentUIFilled"
                                  Style="{StaticResource InputLeadingIcon}" />
                 </sf:SfTextInputLayout.LeadingView>
                 <Entry x:Name="EntryPassword"
@@ -114,14 +115,24 @@
                         Text="Vincularme"
                         Command="{Binding VincularmeCommand}"
                         Style="{toolkit:AppThemeResource Primary}"
-                        SemanticProperties.Description="Vincularme"
-                        mi:MauiIcon.Value="{mi:Material Icon=SpatialAudioOff}" />
+                        SemanticProperties.Description="Vincularme">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FluentUIFilled"
+                                         Glyph="{x:Static f:FluentUIFilled.person_link_20_filled}"
+                                         Color="{toolkit:AppThemeResource OnPrimary}" />
+                    </Button.ImageSource>
+                </Button>
                 <Button Grid.Column="1"
                         Text="Ingresar"
                         Command="{Binding IngresarCommand}"
                         Style="{toolkit:AppThemeResource Primary}"
-                        SemanticProperties.Description="Ingresar"
-                        mi:MauiIcon.Value="{mi:Material Icon=Login}" />
+                        SemanticProperties.Description="Ingresar">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="FluentUI"
+                                         Glyph="{x:Static f:FluentUIFilled.arrow_enter_20_filled}"
+                                         Color="{toolkit:AppThemeResource OnPrimary}" />
+                    </Button.ImageSource>
+                </Button>
 
             </Grid>
 
@@ -179,29 +190,33 @@
         <!-- ======================================= -->
         <!-- FOOTER: Bottom Icons                    -->
         <!-- ======================================= -->
-        <HorizontalStackLayout Grid.Row="2"
+        <HorizontalStackLayout Grid.Row="02"
                                HorizontalOptions="Center"
-                               Spacing="24"
-                               Padding="0,8,0,16">
+                               Spacing="20"
+                               Padding="0,0,0,0"
+                               Margin="0">
 
 
             <Border >
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding MostrarInfoCommand}" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=Info}"
+                <Label Text="{x:Static f:FluentUIFilled.info_24_filled}" FontFamily="FluentUIFilled"
                              SemanticProperties.Description="Informaci&#243;n"
-                             IconColor="{toolkit:AppThemeResource Icon}"/>
+                             TextColor="{toolkit:AppThemeResource Icon}"
+                      FontSize="25"/>
             </Border>
 
             <Border x:Name="LogsButton"
-                    IsVisible="False">
+                    IsVisible="False"
+                    >
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnLogsClicked" />
                 </Border.GestureRecognizers>
-                <mi:MauiIcon Icon="{mi:Material Icon=BugReport}"
+                <Label Text="{x:Static f:FluentUIFilled.bug_20_filled}" FontFamily="FluentUIFilled"
                              SemanticProperties.Description="Logs"
-                             IconColor="{toolkit:AppThemeResource Icon}"/>
+                             TextColor="{toolkit:AppThemeResource Icon}"
+                             FontSize="25"/>
             </Border>
 
         </HorizontalStackLayout>

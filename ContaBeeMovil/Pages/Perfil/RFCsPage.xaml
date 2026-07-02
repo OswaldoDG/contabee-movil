@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Pages.Perfil.RFCsPage"
@@ -44,11 +45,12 @@
                                             StrokeThickness="0"
                                             Padding="5"
                                             WidthRequest="{Binding SwipeItemWidth}">
-                                        <Image WidthRequest="26"
-                                               HeightRequest="26"
+                                        <Label Text="{x:Static f:FluentUI.delete_20_regular}"
+                                               FontFamily="FluentUI"
+                                               FontSize="24"
+                                               TextColor="{toolkit:AppThemeResource OnPrimary}"
                                                HorizontalOptions="Start"
-                                               VerticalOptions="Center"
-                                               mi:MauiIcon.Value="{mi:Material Icon=Delete}"/>
+                                               VerticalOptions="Center"/>
                                     </Border>
                                 </SwipeItemView>
                             </SwipeItems>
@@ -77,16 +79,16 @@
                                            LineBreakMode="TailTruncation"
                                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
                                 </VerticalStackLayout>
-                                <mi:MauiIcon Grid.Column="2"
-                                             Icon="{mi:Material Icon=ChevronRight}"
-                                             IconSize="22"
-                                             IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                <Label Grid.Column="2"
+                                             Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                             FontSize="22"
+                                             TextColor="{toolkit:AppThemeResource SecondaryText}"
                                              VerticalOptions="Center"
                                              IsVisible="{Binding EsPrimaria}" />
-                                <mi:MauiIcon Grid.Column="2"
-                                             Icon="{mi:Material Icon=Person}"
-                                             IconSize="22"
-                                             IconColor="{toolkit:AppThemeResource SecondaryText}"
+                                <Label Grid.Column="2"
+                                             Text="{x:Static f:FluentUIFilled.person_20_filled}" FontFamily="FluentUIFilled"
+                                             FontSize="22"
+                                             TextColor="{toolkit:AppThemeResource SecondaryText}"
                                              VerticalOptions="Center"
                                              IsVisible="{Binding EsSecundaria}" />
                             </Grid>
@@ -108,7 +110,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="BtnAgregar_Clicked" />
             </Border.GestureRecognizers>
-            <mi:MauiIcon Icon="{mi:Material Icon=Add}"
+            <Label Text="{x:Static f:FluentUI.add_20_regular}" FontFamily="FluentUI"
                          Style="{StaticResource FabIcon}" />
         </Border>
 

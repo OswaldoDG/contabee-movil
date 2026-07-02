@@ -1,6 +1,10 @@
-using ContaBeeMovil.Helpers;
-using ContaBeeMovil.Services;
 using Contabee.Api.abstractions;
+using ContaBeeMovil.Helpers;
+using ContaBeeMovil.Models;
+using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
 
@@ -11,24 +15,31 @@ public partial class AcercaDePage : ContentPage
     private readonly IServicioSalud _servicioSalud;
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioSesion _servicioSesion;
+    private readonly IServicioAlmacenamiento _almacenamiento;
+    private readonly IServicioToast _servicioToast;
     private CancellationTokenSource? _ctsLoader;
     private CancellationTokenSource? _ctsLoaderCargaActual;
+    private int _tapCount = 0;
+    private const string ClaveMododDev = "ModoDeveloper";
 
     private static bool UsuarioLogueado
         => Application.Current?.Windows.FirstOrDefault()?.Page is Shell;
 
-    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript,IServicioSesion servicioSesion)
+    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript, IServicioSesion servicioSesion, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast)
     {
         InitializeComponent();
         _servicioSalud = servicioSalud;
         _servicioTranscript = servicioTranscript;
-        this._servicioSesion = servicioSesion;
+        _servicioSesion = servicioSesion;
+        _almacenamiento = almacenamiento;
+        _servicioToast = servicioToast;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        _tapCount = 0;
         ActualizarInternet();
         Connectivity.ConnectivityChanged += OnConectividadCambiada;
         await VerificarServiciosAsync();
@@ -49,6 +60,32 @@ public partial class AcercaDePage : ContentPage
         Connectivity.ConnectivityChanged -= OnConectividadCambiada;
         _ctsLoader?.Cancel();
         _ctsLoaderCargaActual?.Cancel();
+    }
+
+    private async void OnVersionTapped(object? sender, TappedEventArgs e)
+    {
+        if (AppState.Instance.EsDev)
+        {
+            _tapCount++;
+            if (_tapCount % 2 == 0)
+                await _servicioToast.MostrarAsync("Modo Desarrollador ya activo", ToastIcono.Info, ToastPosicion.Bottom);
+            return;
+        }
+
+        _tapCount++;
+
+        if (_tapCount >= 10)
+        {
+            var dto = new ModoDeveloperDto
+            {
+                EsDev = true,
+                FechaActivacion = DateTime.UtcNow.ToString("O")
+            };
+            await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
+            AppState.Instance.EsDev = true;
+            await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom, duracionMs: 1000);
+            _tapCount = 0;
+        }
     }
 
     private async void OnAtrasTapped(object? sender, TappedEventArgs e)
@@ -140,10 +177,10 @@ public partial class AcercaDePage : ContentPage
         }
     }
 
-    private void AplicarIconoEstado(MauiIcon icono, bool ok)
+    private void AplicarIconoEstado(Label icono, bool ok)
     {
-        icono.Icon(ok ? MaterialIcons.CheckCircle : MaterialIcons.Cancel);
-        icono.IconColor = ok
+        icono.Text = ok ? FluentUIFilled.checkmark_circle_20_filled : FluentUIFilled.dismiss_circle_20_filled;
+        icono.TextColor = ok
             ? UIHelpers.GetColor("Success")
             : UIHelpers.GetColor("Error");
     }

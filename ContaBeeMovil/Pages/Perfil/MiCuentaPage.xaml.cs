@@ -19,6 +19,8 @@ public partial class MiCuentaPage : ContentPage
         var noEsLoginLess = !AppState.Instance.EsLoginLess;
         CardCambiarContrasena.IsVisible = noEsLoginLess;
         CardEliminarCuenta.IsVisible    = noEsLoginLess;
+        DangerZone.IsVisible = noEsLoginLess;
+        Divide.IsVisible = noEsLoginLess;
 
         _ = CargarDatosSesionAsync();
     }

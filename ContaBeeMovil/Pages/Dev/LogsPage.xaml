@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Dev.LogsPage"
@@ -33,10 +34,10 @@
             <VerticalStackLayout VerticalOptions="Center"
                                  HorizontalOptions="Center"
                                  Spacing="8">
-                <mi:MauiIcon Icon="{mi:Material Icon=TextSnippet}"
-                             IconSize="48"
+                <Label Text="{x:Static f:FluentUI.document_text_20_regular}" FontFamily="FluentUI"
+                             FontSize="48"
                              HorizontalOptions="Center"
-                             IconColor="{toolkit:AppThemeResource SecondaryText}" />
+                             TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 <Label Text="No hay logs registrados"
                        Style="{StaticResource Body1}"
                        TextColor="{toolkit:AppThemeResource SecondaryText}"
@@ -86,12 +87,17 @@
 
                         <!-- Copy button -->
                         <Button Grid.Column="2"
-                                mi:MauiIcon.Value="{mi:Material Icon=ContentCopy}"
                                 BackgroundColor="Transparent"
                                 Padding="8,0"
                                 VerticalOptions="Center"
                                 CommandParameter="{Binding TextoCompleto}"
-                                Clicked="OnCopiarLogClicked"/>
+                                Clicked="OnCopiarLogClicked">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="FluentUI"
+                                                 Glyph="{x:Static f:FluentUI.copy_20_regular}"
+                                                 Color="{toolkit:AppThemeResource PrimaryText}" />
+                            </Button.ImageSource>
+                        </Button>
 
                     </Grid>
                     <BoxView Style="{StaticResource Divider}" Margin="12,0,0,0"/>

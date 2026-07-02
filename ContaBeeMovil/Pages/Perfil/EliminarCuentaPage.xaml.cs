@@ -30,7 +30,7 @@ public partial class EliminarCuentaPage : ContentPage
         _mostrarContrasenas = !_mostrarContrasenas;
         ContrasenaEntry.IsPassword = !_mostrarContrasenas;
         ConfirmarContrasenaEntry.IsPassword = !_mostrarContrasenas;
-        ToggleContrasenas.Icon(_mostrarContrasenas ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
+        ToggleContrasenas.Text = _mostrarContrasenas ? FluentUI.eye_off_20_regular : FluentUI.eye_20_regular;
     }
 
     private void OnCampoTextChanged(object? sender, TextChangedEventArgs e)

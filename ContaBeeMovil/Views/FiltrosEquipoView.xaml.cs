@@ -115,9 +115,9 @@ public partial class FiltrosEquipoView : ContentView
     private void OnToggleOrden(object sender, TappedEventArgs e)
     {
         _ordenAscendente = !_ordenAscendente;
-        IconOrden.Icon = _ordenAscendente
-            ? MaterialIcons.ArrowUpward
-            : MaterialIcons.ArrowDownward;
+        IconOrden.Text = _ordenAscendente
+            ? FluentUI.arrow_up_20_regular
+            : FluentUI.arrow_down_20_regular;
         EjecutarBusqueda(BusquedaActual);
     }
 
@@ -125,9 +125,9 @@ public partial class FiltrosEquipoView : ContentView
     {
         _expandido = !_expandido;
 
-        IconExpandir.Icon = _expandido
-            ? MaterialIcons.KeyboardArrowUp
-            : MaterialIcons.KeyboardArrowDown;
+        IconExpandir.Text = _expandido
+            ? FluentUI.chevron_up_20_regular
+            : FluentUI.chevron_down_20_regular;
 
         if (_expandido)
         {
@@ -163,7 +163,7 @@ public partial class FiltrosEquipoView : ContentView
 
     private void ActualizarIndicadorFiltros()
     {
-        IconFiltro.IconColor = TieneFiltrosExtra()
+        IconFiltro.TextColor = TieneFiltrosExtra()
             ? Converters.EstadoBadgeColorConverter.ResolveColor("Primary", Colors.Orange)
             : Converters.EstadoBadgeColorConverter.ResolveColor("PrimaryText", Colors.White);
     }
@@ -206,9 +206,9 @@ public partial class FiltrosEquipoView : ContentView
             SelectorOrden.IndiceSeleccionado = estado.OrdenIndex;
 
         _ordenAscendente = estado.OrdenAscendente;
-        IconOrden.Icon = _ordenAscendente
-            ? MaterialIcons.ArrowUpward
-            : MaterialIcons.ArrowDownward;
+        IconOrden.Text = _ordenAscendente
+            ? FluentUI.arrow_up_20_regular
+            : FluentUI.arrow_down_20_regular;
 
         ActualizarIndicadorFiltros();
     }

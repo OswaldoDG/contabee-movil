@@ -3,12 +3,11 @@ using CommunityToolkit.Maui.Core.Extensions;
 using Contabee.Api.abstractions;
 using TarjetaDto = Contabee.Api.Crm.TarjetaUsuario;
 using ContaBeeMovil.Models;
-using ContaBeeMovil.Pages.AccesoSuspendido;
-using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Services.Sesion;
 using ContaBeeMovil.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Storage;
@@ -23,6 +22,11 @@ public class ServicioSesion : IServicioSesion
     private const string CLAVE_EMAIL = "CredencialEmail";
     private const string CLAVE_EXPIRACION = "TokenExpiracion";
     private const string CLAVE_TOKEN_LOGINLESS = "TokenLoginLess";
+    // Espejo síncrono (Preferences) de la presencia del token loginless en
+    // SecureStorage. Permite decidir la pantalla inicial en App.CreateWindow —que es
+    // síncrono— sin tener que leer SecureStorage de forma asíncrona. Mismo patrón que
+    // "TieneSesion".
+    public const string CLAVE_TIENE_TOKEN_LOGINLESS = "TieneTokenLoginLess";
     private readonly AppState _appState;
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioIdentidad _servicioIdentidad;
@@ -31,6 +35,15 @@ public class ServicioSesion : IServicioSesion
     private readonly IServicioLogs _logs;
     private bool _posLoginAbortado;
     private static readonly SemaphoreSlim _desvinculacionLock = new(1, 1);
+    private DateTime _ultimaDesvinculacion = DateTime.MinValue;
+    private static readonly TimeSpan _cooldownDesvinculacion = TimeSpan.FromSeconds(30);
+
+    // Resolución perezosa del coordinador para evitar un ciclo de DI en el constructor
+    // (el coordinador depende de IServicioSesion). El coordinador es la ÚNICA autoridad
+    // de navegación y terminación de sesión; ServicioSesion delega ahí toda decisión
+    // terminal (limpiar tokens + a dónde ir).
+    private ICoordinadorSesion? _coordinador;
+    private ICoordinadorSesion Coordinador => _coordinador ??= _serviceProvider.GetRequiredService<ICoordinadorSesion>();
 
     public ServicioSesion(AppState appState, IServicioCrm servicioCrm, IServicioIdentidad servicioIdentidad, IServicioAlmacenamiento almacenamiento, IServiceProvider serviceProvider, IServicioLogs logs)
     {
@@ -87,6 +100,7 @@ public class ServicioSesion : IServicioSesion
         if (!conservarLoginLess)
         {
             SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
+            Preferences.Set(CLAVE_TIENE_TOKEN_LOGINLESS, false);
             _appState.EsLoginLess = false;
         }
         Preferences.Set("TieneSesion", false);
@@ -124,24 +138,20 @@ public class ServicioSesion : IServicioSesion
         return texto;
     }
 
-    private async Task ForzarReloginAsync(string mensaje)
+    // Aborta el post-login y delega la terminación (limpiar tokens + navegar) al
+    // coordinador, que aplica la política de token loginless según el motivo. Si el
+    // coordinador conserva la sesión (loginless ante error transitorio/sin red) NO se
+    // marca abortado: la carga simplemente se detiene sin expulsar al usuario.
+    private async Task AbortarYCerrarAsync(MotivoCierre motivo)
     {
-        _posLoginAbortado = true;
-        await LimpiaTokensAsync();
-        _appState.Perfil = null;
-        _appState.CuentasFiscales = null;
-        _appState.CuentaFiscalActual = null;
-        _appState.MisUsuarios = null;
-
-        await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
-            var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-
-            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-            await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
-        });
+        bool termino = await Coordinador.CerrarSesionAsync(motivo);
+        if (termino) _posLoginAbortado = true;
     }
+
+    // Mapea el código HTTP al motivo de cierre: 401 = token muerto tras agotar refresh;
+    // cualquier otro error no-503 = transitorio (para loginless NO expulsa).
+    private static MotivoCierre MotivoPorHttp(HttpStatusCode? code) =>
+        code == HttpStatusCode.Unauthorized ? MotivoCierre.TokenRevocado : MotivoCierre.Transitorio;
 
     public async Task GetPerfilAsync()
     {
@@ -155,9 +165,7 @@ public class ServicioSesion : IServicioSesion
         if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
             return;
 
-        await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
-            ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
-            : "Ocurrió un problema al obtener tu perfil");
+        await AbortarYCerrarAsync(MotivoPorHttp(respuesta.HttpCode));
     }
 
     public async Task GetLicenciaAsync()
@@ -219,9 +227,7 @@ public class ServicioSesion : IServicioSesion
         if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
             return;
 
-        await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
-            ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
-            : "Ocurrió un problema al obtener tu licencia");
+        await AbortarYCerrarAsync(MotivoPorHttp(respuesta.HttpCode));
     }
 
     public async Task GetAsociacionesFiscalesAsync()
@@ -242,10 +248,10 @@ public class ServicioSesion : IServicioSesion
         if (respuesta.HttpCode == HttpStatusCode.ServiceUnavailable)
             return;
 
-        // Token expirado sin refresh → forzar relogin inmediato
+        // Token expirado sin refresh → token muerto, terminar
         if (respuesta.HttpCode == HttpStatusCode.Unauthorized)
         {
-            await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
+            await AbortarYCerrarAsync(MotivoCierre.TokenRevocado);
             return;
         }
 
@@ -265,12 +271,10 @@ public class ServicioSesion : IServicioSesion
 
         _logs.Error($"[CuentasFiscales] ERROR → HttpCode={respuesta.HttpCode} Mensaje={respuesta.Error?.Mensaje}");
 
-        await ForzarReloginAsync(respuesta.HttpCode == HttpStatusCode.Unauthorized
-            ? "Tu sesión ha expirado, por favor inicia sesión nuevamente"
-            : "Ocurrió un problema al cargar tus cuentas fiscales, intenta de nuevo");
+        await AbortarYCerrarAsync(MotivoPorHttp(respuesta.HttpCode));
     }
 
-    private void AplicarCuentasFiscales(List<Contabee.Api.Crm.AsociacionCuentaFiscalCompleta> cuentas)
+    public void AplicarCuentasFiscales(List<Contabee.Api.Crm.AsociacionCuentaFiscalCompleta> cuentas)
     {
         _appState.CuentasFiscales = cuentas;
         var actualId = _appState.CuentaFiscalActual?.CuentaFiscalId;
@@ -374,7 +378,11 @@ public class ServicioSesion : IServicioSesion
 
         _posLoginAbortado = false;
 
-        _appState.EsLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
+        var tokenLoginLess = await LeeTokenLoginLessAsync();
+        _appState.EsLoginLess = !string.IsNullOrEmpty(tokenLoginLess);
+        // Mantener el espejo síncrono en sync (auto-sana instalaciones previas que
+        // aún no tienen el flag persistido).
+        Preferences.Set(CLAVE_TIENE_TOKEN_LOGINLESS, !string.IsNullOrEmpty(tokenLoginLess));
 
         await GetPerfilAsync();
         if (_posLoginAbortado) return;
@@ -410,40 +418,49 @@ public class ServicioSesion : IServicioSesion
             bool puedeRefrescar = (esLoginLess || _appState.Recordarme) && !string.IsNullOrEmpty(await LeeRefreshTokenAsync());
             if (!puedeRefrescar)
             {
-                await ForzarReloginAsync("Tu sesión ha expirado, por favor inicia sesión nuevamente");
+                // Sin red: no forzar logout al reanudar — esperar a que vuelva la conexión.
+                var access = Connectivity.Current.NetworkAccess;
+                if (access is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
+                    return;
+
+                // Loginless sin refresh token (instalación legacy): en vez de expulsar,
+                // re-reanudamos con el token loginless para obtener un refresh token nuevo
+                // (self-heal, sin re-vincular). IntentarReanudar navega según el resultado.
+                if (esLoginLess)
+                {
+                    await IntentarReanudarLoginLessAsync();
+                    return;
+                }
+
+                // Normal sin Recordarme: expiración definitiva → cerrar sesión.
+                await AbortarYCerrarAsync(MotivoCierre.ExpiradoSinRefresh);
                 return;
             }
         }
 
-        if (!esLoginLess) return;
+        // La desactivación de asociación se detecta de forma reactiva (403 asociacion-inactiva
+        // → ManejarDesvinculacionAsync) en la primera llamada al API tras reanudar. No hace
+        // falta un chequeo proactivo aquí.
 
-        // Login-less: verificar desvinculación proactivamente al reanudar la app
-        var idAntes = _appState.CuentaFiscalActual?.CuentaFiscalId;
-        if (!idAntes.HasValue) return;
-
-        var respuesta = await _servicioCrm.GetAsociacionesFiscales();
-        if (!respuesta.Ok) return;
-
-        var cuentas = respuesta.Payload ?? [];
-        bool desvinculado = cuentas.All(c => c.CuentaFiscalId != idAntes.Value);
-        AplicarCuentasFiscales(cuentas);
-        await GetMisUsuariosAsync();
-        if (desvinculado)
-            await ProcesarDesvinculacionAsync();
+        // Recuperación de modo limitado: si el usuario está autenticado pero sin cuenta
+        // fiscal activa (asociación desactivada), al reanudar re-consultamos por si el
+        // primario ya la reactivó. Si es así, RefrescarAcceso recupera y reinicia solo.
+        if (_appState.CuentaFiscalActual is null)
+            await RefrescarAccesoAsync();
     }
 
-    public async Task ManejarDesvinculacionAsync()
+    public async Task ManejarDesvinculacionAsync(TipoAccesoPerdido tipo = TipoAccesoPerdido.Desconocido)
     {
         if (!await _desvinculacionLock.WaitAsync(0)) return;
         try
         {
-            var respuesta = await _servicioCrm.GetAsociacionesFiscales();
-            if (!respuesta.Ok) return;
+            // Cooldown: mientras el backend propaga el cambio de asociación (caché ~3 min),
+            // los endpoints de datos siguen devolviendo 403. Sin esto recargaríamos en cada
+            // 403. Solo reevaluamos una vez por ventana.
+            if (DateTime.Now - _ultimaDesvinculacion < _cooldownDesvinculacion) return;
+            _ultimaDesvinculacion = DateTime.Now;
 
-            var cuentas = respuesta.Payload ?? [];
-            AplicarCuentasFiscales(cuentas);
-            await GetMisUsuariosAsync();
-            await ProcesarDesvinculacionAsync();
+            await ProcesarDesvinculacionAsync(tipo);
         }
         finally
         {
@@ -451,72 +468,106 @@ public class ServicioSesion : IServicioSesion
         }
     }
 
-    private async Task ProcesarDesvinculacionAsync()
+    // Desactivación de asociación: el usuario SIGUE autenticado, solo perdió acceso a esa
+    // cuenta fiscal. En vez de una pantalla bloqueante, hacemos un "reinicio ligero"
+    // cubierto por PaginaCargando (para no exponer estados default/intermedios) y avisamos
+    // con un toast al terminar.
+    //   - Si quedan cuentas → AplicarCuentasFiscales selecciona la primera y carga sus datos.
+    //   - Si NO quedan cuentas → CuentaFiscalActual = null → AppShell en modo limitado.
+    private async Task ProcesarDesvinculacionAsync(TipoAccesoPerdido tipo)
+    {
+        // Overlay a pantalla completa DESDE la detección (no solo durante la recarga), para
+        // que el usuario perciba de inmediato que la app está actualizándose.
+        _appState.MostrarCargaGlobal = true;
+        try
+        {
+            var idAntes = _appState.CuentaFiscalActual?.CuentaFiscalId;
+
+            // Detección con la lista fresca. Si no se puede obtener, no hacemos nada.
+            var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+            if (!respuesta.Ok) return;
+
+            var cuentas = respuesta.Payload ?? [];
+            bool cuentaSigueActiva = idAntes.HasValue && cuentas.Any(c => c.CuentaFiscalId == idAntes.Value);
+
+            // Caché ~3 min: si la cuenta activa aún aparece, el backend no propagó el cambio.
+            // No reiniciamos (evita bucles), pero avisamos con un toast —una vez por ventana
+            // de cooldown—; cuando la lista fresca refleje el cambio, un 403 posterior recarga.
+            if (cuentaSigueActiva)
+            {
+                _ = NotificarAsync(MensajeAccesoPerdido(tipo, limitado: false));
+                return;
+            }
+
+            // La cuenta activa ya no está → recarga EN SITIO (sin pantalla negra).
+            await RecargarCuentaEnSitioAsync(cuentas);
+            if (_posLoginAbortado) return; // el token murió durante la recarga → ya se fue a Login
+
+            _ = NotificarAsync(MensajeAccesoPerdido(tipo, limitado: _appState.CuentaFiscalActual is null));
+        }
+        finally
+        {
+            _appState.MostrarCargaGlobal = false; // garantiza que el overlay se apague
+        }
+    }
+
+    // Mensaje según el motivo (desactivada vs eliminada). Si quedó en modo limitado (sin
+    // ninguna cuenta), añade la aclaración de funciones limitadas.
+    private static string MensajeAccesoPerdido(TipoAccesoPerdido tipo, bool limitado)
+    {
+        string baseMsg = tipo switch
+        {
+            TipoAccesoPerdido.Eliminada   => "Fuiste desvinculado de esta cuenta fiscal",
+            TipoAccesoPerdido.Desactivada => "Tu acceso a esta cuenta fiscal fue desactivado",
+            _                             => "Perdiste el acceso a esta cuenta fiscal"
+        };
+        return limitado ? $"{baseMsg}. Algunas funciones estarán limitadas." : baseMsg;
+    }
+
+    // Recarga la cuenta activa EN SITIO, sin pantalla negra: mismo patrón que el cambio de
+    // cuenta del selector (spinner en la barra de RFC + invalidación de listados vía
+    // EstaActualizandoCF). Selecciona la primera cuenta disponible —o null (modo limitado)
+    // si ya no queda ninguna— y refresca licencia y usuarios en paralelo. No reconstruye el
+    // AppShell (que es lo que causaba los ~3 s de pantalla en negro).
+    private async Task RecargarCuentaEnSitioAsync(List<Contabee.Api.Crm.AsociacionCuentaFiscalCompleta> cuentas)
+    {
+        AplicarCuentasFiscales(cuentas); // primera-o-null → dispara las reacciones de UI
+        _posLoginAbortado = false;
+        _appState.MostrarCargaGlobal = true;  // overlay a pantalla completa (perceptible)
+        _appState.EstaActualizandoCF = true;
+        try
+        {
+            await Task.WhenAll(GetMisUsuariosAsync(), GetLicenciaAsync());
+        }
+        catch { /* errores transitorios no deben bloquear la recarga */ }
+        _appState.EstaActualizandoCF = false; // MainTabbedPage invalida listados y recarga la pestaña
+        _appState.MostrarCargaGlobal = false;
+    }
+
+    private Task NotificarAsync(string mensaje)
     {
         var toast = _serviceProvider.GetRequiredService<IServicioToast>();
-        const string mensaje = "Has sido desvinculado de la cuenta fiscal";
-
-        if (_appState.CuentasFiscales == null || _appState.CuentasFiscales.Count == 0)
-        {
-            bool esLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
-
-            await LimpiaTokensAsync(conservarLoginLess: esLoginLess);
-            SecureStorage.Remove(CLAVE_EXPIRACION);
-            _appState.Perfil = null;
-            _appState.CuentaFiscalActual = null;
-            _appState.Licenciamiento = null;
-            _appState.MisUsuarios = null;
-            _appState.Tarjetas = [];
-
-            await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                if (esLoginLess)
-                {
-                    // La asociación pudo haber sido solo desactivada. Mostramos una
-                    // pantalla de acceso suspendido que permite reintentar (cuando se
-                    // reactive) sin perder el token loginless.
-                    var pagina = _serviceProvider.GetRequiredService<PaginaAccesoSuspendido>();
-                    Application.Current!.Windows[0].Page = new NavigationPage(pagina);
-                    await toast.MostrarAsync("Tu acceso fue desactivado", ToastIcono.Warning, ToastPosicion.Bottom);
-                }
-                else
-                {
-                    var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-                    Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-                    await toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
-                }
-            });
-        }
-        else
-        {
-            await GetLicenciaAsync();
-            await MainThread.InvokeOnMainThreadAsync(() =>
-                toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom));
-        }
+        return MainThread.InvokeOnMainThreadAsync(() =>
+            toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom));
     }
 
-    public async Task CerrarSesionAsync()
+    // Recuperación de modo limitado: re-consulta asociaciones para ver si la cuenta fiscal
+    // fue reactivada por el primario. Si vuelve a haber cuentas, recarga en sitio y devuelve
+    // true; si sigue sin cuentas, devuelve false (el llamador da feedback). Usado por el
+    // banner "Actualizar" y por el auto-rechequeo al reanudar la app.
+    public async Task<bool> RefrescarAccesoAsync()
     {
-        FiltrosDevolucionesView.LimpiarEstadoPersistido();
-        FiltrosComprobacionesView.LimpiarEstadoPersistido();
+        var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+        if (!respuesta.Ok) return false;
 
-        await LimpiaTokensAsync();
-        SecureStorage.Remove(CLAVE_EXPIRACION);
+        var cuentas = respuesta.Payload ?? [];
+        if (cuentas.Count == 0) return false; // sigue sin cuentas activas
 
-        _appState.Perfil = null;
-        _appState.CuentasFiscales = null;
-        _appState.CuentaFiscalActual = null;
-        _appState.Licenciamiento = null;
-        _appState.MisUsuarios = null;
-        _appState.Tarjetas = [];
-
-
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-        });
+        await RecargarCuentaEnSitioAsync(cuentas);
+        return !_posLoginAbortado; // false si el token murió durante la recarga
     }
+
+    public Task CerrarSesionAsync() => Coordinador.CerrarSesionAsync(MotivoCierre.LogoutManual);
 
     public async Task<bool> IntentarReanudarLoginLessAsync()
     {
@@ -524,11 +575,28 @@ public class ServicioSesion : IServicioSesion
         if (string.IsNullOrEmpty(token)) return false;
 
         var dispositivoId = await LeeIdDeDispositivo();
-        var loginR = await _servicioIdentidad.IniciarSesion(token, "Password", dispositivoId, recordarme: false);
+        // recordarme: true → solicita el scope offline_access para obtener refresh token.
+        // Un usuario loginless no tiene forma de reingresar credenciales, así que SIEMPRE
+        // debe tener refresh token (igual que en el login loginless inicial). Sin esto, al
+        // expirar el access token la sesión se cerraría sin poder refrescar.
+        var loginR = await _servicioIdentidad.IniciarSesion(token, "Password", dispositivoId, recordarme: true);
         if (!loginR.Ok || loginR.Payload is null)
         {
-            // Sigue desactivada (o el token fue revocado): permanece suspendido.
             _logs.Warn($"[LoginLess] Reanudar acceso falló. Ok={loginR.Ok} Error={loginR.Error?.Codigo}");
+
+            // Distinguir rechazo definitivo (token revocado) de fallo transitorio/sin red.
+            // Solo con señal POSITIVA de revocación y CON red se borra el token; ante
+            // cualquier ambigüedad se conserva (regla de oro — default seguro).
+            var access = Connectivity.Current.NetworkAccess;
+            bool conRed = access is NetworkAccess.Internet or NetworkAccess.ConstrainedInternet;
+            bool revocado = conRed &&
+                (loginR.Error?.Codigo?.Contains("invalid_grant", StringComparison.OrdinalIgnoreCase) ?? false);
+
+            if (revocado)
+                await Coordinador.CerrarSesionAsync(MotivoCierre.TokenRevocado);
+
+            // Transitorio/sin red o desactivación reversible: se conserva el token; el
+            // llamador decide (permanecer en acceso suspendido / cargando-offline).
             return false;
         }
 
@@ -537,16 +605,40 @@ public class ServicioSesion : IServicioSesion
         await PosLoginAsync();
         if (_posLoginAbortado) return false;
 
-        await MainThread.InvokeOnMainThreadAsync(() =>
-            Application.Current!.Windows[0].Page = _serviceProvider.GetRequiredService<AppShell>());
+        await Coordinador.NavegarAsync(DestinoNavegacion.AppShell);
+
+        // Se reanudó la sesión, pero puede seguir sin cuentas fiscales activas (la
+        // asociación aún no ha sido reactivada). En ese caso el usuario entra en modo
+        // limitado; le avisamos que su cuenta fiscal sigue inactiva.
+        if (_appState.CuentaFiscalActual is null)
+        {
+            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
+            await toast.MostrarAsync(
+                "Tu cuenta fiscal está inactiva. Algunas funciones estarán limitadas.",
+                ToastIcono.Warning, ToastPosicion.Bottom);
+        }
+
         return true;
     }
 
     public Task GuardaTokenLoginLessAsync(string token)
-        => GuardaContenidoClave(CLAVE_TOKEN_LOGINLESS, token);
+    {
+        Preferences.Set(CLAVE_TIENE_TOKEN_LOGINLESS, true);
+        return GuardaContenidoClave(CLAVE_TOKEN_LOGINLESS, token);
+    }
 
     public Task<string?> LeeTokenLoginLessAsync()
         => LeeContenidoClave(CLAVE_TOKEN_LOGINLESS);
+
+    // Borra SOLO el token loginless (sin tocar access/refresh). Se usa al iniciar sesión
+    // con una cuenta completa: el token loginless previo del dispositivo queda obsoleto.
+    public Task LimpiaTokenLoginLessAsync()
+    {
+        SecureStorage.Remove(CLAVE_TOKEN_LOGINLESS);
+        Preferences.Set(CLAVE_TIENE_TOKEN_LOGINLESS, false);
+        _appState.EsLoginLess = false;
+        return Task.CompletedTask;
+    }
 
     public async Task PostEliminarCuentaAsync()
     {
@@ -564,24 +656,8 @@ public class ServicioSesion : IServicioSesion
         // Borrar email del SecureStorage
         await LimpiaEmailAsync();
 
-        // Borrar tokens y expiración
-        await LimpiaTokensAsync();
-        SecureStorage.Remove(CLAVE_EXPIRACION);
-
-        // Limpiar todo el estado global
-        _appState.Perfil = null;
-        _appState.CuentasFiscales = null;
-        _appState.CuentaFiscalActual = null;
-        _appState.Licenciamiento = null;
-        _appState.MisUsuarios = null;
-        _appState.Tarjetas = [];
-
-        // Navegar al login
-        await MainThread.InvokeOnMainThreadAsync(() =>
-        {
-            var paginaLogin = _serviceProvider.GetRequiredService<PaginaLogin>();
-            Application.Current!.Windows[0].Page = new NavigationPage(paginaLogin);
-        });
+        // Borrar tokens (incl. loginless) + estado global + navegar a login.
+        await Coordinador.CerrarSesionAsync(MotivoCierre.CuentaEliminada);
     }
 
     // ── Helpers de mapeo TarjetaModel ↔ TarjetaUsuario (DTO de API) ───────────

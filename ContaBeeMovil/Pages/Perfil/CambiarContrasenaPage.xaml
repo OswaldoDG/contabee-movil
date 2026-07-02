@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="ContaBeeMovil.Pages.Perfil.CambiarContrasenaPage"
              BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -33,17 +34,17 @@
                            PlaceholderColor="{toolkit:AppThemeResource SecondaryText}"
                            FontSize="16"
                            TextChanged="OnCampoTextChanged" />
-                    <mi:MauiIcon x:Name="ToggleContrasenas"
+                    <Label x:Name="ToggleContrasenas"
                                  Grid.Column="1"
-                                 Icon="{mi:Material Icon=Visibility}"
-                                 IconColor="{toolkit:AppThemeResource Icon}"
-                                 IconSize="25"
+                                 Text="{x:Static f:FluentUI.eye_20_regular}" FontFamily="FluentUI"
+                                 TextColor="{toolkit:AppThemeResource Icon}"
+                                 FontSize="25"
                                  VerticalOptions="Center"
                                  BackgroundColor="Transparent">
-                        <mi:MauiIcon.GestureRecognizers>
+                        <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnToggleContrasenasClicked" />
-                        </mi:MauiIcon.GestureRecognizers>
-                    </mi:MauiIcon>
+                        </Label.GestureRecognizers>
+                    </Label>
                 </Grid>
             </Border>
 
@@ -100,10 +101,10 @@
                        Margin="0,0,0,2" />
                 <VerticalStackLayout Spacing="5" Margin="12,0,0,0">
                     <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconMin6"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="20"
+                        <Label x:Name="IconMin6"
+                                     Text="{x:Static f:FluentUI.checkmark_20_regular}" FontFamily="FluentUI"
+                                     TextColor="{toolkit:AppThemeResource Disabled}"
+                                     FontSize="20"
                                      WidthRequest="20" HeightRequest="20" />
                         <Label Text="Mínimo 6 caracteres"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
@@ -111,10 +112,10 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconMayus"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="20"
+                        <Label x:Name="IconMayus"
+                                     Text="{x:Static f:FluentUI.checkmark_20_regular}" FontFamily="FluentUI"
+                                     TextColor="{toolkit:AppThemeResource Disabled}"
+                                     FontSize="20"
                                      WidthRequest="20" HeightRequest="20" />
                         <Label Text="Una letra mayúscula"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
@@ -122,10 +123,10 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconNumero"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="20"
+                        <Label x:Name="IconNumero"
+                                     Text="{x:Static f:FluentUI.checkmark_20_regular}" FontFamily="FluentUI"
+                                     TextColor="{toolkit:AppThemeResource Disabled}"
+                                     FontSize="20"
                                      WidthRequest="18" HeightRequest="18" />
                         <Label Text="Un número"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
@@ -133,10 +134,10 @@
                     </HorizontalStackLayout>
 
                     <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
-                        <mi:MauiIcon x:Name="IconEspecial"
-                                     Icon="{mi:Material Icon=Check}"
-                                     IconColor="{toolkit:AppThemeResource Disabled}"
-                                     IconSize="20"
+                        <Label x:Name="IconEspecial"
+                                     Text="{x:Static f:FluentUI.checkmark_20_regular}" FontFamily="FluentUI"
+                                     TextColor="{toolkit:AppThemeResource Disabled}"
+                                     FontSize="20"
                                      WidthRequest="18" HeightRequest="18" />
                         <Label Text="Caracter especial (@ # $ %)"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"

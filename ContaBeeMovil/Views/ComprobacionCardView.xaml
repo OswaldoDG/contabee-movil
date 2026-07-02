@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
+             xmlns:f="clr-namespace:Fonts"
              xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
              x:Class="ContaBeeMovil.Views.ComprobacionCardView">
 
@@ -27,10 +28,10 @@
                        Style="{StaticResource Body2Strong}"
                        HorizontalOptions="Center"
                        VerticalOptions="Center" />
-                <mi:MauiIcon Grid.Row="1"
-                             Icon="{mi:Material Icon=FileDownload}"
-                             IconSize="20"
-                             IconColor="{toolkit:AppThemeResource Disabled}"
+                <Label Grid.Row="1"
+                             Text="{x:Static f:FluentUI.arrow_download_20_regular}" FontFamily="FluentUI"
+                             FontSize="20"
+                             TextColor="{toolkit:AppThemeResource Disabled}"
                              HorizontalOptions="Center"
                              VerticalOptions="Center"
                              IsEnabled="False"

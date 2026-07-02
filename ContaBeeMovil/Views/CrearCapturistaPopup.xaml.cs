@@ -40,7 +40,7 @@ public partial class CrearCapturistaPopup : Popup
         _mostrarContrasenas = !_mostrarContrasenas;
         EntryPassword.IsPassword = !_mostrarContrasenas;
         EntryConfirm.IsPassword = !_mostrarContrasenas;
-        ToggleContrasenas.Icon(_mostrarContrasenas ? MaterialIcons.VisibilityOff : MaterialIcons.Visibility);
+        ToggleContrasenas.Text = _mostrarContrasenas ? FluentUI.eye_off_20_regular : FluentUI.eye_20_regular;
     }
 
     private void ActualizarReglas()
@@ -49,10 +49,10 @@ public partial class CrearCapturistaPopup : Popup
         var success = UIHelpers.GetColor("Primary");
         var disabled = UIHelpers.GetColor("Disabled");
 
-        IconMin6.IconColor     = pwd.Length >= 6 ? success : disabled;
-        IconMayus.IconColor    = pwd.Any(char.IsUpper) ? success : disabled;
-        IconNumero.IconColor   = pwd.Any(char.IsDigit) ? success : disabled;
-        IconEspecial.IconColor = Regex.IsMatch(pwd, @"[@$%&._#]") ? success : disabled;
+        IconMin6.TextColor     = pwd.Length >= 6 ? success : disabled;
+        IconMayus.TextColor    = pwd.Any(char.IsUpper) ? success : disabled;
+        IconNumero.TextColor   = pwd.Any(char.IsDigit) ? success : disabled;
+        IconEspecial.TextColor = Regex.IsMatch(pwd, @"[@$%&._#]") ? success : disabled;
     }
 
     private void ActualizarErrorCoincidencia()

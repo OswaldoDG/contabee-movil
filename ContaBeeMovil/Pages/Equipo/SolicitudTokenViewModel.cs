@@ -271,7 +271,7 @@ public class SolicitudTokenViewModel : INotifyPropertyChanged
 
             _logs.Info("[SinSesion] Iniciando sesión con token LoginLess.");
             var loginR = await _servicioIdentidad.IniciarSesion(
-                loginlessToken, "Password", dispositivoId, recordarme: false);
+                loginlessToken, "Password", dispositivoId, recordarme: true);
 
             _logs.Info($"[SinSesion] IniciarSesion. Ok={loginR.Ok} Error={loginR.Error?.Codigo} - {loginR.Error?.Mensaje}");
             if (!loginR.Ok || loginR.Payload is null)

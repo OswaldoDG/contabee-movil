@@ -194,7 +194,10 @@ public partial class PaginaComprobaciones : ContentPage
 
         if (AppState.Instance.CuentaFiscalActual is null)
         {
-            await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
+            // Sin cuenta seleccionada: solo ofrecemos el selector si hay cuentas. En modo
+            // limitado (0 cuentas) no hay nada que elegir → no abrimos un popup vacío.
+            if (AppState.Instance.CuentasFiscales is { Count: > 0 })
+                await this.ShowPopupAsync(new CuentaFiscalSelectorPopup());
             return;
         }
 
@@ -250,6 +253,18 @@ public partial class PaginaComprobaciones : ContentPage
         catch (ApiException ex)
         {
             _logs.Log($"[PaginaComprobaciones] ApiException Status={ex.StatusCode} Body={ex.Response}");
+
+            // Asociación desactivada/eliminada (403): el CoordinadorSesion ya reconcilia la
+            // sesión (recarga → modo limitado / cambia de cuenta) y avisa con toast. Aquí
+            // solo dejamos el listado vacío; NO mostramos el error genérico.
+            if (CodigosErrorApi.EsAsociacionInactiva((System.Net.HttpStatusCode)ex.StatusCode, ex.Response))
+            {
+                Elementos = [];
+                TotalEncontrados = 0;
+                ConsultaEjecutada = true;
+                return;
+            }
+
             await _servicioAlerta.MostrarAsync(
                 "Error",
                 !string.IsNullOrWhiteSpace(ex.Response)
@@ -356,8 +371,13 @@ public partial class PaginaComprobaciones : ContentPage
             if (!respuesta.Ok)
             {
                 MostrarOverlayCarga = false;
-                var sinCreditos = respuesta.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired
-                               || respuesta.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
+
+                // Asociación desactivada/eliminada (403): el CoordinadorSesion reconcilia la
+                // sesión y avisa con toast. Aquí solo salimos (NO mostramos "sin créditos").
+                if (CodigosErrorApi.EsAsociacionInactiva(respuesta.Error?.HttpCode, respuesta.Error?.Mensaje))
+                    return;
+
+                var sinCreditos = respuesta.Error?.HttpCode == System.Net.HttpStatusCode.PaymentRequired;
                 var irATienda = await _servicioAlerta.MostrarAsync(
                     sinCreditos ? "Sin créditos" : "Error",
                     sinCreditos
@@ -479,9 +499,17 @@ public partial class PaginaComprobaciones : ContentPage
 
     private List<(Guid UsuarioId, string Nombre)> ObtenerDestinatarios()
     {
+        var cuentaFiscalActual = AppState.Instance.CuentaFiscalActual;
+
+        bool esLoginLessSecundario = AppState.Instance.EsLoginLess
+            && cuentaFiscalActual?.TipoCuenta == Contabee.Api.Crm.TipoCuenta.Secundaria;
+
         var usuarios = (AppState.Instance.MisUsuarios ?? [])
-            .Where(u => u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura
-                        && u.Estado == Contabee.Api.Identidad.EstadoCuenta.Activo)
+            .Where(u => esLoginLessSecundario
+                ? u.Id == cuentaFiscalActual!.UsuarioId
+                : u.TipoCuenta != Contabee.Api.Identidad.TipoCuentaUsuario.UsuarioCaptura
+                  && u.Estado == Contabee.Api.Identidad.EstadoCuenta.Activo
+                  && u.AsociacionActiva)
             .ToList();
 
         return usuarios
@@ -491,8 +519,9 @@ public partial class PaginaComprobaciones : ContentPage
                 if (nombre.Contains('@'))
                     nombre = nombre[..nombre.IndexOf('@')];
 
-                var esSesion = _emailSesion != null
-                    && string.Equals(u.Email, _emailSesion, StringComparison.OrdinalIgnoreCase);
+                var esSesion = esLoginLessSecundario
+                    || (_emailSesion != null
+                        && string.Equals(u.Email, _emailSesion, StringComparison.OrdinalIgnoreCase));
 
                 var etiqueta = esSesion
                     ? $"{nombre} (Yo)"

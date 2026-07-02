@@ -16,6 +16,7 @@ public interface IServicioSesion
     Task<DateTime?> LeeExpiracionAsync();
     Task GetPerfilAsync();
     Task GetAsociacionesFiscalesAsync();
+    void AplicarCuentasFiscales(List<Contabee.Api.Crm.AsociacionCuentaFiscalCompleta> cuentas);
     Task GetLicenciaAsync();
     Task GetMisUsuariosAsync();
     Task GetTarjetasAsync();
@@ -23,9 +24,11 @@ public interface IServicioSesion
     Task PosLoginAsync();
     Task VerificarSesionAlReanudarAsync();
     Task CerrarSesionAsync();
-    Task ManejarDesvinculacionAsync();
+    Task ManejarDesvinculacionAsync(TipoAccesoPerdido tipo = TipoAccesoPerdido.Desconocido);
+    Task<bool> RefrescarAccesoAsync();
     Task PostEliminarCuentaAsync();
     Task GuardaTokenLoginLessAsync(string token);
     Task<string?> LeeTokenLoginLessAsync();
+    Task LimpiaTokenLoginLessAsync();
     Task<bool> IntentarReanudarLoginLessAsync();
 }
