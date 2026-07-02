@@ -26,6 +26,7 @@ public interface IServicioSesion
     Task CerrarSesionAsync();
     Task ManejarDesvinculacionAsync(TipoAccesoPerdido tipo = TipoAccesoPerdido.Desconocido);
     Task<bool> RefrescarAccesoAsync();
+    Task<bool> RefrescarCuentasFiscalesAsync();
     Task PostEliminarCuentaAsync();
     Task GuardaTokenLoginLessAsync(string token);
     Task<string?> LeeTokenLoginLessAsync();

@@ -567,6 +567,34 @@ public class ServicioSesion : IServicioSesion
         return !_posLoginAbortado; // false si el token murió durante la recarga
     }
 
+    // Refresco manual de la lista de cuentas (botón "refrescar" del selector). Reconcilia la
+    // selección con las mismas reglas que AplicarCuentasFiscales:
+    //   - si la lista nueva contiene la seleccionada → se conserva (versión fresca del server);
+    //   - si NO la contiene → se selecciona la primera de la lista;
+    //   - si la lista queda vacía → null (modo limitado).
+    // Solo si la selección CAMBIÓ recarga licencia/usuarios y refresca los listados (igual que
+    // un cambio de cuenta); si sigue siendo la misma, no hace nada más. Devuelve true si obtuvo
+    // la lista; false ante error/sin red (no expulsa: es una acción manual reintentable).
+    public async Task<bool> RefrescarCuentasFiscalesAsync()
+    {
+        var respuesta = await _servicioCrm.GetAsociacionesFiscales();
+        if (!respuesta.Ok) return false;
+
+        var cuentas = respuesta.Payload ?? [];
+        var idAntes = _appState.CuentaFiscalActual?.CuentaFiscalId;
+
+        AplicarCuentasFiscales(cuentas); // aplica las validaciones de selección
+
+        if (idAntes != _appState.CuentaFiscalActual?.CuentaFiscalId)
+        {
+            _appState.EstaActualizandoCF = true;
+            try { await Task.WhenAll(GetMisUsuariosAsync(), GetLicenciaAsync()); }
+            catch { /* errores transitorios no deben bloquear el refresco */ }
+            _appState.EstaActualizandoCF = false;
+        }
+        return true;
+    }
+
     public Task CerrarSesionAsync() => Coordinador.CerrarSesionAsync(MotivoCierre.LogoutManual);
 
     public async Task<bool> IntentarReanudarLoginLessAsync()

@@ -38,7 +38,7 @@ El modelo de negocio se basa en **créditos**. Cada crédito habilita un flujo d
 | In-App Billing | Plugin.InAppBilling 10.0.0 |
 | Serialización | Newtonsoft.Json 13.0.4 |
 | Imágenes | SkiaSharp 3.119.2 |
-| Íconos | MauiIcons (Material + FontAwesome) |
+| Íconos | **FluentUI** (preferido, `Resources/Fonts/FluentUI.cs`) + MauiIcons (Material + FontAwesome) |
 | API clients | NSwag (auto-generados en `Contabee.Api/`) |
 | Auth | JWT + refresh via `AuthHandler.cs` (HTTP message handler) |
 
@@ -72,6 +72,18 @@ El modelo de negocio se basa en **créditos**. Cada crédito habilita un flujo d
 - No hay carpeta `ViewModels/` — el code-behind actúa como ViewModel o usa CommunityToolkit.Mvvm directamente
 - Popups viven en `Views/` y usan `CommunityToolkit.Maui` popups
 - `AppState` — singleton de estado global (`EsDev`, `EsLoginLess`)
+- **Íconos: prioriza SIEMPRE FluentUI.** Al agregar cualquier ícono usa la fuente FluentUI antes que Material/FontAwesome u otros sets. Solo recurre a otro set si el glifo no existe en FluentUI.
+
+```xml
+<!-- namespace en la raíz del XAML -->
+xmlns:f="clr-namespace:Fonts"
+
+<!-- uso: FontFamily="FluentUI" + glifo como constante -->
+<Label Text="{x:Static f:FluentUI.arrow_clockwise_20_regular}"
+       FontFamily="FluentUI" FontSize="20" />
+```
+
+Glifos en `Resources/Fonts/FluentUI.cs` (regular) y `FluentUIFilled.cs` (filled, `FontFamily="FluentUIFilled"`). Nombres tipo `arrow_clockwise_20_regular`, `chevron_left_20_regular`, etc.
 
 ---
 

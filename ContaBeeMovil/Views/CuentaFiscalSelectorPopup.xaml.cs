@@ -4,17 +4,55 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ContaBeeMovil.Views;
 
 public partial class CuentaFiscalSelectorPopup : Popup
 {
+    private bool _refrescando;
+
     public CuentaFiscalSelectorPopup()
     {
         InitializeComponent();
         ActualizarToggle();
         ConstruirLista();
+    }
+
+    // Refresco manual: re-consulta las asociaciones y reconcilia la selección (conserva la
+    // seleccionada si sigue en la lista, si no toma la primera, si no queda ninguna → modo
+    // limitado). Luego reconstruye la lista del popup con los datos frescos.
+    private async void OnRefrescar(object? sender, TappedEventArgs e)
+    {
+        if (_refrescando) return;
+        _refrescando = true;
+        IconoRefrescar.IsVisible = false;
+        SpinnerRefrescar.IsVisible = true;
+
+        try
+        {
+            var sesion = IPlatformApplication.Current?.Services.GetRequiredService<IServicioSesion>();
+            bool ok = sesion is not null && await sesion.RefrescarCuentasFiscalesAsync();
+
+            if (ok)
+                ConstruirLista();
+            else
+                await MostrarToastAsync("No se pudo actualizar. Revisa tu conexión.");
+        }
+        finally
+        {
+            SpinnerRefrescar.IsVisible = false;
+            IconoRefrescar.IsVisible = true;
+            _refrescando = false;
+        }
+    }
+
+    private static async Task MostrarToastAsync(string mensaje)
+    {
+        var toast = IPlatformApplication.Current?.Services.GetService<IServicioToast>();
+        if (toast is not null)
+            await toast.MostrarAsync(mensaje, ToastIcono.Error);
     }
 
     private string GetTextoDisplay(AsociacionCuentaFiscalCompleta cuenta)

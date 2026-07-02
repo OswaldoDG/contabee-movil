@@ -2,6 +2,7 @@
 <toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
                xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
                xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:f="clr-namespace:Fonts"
                x:Class="ContaBeeMovil.Views.CuentaFiscalSelectorPopup"
                CanBeDismissedByTappingOutsideOfPopup="True"
                Background="Transparent" >
@@ -17,10 +18,37 @@
 
         <VerticalStackLayout Spacing="20">
 
-            <Label Text="Cuenta fiscal"
-                   HorizontalOptions="Center"
-                   FontSize="20"
-                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            <Grid>
+                <Label Text="Cuenta fiscal"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       FontSize="20"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <Grid HorizontalOptions="End"
+                      VerticalOptions="Center"
+                      WidthRequest="32"
+                      HeightRequest="32">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRefrescar" />
+                    </Grid.GestureRecognizers>
+                    <Label x:Name="IconoRefrescar"
+                           Text="{x:Static f:FluentUIFilled.arrow_clockwise_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="25"
+                           TextColor="{toolkit:AppThemeResource Icon}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                    <ActivityIndicator x:Name="SpinnerRefrescar"
+                                       IsVisible="False"
+                                       IsRunning="True"
+                                       Color="{toolkit:AppThemeResource Primary}"
+                                       WidthRequest="20"
+                                       HeightRequest="20"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                </Grid>
+            </Grid>
 
             <Border BackgroundColor="{toolkit:AppThemeResource Alternate}"
                     Stroke="Transparent"

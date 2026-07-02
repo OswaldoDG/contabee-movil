@@ -148,11 +148,6 @@ public class AuthHandler : DelegatingHandler
                         System.Text.Encoding.UTF8,
                         response.Content.Headers.ContentType?.MediaType ?? "application/json");
 
-                    // DIAGNÓSTICO: registrar el body crudo de toda respuesta no-exitosa para
-                    // verificar qué manda el backend (p.ej. diferenciar asociación desactivada
-                    // vs eliminada en el 403).
-                    Logs.Info($"[AuthHandler] {(int)response.StatusCode} {request.Method} {path} — Body: {(string.IsNullOrEmpty(body) ? "(vacío)" : body)}");
-
                     // Punto único de manejo de respuestas no-exitosas: el coordinador
                     // decide (403 = asociación desactivada, o mensaje legacy en el body).
                     // Fire-and-forget: la respuesta se devuelve al llamador de inmediato.
