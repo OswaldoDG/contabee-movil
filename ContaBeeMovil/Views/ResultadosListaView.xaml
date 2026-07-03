@@ -98,8 +98,8 @@
                         <!-- Botón página siguiente -->
                         <Border x:Name="BtnSiguiente"
                                 StrokeShape="RoundRectangle 20"
-                                HeightRequest="44"
-                                WidthRequest="44"
+                                HeightRequest="40"
+                                WidthRequest="40"
                                 StrokeThickness="2"
                                 Stroke="{toolkit:AppThemeResource PrimaryText}"
                                 BackgroundColor="Transparent"
