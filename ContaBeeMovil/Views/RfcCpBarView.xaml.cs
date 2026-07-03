@@ -1,6 +1,7 @@
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using Contabee.Api.Crm;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
@@ -86,7 +87,7 @@ public partial class RfcCpBarView : ContentView
         if (AppState.Instance.MostrarNombreFiscal)
         {
             var nombre = cuenta.CuentaFiscal?.Nombre;
-            return string.IsNullOrWhiteSpace(nombre) ? "?" : nombre;
+            return string.IsNullOrWhiteSpace(nombre) ? "?" : UIHelpers.ToPascalCase(nombre);
         }
         return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;
     }

@@ -60,7 +60,7 @@ public partial class CuentaFiscalSelectorPopup : Popup
         if (AppState.Instance.MostrarNombreFiscal)
         {
             var nombre = cuenta.CuentaFiscal?.Nombre;
-            return string.IsNullOrWhiteSpace(nombre) ? "?" : nombre;
+            return string.IsNullOrWhiteSpace(nombre) ? "?" : UIHelpers.ToPascalCase(nombre);
         }
         return string.IsNullOrWhiteSpace(cuenta.Rfc) ? "?" : cuenta.Rfc;
     }

@@ -5,6 +5,20 @@ namespace ContaBeeMovil.Helpers;
 
 public static class UIHelpers
 {
+    private static readonly System.Globalization.CultureInfo _culturaEs = new("es-MX");
+
+    /// <summary>
+    /// Convierte un texto (típicamente en MAYÚSCULAS del SAT) a PascalCase/Title Case:
+    /// primera letra de cada palabra en mayúscula y el resto en minúscula.
+    /// Ej: "JUAN PÉREZ GARCÍA" → "Juan Pérez García".
+    /// </summary>
+    public static string ToPascalCase(string? texto)
+    {
+        if (string.IsNullOrWhiteSpace(texto)) return texto ?? string.Empty;
+        // ToTitleCase deja intactas las palabras ya en MAYÚSCULAS, por eso se baja a minúsculas primero.
+        return _culturaEs.TextInfo.ToTitleCase(texto.ToLower(_culturaEs));
+    }
+
     public static Color GetColor(string key)
     {
         if (Application.Current?.Resources.TryGetValue(key, out var value) == true)

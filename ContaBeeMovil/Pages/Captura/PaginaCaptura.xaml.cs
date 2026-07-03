@@ -60,7 +60,6 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
         EnviarCommand           = new Command(async () => await EnviarAsync());
         CancelarCommand         = new Command(async () => await CancelarAsync());
-        IrAgregarTarjetaCommand = new Command(async () => await Shell.Current.GoToAsync(nameof(TarjetasPage)));
 
         InitializeComponent();
 
@@ -259,14 +258,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private FormaPago? _formaPagoSeleccionada;
 
     public bool MostrarTarjetas          => _formaPagoSeleccionada?.Codigo is "4" or "28";
-    public bool MostrarSelectorTarjeta   => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) > 0;
-    public bool MostrarBotonAgregarTarjeta => MostrarTarjetas && (AppState.Instance.Tarjetas?.Count ?? 0) == 0;
+    // El selector siempre se muestra cuando la forma de pago requiere tarjeta:
+    // incluye "Sin tarjeta" como primera opción además de las tarjetas registradas.
+    public bool MostrarSelectorTarjeta   => MostrarTarjetas;
 
+    // La tarjeta ya no es obligatoria: el usuario puede elegir "Sin tarjeta".
     public bool PuedeEnviar =>
         TieneCapturas &&
         _formaPagoSeleccionada is not null &&
-        _usoCfdiSeleccionado is not null &&
-        (!MostrarTarjetas || _tarjetaSeleccionada is not null);
+        _usoCfdiSeleccionado is not null;
 
     // ── Evidencias ───────────────────────────────────────────────────────────
 
@@ -334,7 +334,22 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Tarjetas ─────────────────────────────────────────────────────────────
 
+    private const string SinTarjetaLabel = "Sin especificar tarjeta";
+
     private TarjetaModel? _tarjetaSeleccionada;
+
+    // El dropdown de tarjetas lleva "Sin tarjeta" en el índice 0 y las tarjetas
+    // registradas a partir del índice 1.
+    private static List<string> ConstruirElementosTarjeta(IReadOnlyList<TarjetaModel> tarjetas)
+    {
+        var elementos = new List<string> { SinTarjetaLabel };
+        elementos.AddRange(tarjetas.Select(t => t.DisplayLabel));
+        return elementos;
+    }
+
+    // Índice del dropdown → tarjeta (índice 0 = "Sin tarjeta" → null).
+    private static TarjetaModel? TarjetaDesdeIndice(IReadOnlyList<TarjetaModel> tarjetas, int indice)
+        => indice >= 1 && indice - 1 < tarjetas.Count ? tarjetas[indice - 1] : null;
 
     // ── Uso CFDI ─────────────────────────────────────────────────────────────
 
@@ -529,7 +544,6 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public ICommand EliminarCapturaCommand  { get; }
     public ICommand EnviarCommand           { get; }
     public ICommand CancelarCommand         { get; }
-    public ICommand IrAgregarTarjetaCommand { get; }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
@@ -562,14 +576,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 _formaPagoSeleccionada = FormasPago[idx];
                 SelectorFormaPago.IndiceSeleccionado = idx;
                 var tarjetas = AppState.Instance.Tarjetas ?? [];
-                SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+                SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
                 OnPropertyChanged(nameof(MostrarTarjetas));
                 OnPropertyChanged(nameof(MostrarSelectorTarjeta));
-                OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
 
-                // Tarjeta (sólo si la forma de pago seleccionada la requiere)
+                // Tarjeta (sólo si la forma de pago seleccionada la requiere).
+                // Por defecto "Sin tarjeta" (índice 0); si hay una guardada, la restaura.
                 if (MostrarTarjetas)
                 {
+                    SelectorTarjeta.IndiceSeleccionado = 0;
                     var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
                     if (!string.IsNullOrEmpty(tarjetaId))
                     {
@@ -577,7 +592,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                         if (tIdx >= 0)
                         {
                             _tarjetaSeleccionada = tarjetas[tIdx];
-                            SelectorTarjeta.IndiceSeleccionado = tIdx;
+                            SelectorTarjeta.IndiceSeleccionado = tIdx + 1;
                         }
                     }
                 }
@@ -600,11 +615,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void RefrescarTarjetas()
     {
         var tarjetas = AppState.Instance.Tarjetas ?? [];
-        SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+        SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
 
-        // Intentar mantener la tarjeta guardada en la lista actualizada
+        // Por defecto "Sin tarjeta" (índice 0); si hay una guardada, mantenerla.
         _tarjetaSeleccionada = null;
-        SelectorTarjeta.IndiceSeleccionado = -1;
+        SelectorTarjeta.IndiceSeleccionado = MostrarTarjetas ? 0 : -1;
         if (MostrarTarjetas)
         {
             var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
@@ -614,13 +629,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 if (idx >= 0)
                 {
                     _tarjetaSeleccionada = tarjetas[idx];
-                    SelectorTarjeta.IndiceSeleccionado = idx;
+                    SelectorTarjeta.IndiceSeleccionado = idx + 1;
                 }
             }
         }
 
         OnPropertyChanged(nameof(MostrarSelectorTarjeta));
-        OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
         OnPropertyChanged(nameof(PuedeEnviar));
     }
 
@@ -657,16 +671,16 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             Preferences.Default.Set(PrefFormaPago, _formaPagoSeleccionada.Codigo);
 
         var tarjetas = AppState.Instance.Tarjetas ?? [];
-        SelectorTarjeta.Elementos = tarjetas.Select(t => t.DisplayLabel).ToList();
+        SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
         _tarjetaSeleccionada = null;
         SelectorTarjeta.IndiceSeleccionado = -1;
         OnPropertyChanged(nameof(MostrarTarjetas));
         OnPropertyChanged(nameof(MostrarSelectorTarjeta));
-        OnPropertyChanged(nameof(MostrarBotonAgregarTarjeta));
 
         if (MostrarTarjetas)
         {
-            // Restaurar la tarjeta guardada si aplica para este tipo de pago
+            // Por defecto "Sin tarjeta"; restaurar la tarjeta guardada si aplica.
+            SelectorTarjeta.IndiceSeleccionado = 0;
             var tarjetaId = Preferences.Default.Get(PrefTarjeta, string.Empty);
             if (!string.IsNullOrEmpty(tarjetaId))
             {
@@ -674,7 +688,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 if (tIdx >= 0)
                 {
                     _tarjetaSeleccionada = tarjetas[tIdx];
-                    SelectorTarjeta.IndiceSeleccionado = tIdx;
+                    SelectorTarjeta.IndiceSeleccionado = tIdx + 1;
                 }
             }
         }
@@ -690,9 +704,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void OnTarjetaCambiada(object? sender, int indice)
     {
         var tarjetas = AppState.Instance.Tarjetas ?? [];
-        _tarjetaSeleccionada = indice >= 0 && indice < tarjetas.Count ? tarjetas[indice] : null;
+        _tarjetaSeleccionada = TarjetaDesdeIndice(tarjetas, indice);
         if (_tarjetaSeleccionada is not null)
             Preferences.Default.Set(PrefTarjeta, _tarjetaSeleccionada.Id);
+        else
+            Preferences.Default.Remove(PrefTarjeta); // "Sin tarjeta" → no recordar tarjeta
         OnPropertyChanged(nameof(PuedeEnviar));
     }
 
@@ -772,15 +788,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             return;
         }
 
+        // La tarjeta es opcional: si el usuario elige "Sin tarjeta" (índice 0) o no
+        // tiene tarjetas registradas, se envía "0000" como terminación del medio de pago.
         var requiereTarjeta = formaPago.Codigo is "4" or "28";
         var tarjetas = AppState.Instance.Tarjetas ?? [];
-        var idxT = SelectorTarjeta.IndiceSeleccionado;
-        var tarjeta = requiereTarjeta && idxT >= 0 && idxT < tarjetas.Count ? tarjetas[idxT] : null;
-        if (requiereTarjeta && tarjeta is null)
-        {
-            await _servicioToast.MostrarAsync("Selecciona la tarjeta.", ToastIcono.Warning, ToastPosicion.Bottom);
-            return;
-        }
+        var tarjeta = requiereTarjeta
+            ? TarjetaDesdeIndice(tarjetas, SelectorTarjeta.IndiceSeleccionado)
+            : null;
 
         var idxUso = SelectorUsoCfdi.IndiceSeleccionado;
         var usoCfdi = idxUso >= 0 && idxUso < _usoCfdiOpciones.Count ? _usoCfdiOpciones[idxUso] : null;
@@ -831,7 +845,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 Tipo = SoloEvidencia ? TipoProcesoCaptura.Evidencia : TipoCaptura,
                 ClaveUsoCfdi = usoCfdi.Codigo,
                 ClaveFormaPago = formaPago.Codigo,
-                TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
+                TerminacionMedioPago = requiereTarjeta ? (tarjeta?.UltimosDigitos ?? "0000") : string.Empty,
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
                 CapturaRemota = SoloEvidencia && CapturaRemota,

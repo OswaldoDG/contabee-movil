@@ -19,6 +19,7 @@ public partial class DireccionFiscalSelectorPopup : Popup
 
         var partes = new[] { dir.Colonia, dir.Municipio, dir.EntidadFederativa }
             .Where(v => !string.IsNullOrWhiteSpace(v) && v != "-")
+            .Select(UIHelpers.ToPascalCase)
             .ToList();
 
         return partes.Count > 0

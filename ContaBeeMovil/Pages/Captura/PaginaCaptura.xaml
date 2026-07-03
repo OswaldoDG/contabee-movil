@@ -174,28 +174,11 @@
                                                x:Name="SelectorFormaPago"
                                                Titulo="Medio Pago" />
 
-                        <!-- Tarjeta / Agregar tarjeta -->
-                        <Grid Grid.Column="1">
-                            <views:SelectorFlotante x:Name="SelectorTarjeta"
-                                                   IsVisible="{Binding MostrarSelectorTarjeta}"
-                                                   Titulo="Tarjeta" />
-                            <Border IsVisible="{Binding MostrarBotonAgregarTarjeta}"
-                                    HorizontalOptions="Fill"
-                                    BackgroundColor="{toolkit:AppThemeResource Background}"
-                                    StrokeShape="RoundRectangle 10"
-                                    StrokeThickness="1"
-                                    Stroke="{toolkit:AppThemeResource Accent1}"
-                                    Padding="0">
-                                <Button Text="+ Tarjeta"
-                                        HorizontalOptions="Fill"
-                                        Command="{Binding IrAgregarTarjetaCommand}"
-                                        FontSize="14"
-                                        FontAttributes="Bold"
-                                        BackgroundColor="Transparent"
-                                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                                        HeightRequest="44" />
-                            </Border>
-                        </Grid>
+                        <!-- Tarjeta (incluye la opción "Sin tarjeta") -->
+                        <views:SelectorFlotante Grid.Column="1"
+                                               x:Name="SelectorTarjeta"
+                                               IsVisible="{Binding MostrarSelectorTarjeta}"
+                                               Titulo="Tarjeta" />
                     </Grid>
 
                     <!-- 4+5. Uso CFDI + Desglosar IEPS -->
