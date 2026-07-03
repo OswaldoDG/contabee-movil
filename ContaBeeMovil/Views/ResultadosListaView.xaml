@@ -45,7 +45,7 @@
                 <!-- Barra de paginación -->
                 <Grid Grid.Row="1" 
                       ColumnDefinitions="*,Auto,*"
-                      Padding="12,8"
+                      Padding="10,5"
                       HorizontalOptions="Fill"
                       VerticalOptions="Center">
 
@@ -68,8 +68,8 @@
                         <!-- Botón página anterior -->
                         <Border x:Name="BtnAnterior"
                                 StrokeShape="RoundRectangle 20"
-                                HeightRequest="44"
-                                WidthRequest="44"
+                                HeightRequest="40"
+                                WidthRequest="40"
                                 StrokeThickness="2"
                                 Stroke="{toolkit:AppThemeResource PrimaryText}"
                                 BackgroundColor="Transparent"
@@ -120,7 +120,7 @@
                     <!-- Botón de cámara a la derecha -->
                     <Border x:Name="BtnCaptura"
                             Grid.Column="2"
-                            WidthRequest="44" HeightRequest="44"
+                            WidthRequest="42" HeightRequest="42"
                             StrokeShape="RoundRectangle 10"
                             StrokeThickness="0"
                             BackgroundColor="{toolkit:AppThemeResource Primary}"

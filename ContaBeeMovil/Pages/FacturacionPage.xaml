@@ -65,7 +65,7 @@
 
             <!-- FAB Captura -->
             <Border Style="{StaticResource FabBorder}"
-                    Margin="0,0,8,8">
+                    Margin="0,0,8,5">
                 <Border.Triggers>
                     <DataTrigger TargetType="Border" Binding="{Binding SinCreditos}" Value="True">
                         <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />

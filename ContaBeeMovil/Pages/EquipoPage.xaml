@@ -248,7 +248,7 @@
         <VerticalStackLayout
                              HorizontalOptions="End"
                              VerticalOptions="End"
-                             Margin="0,0,10,7"
+                             Margin="0,0,10,5"
                              Spacing="12">
 
             <!-- Sub-botones (visibles al expandir) -->
@@ -318,7 +318,7 @@
             </VerticalStackLayout>
 
             <!-- Botón FAB principal -->
-            <Border WidthRequest="50" HeightRequest="50"
+            <Border WidthRequest="48" HeightRequest="48"
                     StrokeShape="RoundRectangle 10"
                     StrokeThickness="0"
                     BackgroundColor="{toolkit:AppThemeResource Primary}"
@@ -329,14 +329,15 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ToggleFabCommand}" />
                 </Border.GestureRecognizers>
+                
                 <Grid>
-                    <Label Text="{x:Static f:FluentUI.add_20_regular}" FontFamily="FluentUI"
+                                 <Label Text="{x:Static f:FluentUIFilled.add_20_filled}" FontFamily="FluentUIFilled"
                                  FontSize="20"
                                  TextColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabColapsado}"
                                  HorizontalOptions="Center"
                                  VerticalOptions="Center" />
-                    <Label Text="{x:Static f:FluentUI.chevron_down_20_regular}" FontFamily="FluentUI"
+                                <Label Text="{x:Static f:FluentUIFilled.chevron_down_20_filled}" FontFamily="FluentUIFilled"
                                  FontSize="20"
                                  TextColor="{toolkit:AppThemeResource OnPrimary}"
                                  IsVisible="{Binding FabExpandido}"
