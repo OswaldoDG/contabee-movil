@@ -23,6 +23,8 @@ using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Documento;
+using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
 using ContaBeeMovil.Services.Notifications;
@@ -55,7 +57,7 @@ namespace ContaBeeMovil
             builder.UseMauiCommunityToolkit();
             builder.ConfigureSyncfusionToolkit();
             builder.ConfigureDeviceIdProvider();
-
+            builder.UseOcr();
             builder.ConfigureMauiHandlers(handlers =>
             {
 #if ANDROID
@@ -101,6 +103,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
+            builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
             builder.Services.AddTransient<AuthHandler>();
 
 

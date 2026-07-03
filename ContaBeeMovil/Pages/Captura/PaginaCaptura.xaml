@@ -360,10 +360,16 @@
                                         <Shadow Brush="Black" Offset="0,4" Radius="5" Opacity="0.22" />
                                     </Border.Shadow>
                                     <Grid Padding="0">
-                                        <Image Source="{Binding Path, Converter={StaticResource FilePathToImageConverter}}"
+                                        <Image Source="{Binding DisplayPath, Converter={StaticResource FilePathToImageConverter}}"
                                                Aspect="AspectFill"
                                                HorizontalOptions="Fill"
-                                               VerticalOptions="Fill" />
+                                               VerticalOptions="Fill">
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=VerImagenCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
 
                                         <!-- Botón eliminar: esquina superior derecha -->
                                         <Border HorizontalOptions="End"

@@ -37,13 +37,19 @@ public class ServicioCamara : IServicioCamara
 
             var localPath = Path.Combine(FileSystem.AppDataDirectory, photo.FileName);
 
-            await using var sourceStream = await photo.OpenReadAsync();
-            await using var localStream = File.OpenWrite(localPath);
-            await sourceStream.CopyToAsync(localStream);
+            byte[] bytes;
+            await using (var sourceStream = await photo.OpenReadAsync())
+            {
+                using var ms = new MemoryStream();
+                await sourceStream.CopyToAsync(ms);
+                bytes = ms.ToArray();
+            }
 
-            var existeDespues = File.Exists(localPath);
+            bytes = NormalizarOrientacionExif(bytes, _logs);
+            File.WriteAllBytes(localPath, bytes);
+
             _logs.Log($"[ServicioCamara] AppDataDirectory={FileSystem.AppDataDirectory}");
-            _logs.Log($"[ServicioCamara] FileName={photo.FileName} | existe={existeDespues} | tamaño={new FileInfo(localPath).Length} bytes");
+            _logs.Log($"[ServicioCamara] FileName={photo.FileName} | existe={File.Exists(localPath)} | tamaño={new FileInfo(localPath).Length} bytes");
 
             return photo.FileName;
         }
@@ -53,6 +59,49 @@ public class ServicioCamara : IServicioCamara
             await _servicioAlerta.MostrarAsync("Error cámara", "No se pudo acceder a la cámara. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
             return string.Empty;
         }
+    }
+
+    private static byte[] NormalizarOrientacionExif(byte[] imageBytes, IServicioLogs? logs = null)
+    {
+        SKEncodedOrigin origen;
+        using (var ms = new MemoryStream(imageBytes))
+        using (var codec = SKCodec.Create(ms))
+        {
+            if (codec is null) return imageBytes;
+            origen = codec.EncodedOrigin;
+        }
+
+        logs?.Info($"[ServicioCamara] EXIF galería: {origen}");
+
+        if (origen is SKEncodedOrigin.Default or SKEncodedOrigin.TopLeft)
+            return imageBytes;
+
+        using var original = SKBitmap.Decode(imageBytes);
+        if (original is null) return imageBytes;
+        int grados = origen switch
+        {
+            SKEncodedOrigin.RightTop    => 90,
+            SKEncodedOrigin.BottomRight => 180,
+            SKEncodedOrigin.LeftBottom  => 270,
+            _ => 0
+        };
+
+        if (grados == 0) return imageBytes;
+
+        bool intercambiarEjes = grados is 90 or 270;
+        var info = new SKImageInfo(
+            intercambiarEjes ? original.Height : original.Width,
+            intercambiarEjes ? original.Width  : original.Height);
+
+        using var rotado = new SKBitmap(info);
+        using var canvas = new SKCanvas(rotado);
+        canvas.Translate(info.Width / 2f, info.Height / 2f);
+        canvas.RotateDegrees(grados);
+        canvas.Translate(-original.Width / 2f, -original.Height / 2f);
+        canvas.DrawBitmap(original, 0, 0);
+        using var imagen = SKImage.FromBitmap(rotado);
+        using var data   = imagen.Encode(SKEncodedImageFormat.Jpeg, 90);
+        return data.ToArray();
     }
 
     public Task<string> ProcesarImagenAsync(string imagePath)

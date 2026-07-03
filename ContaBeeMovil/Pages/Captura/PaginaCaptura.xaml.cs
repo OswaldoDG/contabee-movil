@@ -13,6 +13,7 @@ using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Documento;
 using ContaBeeMovil.Services.Notifications;
 using MauiIcons.Core;
 using MauiIcons.Material;
@@ -26,6 +27,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IServicioToast _servicioToast;
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioTranscript _servicioTranscript;
+    private readonly IServicioProcesadorDocumento _procesadorDocumento;
     private readonly IServicioLogs _logs;
 
     // ── Preferencias recordadas ──────────────────────────────────────────────
@@ -41,13 +43,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioLogs logs)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioProcesadorDocumento procesadorDocumento, IServicioLogs logs)
     {
         _servicioCamara    = servicioCamara;
         _servicioAlerta    = servicioAlerta;
         _servicioToast     = servicioToast;
         _servicioSesion    = servicioSesion;
         _servicioTranscript = servicioTranscript;
+        _procesadorDocumento = procesadorDocumento;
         _logs              = logs;
 
         FormasPago = FormaPagoProvider.GetFormasPago();
@@ -725,20 +728,30 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private async Task TomarFotoAsync()
     {
         var fileName = await _servicioCamara.TomarFotoAsync();
+
         _logs.Log($"[PaginaCaptura] TomarFoto — fileName obtenido: '{fileName}'");
         if (string.IsNullOrEmpty(fileName)) return;
 
+        await AgregarCapturaAsync(fileName);
+    }
+
+    private Task AgregarCapturaAsync(string fileName)
+    {
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
-        _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
+        _logs.Log($"[PaginaCaptura] AgregarCaptura — path: '{captura.Path}'");
+
         _capturas.Insert(0, captura);
         CapturaSeleccionada = captura;
+
         AppState.Instance.CapturasLote = [.. _capturas];
-        _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
+        _logs.Log($"[PaginaCaptura] AgregarCaptura — existe={File.Exists(captura.Path)}");
+
+        return Task.CompletedTask;
     }
 
     private async Task VerImagenAsync(CapturaLote captura)
         => await Shell.Current.GoToAsync(nameof(VisorImagenPage),
-               new Dictionary<string, object> { ["path"] = captura.Path });
+               new Dictionary<string, object> { ["path"] = captura.DisplayPath });
 
     private async Task EliminarCapturaAsync(CapturaLote captura)
     {
@@ -909,26 +922,59 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                     {
                         cantidadEnviadaLote = cantidadAEnviar;
 
-                        // ── Punto 5: Subir archivos al Blob Storage ──────────
-                        var rutas = _capturas
-                            .Reverse()
-                            .Take(cantidadAEnviar)
-                            .Select(c => c.Path)
-                            .ToList();
+                        // ── Punto 5a: Convertir fotos a PDF antes de subir ───
+                        var capturasAEnviar = _capturas.Reverse().Take(cantidadAEnviar).ToList();
+                        var rutasPdf = new List<string>();
+                        bool errorProcesamiento = false;
 
-                        var progresoBlobCallback = new Progress<double>(p =>
+                        for (int idx = 0; idx < capturasAEnviar.Count; idx++)
                         {
-                            EnviandoProgreso = 0.4 + 0.6 * p;
-                            _ = AnimarProgresoAsync((float)EnviandoProgreso);
-                        });
+                            var captura = capturasAEnviar[idx];
+                            var idxLocal = idx;
+                            var progresoPdf = new Progress<double>(p =>
+                            {
+                                double baseProgress = 0.4 + 0.3 * ((idxLocal + p) / capturasAEnviar.Count);
+                                EnviandoProgreso = baseProgress;
+                                _ = AnimarProgresoAsync((float)baseProgress);
+                            });
 
-                        var subirResult = await _servicioTranscript.SubirArchivosBlobAsync(
-                            precargaResult.Payload.SasToken, rutas, progresoBlobCallback);
+                            try
+                            {
+                                var rutaPdf = await _procesadorDocumento.ProcesarYGenerarPdfAsync(
+                                    captura.Path,
+                                    progresoPdf);
+                                captura.PdfFileName = Path.GetFileName(rutaPdf);
+                                rutasPdf.Add(rutaPdf);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logs.Error($"[Captura] Error al generar PDF para {captura.FileName}: {ex.Message}");
+                                errorProcesamiento = true;
+                                break;
+                            }
+                        }
 
-                        if (!subirResult.Ok)
-                            await _servicioToast.MostrarAsync("Ha ocurrido un error al intentar enviar su captura.", ToastIcono.Error, ToastPosicion.Bottom);
+                        if (errorProcesamiento)
+                        {
+                            await _servicioToast.MostrarAsync("Ha ocurrido un error al procesar las imágenes.", ToastIcono.Error, ToastPosicion.Bottom);
+                        }
                         else
-                            exitoso = true;
+                        {
+                            // ── Punto 5b: Subir PDFs al Blob Storage ─────────
+                            var progresoBlobCallback = new Progress<double>(p =>
+                            {
+                                EnviandoProgreso = 0.7 + 0.3 * p;
+                                _ = AnimarProgresoAsync((float)EnviandoProgreso);
+                            });
+
+                            var subirResult = await _servicioTranscript.SubirArchivosBlobAsync(
+                                precargaResult.Payload.SasToken, rutasPdf, progresoBlobCallback);
+
+                            if (!subirResult.Ok)
+                                await _servicioToast.MostrarAsync("Ha ocurrido un error al intentar enviar su captura.", ToastIcono.Error, ToastPosicion.Bottom);
+                            else
+                                exitoso = true;
+                        }
                     }
                 }
             }
@@ -950,6 +996,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             if (completarResult.Ok && exitoso)
             {
                 await Task.Delay(400); // Pausa breve para ver el 100 %
+
+                // Eliminar imágenes CV y PDFs temporales tras envío exitoso
+                foreach (var captura in _capturas)
+                {
+                    if (File.Exists(captura.Path))
+                        try { File.Delete(captura.Path); } catch { }
+
+                    if (!string.IsNullOrEmpty(captura.PdfPath) && File.Exists(captura.PdfPath))
+                        try { File.Delete(captura.PdfPath); } catch { }
+                }
+
                 AppState.Instance.CapturasLote = null;
                 _capturas.Clear();
                 CapturaSeleccionada = null;
