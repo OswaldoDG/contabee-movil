@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-07-06 — Aviso de nueva versión disponible (backend-driven)
+
+**Hecho:**
+- Nuevo `Services/ServicioActualizacion.cs` (`IServicioActualizacion`, singleton en DI): al arrancar (`App.OnStart`, fire-and-forget con delay de 3s) consulta `GET https://api.contabee.mx/api/identity/app/version-movil` y compara contra `AppInfo.Current.Version`:
+  - `< versionMinima` → popup **obligatorio** (solo botón "Actualizar").
+  - `< versionRecomendada` → popup "Ignorar / Actualizar" vía `IServicioAlerta`. "Ignorar" guarda la versión en `Preferences` (`Actualizacion_VersionIgnorada`) para no repetir el aviso de esa misma versión.
+  - "Actualizar" abre la tienda (`Launcher`): URLs del backend con fallback a Play Store / App Store (`id6761437536`).
+- Contrato de respuesta: `{ versionMinima, versionRecomendada, urlAndroid, urlIos, mensaje }` (todo opcional; `mensaje` reemplaza el texto default del popup).
+- **Fallback provisional a tiendas** mientras el backend regrese 404: iOS consulta iTunes Lookup (`itunes.apple.com/lookup?bundleId=mx.contabee.app&country=mx`, verificado funcionando — regresa 2.0.12); Android scrapea la versión del HTML de la página de Play Store (regex `[[["X.Y.Z"]]]`). El fallback solo produce aviso "amable", nunca obligatorio. El backend siempre tiene prioridad.
+
+**Decisiones tomadas:**
+- **El endpoint del backend AÚN NO EXISTE ni se deployará junto con este cambio.** El servicio falla en silencio (404/timeout/sin red/JSON inválido → no pasa nada), así que el front puede publicarse ya; cuando el back exponga el endpoint la feature se activa sola sin nueva release.
+- **Hallazgo:** la ficha de Play Store de `mx.contabee.app` regresa 404 (app no pública, probablemente en testing cerrado) → el fallback Android no hará nada hasta que la ficha sea pública; iOS sí funciona desde ya.
+- Se eligió backend-driven (no iTunes Lookup / no Play In-App Updates) para poder controlar el timing del aviso y forzar actualización cuando una versión vieja rompa contra el API.
+
+**Pendiente / próximos pasos:**
+- Implementar el endpoint en el pod identity del backend (spec entregada en la sesión: controller `[Route("app")]`, `GET version-movil`, `[AllowAnonymous]`, valores desde configuración).
+- Probar en dispositivo cuando el endpoint exista (incluye caso obligatorio).
+
+---
+
 ## 2026-06-26 — Fix: listados con datos de la cuenta fiscal anterior al cambiar de cuenta
 
 **Bug:** Al cambiar de cuenta fiscal, las pestañas de listado (Facturación, Devoluciones, Comprobaciones) seguían mostrando los resultados de la búsqueda hecha con la cuenta anterior.

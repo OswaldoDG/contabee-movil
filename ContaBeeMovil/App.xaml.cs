@@ -16,6 +16,7 @@ public partial class App : Application
     {
         base.OnStart();
         AppState.Instance.CargarDesdePreferencias();
+        _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync();
     }
 
     protected override void OnResume()
