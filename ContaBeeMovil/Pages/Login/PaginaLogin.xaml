@@ -61,6 +61,30 @@
                              VerticalOptions="Center"
                              IsEnabled="{Binding FormHabilitado}">
 
+            <!-- Banner: cuenta no activada -->
+            <Border IsVisible="{Binding CuentaNoActivada}"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1"
+                    Stroke="{toolkit:AppThemeResource Warning}"
+                    BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
+                    Padding="12,10"
+                    Margin="0,0,0,4">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUIFilled.mail_alert_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="22"
+                           TextColor="{toolkit:AppThemeResource Warning}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="1"
+                           Text="{Binding MensajeCuentaNoActivada}"
+                           Style="{StaticResource Caption1}"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           LineBreakMode="WordWrap"
+                           VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
             <!-- Correo Electronico -->
             <sf:SfTextInputLayout Hint="Correo electr&#243;nico"
                                   HasError="{Binding EmailRequerido}"
@@ -112,13 +136,13 @@
             <!-- Buttons -->
             <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                 <Button Grid.Column="0"
-                        Text="Vincularme"
-                        Command="{Binding VincularmeCommand}"
+                        Text="Reg&#237;strate"
+                        Command="{Binding IrARegistroCommand}"
                         Style="{toolkit:AppThemeResource Primary}"
-                        SemanticProperties.Description="Vincularme">
+                        SemanticProperties.Description="Reg&#237;strate">
                     <Button.ImageSource>
                         <FontImageSource FontFamily="FluentUIFilled"
-                                         Glyph="{x:Static f:FluentUIFilled.person_link_20_filled}"
+                                         Glyph="{x:Static f:FluentUIFilled.person_add_20_filled}"
                                          Color="{toolkit:AppThemeResource OnPrimary}" />
                     </Button.ImageSource>
                 </Button>
@@ -128,35 +152,32 @@
                         Style="{toolkit:AppThemeResource Primary}"
                         SemanticProperties.Description="Ingresar">
                     <Button.ImageSource>
-                        <FontImageSource FontFamily="FluentUI"
-                                         Glyph="{x:Static f:FluentUIFilled.arrow_enter_20_filled}"
+                        <FontImageSource FontFamily="FluentUIFilled"
+                                         Glyph="{x:Static f:FluentUIFilled.door_arrow_right_20_filled}"
                                          Color="{toolkit:AppThemeResource OnPrimary}" />
                     </Button.ImageSource>
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroupList>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal" />
+                                <VisualState x:Name="Disabled">
+                                    <VisualState.Setters>
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
+                                        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
+                                    </VisualState.Setters>
+                                </VisualState>
+                                <VisualState x:Name="PointerOver" />
+                            </VisualStateGroup>
+                        </VisualStateGroupList>
+                    </VisualStateManager.VisualStateGroups>
                 </Button>
 
             </Grid>
 
             <!-- Links -->
-            <VerticalStackLayout Spacing="4"
-                                 HorizontalOptions="Center"
-                                 Margin="0,4,0,0">
-
-                <HorizontalStackLayout HorizontalOptions="Center"
-                                       Spacing="4">
-                    <Label Text="&#191;No tienes cuenta?"
-                           VerticalOptions="Center"
-                           Style="{StaticResource Caption1}"
-                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                    <Label Text="Reg&#237;strate"
-                           Style="{StaticResource LinkLabel}"
-                           TextColor="{toolkit:AppThemeResource Primary}"
-                           VerticalOptions="Center">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding IrARegistroCommand}" />
-                        </Label.GestureRecognizers>
-                    </Label>
-                </HorizontalStackLayout>
-
+            <VerticalStackLayout Spacing="20"
+                                 HorizontalOptions="Fill"
+                                 Margin="0,12,0,0">
                 <HorizontalStackLayout HorizontalOptions="Center"
                                        Spacing="4">
                     <Label Text="&#191;Olvidaste tu contrase&#241;a?"
@@ -172,6 +193,41 @@
                         </Label.GestureRecognizers>
                     </Label>
                 </HorizontalStackLayout>
+
+                <!-- Vincularse a un equipo (loginless) -->
+                <!-- Grid *,2*,* => la columna central mide lo mismo que un botón del grid superior (mitad del formulario) -->
+                <Grid ColumnDefinitions="*,2*,*">
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light=#e3e3e5, Dark=#505050}"
+                        HeightRequest="48"
+                        Padding="12,0,16,0"
+                        HorizontalOptions="Center"
+                        SemanticProperties.Description="Vincular">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding VincularmeCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="10">
+                        <BoxView WidthRequest="4"
+                                 CornerRadius="2"
+                                 Color="{toolkit:AppThemeResource Primary}"
+                                 Margin="0,10"
+                                 VerticalOptions="Fill" />
+                        <Label Text="{x:Static f:FluentUIFilled.person_link_20_filled}"
+                               FontFamily="FluentUIFilled"
+                               FontSize="20"
+                               TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                               VerticalOptions="Center" />
+                        <Label Text="Vincular"
+                               FontSize="16"
+                               FontFamily="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"
+                               FontAttributes="{OnPlatform Default=None, Android=Bold}"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+                </Grid>
             </VerticalStackLayout>
         </VerticalStackLayout>
 

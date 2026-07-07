@@ -378,22 +378,29 @@
                                        LineBreakMode="WordWrap" />
                             </Grid>
 
-                            <!-- Referencia visual: botón Vincularme -->
+                            <!-- Referencia visual: botón Vincular en la pantalla de acceso -->
                             <Border StrokeShape="RoundRectangle 10"
                                     StrokeThickness="0"
-                                    BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                    Padding="14,10"
+                                    BackgroundColor="{AppThemeBinding Light=#e3e3e5, Dark=#505050}"
+                                    HeightRequest="48"
+                                    Padding="12,0,16,0"
                                     HorizontalOptions="Center"
                                     Margin="32,0,0,0">
-                                <HorizontalStackLayout Spacing="8">
+                                <HorizontalStackLayout Spacing="10">
+                                    <BoxView WidthRequest="4"
+                                             CornerRadius="2"
+                                             Color="{toolkit:AppThemeResource Primary}"
+                                             Margin="0,10"
+                                             VerticalOptions="Fill" />
                                     <Label Text="{x:Static f:FluentUIFilled.person_link_20_filled}" FontFamily="FluentUIFilled"
-                                                 FontSize="18"
-                                                 TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                                 FontSize="20"
+                                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                                  VerticalOptions="Center" />
-                                    <Label Text="Vincularme"
-                                           FontSize="14"
-                                           FontAttributes="Bold"
-                                           TextColor="{toolkit:AppThemeResource OnPrimary}"
+                                    <Label Text="Vincular"
+                                           FontSize="16"
+                                           FontFamily="{OnPlatform WinUI=SegoeSemibold, iOS=.SFUI-SemiBold, MacCatalyst=.SFUI-SemiBold, Default=''}"
+                                           FontAttributes="{OnPlatform Default=None, Android=Bold}"
+                                           TextColor="{toolkit:AppThemeResource PrimaryText}"
                                            VerticalOptions="Center" />
                                 </HorizontalStackLayout>
                             </Border>
