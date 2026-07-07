@@ -32,6 +32,8 @@ public class LoginViewModel : INotifyPropertyChanged
     private bool _passwordRequerido;
     private bool _emailTocado;
     private bool _passwordTocado;
+    private bool _cuentaNoActivada;
+    private string _emailNoActivado = string.Empty;
 
     public LoginViewModel(
         IServicioIdentidad servicioIdentidad,
@@ -82,6 +84,7 @@ public class LoginViewModel : INotifyPropertyChanged
             _emailTocado = true;
             OnPropertyChanged();
             if (_emailTocado) EmailRequerido = string.IsNullOrWhiteSpace(value);
+            ActualizarBannerCuentaNoActivada();
             ((Command)IngresarCommand).ChangeCanExecute();
         }
     }
@@ -121,6 +124,25 @@ public class LoginViewModel : INotifyPropertyChanged
         set { _passwordRequerido = value; OnPropertyChanged(); }
     }
 
+    public bool CuentaNoActivada
+    {
+        get => _cuentaNoActivada;
+        set { _cuentaNoActivada = value; OnPropertyChanged(); }
+    }
+
+    public string MensajeCuentaNoActivada =>
+        $"La cuenta {_emailNoActivado} aún no está activada. Revisa tu correo electrónico (incluyendo spam) y sigue el enlace de activación.";
+
+    /// <summary>
+    /// Muestra el banner solo cuando el email capturado coincide con el que falló por falta de activación.
+    /// </summary>
+    private void ActualizarBannerCuentaNoActivada()
+    {
+        CuentaNoActivada =
+            !string.IsNullOrEmpty(_emailNoActivado) &&
+            string.Equals(_email?.Trim(), _emailNoActivado, StringComparison.OrdinalIgnoreCase);
+    }
+
     public void LimpiarCampos()
     {
         _email = string.Empty;
@@ -133,6 +155,7 @@ public class LoginViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(Password));
         OnPropertyChanged(nameof(EmailRequerido));
         OnPropertyChanged(nameof(PasswordRequerido));
+        ActualizarBannerCuentaNoActivada();
         ((Command)IngresarCommand).ChangeCanExecute();
     }
 
@@ -203,6 +226,13 @@ public class LoginViewModel : INotifyPropertyChanged
                     mensaje = cuentaNoConfirmada
                         ? "No ha activado su cuenta, revise el correo en su teléfono incluyendo el folder de spam por favor"
                         : "El correo o la contraseña son incorrectos.";
+
+                    if (cuentaNoConfirmada)
+                    {
+                        _emailNoActivado = Email.Trim();
+                        OnPropertyChanged(nameof(MensajeCuentaNoActivada));
+                        ActualizarBannerCuentaNoActivada();
+                    }
                 }
 
                 await _toast.MostrarAsync(mensaje, ToastIcono.Warning, ToastPosicion.Bottom);
@@ -210,6 +240,10 @@ public class LoginViewModel : INotifyPropertyChanged
             }
 
             _logs.Info($"[Login] OK expires_in={resultado.Payload.ExpiresIn}s");
+
+            // Login exitoso: la cuenta ya está activada, ocultamos el banner.
+            _emailNoActivado = string.Empty;
+            CuentaNoActivada = false;
 
             await _servicioSesion.GuardaTokenAsync(
                 resultado.Payload.AccessToken,

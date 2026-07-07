@@ -80,13 +80,13 @@
         <Setter Property="FontSize"
                 Value="12" />
         <Setter Property="LineHeight"
-                Value="1.33" />
+                Value="1.38" />
         <!-- 16 -->
     </Style>
     <Style x:Key="Caption1"
            TargetType="Label">
         <Setter Property="FontSize"
-                Value="10" />
+                Value="13" />
         <!-- <Setter Property="LineHeight"
                 Value="1" /> -->
         <!-- 18 -->
