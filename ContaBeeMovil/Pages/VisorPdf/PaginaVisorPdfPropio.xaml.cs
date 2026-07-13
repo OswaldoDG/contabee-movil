@@ -192,16 +192,27 @@ public partial class PaginaVisorPdfPropio : ContentPage
             // varias veces y debe crear siempre un stream nuevo.
             var bytes = pagina.Jpeg;
 
-            var imagen = new Image
+            double altoDip = _anchoBaseDips / pagina.Aspecto;
+
+            // El tamaño se fija en el contenedor (un Grid), no en el Image: en iOS
+            // un Image con fuente asíncrona (stream) + AspectFit dentro de un stack
+            // auto-medido no respeta WidthRequest/HeightRequest —al medir la imagen
+            // aún no cargó, su tamaño intrínseco colapsa y el frame sale diminuto—.
+            // Un layout se mide de forma determinista y sí honra el tamaño; el Image
+            // lo rellena. En Android el resultado es equivalente.
+            var contenedor = new Grid
+            {
+                WidthRequest = _anchoBaseDips,
+                HeightRequest = altoDip
+            };
+            contenedor.Add(new Image
             {
                 Aspect = Aspect.AspectFit,
-                WidthRequest = _anchoBaseDips,
-                HeightRequest = _anchoBaseDips / pagina.Aspecto,
                 Source = ImageSource.FromStream(() => new MemoryStream(bytes))
-            };
-            ContenedorPaginas.Children.Add(imagen);
+            });
+            ContenedorPaginas.Children.Add(contenedor);
 
-            _altoContenidoBase += imagen.HeightRequest;
+            _altoContenidoBase += altoDip;
             if (i > 0) _altoContenidoBase += ContenedorPaginas.Spacing;
         }
 
@@ -351,9 +362,9 @@ public partial class PaginaVisorPdfPropio : ContentPage
         int actual = 1;
         for (int i = 0; i < ContenedorPaginas.Children.Count; i++)
         {
-            if (ContenedorPaginas.Children[i] is not Image imagen) continue;
+            if (ContenedorPaginas.Children[i] is not View contenedor) continue;
             if (borde <= centroContenido) actual = i + 1;
-            borde += imagen.HeightRequest + ContenedorPaginas.Spacing;
+            borde += contenedor.HeightRequest + ContenedorPaginas.Spacing;
         }
 
         PaginaLabel.Text = $"{actual} / {_paginas.Count}";

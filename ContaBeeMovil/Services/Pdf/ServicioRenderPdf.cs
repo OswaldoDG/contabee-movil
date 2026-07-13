@@ -101,11 +101,17 @@ public class ServicioRenderPdf : IServicioRenderPdf
             contexto.FillRect(new CoreGraphics.CGRect(0, 0, ancho, alto));
 
             contexto.InterpolationQuality = CoreGraphics.CGInterpolationQuality.High;
-            // GetDrawingTransform respeta el /Rotate intrínseco y mapea la
-            // página al rect destino (PDF y CGBitmapContext comparten origen
-            // abajo-izquierda: no hace falta flip manual).
+            // El escalado puntos→píxeles se hace EXPLÍCITO: GetDrawingTransform hacia
+            // un rect en píxeles no ampliaba la página (salía diminuta dentro del
+            // lienzo). Escalamos el contexto al factor de relleno y dejamos que
+            // GetDrawingTransform solo mapee la página —respetando el /Rotate
+            // intrínseco— a un rect del tamaño VISUAL EN PUNTOS (PDF y
+            // CGBitmapContext comparten origen abajo-izquierda: no hace falta flip).
+            double escala = ancho / anchoPt;   // píxeles por punto (≈ alto/altoPt)
+            contexto.ScaleCTM((nfloat)escala, (nfloat)escala);
             contexto.ConcatCTM(pagina.GetDrawingTransform(
-                CoreGraphics.CGPDFBox.Crop, new CoreGraphics.CGRect(0, 0, ancho, alto), 0, true));
+                CoreGraphics.CGPDFBox.Crop,
+                new CoreGraphics.CGRect(0, 0, anchoPt, altoPt), 0, true));
             contexto.DrawPDFPage(pagina);
 
             using var imagenCg = contexto.ToImage()
