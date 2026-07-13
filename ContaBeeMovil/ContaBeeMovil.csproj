@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.5.1</ApplicationDisplayVersion>
-		<ApplicationVersion>56</ApplicationVersion>
+		<ApplicationDisplayVersion>2.5.2</ApplicationDisplayVersion>
+		<ApplicationVersion>57</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
