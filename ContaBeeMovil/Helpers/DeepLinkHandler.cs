@@ -59,14 +59,20 @@ public static class DeepLinkHandler
     {
         Logs?.Info("[DeepLink] App lista");
         _appReady = true;
+        ProcesarLinkPendiente();
+    }
 
-        if (_pendingDeepLink != null)
-        {
-            var link = _pendingDeepLink;
-            _pendingDeepLink = null;
-            Logs?.Info($"[DeepLink] Procesando link pendiente — tipo={link.Tipo}");
-            Navegar(link);
-        }
+    // Reprocesa el link pendiente si existe. Además de NotifyAppReady, lo llama el
+    // coordinador de sesión al navegar al AppShell: así la intención del widget
+    // ("capturar ticket") se retoma después de un login en vez de descartarse.
+    public static void ProcesarLinkPendiente()
+    {
+        if (_pendingDeepLink == null) return;
+
+        var link = _pendingDeepLink;
+        _pendingDeepLink = null;
+        Logs?.Info($"[DeepLink] Procesando link pendiente — tipo={link.Tipo}");
+        Navegar(link);
     }
 
     private static void Navegar(PendingLink link)
@@ -113,14 +119,31 @@ public static class DeepLinkHandler
                 var tieneSesion = Preferences.Get("TieneSesion", false);
                 if (!tieneSesion)
                 {
-                    Logs?.Info("[DeepLink] Widget: sin sesión — se omite navegación");
+                    // Conservar la intención: el coordinador reprocesa el link pendiente
+                    // al navegar al AppShell tras el login.
+                    Logs?.Info("[DeepLink] Widget: sin sesión — se pospone hasta el login");
+                    _pendingDeepLink = new PendingLink(TipoLink.CapturaTicket, string.Empty);
                     return;
                 }
+
+                // En arranque en frío el Shell puede tardar más que un delay fijo en
+                // dispositivos lentos: esperar con reintentos en vez de descartar.
+                var intentos = 0;
+                while (Shell.Current == null && ++intentos <= 20)
+                    await Task.Delay(250);
+
                 if (Shell.Current == null)
                 {
-                    Logs?.Warn("[DeepLink] Widget: Shell.Current es null");
+                    Logs?.Warn("[DeepLink] Widget: Shell.Current es null — se descarta");
                     return;
                 }
+
+                if (Shell.Current.CurrentPage is PaginaCaptura)
+                {
+                    Logs?.Info("[DeepLink] Widget: PaginaCaptura ya visible — no se apila otra");
+                    return;
+                }
+
                 Logs?.Info("[DeepLink] Widget: navegando a PaginaCaptura");
                 await Shell.Current.GoToAsync(nameof(PaginaCaptura),
                     new Dictionary<string, object>

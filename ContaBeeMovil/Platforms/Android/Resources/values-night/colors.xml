@@ -6,8 +6,10 @@
 	<color name="colorOnPrimary">#1e1e1e</color>
 	<!-- Texto de botones del diálogo del DatePicker (tema oscuro): blanco. -->
 	<color name="colorBrand">#ffffff</color>
-	<color name="widget_bg">#1E1500</color>
-	<color name="widget_text">#FAF0D7</color>
-	<color name="widget_border">#4A3500</color>
-	<color name="widget_pill_bg">#2C2000</color>
+	<!-- Widget "Capturar ticket" — tema oscuro -->
+	<color name="widget_card_bg">#1e1e1e</color>
+	<color name="widget_card_border">#00000000</color>
+	<color name="widget_title">#fefdfc</color>
+	<color name="widget_subtitle">#b0b0b0</color>
+	<color name="widget_accent">#fec001</color>
 </resources>

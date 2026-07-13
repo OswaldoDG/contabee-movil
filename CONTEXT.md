@@ -5,6 +5,60 @@
 
 ---
 
+## 2026-07-13 — Visor PDF: overlay de descarga, título oculto y fix tamaño iOS
+
+**Hecho:**
+- Nuevo `Views/CargandoPopup` (toolkit `Popup` con spinner + scrim, `PageOverlayColor #66000000`, no descartable). En `LoteCapturaCardView.DescargarYCompartir` se muestra a pantalla completa **mientras se descarga** el archivo (se conserva además el mini-spinner del botón vía `SetBusy`), y se cierra antes de navegar al visor o abrir la hoja de compartir. Aplica a los 3 botones (PDF/XML/cámara). Cierre robusto: en `finally` best-effort, sin doble cierre.
+- `PaginaVisorPdfPropio.Titulo`: ya NO asigna `Title` (solo guarda `_nombreArchivo` para guardar/compartir). El nombre de las capturas es un número (`captura_12345.pdf`) y se veía raro en la barra superior; ahora queda vacía (se conserva el botón de regreso).
+- **Fix documento diminuto en iOS (causa raíz REAL, resuelta y verificada en dispositivo).** Tres capas, en orden de descubrimiento:
+  1. *Ancho de despliegue:* se calculaba `MainDisplayInfo.Width / Density` (en iOS `Width` viene en puntos → re-dividir por densidad dejaba ⅓ del tamaño). Ahora `_anchoBaseDips` sale del ancho REAL del lienzo vía `Lienzo.SizeChanged` + debounce (siempre DIPs); `_anchoPxObjetivo = ancho × densidad × Multiplicador` (densidad solo como nitidez). Confirmado por log: `ancho=390dips densidad=3`.
+  2. *Frame de la página:* cada página se envuelve en un `Grid` de tamaño fijo (`WidthRequest`/`HeightRequest`) y el `Image` lo rellena. En iOS un `Image` con fuente async (`FromStream`) + `AspectFit` dentro de un stack auto-medido no aplica de forma fiable su propio tamaño (el frame colapsa). `ActualizarPill` ahora itera los contenedores (`View`), no `Image`.
+  3. **La verdadera causa:** en `ServicioRenderPdf` (iOS) `GetDrawingTransform` hacia un rect **en píxeles** NO ampliaba la página → se dibujaba a ~1:1 en puntos, diminuta dentro de un lienzo grande (blanco sobre fondo blanco = parecía flotar). Fix: `ScaleCTM(ancho/anchoPt)` explícito puntos→píxeles y `GetDrawingTransform` mapea solo a un rect del tamaño visual **en puntos** (conserva el `/Rotate` intrínseco). Diagnóstico: se pintó el fondo del render de azul y se confirmó que el contenido quedaba diminuto rodeado de azul. Android intacto (su `PdfRenderer` ya escala al bitmap).
+
+**Pendiente:** probar en iOS el resto del visor (zoom/pan, rotar ±90°, multipágina/pill, restaurar); descarga lenta → overlay → visor con spinner; compartir PDF/XML; caso sin conexión.
+
+---
+
+## 2026-07-11 — Widget Android "Capturar ticket": correcciones + rediseño (2 widgets)
+
+**Correcciones al flujo** (probadas en dispositivo; flujo: widget → `MainActivity` → `DeepLinkHandler.NavegarACaptura` → `PaginaCaptura` con `tipo=FacturaIndividual`):
+- `MainActivity.HandleIntent(intent, desdeOnCreate)`: consume el extra (`RemoveExtra`, evita re-disparo al `Recreate()`) y descarta la re-entrega desde Recientes (`LaunchedFromHistory`) **solo en OnCreate** — ⚠ hallazgo: algunos launchers marcan ese flag también en taps legítimos vía `OnNewIntent`; filtrarlo ahí rompe el widget en caliente.
+- `DeepLinkHandler.NavegarACaptura`: sin sesión conserva la intención como link pendiente y `CoordinadorSesion.NavegarAsync(AppShell)` la reprocesa tras login (`ProcesarLinkPendiente()`). Espera de `Shell.Current` con reintentos (20×250ms). Guard anti-duplicados si `PaginaCaptura` ya es la página actual.
+- `FacturacionPage.TieneCreditos`: considera créditos Captura **o** Autoservicio (antes solo Captura).
+- `PaginaCaptura`: fix fuga — suscripción a `AppState.PropertyChanged` movida de lambda-en-constructor a handler en `OnAppearing`/`OnDisappearing`.
+- `PendingIntentFlags.UpdateCurrent|Immutable` unificado (minSdk 23).
+
+**Rediseño — ahora hay 2 widgets** (elegidos por el usuario de una galería dev de 6 propuestas, ya eliminada):
+- `WidgetCaptura` (3×1, redimensionable): card con logo + badge de cámara (círculo oscuro, cámara amarilla, aro blanco), "Capturar ticket" / "Toca y fotografía tu ticket", chevron. **Temática**: card blanca (values) / oscura #1e1e1e (values-night). Bloque de logo 42dp para caber en 1 celda sin recorte.
+- `WidgetCapturaCompacto` (1×1, nuevo provider): logo 48dp + badge + etiqueta "Capturar" blanca con sombra; fijo en ambos temas. Reusa `WidgetCaptura.ActualizarWidget(…, layoutId)`.
+- Recursos: `widget_card`/`widget_badge`/`ic_widget_chevron`/`ic_widget_camera` (amarillo), colores `widget_*` renovados en values/values-night, `previewLayout`+`description` en ambos providers (strings.xml).
+
+**Decisiones vigentes:**
+- Widget sin créditos → abre igual (la página muestra "Sin créditos" y bloquea envío).
+- Widget sin sesión → retoma la intención y abre captura tras el login.
+
+---
+
+## 2026-07-10 — Visor de PDF de capturas: visor PROPIO (único y definitivo)
+
+**Contexto:** esta app **solo corre en Android e iOS** (los TFM de Windows quedan solo para dev). El visor replica el de la app de escritorio: documento a pantalla completa sobre fondo oscuro (#141414) y botones flotantes cuadrados redondeados (Primary/OnPrimary, íconos **FluentUIFilled**). Historia: se probó PDF.js en HybridWebView (no funcionó en dispositivo) y `Eightbot.MauiNativePdfView` (funcionaba pero sin rotación) — **ambos eliminados**; queda solo el visor propio.
+
+**Hecho:**
+- **Visor propio** (`Pages/VisorPdf/PaginaVisorPdfPropio`, abierto desde el ícono de cámara de `LoteCapturaCardView` cuando el contenido es PDF por magic bytes `%PDF`): servicio `Services/Pdf/IServicioRenderPdf`/`ServicioRenderPdf` (singleton DI) renderiza páginas a JPEG con APIs del sistema — `android.graphics.pdf.PdfRenderer` (Android) y `CoreGraphics.CGPDFDocument` + `GetDrawingTransform` (iOS) — sin dependencias; rotación del usuario (0/90/180/270) en código compartido con SkiaSharp (patrón `NormalizarOrientacionExif`). Render a ~2.5× ancho de pantalla (tope 4096 px/lado), fondo blanco explícito, `Task.Run` + cancelación en `OnNavigatedFrom`.
+- **Interacción por transforms, sin ScrollView** (el ScrollView se comía el pinch): un `Grid` "Lienzo" opaco recibe TODOS los gestos (pinch + pan + doble tap; el contenedor de páginas es `InputTransparent` con cascade) y el zoom/paneo se aplican como `Scale`/`Translation` sobre el contenedor con clamps (`MaxTx/MaxTy`); zoom alrededor del centro (la traslación escala con el factor relativo); posición inicial = inicio del documento (`_ty = MaxTy()`).
+- Controles: zoom ± (paso 1.25, 1–4), pinch (en vivo), doble tap 1x/2x, restaurar (zoom 1 + rotación 0), rotar ±90° (re-render sub-segundo), pill "n / N" (calculada desde la traslación), descargar (`FileSaver`) y compartir (siempre el PDF original).
+- **Eliminado el visor nativo**: página `PaginaVisorPdf`, ruta, botón ⇄, paquete `Eightbot.MauiNativePdfView` y `UseMauiNativePdfView()`; **minSdk Android revertido 24 → 23** (el 24 era exigencia de los AAR de ese paquete). CLAUDE.md actualizado.
+
+**Decisiones tomadas:**
+- Visor propio elegido tras evaluación en dispositivo; los PDFs son ligeros y de resolución acotada (los genera la app: foto→PDF 1 página con OpenCV/normalización), así que re-renderizar al rotar es barato.
+- Recordatorio: capturas viejas (JPEG, pre poc/pdf) comparten en vez de abrir visor; probar con capturas recientes.
+
+**Pendiente / próximos pasos:**
+- Probar en dispositivo (equipo compila/corre; sin builds de Claude por locks de `obj\`): pinch/zoom ±/doble tap, paneo, rotar ×4, restaurar, descargar, compartir, multipágina (pill), PDF corrupto (toast+regreso), y en iOS validar el render (PDFKit/CG).
+- Si se desea, reusar el visor para el botón PDF del CFDI (`BtnPdf`): mismo bloque condicional en `DescargarYCompartir`.
+
+---
+
 ## 2026-07-06 — Aviso de nueva versión disponible (backend-driven)
 
 **Hecho:**
@@ -13,115 +67,36 @@
   - `< versionRecomendada` → popup "Ignorar / Actualizar" vía `IServicioAlerta`. "Ignorar" guarda la versión en `Preferences` (`Actualizacion_VersionIgnorada`) para no repetir el aviso de esa misma versión.
   - "Actualizar" abre la tienda (`Launcher`): URLs del backend con fallback a Play Store / App Store (`id6761437536`).
 - Contrato de respuesta: `{ versionMinima, versionRecomendada, urlAndroid, urlIos, mensaje }` (todo opcional; `mensaje` reemplaza el texto default del popup).
-- **Fallback provisional a tiendas** mientras el backend regrese 404: iOS consulta iTunes Lookup (`itunes.apple.com/lookup?bundleId=mx.contabee.app&country=mx`, verificado funcionando — regresa 2.0.12); Android scrapea la versión del HTML de la página de Play Store (regex `[[["X.Y.Z"]]]`). El fallback solo produce aviso "amable", nunca obligatorio. El backend siempre tiene prioridad.
+- **Fallback provisional a tiendas** mientras el backend regrese 404: iOS consulta iTunes Lookup (verificado funcionando); Android scrapea la versión del HTML de Play Store. El fallback solo produce aviso "amable", nunca obligatorio. El backend siempre tiene prioridad.
 
 **Decisiones tomadas:**
-- **El endpoint del backend AÚN NO EXISTE ni se deployará junto con este cambio.** El servicio falla en silencio (404/timeout/sin red/JSON inválido → no pasa nada), así que el front puede publicarse ya; cuando el back exponga el endpoint la feature se activa sola sin nueva release.
-- **Hallazgo:** la ficha de Play Store de `mx.contabee.app` regresa 404 (app no pública, probablemente en testing cerrado) → el fallback Android no hará nada hasta que la ficha sea pública; iOS sí funciona desde ya.
-- Se eligió backend-driven (no iTunes Lookup / no Play In-App Updates) para poder controlar el timing del aviso y forzar actualización cuando una versión vieja rompa contra el API.
+- **El endpoint del backend AÚN NO EXISTE ni se deployará junto con este cambio.** El servicio falla en silencio, así que el front puede publicarse ya; cuando el back exponga el endpoint la feature se activa sola sin nueva release.
+- **Hallazgo:** la ficha de Play Store de `mx.contabee.app` regresa 404 (app en testing cerrado) → el fallback Android no hará nada hasta que la ficha sea pública; iOS sí funciona desde ya.
 
 **Pendiente / próximos pasos:**
-- Implementar el endpoint en el pod identity del backend (spec entregada en la sesión: controller `[Route("app")]`, `GET version-movil`, `[AllowAnonymous]`, valores desde configuración).
+- Implementar el endpoint en el pod identity del backend (spec entregada: controller `[Route("app")]`, `GET version-movil`, `[AllowAnonymous]`, valores desde configuración).
 - Probar en dispositivo cuando el endpoint exista (incluye caso obligatorio).
 
 ---
 
 ## 2026-06-26 — Fix: listados con datos de la cuenta fiscal anterior al cambiar de cuenta
 
-**Bug:** Al cambiar de cuenta fiscal, las pestañas de listado (Facturación, Devoluciones, Comprobaciones) seguían mostrando los resultados de la búsqueda hecha con la cuenta anterior.
-
-**Causa:** Las páginas de listado son singletons embebidos en `MainTabbedPage` (swap de `Content`, nunca se destruyen) y cachean sus resultados (`Elementos`, `_ultimaBusqueda`, `ConsultaEjecutada`). El selector de cuenta vive en el header global (`RfcCpBarView`). Al cambiar de cuenta se refrescaban licencia/usuarios/dashboard/filtros, pero **ninguna página de listado invalidaba su caché**, y `OnTabActivated` solo recarga si hay flag `PendienteActualizar*`.
+**Bug:** Al cambiar de cuenta fiscal, las pestañas de listado (Facturación, Devoluciones, Comprobaciones) seguían mostrando los resultados de la cuenta anterior (son singletons embebidos en `MainTabbedPage` que cachean resultados).
 
 **Hecho:**
-- `MainTabbedPage`: reacciona a la transición de `AppState.EstaActualizandoCF` `true → false` (`OnEstadoActualizacionCFCambiado` → `RefrescarListadosPorCambioDeCuenta`). Invalida el caché de las 3 páginas y reactiva la pestaña visible (`ActivarTabActual`) para recarga inmediata.
-- `FacturacionPage`, `PaginaDevoluciones`, `PaginaComprobaciones`: nuevo método público `InvalidarConsulta()` que limpia resultados/paginación/`_ultimaBusqueda`, baja `ConsultaEjecutada` y activa el flag `PendienteActualizar*`.
+- `MainTabbedPage`: reacciona a la transición de `AppState.EstaActualizandoCF` `true → false` → invalida el caché de las 3 páginas (`InvalidarConsulta()`) y reactiva la pestaña visible.
 
 **Decisiones tomadas:**
-- Se escucha `EstaActualizandoCF` (no `CuentaFiscalActual`) para evitar una carrera: `CuentaFiscalActual` cambia *antes* de refrescar licencia/usuarios; recargar ahí resolvería nombres con la lista de usuarios vieja. La transición a `false` garantiza datos consistentes.
-- Pestaña visible recarga al instante; las inactivas recargan al activarse (sin queries de red de más). El Dashboard ya estaba cubierto por su propia suscripción a `CuentaFiscalActual`.
-## 2026-06-25 — Acceso suspendido loginless (desactivar/reactivar asociación)
-
-**Problema:** Al desactivar una asociación (reversible), el backend devuelve 403 `"no pertenece a la cuenta fiscal"` y `GetAsociacionesFiscales` deja de listar la cuenta — idéntico a una desvinculación real. La app trataba ambos casos igual y `LimpiaTokensAsync` borraba `CLAVE_TOKEN_LOGINLESS`, así que al reactivar el usuario loginless ya no podía auto-loguearse.
-
-**Hecho (todo en `ServicioSesion.cs` + nueva página):**
-- `LimpiaTokensAsync(bool conservarLoginLess = false)`: para loginless conserva el token (sigue válido tras reactivar). Logout manual (`CerrarSesionAsync`) sigue borrándolo.
-- `ProcesarDesvinculacionAsync`: si es loginless y se queda sin cuentas → conserva token y navega a `PaginaAccesoSuspendido` (no a `PaginaLogin`).
-- `IntentarReanudarLoginLessAsync()`: re-ejecuta `IniciarSesion(tokenLoginLess,…)`; si OK, `PosLogin` + navega a `AppShell`; si falla, sigue suspendido.
-- `VerificarSesionAlReanudarAsync`: si no hay sesión pero sí token loginless → auto-reintenta al reanudar la app.
-- Nueva `Pages/AccesoSuspendido/PaginaAccesoSuspendido` (registrada en DI): "Tu acceso fue desactivado" con botones **Reintentar** y **Volver a iniciar sesión** (este último sí limpia el token loginless).
-
-**Decisiones:** confirmado con backend que el token loginless sigue válido tras reactivar, así que no se distingue desactivada vs desvinculada en el momento del 403 — se conserva el token y se deja que el reintento resuelva (si es desvinculación real, simplemente nunca funciona y el usuario usa "Volver a login").
-
----
-
-## 2026-06-11 — Mostrar solo lo recién creado + color botones DatePicker
-
-**Hecho:**
-- **DatePicker (Android):** los botones Aceptar/Cancelar del diálogo nativo de calendario eran invisibles (texto casi blanco sobre fondo blanco). Solución en `ContaBeeDatePickerHandler.cs` (registrado en `MauiProgram.cs` bajo `#if ANDROID`): se colorean los botones por código en `OnShow` con el color `colorBrand` (DayNight: negro `#1e1e1e` en claro, blanco `#ffffff` en oscuro). El encabezado/círculo gris se mantienen.
-- **Mostrar solo lo recién creado tras crear:**
-  - Comprobaciones y Devoluciones: tras crear, filtran por `Id` del registro devuelto (`respuesta.Payload.Id`) + `CuentaFiscalId` (helper `ConstruirFiltrosPorId`). Fallback al periodo si no hay payload.
-  - Capturas: al enviar el lote se guarda `DateTimeOffset.UtcNow` (`FacturacionPage.CapturaRecienCreadaFiltroFecha`) y al volver se filtra `FechaCreacion` con `Entre` en ventana [envío −3 min, +10 min] (`CrearBusquedaPorFechaCreacion`).
-- **Página Equipo (`EquipoPage.xaml`):** se reemplazó el swipe a la derecha (abrir propiedades) por un `TapGestureRecognizer` en la card → un tap abre `PropiedadesUsuarioPopup` vía `ConfigurarCommand`. El swipe a la izquierda (eliminar) se mantiene. `ConfigurarCommand` solo se asigna en cuenta primaria, así que el tap respeta el gating sin necesidad de `MostrarConfigurar`.
-
-**Decisiones tomadas:**
-- DatePicker: NO se tocó el `colorAccent` global (es gris a propósito; afecta cursores/selección en toda la app). El handler aplica el color solo a los botones del diálogo.
-- Capturas: se intentó filtrar por `LoteCapturaId`, pero **el backend ignora silenciosamente las propiedades de filtro desconocidas y devuelve todo** — por eso se usa `FechaCreacion`.
-- **Hallazgo clave:** `FacturacionPage` (y las demás pestañas) viven embebidas como `Content` dentro de `MainTabbedPage`, así que su `OnAppearing` NO se dispara al volver de una página navegada (p. ej. `PaginaCaptura`). El hook correcto para recargar es `OnTabActivated()`, que `MainTabbedPage` invoca desde su `OnAppearing`/`SwitchToTab`. La lógica de recarga de capturas se movió ahí.
-
-**Pendiente / próximos pasos:**
-- La ventana de fecha en capturas es heurística (margen ±min). Si el reloj del dispositivo difiere mucho del servidor podría fallar; vigilar.
-
----
-
-## 2026-06-09 — Widget Android (lanzador de PaginaCaptura)
-
-**Hecho:**
-- Implementado widget Android 2×1 en `ContaBeeMovil/Platforms/Android/`:
-  - `WidgetCaptura.cs` — `AppWidgetProvider` con atributos .NET Android (no toca AndroidManifest)
-  - `Resources/layout/widget_captura.xml` — RemoteViews con ícono + texto "Capturar ticket"
-  - `Resources/drawable/widget_background.xml` — fondo redondeado con soporte dark mode
-  - `Resources/xml/widget_captura_info.xml` — metadatos del AppWidget (2×1, sin refresh)
-  - Colores `widget_bg`/`widget_text` en `values/colors.xml` y `values-night/colors.xml`
-- `DeepLinkHandler.cs`: nuevo método `HandleWidgetCaptura()` + `NavegarACaptura()` que usa `Shell.Current.GoToAsync("PaginaCaptura")` replicando el patrón de `SharedImageHandler`
-- `MainActivity.cs`: detección del widget por boolean extra (`mx.contabee.app.WIDGET_CAPTURA`), navegación diferida a `OnResume` para garantizar que MAUI esté listo
-
-**Decisiones tomadas:**
-- Detección por `intent.GetBooleanExtra(...)` en vez de URI parsing (más confiable con `PendingIntentFlags.Immutable`)
-- Navegación disparada en `OnResume`, no en `OnNewIntent`, para evitar timing issues
-- **Al actualizar el widget es necesario quitarlo y volverlo a agregar** cuando cambia el `PendingIntent`
-
-**Pendiente:**
-- Implementar widget equivalente en iOS (requiere Swift + WidgetKit, extensión separada)
-
----
-
-## 2026-05-26 — Limpieza de archivos locales y gitignore
-
-**Hecho:**
-- Agregado al `.gitignore`: `.codegraph/`, `.mcp.json`, `.claude/settings.local.json`.
-- Eliminado directorio `.cursor/` (config auto-generada de Cursor IDE, no se usa).
-- Eliminado directorio `graphify-out/` (salida regenerable de `/graphify`).
-- Limpiado `CONTEXT.md` (entradas obsoletas eliminadas).
-
----
-
-## 2026-05-25 — Merge de release1.5 en release2.0 + corrección de conflictos
-
-**Hecho:**
-- Merge `release1.5` → `release2.0` para unir todos los módulos en una sola rama.
-- Corregidos conflictos en `SimpleTabBar.xaml`, `SimpleTabBar.xaml.cs` y `MainTabbedPage.xaml.cs`.
-- Layout de tabs final: 0=Inicio, 1=Facturación, 2=Devoluciones, 3=Comprobaciones, 4=Equipo.
-- Tab Equipo se oculta dinámicamente con `SetEquipoVisible(!AppState.EsLoginLess)`.
-
-**Pendiente:**
-- Probar en dispositivo/emulador que los 5 tabs navegan correctamente.
-- Push de `release2.0` al remoto cuando esté validado.
+- Se escucha `EstaActualizandoCF` (no `CuentaFiscalActual`) para evitar una carrera con la recarga de licencia/usuarios.
+- **Hallazgo clave (sigue vigente):** las pestañas viven como `Content` dentro de `MainTabbedPage`; su `OnAppearing` NO se dispara al volver de una página navegada. El hook correcto es `OnTabActivated()`.
 
 ---
 
 ## Pendiente acumulado
 
 - **Tarjetas (backend + frontend):** Integración CouchDB completa. Falta probar flujo completo en dispositivo con backend levantado y verificar migración desde `SecureStorage`.
+- **Widget iOS** equivalente al widget Android de captura (requiere Swift + WidgetKit).
+- **Capturas — filtro "recién creado":** la ventana por `FechaCreacion` es heurística (±min); si el reloj del dispositivo difiere mucho del servidor podría fallar; vigilar.
 
 ---
 

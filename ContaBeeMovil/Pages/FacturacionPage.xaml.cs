@@ -71,8 +71,11 @@ public partial class FacturacionPage : ContentPage
         private set { _consultaEjecutada = value; OnPropertyChanged(); }
     }
 
+    // Habilita la captura si hay créditos de CUALQUIER tipo (Captura o Autoservicio);
+    // PaginaCaptura ya resuelve cuál usar y bloquea el envío si se agotan.
     public bool TieneCreditos =>
-        (AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0) > 0;
+        (AppState.Instance.Licenciamiento?.CreditosDisponibles ?? 0) > 0 ||
+        (AppState.Instance.Licenciamiento?.CreditosAutoDisponibles ?? 0) > 0;
 
     public bool SinCreditos => !TieneCreditos;
 

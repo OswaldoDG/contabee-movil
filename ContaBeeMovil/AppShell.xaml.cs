@@ -17,6 +17,7 @@ using ContaBeeMovil.Views;
 using Font = Microsoft.Maui.Font;
 using ContaBee.Pages.Cupones;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.VisorPdf;
 
 namespace ContaBeeMovil
 {
@@ -340,6 +341,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(DetalleDevolucionPage), typeof(DetalleDevolucionPage));
             Routing.RegisterRoute(nameof(DetalleComprobacionPage), typeof(DetalleComprobacionPage));
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
+            Routing.RegisterRoute(nameof(PaginaVisorPdfPropio), typeof(PaginaVisorPdfPropio));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
             Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
             Routing.RegisterRoute(nameof(AcercaDePage), typeof(AcercaDePage));

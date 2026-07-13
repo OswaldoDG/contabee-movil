@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Descripción de los widgets en el selector de widgets (Android 12+). -->
+    <string name="widget_captura_descripcion">Acceso rápido para capturar un ticket</string>
+    <string name="widget_captura_compacto_descripcion">Botón compacto para capturar un ticket</string>
+</resources>

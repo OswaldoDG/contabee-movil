@@ -8,8 +8,10 @@
 	     Negro para máximo contraste sobre el fondo blanco del diálogo.
 	     En tema oscuro se sobreescribe en values-night/colors.xml. -->
 	<color name="colorBrand">#1e1e1e</color>
-	<color name="widget_bg">#FAF0D7</color>
-	<color name="widget_text">#3C2800</color>
-	<color name="widget_border">#E8C96A</color>
-	<color name="widget_pill_bg">#EFE0B4</color>
+	<!-- Widget "Capturar ticket" — tema claro (values-night define el oscuro) -->
+	<color name="widget_card_bg">#FFFFFF</color>
+	<color name="widget_card_border">#E1E1E1</color>
+	<color name="widget_title">#1e1e1e</color>
+	<color name="widget_subtitle">#6e6e6e</color>
+	<color name="widget_accent">#ce8509</color>
 </resources>
