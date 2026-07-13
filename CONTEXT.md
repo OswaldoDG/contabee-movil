@@ -5,13 +5,14 @@
 
 ---
 
-## 2026-07-13 — Visor PDF: overlay de descarga + título oculto
+## 2026-07-13 — Visor PDF: overlay de descarga, título oculto y fix tamaño iOS
 
 **Hecho:**
 - Nuevo `Views/CargandoPopup` (toolkit `Popup` con spinner + scrim, `PageOverlayColor #66000000`, no descartable). En `LoteCapturaCardView.DescargarYCompartir` se muestra a pantalla completa **mientras se descarga** el archivo (se conserva además el mini-spinner del botón vía `SetBusy`), y se cierra antes de navegar al visor o abrir la hoja de compartir. Aplica a los 3 botones (PDF/XML/cámara). Cierre robusto: en `finally` best-effort, sin doble cierre.
 - `PaginaVisorPdfPropio.Titulo`: ya NO asigna `Title` (solo guarda `_nombreArchivo` para guardar/compartir). El nombre de las capturas es un número (`captura_12345.pdf`) y se veía raro en la barra superior; ahora queda vacía (se conserva el botón de regreso).
+- **Fix documento diminuto en iOS:** el ancho de despliegue se calculaba `MainDisplayInfo.Width / Density`. En iOS `Width` viene en puntos → dividir otra vez por la densidad dejaba el PDF a 1/escala (⅓ en 3x). Ahora `_anchoBaseDips` se toma del ancho REAL de la página en `OnSizeAllocated` (siempre DIPs) y `_anchoPxObjetivo = ancho × densidad × Multiplicador` (densidad solo como multiplicador de nitidez). Android intacto; iOS corregido. Se quitó el override de `OnAppearing` (la carga arranca en `OnSizeAllocated`).
 
-**Pendiente:** probar en dispositivo (descarga lenta → overlay visible → visor con su propio spinner de render; compartir PDF/XML; caso sin conexión).
+**Pendiente:** probar en dispositivo (iOS: documento a ancho completo + zoom/pan; descarga lenta → overlay visible → visor con su propio spinner de render; compartir PDF/XML; caso sin conexión).
 
 ---
 

@@ -67,12 +67,24 @@ public partial class PaginaVisorPdfPropio : ContentPage
         set => _nombreArchivo = value;
     }
 
-    protected override async void OnAppearing()
+    protected override void OnSizeAllocated(double width, double height)
     {
-        base.OnAppearing();
-        if (_iniciado) return;
+        base.OnSizeAllocated(width, height);
+        if (_iniciado || width <= 0) return;
         _iniciado = true;
-        await CargarAsync();
+
+        // El ancho de despliegue se toma del ancho REAL de la página (en DIPs), no
+        // de DeviceDisplay: en iOS MainDisplayInfo.Width viene en puntos y al
+        // dividirlo entre la densidad el documento salía a 1/escala (diminuto).
+        // La densidad sí es fiable como multiplicador del objetivo de render en
+        // píxeles (nitidez): ancho_px ≈ píxeles físicos × Multiplicador, igual que
+        // en Android.
+        _anchoBaseDips = width;
+        double densidad = DeviceDisplay.MainDisplayInfo.Density;
+        if (densidad <= 0) densidad = 1;
+        _anchoPxObjetivo = (int)(width * densidad * Multiplicador);
+
+        _ = CargarAsync();
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -95,11 +107,8 @@ public partial class PaginaVisorPdfPropio : ContentPage
         }
 
 #if ANDROID || IOS
-        var pantalla = DeviceDisplay.MainDisplayInfo;
-        double densidad = pantalla.Density > 0 ? pantalla.Density : 1;
-        _anchoBaseDips = pantalla.Width / densidad;
-        _anchoPxObjetivo = (int)(pantalla.Width * Multiplicador);
-
+        // El dimensionamiento (_anchoBaseDips / _anchoPxObjetivo) se calcula en
+        // OnSizeAllocated a partir del ancho real de la página.
         await RenderizarYMostrarAsync();
 #else
         // Sin render propio en esta plataforma: se abre con el visor del sistema.
