@@ -31,7 +31,8 @@ public partial class PaginaVisorPdfPropio : ContentPage
 
     private string? _rutaArchivo;
     private string _nombreArchivo = "documento.pdf";
-    private bool _iniciado;
+    private double _ultimoAnchoRender = -1;      // ancho (DIPs) con el que se renderizó
+    private CancellationTokenSource? _debounceCts;
     private bool _ocupado;       // compartir / descargar
     private bool _renderizando;  // render en curso (rotar, carga)
     private int _grados;         // rotación del usuario: 0/90/180/270
@@ -52,6 +53,11 @@ public partial class PaginaVisorPdfPropio : ContentPage
     public PaginaVisorPdfPropio()
     {
         InitializeComponent();
+        // El dimensionamiento se maneja desde el ancho REAL del lienzo (DIPs), no
+        // desde DeviceDisplay: en iOS MainDisplayInfo.Width viene en puntos y salía
+        // a 1/escala. SizeChanged + debounce garantiza usar el ancho ya estabilizado
+        // (la primera medición puede ser transitoria durante el push de Shell).
+        Lienzo.SizeChanged += OnLienzoSizeChanged;
     }
 
     public string RutaArchivo
@@ -67,24 +73,47 @@ public partial class PaginaVisorPdfPropio : ContentPage
         set => _nombreArchivo = value;
     }
 
-    protected override void OnSizeAllocated(double width, double height)
+    private void OnLienzoSizeChanged(object? sender, EventArgs e)
     {
-        base.OnSizeAllocated(width, height);
-        if (_iniciado || width <= 0) return;
-        _iniciado = true;
+        double ancho = Lienzo.Width;
+        if (ancho <= 0) return;
+        // Sin cambio real de ancho: nada que rehacer (evita re-render en cada layout).
+        if (Math.Abs(ancho - _ultimoAnchoRender) < 1) return;
+        ProgramarRender(ancho);
+    }
 
-        // El ancho de despliegue se toma del ancho REAL de la página (en DIPs), no
-        // de DeviceDisplay: en iOS MainDisplayInfo.Width viene en puntos y al
-        // dividirlo entre la densidad el documento salía a 1/escala (diminuto).
-        // La densidad sí es fiable como multiplicador del objetivo de render en
-        // píxeles (nitidez): ancho_px ≈ píxeles físicos × Multiplicador, igual que
-        // en Android.
-        _anchoBaseDips = width;
+    // Debounce: durante el push de Shell el ancho puede llegar en varias mediciones;
+    // se espera a que se estabilice y se renderiza con el ancho final (no el transitorio).
+    private void ProgramarRender(double anchoDips)
+    {
+        _debounceCts?.Cancel();
+        var cts = new CancellationTokenSource();
+        _debounceCts = cts;
+        _ = RenderConAnchoAsync(anchoDips, cts.Token);
+    }
+
+    private async Task RenderConAnchoAsync(double anchoDips, CancellationToken token)
+    {
+        try { await Task.Delay(120, token); }
+        catch (TaskCanceledException) { return; }
+        if (token.IsCancellationRequested) return;
+
+        // Un render en curso: reintenta cuando termine (no se pierden cambios de tamaño).
+        if (_renderizando)
+        {
+            ProgramarRender(anchoDips);
+            return;
+        }
+
+        _ultimoAnchoRender = anchoDips;
+        _anchoBaseDips = anchoDips;
         double densidad = DeviceDisplay.MainDisplayInfo.Density;
         if (densidad <= 0) densidad = 1;
-        _anchoPxObjetivo = (int)(width * densidad * Multiplicador);
+        // ancho_px ≈ píxeles físicos × Multiplicador (nitidez), igual que en Android.
+        _anchoPxObjetivo = (int)(anchoDips * densidad * Multiplicador);
+        _logs.Info($"[VisorPdfPropio] Render — ancho={anchoDips:0}dips densidad={densidad} pxObjetivo={_anchoPxObjetivo}");
 
-        _ = CargarAsync();
+        await CargarAsync();
     }
 
     protected override void OnNavigatedFrom(NavigatedFromEventArgs args)
@@ -92,6 +121,7 @@ public partial class PaginaVisorPdfPropio : ContentPage
         base.OnNavigatedFrom(args);
         // Cancela renders en curso al salir de la página. No se usa
         // OnDisappearing porque también se dispara al backgroundear la app.
+        _debounceCts?.Cancel();
         _cts.Cancel();
     }
 
@@ -107,8 +137,8 @@ public partial class PaginaVisorPdfPropio : ContentPage
         }
 
 #if ANDROID || IOS
-        // El dimensionamiento (_anchoBaseDips / _anchoPxObjetivo) se calcula en
-        // OnSizeAllocated a partir del ancho real de la página.
+        // El dimensionamiento (_anchoBaseDips / _anchoPxObjetivo) ya se calculó en
+        // RenderConAnchoAsync a partir del ancho real (estabilizado) del lienzo.
         await RenderizarYMostrarAsync();
 #else
         // Sin render propio en esta plataforma: se abre con el visor del sistema.
