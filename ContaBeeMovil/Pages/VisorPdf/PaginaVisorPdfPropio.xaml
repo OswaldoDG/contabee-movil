@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             x:Class="ContaBeeMovil.Pages.VisorPdf.PaginaVisorPdfPropio"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+             Shell.NavBarIsVisible="True"
+             Shell.TabBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <!-- Botones flotantes estilo visor de escritorio: cuadrado redondeado
+             en color de marca con ícono oscuro -->
+        <Style x:Key="BotonVisor" TargetType="Border">
+            <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+            <Setter Property="StrokeThickness" Value="0" />
+            <Setter Property="HeightRequest" Value="46" />
+            <Setter Property="WidthRequest" Value="46" />
+            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style x:Key="IconoVisor" TargetType="Label">
+            <Setter Property="FontFamily" Value="FluentUIFilled" />
+            <Setter Property="FontSize" Value="20" />
+            <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+        </Style>
+
+        <!-- Variante de los botones flotantes para acciones secundarias
+             (zoom, restaurar, rotar): color neutro en vez del de marca -->
+        <Style x:Key="BotonVisorAlterno" TargetType="Border" BasedOn="{StaticResource BotonVisor}">
+            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Accent1}" />
+        </Style>
+        <Style x:Key="IconoVisorAlterno" TargetType="Label" BasedOn="{StaticResource IconoVisor}">
+            <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid>
+
+        <!-- ── Documento: lienzo con gestos (pinch, pan y doble tap); el zoom
+             y el paneo se aplican como transforms sobre el contenedor ─────── -->
+        <Grid x:Name="Lienzo" BackgroundColor="{toolkit:AppThemeResource Background}">
+            <Grid.GestureRecognizers>
+                <PinchGestureRecognizer PinchUpdated="OnPinch" />
+                <PanGestureRecognizer PanUpdated="OnPan" />
+                <TapGestureRecognizer NumberOfTapsRequired="2" Tapped="OnDobleTap" />
+            </Grid.GestureRecognizers>
+
+            <!-- InputTransparent: todos los toques los recibe el Lienzo -->
+            <VerticalStackLayout x:Name="ContenedorPaginas"
+                                 InputTransparent="True"
+                                 CascadeInputTransparent="True"
+                                 Spacing="8"
+                                 Padding="0,8"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center">
+                <!-- Las Image de cada página se crean en el code-behind -->
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Controles: zoom, restaurar y rotación (abajo-izquierda; color
+             alterno para distinguirlos de las acciones principales) -->
+        <VerticalStackLayout HorizontalOptions="Start" VerticalOptions="End"
+                             Margin="12,0,0,16" Spacing="10">
+            <Border Style="{StaticResource BotonVisorAlterno}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnZoomIn" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.zoom_in_20_filled}" Style="{StaticResource IconoVisorAlterno}" />
+            </Border>
+            <Border Style="{StaticResource BotonVisorAlterno}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnZoomOut" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.zoom_out_20_filled}" Style="{StaticResource IconoVisorAlterno}" />
+            </Border>
+            <Border Style="{StaticResource BotonVisorAlterno}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRestaurar" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.page_fit_20_filled}" Style="{StaticResource IconoVisorAlterno}" />
+            </Border>
+            <!-- Rotar izquierda: oculto a pedido, se deja solo un botón de rotación.
+            <Border Style="{StaticResource BotonVisorAlterno}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRotarIzquierda" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.arrow_rotate_counterclockwise_20_filled}" Style="{StaticResource IconoVisorAlterno}" />
+            </Border>
+            -->
+            <Border Style="{StaticResource BotonVisorAlterno}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRotarDerecha" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.arrow_rotate_clockwise_20_filled}" Style="{StaticResource IconoVisorAlterno}" />
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Descargar y compartir (abajo-derecha) -->
+        <VerticalStackLayout HorizontalOptions="End" VerticalOptions="End"
+                             Margin="0,0,12,16" Spacing="10">
+            <Border Style="{StaticResource BotonVisor}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDescargar" />
+                </Border.GestureRecognizers>
+                <Label Text="{x:Static f:FluentUIFilled.arrow_download_20_filled}" Style="{StaticResource IconoVisor}" />
+            </Border>
+            <Border Style="{StaticResource BotonVisor}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCompartir" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource IconoVisor}">
+                    <Label.Text>
+                        <OnPlatform x:TypeArguments="x:String">
+                            <On Platform="Android" Value="{x:Static f:FluentUIFilled.share_android_16_filled}" />
+                            <On Platform="iOS" Value="{x:Static f:FluentUIFilled.share_ios_20_filled}" />
+                        </OnPlatform>
+                    </Label.Text>
+                </Label>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Indicador de página (abajo-centro) -->
+        <Border x:Name="PaginaPill"
+                BackgroundColor="#66000000"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 10"
+                Padding="10,4"
+                HorizontalOptions="Center" VerticalOptions="End"
+                Margin="0,0,0,20"
+                IsVisible="False">
+            <Label x:Name="PaginaLabel" TextColor="#dddddd" FontSize="11" />
+        </Border>
+
+        <!-- Overlay de carga mientras se renderiza el documento -->
+        <Grid x:Name="OverlayCarga" BackgroundColor="{toolkit:AppThemeResource Background}">
+            <ActivityIndicator IsRunning="True"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               WidthRequest="36" HeightRequest="36"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

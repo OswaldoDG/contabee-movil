@@ -24,6 +24,7 @@ using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
+using ContaBeeMovil.Services.Pdf;
 using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
@@ -105,6 +106,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddSingleton<IServicioActualizacion, ServicioActualizacion>();
             builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
+            builder.Services.AddSingleton<IServicioRenderPdf, ServicioRenderPdf>();
             builder.Services.AddTransient<AuthHandler>();
 
 

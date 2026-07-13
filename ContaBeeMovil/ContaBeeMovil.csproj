@@ -234,6 +234,9 @@
 	  <MauiXaml Update="Views\CargandoOverlay.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\CargandoPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ComprobacionCardView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

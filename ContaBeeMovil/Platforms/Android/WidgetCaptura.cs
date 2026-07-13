@@ -17,22 +17,23 @@ public class WidgetCaptura : AppWidgetProvider
     {
         if (context == null || appWidgetManager == null || appWidgetIds == null) return;
         foreach (var widgetId in appWidgetIds)
-            ActualizarWidget(context, appWidgetManager, widgetId);
+            ActualizarWidget(context, appWidgetManager, widgetId, Resource.Layout.widget_captura);
     }
 
-    private static void ActualizarWidget(Context context, AppWidgetManager appWidgetManager, int widgetId)
+    // Compartido con WidgetCapturaCompacto: ambos widgets lanzan la misma acción,
+    // solo cambia el layout.
+    internal static void ActualizarWidget(Context context, AppWidgetManager appWidgetManager, int widgetId, int layoutId)
     {
-        var views = new RemoteViews(context.PackageName!, Resource.Layout.widget_captura);
+        var views = new RemoteViews(context.PackageName!, layoutId);
 
         var intent = new Intent(context, typeof(MainActivity));
         intent.PutExtra(ExtraWidgetCaptura, true);
         intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
 
-        var pendingFlags = Android.OS.Build.VERSION.SdkInt >= Android.OS.BuildVersionCodes.S
-            ? PendingIntentFlags.Immutable
-            : PendingIntentFlags.UpdateCurrent;
-
-        var pending = PendingIntent.GetActivity(context, widgetId, intent, pendingFlags);
+        // Immutable existe desde API 23 (minSdk): mismo flag en todas las versiones,
+        // y UpdateCurrent refresca el intent si el widget se reconfigura.
+        var pending = PendingIntent.GetActivity(context, widgetId, intent,
+            PendingIntentFlags.UpdateCurrent | PendingIntentFlags.Immutable);
         views.SetOnClickPendingIntent(Resource.Id.widget_root, pending);
         appWidgetManager.UpdateAppWidget(widgetId, views);
     }

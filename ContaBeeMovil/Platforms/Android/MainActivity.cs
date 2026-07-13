@@ -32,7 +32,7 @@ namespace ContaBeeMovil
         protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            HandleIntent(Intent);
+            HandleIntent(Intent, desdeOnCreate: true);
 
             if (_pendingRecreate)
             {
@@ -44,7 +44,7 @@ namespace ContaBeeMovil
         protected override void OnNewIntent(Intent? intent)
         {
             base.OnNewIntent(intent);
-            HandleIntent(intent);
+            HandleIntent(intent, desdeOnCreate: false);
         }
 
         protected override void OnResume()
@@ -57,11 +57,24 @@ namespace ContaBeeMovil
             }
         }
 
-        private void HandleIntent(Intent? intent)
+        private void HandleIntent(Intent? intent, bool desdeOnCreate)
         {
             if (intent?.GetBooleanExtra(WidgetCaptura.ExtraWidgetCaptura, false) == true)
             {
-                _pendingWidgetNavigation = true;
+                // Consumir el extra: si la Activity se recrea (p. ej. Recreate por cambio
+                // de tema) OnCreate reutiliza este mismo Intent y volvería a dispararse.
+                intent.RemoveExtra(WidgetCaptura.ExtraWidgetCaptura);
+
+                // La re-entrega del intent del widget desde Recientes SOLO puede ocurrir en
+                // OnCreate (recreación tras muerte del proceso); ahí el usuario solo quiere
+                // abrir la app. Un intent que llega por OnNewIntent es siempre un tap
+                // legítimo — algunos launchers marcan LaunchedFromHistory también en esos
+                // taps, así que el filtro no debe aplicarse en esa ruta.
+                bool redeliveryDesdeRecientes = desdeOnCreate &&
+                    (intent.Flags & ActivityFlags.LaunchedFromHistory) != 0;
+
+                if (!redeliveryDesdeRecientes)
+                    _pendingWidgetNavigation = true;
                 return;
             }
 

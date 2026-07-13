@@ -80,12 +80,15 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         RestaurarPreferencias();
 
         BindingContext = this;
+    }
 
-        AppState.Instance.PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName is nameof(AppState.Licenciamiento))
-                RefrescarCreditos();
-        };
+    // Suscrito/desuscrito en OnAppearing/OnDisappearing: la página es transient y una
+    // lambda en el constructor quedaría anclada a AppState.Instance (singleton) para
+    // siempre, filtrando cada instancia creada.
+    private void OnAppStatePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(AppState.Licenciamiento))
+            RefrescarCreditos();
     }
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
@@ -119,6 +122,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         RefrescarCreditos();
 
         PuedeSerUrgente = DateTime.Now.Hour < 20;
+        AppState.Instance.PropertyChanged += OnAppStatePropertyChanged;
         SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
 
         _ = CargarTarjetasYRefrescarAsync();
@@ -149,6 +153,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        AppState.Instance.PropertyChanged -= OnAppStatePropertyChanged;
         SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
     }
 

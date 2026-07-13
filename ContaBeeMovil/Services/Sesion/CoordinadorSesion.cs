@@ -49,6 +49,11 @@ public class CoordinadorSesion : ICoordinadorSesion
                 _                           => new NavigationPage(_serviceProvider.GetRequiredService<PaginaLogin>())
             };
             Application.Current!.Windows[0].Page = page;
+
+            // Con el Shell ya como raíz, retomar la intención pendiente del widget de
+            // captura (usuario que tocó el widget sin sesión y acaba de autenticarse).
+            if (destino == DestinoNavegacion.AppShell)
+                Helpers.DeepLinkHandler.ProcesarLinkPendiente();
         });
     }
 

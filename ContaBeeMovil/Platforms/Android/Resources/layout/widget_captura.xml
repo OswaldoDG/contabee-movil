@@ -1,43 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Widget "Capturar ticket" (4×1, redimensionable): logo con badge de cámara,
+     título + subtítulo y chevron. Colores temáticos vía @color (values / values-night). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="10dp"
-    android:background="@drawable/widget_background">
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingLeft="12dp"
+    android:paddingRight="10dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:background="@drawable/widget_card">
 
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/logo512"
-        android:scaleType="fitCenter"
-        android:contentDescription="ContaBee"
-        android:layout_marginBottom="8dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:background="@drawable/widget_pill">
+    <!-- Logo con badge de cámara encimado. Tamaños contenidos para caber
+         completo en la altura de 1 celda (~56dp en launchers compactos). -->
+    <FrameLayout
+        android:layout_width="42dp"
+        android:layout_height="42dp">
 
         <ImageView
-            android:layout_width="14dp"
-            android:layout_height="14dp"
-            android:src="@drawable/ic_widget_camera"
-            android:scaleType="fitCenter" />
+            android:layout_width="38dp"
+            android:layout_height="38dp"
+            android:layout_gravity="center"
+            android:src="@drawable/logo512"
+            android:scaleType="fitCenter"
+            android:contentDescription="ContaBee" />
+
+        <FrameLayout
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="bottom|end"
+            android:background="@drawable/widget_badge">
+
+            <ImageView
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_widget_camera"
+                android:scaleType="fitCenter" />
+        </FrameLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginLeft="10dp"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
             android:text="Capturar ticket"
-            android:textSize="10sp"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:textColor="@color/widget_text" />
+            android:textColor="@color/widget_title"
+            android:singleLine="true"
+            android:ellipsize="end" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Toca y fotografía tu ticket"
+            android:textSize="10sp"
+            android:textColor="@color/widget_subtitle"
+            android:singleLine="true"
+            android:ellipsize="end" />
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginLeft="4dp"
+        android:src="@drawable/ic_widget_chevron"
+        android:scaleType="fitCenter" />
 
 </LinearLayout>
