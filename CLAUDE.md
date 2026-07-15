@@ -87,6 +87,39 @@ Glifos en `Resources/Fonts/FluentUI.cs` (regular) y `FluentUIFilled.cs` (filled,
 
 ---
 
+## ⚠️ Swagger: parche manual OBLIGATORIO al re-descargar
+
+Los JSON de `Contabee.Api/swagger/` **se editan a mano** después de bajarlos del backend. El cliente NSwag NO se commitea: se genera en cada build (`OpenApiReference` → `Contabee.Api/obj/Servicio*Client.cs`), así que "regenerar el cliente" = **compilar**.
+
+**Cada vez que re-descargues un swagger, vuelve a aplicar esto** (se pierde siempre, ya pasó en `cbf0e4d` y se volvió a perder en la re-descarga de julio 2026):
+
+```jsonc
+// TODA propiedad "paginado" debe llevar nullable: true
+"paginado": {
+  "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+  "nullable": true          // ← AGREGAR A MANO, SIEMPRE
+},
+```
+
+**Por qué:** sin `nullable`, NSwag genera `Required.DisallowNull` y Newtonsoft **lanza excepción al deserializar** si el backend responde `"paginado": null` → truenan los listados (Facturación, Devoluciones, Comprobaciones, Equipo). Con `nullable: true` genera `Required.Default`, que tolera el null. Es una relajación pura: no puede romper nada.
+
+Ubicaciones (9): `ServicioTranscript.json` → `comunes.busqueda.Busqueda`, 4× `comunes.busqueda.ResultadoPaginado<T>`, `BusquedaCaptura`. `ServicioIdentidad.json` → `Busqueda`, `CuentaClienteResultadoPaginado`, `CuentaUsuarioResultadoPaginado`.
+
+Verificación rápida tras re-descargar — no debe imprimir nada:
+
+```bash
+python -c "
+import json,glob
+for f in glob.glob('Contabee.Api/swagger/*.json'):
+    d=json.load(open(f,encoding='utf-8-sig'))
+    for k,v in d.get('components',{}).get('schemas',{}).items():
+        p=v.get('properties',{}).get('paginado') if isinstance(v,dict) else None
+        if p and p.get('nullable') is not True: print('FALTA nullable:',f,k)
+"
+```
+
+---
+
 ## Servicios custom — OBLIGATORIO usarlos siempre
 
 > **NUNCA** uses `DisplayAlert`, `Console.WriteLine`, `Debug.WriteLine` ni toasts de terceros. Siempre usa los servicios propios del proyecto.

@@ -31,6 +31,17 @@ public partial class TiendaPage : ContentPage
 
     private bool _cargado;
 
+    // El catálogo publica un precio Público POR pasarela (Interbancario/MercadoPago/Apple/Google),
+    // con importes distintos. Hay que tomar el de la pasarela con la que se cobra en esta plataforma:
+    // tomar el primero devuelve el de Interbancario y registra un monto menor al que cobró la tienda.
+#if IOS || MACCATALYST
+    private const PasarelaPago PasarelaPlataforma = PasarelaPago.Apple;
+#elif ANDROID
+    private const PasarelaPago PasarelaPlataforma = PasarelaPago.Google;
+#else
+    private const PasarelaPago PasarelaPlataforma = PasarelaPago.Interbancario;
+#endif
+
     private View? _loadingOverlay;
     private CollectionView? _listaProductos;
     private FlexLayout? _tabsCategorias;
@@ -173,7 +184,8 @@ public partial class TiendaPage : ContentPage
             .ToList()
             : productos.Select(p =>
             {
-                var precio   = p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
+                var precio   = p.Precios.FirstOrDefault(pr => pr.Tipo == TipoPrecio.Publico && pr.Pasarela == PasarelaPlataforma)
+                            ?? p.Precios.First(pr => pr.Tipo == TipoPrecio.Publico);
                 var unidades = p.Propiedades.FirstOrDefault(x => x.Propiedad == "unidadesproducto")?.Valor ?? "?";
                 return new ProductoIAPModel
                 {
@@ -308,7 +320,6 @@ public partial class TiendaPage : ContentPage
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
 #if IOS || MACCATALYST
-        var pasarela = PasarelarPago.Apple;
         string? verificationData = null;
         try
         {
@@ -329,19 +340,18 @@ public partial class TiendaPage : ContentPage
         verificationData ??= compra.OriginalJson;
         _logs.Log($"Tienda: receipt length={verificationData?.Length ?? 0}");
 #elif ANDROID
-        var pasarela = PasarelarPago.Google;
         var verificationData = compra.PurchaseToken;
 #else
-        var pasarela = PasarelarPago.Interbancario;
         var verificationData = compra.TransactionIdentifier;
 #endif
 
-        var precioPublico = productoCatalogo.Precios.FirstOrDefault(p => p.Tipo == TipoPrecio.Publico);
+        var precioPublico = productoCatalogo.Precios.FirstOrDefault(p => p.Tipo == TipoPrecio.Publico && p.Pasarela == PasarelaPlataforma)
+                         ?? productoCatalogo.Precios.FirstOrDefault(p => p.Tipo == TipoPrecio.Publico);
         var comprobante = new DtoComprobanteCompra
         {
             CuentaFiscalId   = cfid.ToString(),
             DispositivoId    = dispositivoId,
-            PasarelarPago    = pasarela,
+            PasarelaPago     = PasarelaPlataforma,
             PasarelaId       = verificationData,
             CompraId         = compra.TransactionIdentifier,
             ProductoTiendaId = compra.ProductId,
@@ -360,7 +370,7 @@ public partial class TiendaPage : ContentPage
         };
 
         _logs.Log($"Tienda: PAYLOAD verificar = {System.Text.Json.JsonSerializer.Serialize(comprobante)}");
-        _logs.Log($"Tienda: verificando en backend — pasarela={pasarela} producto={compra.ProductId}");
+        _logs.Log($"Tienda: verificando en backend — pasarela={PasarelaPlataforma} producto={compra.ProductId}");
         var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, comprobante);
 
         _logs.Log($"Tienda: verificación backend — verificado={verificado}");
@@ -517,7 +527,6 @@ public partial class TiendaPage : ContentPage
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
 #if IOS || MACCATALYST
-        var pasarela = PasarelarPago.Apple;
         string? verificationData = null;
         try
         {
@@ -535,10 +544,8 @@ public partial class TiendaPage : ContentPage
             return;
         }
 #elif ANDROID
-        var pasarela = PasarelarPago.Google;
         var verificationData = compra.PurchaseToken;
 #else
-        var pasarela = PasarelarPago.Interbancario;
         var verificationData = compra.TransactionIdentifier;
 #endif
 
@@ -546,7 +553,7 @@ public partial class TiendaPage : ContentPage
         {
             CuentaFiscalId   = cfid.ToString(),
             DispositivoId    = dispositivoId,
-            PasarelarPago    = pasarela,
+            PasarelaPago     = PasarelaPlataforma,
             PasarelaId       = verificationData,
             CompraId         = compra.TransactionIdentifier,
             ProductoTiendaId = compra.ProductId,

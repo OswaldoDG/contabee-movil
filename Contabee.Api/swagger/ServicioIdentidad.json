@@ -861,7 +861,24 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaUsuario"
+                }
+              }
+            }
           },
           "500": {
             "description": "Internal Server Error"
@@ -2338,7 +2355,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2502,7 +2520,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2640,6 +2659,10 @@
           "esLoginless": {
             "type": "boolean"
           },
+          "cuponBienvenida": {
+            "type": "string",
+            "nullable": true
+          },
           "roles": {
             "type": "array",
             "items": {
@@ -2668,7 +2691,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"

@@ -42,7 +42,7 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
 
     public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
-        System.Diagnostics.Debug.WriteLine($"[Ecommerce] VerificarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelarPago} pasarelaId={comprobante.PasarelaId}");
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] VerificarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelaPago} pasarelaId={comprobante.PasarelaId}");
         try
         {
             await servicioEcommerce.VerificarAsync(cuentaFiscalId, comprobante);
@@ -58,7 +58,7 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
 
     public async Task<bool> CompletarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
-        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelarPago} pasarelaId={comprobante.PasarelaId}");
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CompletarCompraIAP → cfid={cuentaFiscalId} producto={comprobante.ProductoTiendaId} pasarela={comprobante.PasarelaPago} pasarelaId={comprobante.PasarelaId}");
         try
         {
             await servicioEcommerce.CompletarAsync(cuentaFiscalId, comprobante);

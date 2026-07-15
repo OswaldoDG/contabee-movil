@@ -10,6 +10,22 @@
         "tags": [
           "CRM"
         ],
+        "parameters": [
+          {
+            "name": "cfId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "compras",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -30,6 +46,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -928,6 +947,52 @@
           },
           "500": {
             "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/licenciamiento/pagos/{cuentafiscalId}": {
+      "post": {
+        "tags": [
+          "Licenciamiento"
+        ],
+        "parameters": [
+          {
+            "name": "cuentafiscalId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -2804,8 +2869,8 @@
             "type": "string",
             "nullable": true
           },
-          "pasarelarPago": {
-            "$ref": "#/components/schemas/comunes.proxies.ecommerce.PasarelarPago"
+          "pasarelaPago": {
+            "$ref": "#/components/schemas/comunes.proxies.ecommerce.PasarelaPago"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -2849,6 +2914,78 @@
           "nombreInstitucionBancaria": {
             "type": "string",
             "nullable": true
+          },
+          "elementos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/comunes.proxies.ecommerce.ElementoCompra"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "comunes.proxies.ecommerce.ElementoCompra": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "nullable": true
+          },
+          "productoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precioId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precioBase": {
+            "type": "number",
+            "format": "double"
+          },
+          "precioDescuento": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cantidad": {
+            "type": "number",
+            "format": "double"
+          },
+          "periodo": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subTotal": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalImpuestos": {
+            "type": "number",
+            "format": "double"
+          },
+          "total": {
+            "type": "number",
+            "format": "double"
+          },
+          "descuentos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "impuestos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2863,7 +3000,7 @@
         ],
         "type": "string"
       },
-      "comunes.proxies.ecommerce.PasarelarPago": {
+      "comunes.proxies.ecommerce.PasarelaPago": {
         "enum": [
           "Interbancario",
           "MercadoPago",
@@ -3189,6 +3326,11 @@
             "type": "string",
             "format": "date-time",
             "nullable": true
+          },
+          "distribuidorId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3240,6 +3382,11 @@
           "caducidad": {
             "type": "string",
             "format": "date-time",
+            "nullable": true
+          },
+          "distribuidorId": {
+            "type": "integer",
+            "format": "int64",
             "nullable": true
           },
           "direccionesFiscales": {
