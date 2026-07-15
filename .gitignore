@@ -439,3 +439,7 @@ graphify-out/
 
 # Claude Code — config personal (no compartir)
 .claude/settings.local.json
+
+# Notas de trabajo locales (auditorías, análisis). NO se comparten:
+# detallan vulnerabilidades aún sin corregir.
+docs/

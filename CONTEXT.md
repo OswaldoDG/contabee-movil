@@ -28,7 +28,7 @@
 **Pendiente:**
 - Probar compra real en dispositivo (Android/TestFlight) — el build verde no prueba que acredite.
 - **Reportar al backend precios que se ven mal capturados:** `AUTOSERVICIO50` Google **$1510** vs Apple $150 (10x, dedazo); `COLABORACION250` Apple $1220/Google $1199 vs Interbancario $575 (idénticos a los de `CAPTURA250`, parecen copy-paste); `BIENVENIDA15` $2349 (igual que `CAPTURA500`).
-- Sigue abierta la auditoría `docs/AUDITORIA-IAP.md` (12 hallazgos, varios críticos de dinero real: `/completar` no revalida recibo, sin manejo de reembolsos S2S). Su #4 (backend debe ignorar el `MontoCompra` del cliente y tomar el precio server-side) haría redundante el fix de precios, pero no lo sustituye mientras no exista.
+- Sigue abierta la **auditoría de IAP** (12 hallazgos, varios críticos de dinero real: `/completar` no revalida el recibo contra la tienda, sin manejo de reembolsos S2S). Uno de ellos (el backend debe ignorar el `MontoCompra` del cliente y tomar el precio server-side) haría redundante el fix de precios, pero no lo sustituye mientras no exista. Está previsto rehacerla y corregir lo reportado. **El documento NO vive en el repo a propósito** (`docs/` está en `.gitignore`: detalla vulnerabilidades sin corregir); pídeselo a Beto.
 
 ---
 
