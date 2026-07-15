@@ -246,22 +246,139 @@
         }
       }
     },
-    "/carrito/cuentafiscal/{cuentaFiscalId}": {
+    "/carrito/pendientes/{cfid}": {
       "get": {
         "tags": [
           "Carrito"
         ],
         "parameters": [
           {
-            "name": "cuentaFiscalId",
+            "name": "cfid",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string",
-              "format": "uuid"
+              "type": "string"
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/carrito/{carritoId}": {
+      "delete": {
+        "tags": [
+          "Carrito"
+        ],
+        "parameters": [
+          {
+            "name": "cfid",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "carritoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.carrito.DtoCarritoCompra"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/carrito/cuentafiscal": {
+      "post": {
+        "tags": [
+          "Carrito"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.QueryCarritoCuentafiscalDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.QueryCarritoCuentafiscalDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/generic.ecommerce.model.carrito.QueryCarritoCuentafiscalDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK",
@@ -470,6 +587,51 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/cupones/interproceso/distribuidor/{clave}": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "clave",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/comunes.respuestas.Respuesta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
           },
           "401": {
             "description": "Unauthorized"
@@ -820,8 +982,8 @@
             "type": "string",
             "nullable": true
           },
-          "pasarelarPago": {
-            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          "pasarelaPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelaPago"
           },
           "cuentaFiscalId": {
             "type": "string",
@@ -886,7 +1048,8 @@
       "generic.ecommerce.model.carrito.DtoCreaCarritoCompras": {
         "required": [
           "cuentaFiscalId",
-          "dispositivoId"
+          "dispositivoId",
+          "pasarelaPago"
         ],
         "type": "object",
         "properties": {
@@ -898,8 +1061,8 @@
             "type": "string",
             "nullable": true
           },
-          "pasarelarPago": {
-            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          "pasarelaPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelaPago"
           },
           "pasarelaId": {
             "type": "string",
@@ -924,7 +1087,8 @@
       },
       "generic.ecommerce.model.carrito.DtoElementoCompra": {
         "required": [
-          "id"
+          "id",
+          "productoId"
         ],
         "type": "object",
         "properties": {
@@ -1033,7 +1197,7 @@
         ],
         "type": "string"
       },
-      "generic.ecommerce.model.carrito.PasarelarPago": {
+      "generic.ecommerce.model.carrito.PasarelaPago": {
         "enum": [
           "Interbancario",
           "MercadoPago",
@@ -1041,6 +1205,37 @@
           "Google"
         ],
         "type": "string"
+      },
+      "generic.ecommerce.model.carrito.QueryCarritoCuentafiscalDto": {
+        "required": [
+          "cuentaFiscalId"
+        ],
+        "type": "object",
+        "properties": {
+          "cuentaFiscalId": {
+            "type": "string",
+            "nullable": true
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "usuarioId": {
+            "type": "string",
+            "nullable": true
+          },
+          "estados": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/generic.ecommerce.model.carrito.EstadoCarrito"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "generic.ecommerce.model.cotizacion.CotizacionCarrito": {
         "type": "object",
@@ -1055,7 +1250,7 @@
             "nullable": true
           },
           "pasarela": {
-            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelaPago"
           },
           "descuentos": {
             "type": "number",
@@ -1298,7 +1493,8 @@
       "generic.ecommerce.model.inAppPurchase.DtoComprobanteCompra": {
         "required": [
           "cuentaFiscalId",
-          "dispositivoId"
+          "dispositivoId",
+          "pasarelaPago"
         ],
         "type": "object",
         "properties": {
@@ -1310,8 +1506,8 @@
             "type": "string",
             "nullable": true
           },
-          "pasarelarPago": {
-            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelarPago"
+          "pasarelaPago": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelaPago"
           },
           "pasarelaId": {
             "type": "string",
@@ -1400,6 +1596,9 @@
           "periodoRenta": {
             "type": "integer",
             "format": "int32"
+          },
+          "pasarela": {
+            "$ref": "#/components/schemas/generic.ecommerce.model.carrito.PasarelaPago"
           },
           "descuentos": {
             "type": "array",

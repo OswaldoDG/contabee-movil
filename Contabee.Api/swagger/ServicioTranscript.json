@@ -45,23 +45,33 @@
         "tags": [
           "Captura"
         ],
+        "parameters": [
+          {
+            "name": "distribuidorid",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaTrabajoCapturaCloud"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaTrabajoCapturaCloud"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaDocumento"
+                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.PaginaTrabajoCapturaCloud"
                 }
               }
             }
@@ -104,24 +114,7 @@
         },
         "responses": {
           "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/contabee.model.transcript.paginas.CompletarCapturaPagina"
-                }
-              }
-            }
+            "description": "OK"
           },
           "404": {
             "description": "Not Found"
@@ -2485,6 +2478,7 @@
           "ReprogramacionFueraRango",
           "PortalPrivado",
           "Extemporaneo",
+          "ErrorPortal",
           "OtroError"
         ],
         "type": "string"
@@ -3185,6 +3179,11 @@
           "esAutoservicio": {
             "type": "boolean"
           },
+          "distribuidorId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
           "creditosDisponibles": {
             "type": "integer",
             "format": "int64"
@@ -3274,6 +3273,11 @@
           },
           "esAutoservicio": {
             "type": "boolean"
+          },
+          "distribuidorId": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -3296,7 +3300,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/comunes.busqueda.Paginado"
+            "$ref": "#/components/schemas/comunes.busqueda.Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -3534,6 +3539,83 @@
           },
           "xmlCfdi": {
             "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.paginas.PaginaTrabajoCapturaCloud": {
+        "required": [
+          "codigoPostal",
+          "denominacion",
+          "direccion",
+          "formaPago",
+          "regimenFiscal",
+          "rfc",
+          "usoFactura"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "loteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "ruta": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipoArchivo": {
+            "$ref": "#/components/schemas/comunes.extensiones.FileType"
+          },
+          "rfc": {
+            "type": "string",
+            "nullable": true
+          },
+          "denominacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "regimenFiscal": {
+            "type": "string",
+            "nullable": true
+          },
+          "usoFactura": {
+            "type": "string",
+            "nullable": true
+          },
+          "formaPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPostal": {
+            "type": "string",
+            "nullable": true
+          },
+          "direccion": {
+            "type": "string",
+            "nullable": true
+          },
+          "terminacionPago": {
+            "type": "string",
+            "nullable": true
+          },
+          "comentarios": {
+            "type": "string",
+            "nullable": true
+          },
+          "desglosarIEPS": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "tokenSas": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false

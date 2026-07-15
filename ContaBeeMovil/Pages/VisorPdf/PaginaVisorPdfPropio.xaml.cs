@@ -234,6 +234,14 @@ public partial class PaginaVisorPdfPropio : ContentPage
 
     private void IrAlInicio()
     {
+        // Zoom inicial: ajustado al ancho (zoom 1) y, si el contenido queda más
+        // corto que la pantalla (p. ej. una página apaisada), se amplía hasta
+        // llenar también el alto — el paneo permite ver lo que queda a los lados.
+        // Con documentos más altos que la vista el ajuste al alto daría < 1 y se
+        // conserva el ajuste al ancho.
+        double zoomAjusteAlto = _altoContenidoBase > 0 ? AltoVista() / _altoContenidoBase : 1;
+        _zoom = Math.Clamp(Math.Max(1, zoomAjusteAlto), ZoomMin, ZoomMax);
+
         _tx = 0;
         _ty = MaxTy(); // contenido centrado: +MaxTy deja visible el inicio
         AplicarTransformaciones();
@@ -337,7 +345,8 @@ public partial class PaginaVisorPdfPropio : ContentPage
     {
         if (_renderizando) return;
 
-        _zoom = 1;
+        // IrAlInicio recalcula el zoom inicial (ajuste a pantalla), no hace
+        // falta resetear _zoom aquí.
         if (_grados != 0)
         {
             _grados = 0;

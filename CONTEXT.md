@@ -5,6 +5,33 @@
 
 ---
 
+## 2026-07-15 — Fix Tienda/IAP: rename `pasarelarPago` → `pasarelaPago` del backend
+
+**Causa:** commit `81bf5e9` del backend ("Ajustes gestion de carritos en portal", PR #81) renombró en `DtoCreaCarritoCompras` (clase base del `DtoComprobanteCompra` que reciben `/iappurchases/verificar` y `/iappurchases/completar`) la propiedad `PasarelarPago` → `required PasarelaPago`. Doble ruptura: cambia el nombre JSON **y** al ser `required` en System.Text.Json un body sin `pasarelaPago` falla la deserialización → 400 → la app lo lee como "compra no válida".
+
+**Hecho:**
+- Swagger ya venía actualizado en el working tree; el cliente NSwag **se genera en build** (`OpenApiReference` → `obj/ServicioEcommerceClient.cs`, no se commitea), así que "regenerar" = compilar. Solo faltaba adecuar los call sites hechos a mano.
+- Renombrado `PasarelarPago` → `PasarelaPago` (enum + propiedad) en `Contabee.Api/ServicioEcommerce.cs` y `Pages/Tienda/TiendaPage.xaml.cs` (ambos bloques: `EnviarAlBackendYCompletarAsync` y `ProcesarCompraDirectaAsync`, en las 3 ramas `#if IOS/ANDROID/#else`). Cero referencias viejas restantes.
+- Verificado el contrato de salida en el cliente generado: `[JsonProperty("pasarelaPago", Required = Always)]` + `StringEnumConverter` → manda `"pasarelaPago":"Apple"|"Google"`, que es lo que el back espera.
+- Build OK en `Contabee.Api`, `net10.0-android` y `net10.0-ios`.
+
+**Segundo bug (silencioso, de dinero) — precios por pasarela.** Al auditar los 4 swagger se encontró que `DtoPrecioProducto` ganó la propiedad `pasarela`: el catálogo ya **NO** devuelve un precio Público por producto sino **cuatro**, uno por pasarela y con importes distintos (`CAPTURA15`: Interbancario $80 / MercadoPago $90 / Apple $90 / Google $90). La app hacía `Precios.First(pr => pr.Tipo == Publico)`, que como Interbancario va primero en el arreglo **siempre tomaba el precio Interbancario** → el `MontoCompra` que se persiste quedaba por debajo de lo que realmente cobró la tienda, en **el 100% de los productos**. No lo causó regenerar el cliente (la app vieja ya recibía los 4 precios e ignoraba el campo); regenerar es lo que dio el campo para arreglarlo.
+- Fix: constante `TiendaPage.PasarelaPlataforma` (`#if IOS→Apple / ANDROID→Google / else→Interbancario`), usada para elegir el precio (`Tipo == Publico && Pasarela == PasarelaPlataforma`, con fallback al primer Público para no degradar a 0) tanto en el `MontoCompra` como en el display de respaldo. De paso elimina el mapeo plataforma→pasarela que estaba triplicado.
+- Verificado contra el catálogo real (`GET /api/ecommerce/categorias/full` responde **anónimo**, útil para diagnosticar sin token).
+
+**Otros hallazgos:**
+- El swagger renombró endpoints de carrito (`/carrito/cuentafiscal/{id}` → `/carrito/pendientes/{cfid}`, nuevos DELETE `/carrito/{carritoId}` y POST `/carrito/cuentafiscal`), pero la app **no los usa** (solo `Full`, `Verificar`, `Completar`, `Cupones`, `Aplicar`) → sin impacto. `distribuidorId` (CRM/Transcript) y `cuponBienvenida` (Identidad) son aditivos.
+- `MotivoEstado` ganó `ErrorPortal`; `UsoCfdiOErrorConverter` tiene arm `_ => "Error"` → no truena, pero muestra mensaje genérico. Falta agregarle su texto.
+- ✅ **`paginado` — regresión confirmada y corregida (era un parche manual perdido).** El `nullable: true` de `paginado` NO lo genera el backend: se agrega **a mano** al swagger (lo hizo `cbf0e4d`, 20-mar-2026). La re-descarga de julio lo borró de los **5** lugares que lo tenían en Transcript. Sin él NSwag genera `Required.DisallowNull` y Newtonsoft **truena al deserializar** si el back responde `"paginado": null` → listados caídos. Restaurados los 5 + parchados 4 que **nunca** lo tuvieron (`BusquedaCaptura` en Transcript; `Busqueda`, `CuentaClienteResultadoPaginado`, `CuentaUsuarioResultadoPaginado` en Identidad — este último lo usa `EquipoViewModel`). **9/9 parchados.** Probado: el único efecto en el generado es `Required.DisallowNull` → `Required.Default` (relajación pura, no puede romper nada). Procedimiento y check automatizado quedaron documentados en **CLAUDE.md** para que no se vuelva a perder.
+- ⚠ **Trampa de depuración:** `TiendaPage.xaml.cs` loguea el payload con `System.Text.Json.JsonSerializer.Serialize(comprobante)`, que ignora los atributos de Newtonsoft → el log muestra `"PasarelaPago":2` mientras el wire real manda `"pasarelaPago":"Apple"`. El log **no** refleja lo que se envía; no fiarse de él al diagnosticar.
+
+**Pendiente:**
+- Probar compra real en dispositivo (Android/TestFlight) — el build verde no prueba que acredite.
+- **Reportar al backend precios que se ven mal capturados:** `AUTOSERVICIO50` Google **$1510** vs Apple $150 (10x, dedazo); `COLABORACION250` Apple $1220/Google $1199 vs Interbancario $575 (idénticos a los de `CAPTURA250`, parecen copy-paste); `BIENVENIDA15` $2349 (igual que `CAPTURA500`).
+- Sigue abierta la auditoría `docs/AUDITORIA-IAP.md` (12 hallazgos, varios críticos de dinero real: `/completar` no revalida recibo, sin manejo de reembolsos S2S). Su #4 (backend debe ignorar el `MontoCompra` del cliente y tomar el precio server-side) haría redundante el fix de precios, pero no lo sustituye mientras no exista.
+
+---
+
 ## 2026-07-13 — Visor PDF: overlay de descarga, título oculto y fix tamaño iOS
 
 **Hecho:**
