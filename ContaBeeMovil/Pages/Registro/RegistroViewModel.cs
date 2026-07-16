@@ -167,11 +167,7 @@ public class RegistroViewModel : INotifyPropertyChanged
 
             if (!string.IsNullOrWhiteSpace(CuponRegistro))
             {
-                var cuponResult = await _servicioEcommerce.AplicarCupon(CuponRegistro, new ActivacionCuponDto
-                {
-                    Codigo = CuponRegistro,
-                    Activar = false
-                });
+                var cuponResult = await _servicioEcommerce.ValidarCupon(CuponRegistro);
                 if (cuponResult.Codigo is null || cuponResult.Aplicado == true)
                 {
                     await _toast.MostrarAsync("Cupón no válido, por favor verifica e intenta de nuevo.", ToastIcono.Error, ToastPosicion.Bottom);

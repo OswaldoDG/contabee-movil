@@ -77,6 +77,11 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
             {
                 OnPropertyChanged(nameof(TextoCuentaFiscalAplicacion));
             }
+
+            if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
+            {
+                _ = CargarCuponesAsync();
+            }
         };
 
         BuscarCuponCommand = new Command(async () => await RegistrarCuponPorCodigoAsync());
@@ -92,7 +97,8 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
         try
         {
             _ = await _servicioSesion.LeeIdDeDispositivo();
-            var cupones = await _servicioEcommerce.CuponesUsuario();
+            var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+            var cupones = await _servicioEcommerce.CuponesUsuario(cfid);
 
             Cupones.Clear();
             foreach (var item in cupones ?? [])

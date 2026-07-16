@@ -24,21 +24,21 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         return r;
     }
 
-    //public async Task<RespuestaPayload<RespuestaCuponValido>> ValidarCupon(string codigo)
-    //{
-    //    RespuestaPayload<RespuestaCuponValido> r = new();
-    //    try
-    //    {
-    //        var res = await servicioEcommerce.ValidarAsync(codigo, TipoCuentaCupon.UsuarioApp, null);
-    //        r.Payload = res;
-    //        r.Ok = true;
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        r.Error = ex.ErrorGenerico("ServicioEcommerce-ValidarCupon");
-    //    }
-    //    return r;
-    //}
+    public async Task<CuponUsuario> ValidarCupon(string codigo)
+    {
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] ValidarCupon → codigo={codigo}");
+        try
+        {
+            var res = await servicioEcommerce.ValidarAsync(codigo);
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] ValidarCupon ← OK");
+            return res;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Ecommerce] ValidarCupon ← ERROR {ex.GetType().Name}: {ex.Message}");
+            return new CuponUsuario();
+        }
+    }
 
     public async Task<bool> VerificarCompraIAP(Guid cuentaFiscalId, DtoComprobanteCompra comprobante)
     {
@@ -72,12 +72,12 @@ public class ServicioEcommerce(HttpClient httpClient) : IServicioEcommerce
         }
     }
 
-    public async Task<List<CuponUsuario>> CuponesUsuario()
+    public async Task<List<CuponUsuario>> CuponesUsuario(Guid? cuentaFiscalId = null)
     {
-        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario →");
+        System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario → cfid={cuentaFiscalId}");
         try
         {
-            var res = await servicioEcommerce.CuponesAsync(null);
+            var res = await servicioEcommerce.CuponesAsync(cuentaFiscalId);
             System.Diagnostics.Debug.WriteLine($"[Ecommerce] CuponesUsuario ← OK");
             return res.ToList();
         }

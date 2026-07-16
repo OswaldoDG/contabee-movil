@@ -26,8 +26,11 @@
         </ToolbarItem>
     </ContentPage.ToolbarItems>
 
-    <Grid RowDefinitions="Auto,*">
-        <ScrollView Grid.Row="0">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- Banner global: sin cuenta fiscal activa (gestiona su propia visibilidad) -->
+        <views:BannerCuentaFiscalView Grid.Row="0" />
+
+        <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="10" Spacing="8">
                 <Border Style="{StaticResource ElevatedCard}" Padding="12">
                     <VerticalStackLayout Spacing="8">
@@ -95,7 +98,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <views:ResultadosListaView Grid.Row="1"
+        <views:ResultadosListaView Grid.Row="2"
                                    EstaCargando="{Binding EstaCargando}"
                                    Elementos="{Binding CapturasRelacionadas}"
                                    TotalEncontrados="{Binding TotalCapturasEncontradas}"
@@ -113,6 +116,7 @@
 
         <Border Style="{StaticResource FabBorder}"
                 Margin="0,0,8,8"
+                Grid.Row="1"
                 Grid.RowSpan="2">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding IrCapturaCommand}" />

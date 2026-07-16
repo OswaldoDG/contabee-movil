@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:f="clr-namespace:Fonts"
+             x:Class="ContaBeeMovil.Views.BannerCuentaFiscalView">
+
+    <!-- Banner global: sin cuenta fiscal seleccionada. Tap = seleccionar / registrar RFC. -->
+    <Grid x:Name="BannerRoot"
+          ColumnDefinitions="Auto,*,Auto"
+          ColumnSpacing="8"
+          BackgroundColor="{toolkit:AppThemeResource Primary}"
+          Padding="12,6">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnBannerTapped" />
+        </Grid.GestureRecognizers>
+
+        <Label Grid.Column="0"
+               Text="{x:Static f:FluentUI.warning_20_regular}"
+               FontFamily="FluentUI"
+               FontSize="16"
+               TextColor="{toolkit:AppThemeResource OnPrimary}"
+               VerticalOptions="Center" />
+
+        <Label Grid.Column="1"
+               x:Name="LabelMensaje"
+               Text="Selecciona una cuenta fiscal"
+               FontSize="12"
+               TextColor="{toolkit:AppThemeResource OnPrimary}"
+               LineBreakMode="TailTruncation"
+               MaxLines="1"
+               VerticalOptions="Center" />
+
+        <!-- Acción: "Seleccionar" (hay cuentas) o "Registrar" (sin cuentas) -->
+        <Label Grid.Column="2"
+               x:Name="LabelAccion"
+               Text="Seleccionar"
+               FontSize="12"
+               FontAttributes="Bold"
+               TextDecorations="Underline"
+               TextColor="{toolkit:AppThemeResource OnPrimary}"
+               VerticalOptions="Center" />
+    </Grid>
+
+</ContentView>

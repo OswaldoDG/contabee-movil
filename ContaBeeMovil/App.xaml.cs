@@ -5,6 +5,7 @@ using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.IAP;
 namespace ContaBeeMovil;
 
 public partial class App : Application
@@ -17,6 +18,7 @@ public partial class App : Application
         base.OnStart();
         AppState.Instance.CargarDesdePreferencias();
         _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync();
+        _ = Services.GetRequiredService<IServicioReconciliacionIAP>().ReconciliarAsync();
     }
 
     protected override void OnResume()
@@ -24,6 +26,7 @@ public partial class App : Application
         base.OnResume();
         AppState.Instance.CargarDesdePreferencias();
         _ = Services.GetRequiredService<IServicioSesion>().VerificarSesionAlReanudarAsync();
+        _ = Services.GetRequiredService<IServicioReconciliacionIAP>().ReconciliarAsync();
 #if IOS
         // Revisar App Group al reanudar — cubre el caso donde el usuario toca
         // la notificación "foto lista" que programa la Share Extension

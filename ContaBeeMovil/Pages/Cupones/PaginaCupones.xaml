@@ -3,13 +3,17 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:views="clr-namespace:ContaBeeMovil.Views"
     x:Class="ContaBee.Pages.Cupones.PaginaCupones"
     Title="Cupones"
     BackgroundColor="{toolkit:AppThemeResource Background}">
 
-    <Grid RowDefinitions="Auto,1,*,Auto" Padding="0">
+    <Grid RowDefinitions="Auto,Auto,1,*,Auto" Padding="0">
+        <!-- Banner global: sin cuenta fiscal seleccionada (gestiona su propia visibilidad) -->
+        <views:BannerCuentaFiscalView Grid.Row="0" />
+
         <Grid x:Name="BusquedaSection"
-              Grid.Row="0"
+              Grid.Row="1"
               BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
               Padding="16,10,16,12">
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
@@ -42,11 +46,11 @@
             </Grid>
         </Grid>
 
-        <BoxView Grid.Row="1"
+        <BoxView Grid.Row="2"
                  HeightRequest="1"
                  Color="{toolkit:AppThemeResource Accent1}" />
 
-        <CollectionView Grid.Row="2"
+        <CollectionView Grid.Row="3"
                         Margin="10,10"
                         ItemsSource="{Binding Cupones}"
                         SelectionMode="None">
@@ -126,7 +130,7 @@
         </CollectionView>
 
         <Grid x:Name="LoadingOverlay"
-              Grid.RowSpan="4"
+              Grid.RowSpan="5"
               IsVisible="{Binding EstaCargando}"
               BackgroundColor="{toolkit:AppThemeResource Shadow}"
               InputTransparent="False">

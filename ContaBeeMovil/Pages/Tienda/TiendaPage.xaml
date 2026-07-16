@@ -32,11 +32,14 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- Banner global: sin cuenta fiscal seleccionada (gestiona su propia visibilidad) -->
+        <views:BannerCuentaFiscalView Grid.Row="0" />
 
         <!-- ── Tabs de categoría — FlexLayout distribuye a ancho completo ── -->
         <FlexLayout x:Name="TabsCategorias"
-                    Grid.Row="0"
+                    Grid.Row="1"
                     Direction="Row"
                     JustifyContent="SpaceEvenly"
                     AlignItems="Stretch"
@@ -106,13 +109,13 @@
         </FlexLayout>
 
         <!-- Separador bajo los tabs -->
-        <BoxView Grid.Row="1"
+        <BoxView Grid.Row="2"
                  HeightRequest="2"
                  BackgroundColor="{toolkit:AppThemeResource Accent5}"
                  Margin="0"/>
 
         <!-- ── Área de contenido: mismo fondo Alternate que el chip del tab activo ── -->
-        <Grid Grid.Row="2"
+        <Grid Grid.Row="3"
               BackgroundColor="{toolkit:AppThemeResource Accent5}">
 
             <!-- Header debug (modo dev) -->
@@ -252,7 +255,7 @@
 
         <!-- Overlay de carga -->
         <views:CargandoOverlay x:Name="LoadingOverlay"
-                               Grid.RowSpan="3"
+                               Grid.RowSpan="4"
                                IsVisible="True" />
 
     </Grid>
