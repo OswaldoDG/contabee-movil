@@ -421,6 +421,48 @@
         }
       }
     },
+    "/cupones/validar/{codigo}": {
+      "get": {
+        "tags": [
+          "Cupones"
+        ],
+        "parameters": [
+          {
+            "name": "codigo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/generic.ecommerce.model.cupones.CuponUsuario"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict"
+          }
+        }
+      }
+    },
     "/cupones/aplicar/{codigo}": {
       "post": {
         "tags": [

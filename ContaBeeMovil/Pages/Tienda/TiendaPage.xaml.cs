@@ -22,6 +22,7 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
+    private readonly IServicioReconciliacionIAP _reconciliador;
 
     private static readonly PopupOptions _popupOpts = new()
     {
@@ -30,6 +31,7 @@ public partial class TiendaPage : ContentPage
     };
 
     private bool _cargado;
+    private bool _comprando;   // guard de reentrada: evita que un doble-tap dispare dos compras
 
     // El catálogo publica un precio Público POR pasarela (Interbancario/MercadoPago/Apple/Google),
     // con importes distintos. Hay que tomar el de la pasarela con la que se cobra en esta plataforma:
@@ -60,8 +62,6 @@ public partial class TiendaPage : ContentPage
     private List<CategoriaTabModel> _categorias = [];
     private CategoriaTabModel? _categoriaActiva;
 
-    private const string PrefsKeyComprasPendientes = "tienda.compras_pendientes";
-
     private static readonly (string Clave, string Nombre)[] CategoriasConfig =
     [
         ("CREDITOS_CAPTURA",       "Captura"),
@@ -70,7 +70,7 @@ public partial class TiendaPage : ContentPage
         ("REGALOS",                "Regalos"),
     ];
 
-    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs)
+    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs, IServicioReconciliacionIAP reconciliador)
     {
         InitializeComponent();
         _servicioEcommerce = servicioEcommerce;
@@ -79,6 +79,7 @@ public partial class TiendaPage : ContentPage
         _servicioAlerta    = servicioAlerta;
         _toast             = toast;
         _logs              = logs;
+        _reconciliador     = reconciliador;
     }
 
     protected override async void OnAppearing()
@@ -93,15 +94,20 @@ public partial class TiendaPage : ContentPage
         _descripcionCategoria = this.FindByName<Label>("DescripcionCategoria");
 
         if (_debugCompraDirecta is not null)
+#if DEBUG
             _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
+#else
+            _debugCompraDirecta.IsVisible = false;   // el panel de compra directa nunca aparece en Release
+#endif
 
         if (_cargado) return;
         _cargado = true;
 
         _logs.Log("Tienda: página abierta");
         await CargarProductosAsync();
-        await ReintentarComprasPendientesLocalesAsync();
-        await RestaurarComprasPendientesAsync();
+        // La red de seguridad (cola local + restore de compras no consumidas) vive ahora en
+        // IServicioReconciliacionIAP, que también corre en el arranque y al reanudar la app.
+        await _reconciliador.ReconciliarAsync();
     }
 
     // ── Carga del catálogo ────────────────────────────────────────────────────
@@ -251,32 +257,6 @@ public partial class TiendaPage : ContentPage
             _estadoVacio.IsVisible = !tieneProductos;
     }
 
-    // ── Restaurar compras pendientes ──────────────────────────────────────────
-
-    private async Task RestaurarComprasPendientesAsync()
-    {
-        var cuenta = AppState.Instance.CuentaFiscalActual;
-        if (cuenta is null) return;
-
-        _logs.Log("Tienda: restaurando compras pendientes");
-        var comprasPendientes = (await _servicioIAP.RestaurarComprasAsync())
-            .Where(c => c.State == PurchaseState.Purchased && c.IsAcknowledged != true)
-            .ToList();
-
-        _logs.Log($"Tienda: {comprasPendientes.Count} compras pendientes encontradas");
-
-        foreach (var compra in comprasPendientes)
-        {
-            var productoCatalogo = BuscarProductoEnCatalogo(compra.ProductId);
-            if (productoCatalogo is null)
-            {
-                _logs.Log($"Tienda: restore — producto no encontrado en catálogo: {compra.ProductId}");
-                continue;
-            }
-            await ProcesarCompraAsync(compra, productoCatalogo, cuenta.CuentaFiscalId, silencioso: true);
-        }
-    }
-
     // ── Máquina de estados de compra ──────────────────────────────────────────
 
     private async Task<bool> ProcesarCompraAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, bool silencioso = false)
@@ -320,24 +300,8 @@ public partial class TiendaPage : ContentPage
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
 #if IOS || MACCATALYST
-        string? verificationData = null;
-        try
-        {
-            var receiptUrl = Foundation.NSBundle.MainBundle.AppStoreReceiptUrl;
-            var receiptPath = receiptUrl?.Path;
-            _logs.Log($"Tienda: receipt path={receiptPath} exists={receiptPath != null && System.IO.File.Exists(receiptPath)}");
-            if (receiptPath != null && System.IO.File.Exists(receiptPath))
-            {
-                var bytes = System.IO.File.ReadAllBytes(receiptPath);
-                verificationData = Convert.ToBase64String(bytes);
-                _logs.Log($"Tienda: receipt leído OK — bytes={bytes.Length} b64length={verificationData.Length} preview={verificationData[..Math.Min(60, verificationData.Length)]}...");
-            }
-        }
-        catch (Exception exReceipt)
-        {
-            _logs.Log($"Tienda: error leyendo receipt — {exReceipt.Message}");
-        }
-        verificationData ??= compra.OriginalJson;
+        // Lee el recibo de App Store; si falta (install limpia / sandbox) fuerza un refresh (C6).
+        string? verificationData = await ReceiptApple.LeerBase64ConRefrescoAsync(_logs) ?? compra.OriginalJson;
         _logs.Log($"Tienda: receipt length={verificationData?.Length ?? 0}");
 #elif ANDROID
         var verificationData = compra.PurchaseToken;
@@ -386,8 +350,8 @@ public partial class TiendaPage : ContentPage
 
         if (completado)
         {
-            await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
-            _logs.Log($"Tienda: compra consumida — {compra.ProductId}");
+            var consumido = await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
+            _logs.Log($"Tienda: compra consumida={consumido} — {compra.ProductId}");
 
             // Determinamos tipo y cantidad desde los metadatos del producto (sin llamar al servidor).
             // GetLicenciaAsync se llama después de la animación en MainTabbedPage para evitar el drop visual.
@@ -404,7 +368,7 @@ public partial class TiendaPage : ContentPage
         else
         {
             _logs.Log($"Tienda: compra NO consumida — guardando localmente — verificado={verificado}");
-            GuardarCompraPendienteLocal(comprobante, compra.PurchaseToken ?? compra.TransactionIdentifier, productoCatalogo.Nombre);
+            _reconciliador.GuardarPendiente(comprobante, compra.PurchaseToken ?? compra.TransactionIdentifier, productoCatalogo.Nombre);
         }
 
         if (!silencioso)
@@ -450,23 +414,35 @@ public partial class TiendaPage : ContentPage
         }
 
         _logs.Log($"Tienda: iniciando compra — producto={modelo.Clave} cuenta={cuenta.CuentaFiscalId}");
+        if (_comprando) return;
+        _comprando = true;
+        btn.IsEnabled = false;
         SetCargando(true);
         try
         {
-            var compra = await _servicioIAP.ComprarAsync(modelo.Clave);
-            if (compra is null)
+            var resultado = await _servicioIAP.ComprarAsync(modelo.Clave);
+            switch (resultado.Estado)
             {
-                _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
-                return;
+                case ResultadoCompra.Ok:
+                    await ProcesarCompraAsync(resultado.Compra!, productoCatalogo, cuenta.CuentaFiscalId, silencioso: false);
+                    break;
+                case ResultadoCompra.Pendiente:
+                    _logs.Log($"Tienda: compra pendiente de aprobación — producto={modelo.Clave}");
+                    await _toast.MostrarAsync("Tu compra quedó pendiente de aprobación.", ToastIcono.Info, ToastPosicion.Bottom, 1500);
+                    break;
+                case ResultadoCompra.SinConexion:
+                    _logs.Log($"Tienda: sin conexión con la tienda — producto={modelo.Clave}");
+                    await _toast.MostrarAsync("Sin conexión con la tienda. Intenta más tarde.", ToastIcono.Error, ToastPosicion.Bottom, 1500);
+                    break;
+                case ResultadoCompra.Cancelada:
+                    _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
+                    await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
+                    break;
+                default:
+                    _logs.Log($"Tienda: error en compra — producto={modelo.Clave} detalle={resultado.Detalle}");
+                    await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error, ToastPosicion.Bottom, 1000);
+                    break;
             }
-
-            await ProcesarCompraAsync(compra, productoCatalogo, cuenta.CuentaFiscalId, silencioso: false);
-        }
-        catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
-        {
-            _logs.Log($"Tienda: compra cancelada por el usuario — producto={modelo.Clave}");
-            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
         }
         catch (Exception ex)
         {
@@ -476,6 +452,8 @@ public partial class TiendaPage : ContentPage
         finally
         {
             SetCargando(false);
+            btn.IsEnabled = true;
+            _comprando = false;
         }
     }
 
@@ -493,23 +471,36 @@ public partial class TiendaPage : ContentPage
         }
 
         _logs.Log($"Tienda: compra directa — iniciando IAP para {productoId}");
+        if (_comprando) return;
+        _comprando = true;
+        var boton = sender as Button;
+        if (boton is not null) boton.IsEnabled = false;
         SetCargando(true);
         try
         {
-            var compra = await _servicioIAP.ComprarAsync(productoId);
-            if (compra is null)
+            var resultado = await _servicioIAP.ComprarAsync(productoId);
+            switch (resultado.Estado)
             {
-                _logs.Log("Tienda: compra directa — cancelada por el usuario");
-                await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
-                return;
+                case ResultadoCompra.Ok:
+                    await ProcesarCompraDirectaAsync(resultado.Compra!, cuenta.CuentaFiscalId);
+                    break;
+                case ResultadoCompra.Pendiente:
+                    _logs.Log("Tienda: compra directa — pendiente de aprobación");
+                    await _toast.MostrarAsync("Tu compra quedó pendiente de aprobación.", ToastIcono.Info, ToastPosicion.Bottom, 1500);
+                    break;
+                case ResultadoCompra.SinConexion:
+                    _logs.Log("Tienda: compra directa — sin conexión con la tienda");
+                    await _toast.MostrarAsync("Sin conexión con la tienda. Intenta más tarde.", ToastIcono.Error, ToastPosicion.Bottom, 1500);
+                    break;
+                case ResultadoCompra.Cancelada:
+                    _logs.Log("Tienda: compra directa — cancelada por el usuario");
+                    await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
+                    break;
+                default:
+                    _logs.Log($"Tienda: compra directa — error detalle={resultado.Detalle}");
+                    await _toast.MostrarAsync("La compra no se completó.", ToastIcono.Error, ToastPosicion.Bottom, 1000);
+                    break;
             }
-
-            await ProcesarCompraDirectaAsync(compra, cuenta.CuentaFiscalId);
-        }
-        catch (Exception ex) when (ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase))
-        {
-            _logs.Log($"Tienda: compra directa — cancelada ({ex.Message})");
-            await _toast.MostrarAsync("Compra cancelada", ToastIcono.Warning, ToastPosicion.Bottom, 1000);
         }
         catch (Exception ex)
         {
@@ -519,6 +510,8 @@ public partial class TiendaPage : ContentPage
         finally
         {
             SetCargando(false);
+            if (boton is not null) boton.IsEnabled = true;
+            _comprando = false;
         }
     }
 
@@ -584,8 +577,8 @@ public partial class TiendaPage : ContentPage
 
         if (completado)
         {
-            await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
-            _logs.Log("Tienda: compra directa — consumida");
+            var consumido = await _servicioIAP.ConsumirCompraAsync(compra.ProductId, compra.PurchaseToken ?? compra.TransactionIdentifier);
+            _logs.Log($"Tienda: compra directa — consumida={consumido}");
 
             await _servicioSesion.GetLicenciaAsync();
             _logs.Log("Tienda: compra directa — licencia actualizada");
@@ -593,93 +586,13 @@ public partial class TiendaPage : ContentPage
         else
         {
             _logs.Log($"Tienda: compra directa NO consumida — guardando localmente — verificado={verificado}");
-            GuardarCompraPendienteLocal(comprobante, compra.PurchaseToken ?? compra.TransactionIdentifier, "captura15");
+            _reconciliador.GuardarPendiente(comprobante, compra.PurchaseToken ?? compra.TransactionIdentifier, "captura15");
         }
 
         if (completado)
             await _servicioAlerta.MostrarAsync("¡Compra exitosa!", "Los créditos captura15 ya están disponibles.", verBotonCancelar: false, confirmarText: "Aceptar");
         else
             await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
-    }
-
-    // ── Persistencia local de compras pendientes ──────────────────────────────
-
-    private void GuardarCompraPendienteLocal(DtoComprobanteCompra comprobante, string purchaseToken, string nombreProducto)
-    {
-        try
-        {
-            var pendientes = LeerComprasPendientesLocales();
-            if (pendientes.Any(p => p.Comprobante.CompraId == comprobante.CompraId))
-            {
-                _logs.Log($"Tienda: compra ya estaba en pendientes locales — {comprobante.ProductoTiendaId}");
-                return;
-            }
-            pendientes.Add(new CompraPendienteLocal { Comprobante = comprobante, PurchaseToken = purchaseToken, NombreProducto = nombreProducto });
-            Preferences.Default.Set(PrefsKeyComprasPendientes, System.Text.Json.JsonSerializer.Serialize(pendientes));
-            _logs.Log($"Tienda: compra pendiente guardada localmente — {comprobante.ProductoTiendaId}");
-        }
-        catch (Exception ex)
-        {
-            _logs.Log($"Tienda: error guardando compra pendiente local — {ex.Message}");
-        }
-    }
-
-    private static List<CompraPendienteLocal> LeerComprasPendientesLocales()
-    {
-        try
-        {
-            var json = Preferences.Default.Get(PrefsKeyComprasPendientes, null as string);
-            if (string.IsNullOrEmpty(json)) return [];
-            return System.Text.Json.JsonSerializer.Deserialize<List<CompraPendienteLocal>>(json) ?? [];
-        }
-        catch
-        {
-            return [];
-        }
-    }
-
-    private async Task ReintentarComprasPendientesLocalesAsync()
-    {
-        var cuenta = AppState.Instance.CuentaFiscalActual;
-        if (cuenta is null) return;
-
-        var pendientes = LeerComprasPendientesLocales();
-        if (pendientes.Count == 0) return;
-
-        _logs.Log($"Tienda: {pendientes.Count} compras pendientes locales — reintentando");
-        var remanentes = new List<CompraPendienteLocal>();
-
-        foreach (var p in pendientes)
-        {
-            if (!Guid.TryParse(p.Comprobante.CuentaFiscalId, out var cfid))
-                cfid = cuenta.CuentaFiscalId;
-
-            var verificado = await _servicioEcommerce.VerificarCompraIAP(cfid, p.Comprobante);
-            bool completado = false;
-            if (verificado)
-                completado = await _servicioEcommerce.CompletarCompraIAP(cfid, p.Comprobante);
-
-            _logs.Log($"Tienda: reintento local — producto={p.Comprobante.ProductoTiendaId} verificado={verificado} completado={completado}");
-
-            if (completado)
-            {
-                await _servicioIAP.ConsumirCompraAsync(p.Comprobante.ProductoTiendaId, p.PurchaseToken);
-                await _servicioSesion.GetLicenciaAsync();
-                _logs.Log($"Tienda: reintento local exitoso — {p.Comprobante.ProductoTiendaId}");
-            }
-            else
-            {
-                remanentes.Add(p);
-            }
-        }
-
-        if (remanentes.Count != pendientes.Count)
-        {
-            if (remanentes.Count == 0)
-                Preferences.Default.Remove(PrefsKeyComprasPendientes);
-            else
-                Preferences.Default.Set(PrefsKeyComprasPendientes, System.Text.Json.JsonSerializer.Serialize(remanentes));
-        }
     }
 
     private async void OnVerDetalleLicenciaClicked(object sender, EventArgs e)
@@ -724,12 +637,5 @@ public partial class TiendaPage : ContentPage
     {
         if (_loadingOverlay is not null)
             _loadingOverlay.IsVisible = cargando;
-    }
-
-    private sealed class CompraPendienteLocal
-    {
-        public DtoComprobanteCompra Comprobante { get; set; } = null!;
-        public string PurchaseToken { get; set; } = string.Empty;
-        public string NombreProducto { get; set; } = string.Empty;
     }
 }

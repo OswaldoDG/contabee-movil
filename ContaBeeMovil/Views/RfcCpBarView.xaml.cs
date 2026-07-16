@@ -2,10 +2,7 @@ using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
-using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
-using ContaBeeMovil.Services.Notifications;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ContaBeeMovil.Views;
 
@@ -63,11 +60,10 @@ public partial class RfcCpBarView : ContentView
 
     private void ActualizarDatos()
     {
-        // Sin cuenta fiscal activa → mostramos el estado "sin cuenta" (aviso + Actualizar)
-        // en lugar del selector de RFC/CP.
+        // Sin cuenta fiscal activa → ocultamos el selector RFC/CP; el BannerCuentaFiscalView
+        // embebido gestiona su propia visibilidad y muestra el aviso correspondiente.
         bool sinCuenta = AppState.Instance.CuentaFiscalActual is null;
         RootGrid.IsVisible = !sinCuenta;
-        SinCuentaBar.IsVisible = sinCuenta;
         if (sinCuenta) return;
 
         var cuenta = AppState.Instance.CuentaFiscalActual;
@@ -102,29 +98,5 @@ public partial class RfcCpBarView : ContentView
     {
         var page = Shell.Current as Page ?? Application.Current!.Windows[0].Page!;
         await page.ShowPopupAsync(new DireccionFiscalSelectorPopup());
-    }
-
-    private bool _actualizandoAcceso;
-    private async void OnActualizarAccesoTapped(object? sender, TappedEventArgs e)
-    {
-        if (_actualizandoAcceso) return;
-        _actualizandoAcceso = true;
-        try
-        {
-            var sesion = App.Services.GetRequiredService<IServicioSesion>();
-            var recuperado = await sesion.RefrescarAccesoAsync();
-
-            // Si recuperó, RefrescarAccesoAsync ya reinició a un AppShell completo; si no,
-            // seguimos sin cuentas y avisamos.
-            if (!recuperado)
-            {
-                var toast = App.Services.GetRequiredService<IServicioToast>();
-                await toast.MostrarAsync("Aún no tienes cuentas fiscales disponibles", ToastIcono.Warning, ToastPosicion.Bottom);
-            }
-        }
-        finally
-        {
-            _actualizandoAcceso = false;
-        }
     }
 }
