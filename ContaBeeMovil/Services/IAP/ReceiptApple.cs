@@ -46,15 +46,34 @@ internal static class ReceiptApple
         try
         {
             var request = new SKReceiptRefreshRequest();
-            request.Finished += (_, _) => tcs.TrySetResult(true);
-            request.Failed += (_, _) => tcs.TrySetResult(false);
+            var handler = new RefreshDelegate(tcs);
+            request.Delegate = handler;
             request.Start();
+
+            // Mantener vivas las referencias nativas hasta que la petición termine,
+            // evitando que el GC recoja request/handler durante el refresh asíncrono.
+            _ = tcs.Task.ContinueWith(_ =>
+            {
+                GC.KeepAlive(request);
+                GC.KeepAlive(handler);
+            }, TaskScheduler.Default);
         }
         catch
         {
             tcs.TrySetResult(false);
         }
         return tcs.Task;
+    }
+
+    // SKReceiptRefreshRequest no expone eventos Finished/Failed en el binding de .NET iOS;
+    // la vía correcta es un SKRequestDelegate con los overrides del protocolo.
+    private sealed class RefreshDelegate : SKRequestDelegate
+    {
+        private readonly TaskCompletionSource<bool> _tcs;
+        public RefreshDelegate(TaskCompletionSource<bool> tcs) => _tcs = tcs;
+
+        public override void RequestFinished(SKRequest request) => _tcs.TrySetResult(true);
+        public override void RequestFailed(SKRequest request, NSError error) => _tcs.TrySetResult(false);
     }
 }
 #endif
