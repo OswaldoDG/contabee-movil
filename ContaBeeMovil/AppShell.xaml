@@ -3,7 +3,6 @@
     x:Class="ContaBeeMovil.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:f="clr-namespace:Fonts"
     xmlns:pages="clr-namespace:ContaBeeMovil.Pages"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
@@ -287,23 +286,6 @@
                                  TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                  VerticalOptions="Center" />
                     <Label Grid.Column="1" Text="Acerca de"
-                           Style="{StaticResource Body1}"
-                           VerticalOptions="Center" />
-                </Grid>
-
-                <!-- Logs (solo visible en modo desarrollador) -->
-                <Grid x:Name="LogsMenuItem"
-                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10"
-                      IsVisible="False">
-                    <Grid.GestureRecognizers>
-                        <TapGestureRecognizer Tapped="OnLogsClicked" />
-                    </Grid.GestureRecognizers>
-                    <Label Grid.Column="0"
-                                 Text="{x:Static f:FluentUIFilled.bug_20_filled}" FontFamily="FluentUIFilled"
-                                 FontSize="22"
-                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                                 VerticalOptions="Center" />
-                    <Label Grid.Column="1" Text="Logs"
                            Style="{StaticResource Body1}"
                            VerticalOptions="Center" />
                 </Grid>

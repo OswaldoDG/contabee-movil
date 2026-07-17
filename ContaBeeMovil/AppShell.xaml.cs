@@ -46,14 +46,10 @@ namespace ContaBeeMovil
             _ = servicioSesion.GetTarjetasAsync();
             _ = RestaurarEsLoginLessAsync();
 
-            ActualizarVisibilidadLogs();
-
             AppState.Instance.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(AppState.Perfil))
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
-                else if (e.PropertyName == nameof(AppState.EsDev))
-                    MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
                 else if (e.PropertyName == nameof(AppState.EsLoginLess))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLoginLess);
                 else if (e.PropertyName == nameof(AppState.ModoOffline))
@@ -169,12 +165,6 @@ namespace ContaBeeMovil
 
         private string? _emailUsuario;
 
-        private void ActualizarVisibilidadLogs()
-        {
-            if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
-                logs.IsVisible = AppState.Instance.EsDev;
-        }
-
         private void ActualizarVisibilidadLoginLess()
         {
             var esLoginLess = AppState.Instance.EsLoginLess;
@@ -267,12 +257,6 @@ namespace ContaBeeMovil
         {
             FlyoutIsPresented = false;
             await Shell.Current.GoToAsync(nameof(CambiarContrasenaPage));
-        }
-
-        private async void OnLogsClicked(object? sender, EventArgs e)
-        {
-            FlyoutIsPresented = false;
-            await GoToAsync(nameof(LogsPage));
         }
 
         private async void OnCuponesClicked(object? sender, EventArgs e)

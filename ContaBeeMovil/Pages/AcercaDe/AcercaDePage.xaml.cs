@@ -1,12 +1,11 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
-using MauiIcons.Core;
-using MauiIcons.Material;
 
 namespace ContaBeeMovil.Pages.AcercaDe;
 
@@ -94,6 +93,12 @@ public partial class AcercaDePage : ContentPage
             await Shell.Current.GoToAsync("..");
         else
             await Navigation.PopAsync();
+    }
+
+    private async void OnLogsTapped(object? sender, TappedEventArgs e)
+    {
+        var page = MauiProgram.Services.GetRequiredService<LogsPage>();
+        await Navigation.PushAsync(page);
     }
 
     private void OnConectividadCambiada(object? sender, ConnectivityChangedEventArgs e)

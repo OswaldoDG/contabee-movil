@@ -3,7 +3,6 @@
     x:Class="ContaBeeMovil.Controls.CurvedTabBar"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:f="clr-namespace:Fonts"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="46">
@@ -52,7 +51,7 @@
                     <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
                 </VerticalStackLayout.GestureRecognizers>
                 <Label x:Name="IconFacturacion"
-                             Text="{x:Static f:FluentUIFilled.receipt_20_filled}" FontFamily="FluentUIFilled"
+                             Text="{x:Static f:MaterialSymbolsFilled.receipt}" FontFamily="MaterialSymbolsFilled"
                              TextColor="{toolkit:AppThemeResource Icon}"
                              FontSize="22"
                              BackgroundColor="Transparent"
@@ -82,7 +81,7 @@
                          HorizontalOptions="Center"
                          IsVisible="True" />
             <Label x:Name="FloatingIconFacturacion"
-                         Text="{x:Static f:FluentUIFilled.receipt_20_filled}" FontFamily="FluentUIFilled"
+                         Text="{x:Static f:MaterialSymbolsFilled.receipt}" FontFamily="MaterialSymbolsFilled"
                          TextColor="{toolkit:AppThemeResource Icon}"
                          FontSize="32"
                          BackgroundColor="Transparent"

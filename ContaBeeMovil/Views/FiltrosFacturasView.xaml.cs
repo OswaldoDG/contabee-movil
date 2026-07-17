@@ -2,7 +2,6 @@ using Contabee.Api.Transcript;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Comunes;
 using ContaBeeMovil.Services.Device;
-using MauiIcons.Material;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using System.Windows.Input;

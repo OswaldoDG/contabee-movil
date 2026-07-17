@@ -1,7 +1,6 @@
 using System.Windows.Input;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
-using MauiIcons.Material;
 using Microsoft.Extensions.DependencyInjection;
 using Busqueda = Contabee.Api.Transcript.Busqueda;
 using Filtro = Contabee.Api.Transcript.Filtro;

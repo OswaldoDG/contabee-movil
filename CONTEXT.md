@@ -5,6 +5,26 @@
 
 ---
 
+## 2026-07-17 — Material Symbols como fuente propia + eliminación de MauiIcons (NuGet)
+
+**Contexto:** el jefe pidió 3 íconos de Material (`receipt`, `price_check`, `payment_arrow_down`) para las tabs de Facturación/Comprobaciones/Devoluciones; MauiIcons (NuGet) tenía historial de fallas ("tofu") y ya casi no se usaba.
+
+**Hecho:**
+- **Material Symbols integrado igual que FluentUI:** `Resources/Fonts/MaterialSymbols-Regular.ttf` (FILL=0) y `MaterialSymbols-Filled.ttf` (FILL=1), generados como instancias estáticas (~1.4 MB c/u) desde la fuente variable oficial (10.6 MB) con `fontTools.varLib.instancer` (wght=400, GRAD=0, opsz=24). Nombre interno de cada ttf renombrado ("Material Symbols" / "Material Symbols Filled") para que iOS no las pise entre sí. Clases `MaterialSymbols.cs` / `MaterialSymbolsFilled.cs` (4,266 constantes c/u, generadas del `.codepoints` oficial; dígito inicial → prefijo `_`, keywords C# → `@`). Registradas en `MauiProgram.cs`.
+- **Alcance final: MaterialSymbols SOLO en los 3 tabs pedidos.** Facturación → `receipt`, Devoluciones → `payment_arrow_down`, Comprobaciones → `price_check` (variante filled), en `SimpleTabBar` (el activo) y también en `CurvedTabBar` (control huérfano, ninguna página lo usa — se migró por consistencia, no se eliminó por si se retoma). Inicio y Equipo siguen en FluentUIFilled.
+- **MauiIcons eliminado por completo** (3 PackageReference + entradas en `MtouchInterpreter`, `UseMaterialMauiIcons()`, 42 `xmlns:mi` huérfanos, ~15 `using MauiIcons.*`). Los 2 usos reales que tenía MauiIcons (botones de cámara de `PaginaCaptura`, palomita de `SelectorFlotante`) se migraron a **FluentUIFilled** (`camera_20_filled` / `checkmark_20_filled`), no a MaterialSymbols — Beto pidió mantener MaterialSymbols acotado solo a los 3 tabs mientras se evalúa. Converters `TipoProcesoCapturaIconConverter` y `ClaveFormaPagoIconConverter` **eliminados** (estaban declarados como resources en `LoteCapturaCardView` pero ningún binding los usaba). Warm-up de fuentes en `App.xaml.cs` actualizado (incluye "MaterialSymbols"/"MaterialSymbolsFilled" junto a las FluentUI).
+- Regenerar/subsetear: el proceso quedó en `build_material.py` (scratchpad de la sesión, no en repo); la fuente origen es github.com/google/material-design-icons `variablefont/`.
+
+**Decisiones tomadas:**
+- Se embarca el set completo (~2.8 MB total) y no un subset, a petición de Beto: si tras probar le gusta, planea migrar TODOS los íconos de la app a Material Symbols.
+- Hallazgo: el "tofu" histórico de MauiIcons NO era falta de registro (`UseMaterialMauiIcons()` sí existía); causa nunca confirmada.
+
+**Pendiente / próximos pasos:**
+- Beto compila y prueba en dispositivo (el primer build con MaterialSymbols compiló verde; tras quitar MauiIcons el build local falló solo por lock de `obj\` del IDE, no por código).
+- Posible migración total FluentUI → Material Symbols si convence.
+
+---
+
 ## 2026-07-15 — Fix Tienda/IAP: rename `pasarelarPago` → `pasarelaPago` del backend
 
 **Causa:** commit `81bf5e9` del backend ("Ajustes gestion de carritos en portal", PR #81) renombró en `DtoCreaCarritoCompras` (clase base del `DtoComprobanteCompra` que reciben `/iappurchases/verificar` y `/iappurchases/completar`) la propiedad `PasarelarPago` → `required PasarelaPago`. Doble ruptura: cambia el nombre JSON **y** al ser `required` en System.Text.Json un body sin `pasarelaPago` falla la deserialización → 400 → la app lo lee como "compra no válida".

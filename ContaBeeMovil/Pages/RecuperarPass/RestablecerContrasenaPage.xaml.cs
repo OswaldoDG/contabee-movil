@@ -3,8 +3,6 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Notifications;
-using MauiIcons.Core;
-using MauiIcons.Material;
 using System.Text.RegularExpressions;
 
 namespace ContaBeeMovil.Pages.RecuperarPass;

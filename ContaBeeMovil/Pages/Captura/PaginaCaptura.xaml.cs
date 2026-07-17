@@ -15,8 +15,6 @@ using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
 using ContaBeeMovil.Services.Notifications;
-using MauiIcons.Core;
-using MauiIcons.Material;
 
 namespace ContaBeeMovil.Pages.Captura;
 
@@ -62,12 +60,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         VerImagenCommand        = new Command<CapturaLote>(async c => await VerImagenAsync(c));
         EliminarCapturaCommand  = new Command<CapturaLote>(async c => await EliminarCapturaAsync(c));
         EnviarCommand           = new Command(async () => await EnviarAsync());
+        IniciarEnvioCommand     = new Command(async () => await IniciarEnvioAsync());
         CancelarCommand         = new Command(async () => await CancelarAsync());
 
         InitializeComponent();
 
-        BtnCamaraSin.Icon(MaterialIcons.PhotoCamera).IconSize(28);
-        BtnCamaraCon.Icon(MaterialIcons.PhotoCamera).IconSize(28);
+        BtnCamaraSin.Text = Fonts.FluentUIFilled.camera_20_filled;
+        BtnCamaraSin.FontFamily = Fonts.FluentUIFilled.FontFamily;
+        BtnCamaraSin.FontSize = 28;
+        BtnCamaraCon.Text = Fonts.FluentUIFilled.camera_20_filled;
+        BtnCamaraCon.FontFamily = Fonts.FluentUIFilled.FontFamily;
+        BtnCamaraCon.FontSize = 28;
 
         CircularProgress.Drawable = _progressDrawable;
 
@@ -435,10 +438,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(SinCreditos));
         OnPropertyChanged(nameof(CreditosActivos));
 
-        if (TieneCreditosAutoservicio)   // SoloAutoservicio o Ambos → autoservicio por defecto
-            UsarAutoservicio = true;
-        else                             // SoloCaptura o SinCreditos
+        if (TieneCreditosCaptura)        // SoloCaptura o Ambos → captura por defecto
             UsarAutoservicio = false;
+        else                             // SoloAutoservicio o SinCreditos
+            UsarAutoservicio = true;
     }
 
     private bool _usarAutoservicio;
@@ -551,6 +554,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public ICommand VerImagenCommand        { get; }
     public ICommand EliminarCapturaCommand  { get; }
     public ICommand EnviarCommand           { get; }
+    public ICommand IniciarEnvioCommand     { get; }
     public ICommand CancelarCommand         { get; }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -567,7 +571,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         _soloEvidencia = Preferences.Default.Get(PrefSoloEvidencia, false);
         OnPropertyChanged(nameof(SoloEvidencia));
-        _capturaRemota = _soloEvidencia && Preferences.Default.Get(PrefCapturaRemota, false);
+        _capturaRemota = false;   // Checkbox oculto — siempre false
         OnPropertyChanged(nameof(CapturaRemota));
         OnPropertyChanged(nameof(MostrarCapturaRemota));
         OnPropertyChanged(nameof(MostrarMontoTicketInput));
@@ -782,6 +786,83 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void OnCambiarTipoCredito(object sender, TappedEventArgs e) => UsarAutoservicio = !UsarAutoservicio;
 
+    private void OnDesglosarIepsTapped(object sender, TappedEventArgs e) => DesglosarIeps = !DesglosarIeps;
+    private void OnSoloEvidenciaTapped(object sender, TappedEventArgs e) => SoloEvidencia = !SoloEvidencia;
+    private void OnCapturaRemotaTapped(object sender, TappedEventArgs e) => CapturaRemota = !CapturaRemota;
+
+    private void OnEsUrgenteTapped(object sender, TappedEventArgs e)
+    {
+        if (!PuedeSerUrgente) return;
+        EsUrgente = !EsUrgente;
+    }
+
+    // ── Botón "Enviar" desplegable: flyout con Captura / Autoservicio ─────────
+
+    private bool _mostrarFlyoutCredito;
+    public bool MostrarFlyoutCredito
+    {
+        get => _mostrarFlyoutCredito;
+        private set
+        {
+            if (_mostrarFlyoutCredito == value) return;
+            _mostrarFlyoutCredito = value;
+            OnPropertyChanged();
+        }
+    }
+
+    // Router del botón Enviar: con ambos créditos pregunta (abre el selector); con un solo tipo envía directo.
+    private async Task IniciarEnvioAsync()
+    {
+        if (!PuedeEnviar) return;
+
+        if (TieneAmbosCreditos)
+            await AbrirFlyoutCreditoAsync();
+        else
+            await EnviarAsync();
+    }
+
+    private async void OnCerrarFlyoutCredito(object sender, TappedEventArgs e) => await CerrarFlyoutCreditoAsync();
+
+    // Al elegir el tipo en el selector (regla 3: ambos créditos) se fija el tipo y se envía.
+    private async void OnSeleccionarCreditoCaptura(object sender, TappedEventArgs e)
+    {
+        UsarAutoservicio = false;
+        await CerrarFlyoutCreditoAsync();
+        await EnviarAsync();
+    }
+
+    private async void OnSeleccionarCreditoAuto(object sender, TappedEventArgs e)
+    {
+        UsarAutoservicio = true;
+        await CerrarFlyoutCreditoAsync();
+        await EnviarAsync();
+    }
+
+    private async Task AbrirFlyoutCreditoAsync()
+    {
+        MostrarFlyoutCredito = true;
+        FlyoutCredito.Opacity = 0;
+        FlyoutCredito.TranslationY = 14;
+        FlyoutCredito.Scale = 0.92;
+
+        await Task.WhenAll(
+            FlyoutCredito.FadeTo(1, 180, Easing.CubicOut),
+            FlyoutCredito.TranslateTo(0, 0, 220, Easing.SpringOut),
+            FlyoutCredito.ScaleTo(1, 220, Easing.SpringOut));
+    }
+
+    private async Task CerrarFlyoutCreditoAsync()
+    {
+        if (!MostrarFlyoutCredito) return;
+
+        await Task.WhenAll(
+            FlyoutCredito.FadeTo(0, 140, Easing.CubicIn),
+            FlyoutCredito.TranslateTo(0, 14, 140, Easing.CubicIn),
+            FlyoutCredito.ScaleTo(0.92, 140, Easing.CubicIn));
+
+        MostrarFlyoutCredito = false;
+    }
+
     private async Task EnviarAsync()
     {
         if (AppState.Instance.ModoOffline)
@@ -866,7 +947,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 TerminacionMedioPago = requiereTarjeta ? (tarjeta?.UltimosDigitos ?? "0000") : string.Empty,
                 Comentario = NotasAdicionales,
                 DesglosarIEPS = DesglosarIeps,
-                CapturaRemota = SoloEvidencia && CapturaRemota,
+                CapturaRemota = false,   // Checkbox oculto — siempre se envía false
                 Urgente = EsUrgente && DateTime.Now.Hour < 20,
                 ProcesoAsociadoId = _procesoAsociadoId,
                 EsAutoservicio = UsarAutoservicio

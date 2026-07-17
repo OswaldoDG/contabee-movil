@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:views="clr-namespace:ContaBeeMovil.Views"
-             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:f="clr-namespace:Fonts"
              xmlns:models="clr-namespace:ContaBeeMovil.Models"
              x:Class="ContaBeeMovil.Pages.Captura.PaginaCaptura"
@@ -84,9 +83,11 @@
                        VerticalOptions="Center" />
             </Border>
 
-            <!-- Selector de tipo de crédito (ambos disponibles): dos secciones.
-                 Izquierda: color del tipo + nombre.  Derecha: fondo claro + número.
-                 Toda la píldora es tocable y alterna Captura <-> Autoservicio. -->
+            <!-- Con AMBOS créditos no se muestra badge: el tipo se elige en el botón Enviar. -->
+
+            <!-- [DESHABILITADO] Selector interactivo de tipo de crédito (píldora de dos secciones,
+                 tocable, alternaba Captura / Autoservicio). Reemplazado por el badge informativo de
+                 arriba + el dropdown del botón Enviar. Se conserva comentado por si se necesita revertir.
             <Border Grid.Column="1"
                     IsVisible="{Binding TieneAmbosCreditos}"
                     Opacity="{Binding OpacidadCreditos}"
@@ -100,8 +101,6 @@
                     <TapGestureRecognizer Tapped="OnCambiarTipoCredito" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,Auto" VerticalOptions="Center">
-                    <!-- Sección derecha (ATRÁS): fondo claro + número.
-                         Margin negativo: su borde izquierdo se mete debajo de la box de color. -->
                     <Border Grid.Column="1"
                             BackgroundColor="{toolkit:AppThemeResource Disabled}"
                             Stroke="Black"
@@ -122,7 +121,6 @@
                                    VerticalOptions="Center" />
                         </HorizontalStackLayout>
                     </Border>
-                    <!-- Sección izquierda (AL FRENTE, con sombra): color del tipo + ícono + nombre -->
                     <Border Grid.Column="0"
                             BackgroundColor="{Binding ColorCreditoActivo}"
                             Stroke="Transparent"
@@ -145,6 +143,7 @@
                     </Border>
                 </Grid>
             </Border>
+            -->
         </Grid>
     </Shell.TitleView>
 
@@ -162,7 +161,6 @@
 
                     <!-- 1. Barra RFC / CP -->
                     <views:RfcCpBarView Margin="-12,0" ConFondo="False" EnColumnas="True" Padding="5,0" />
-
 
                     <!-- 2+3. Forma de pago y Tarjeta -->
                     <Grid ColumnDefinitions="*,*"
@@ -194,9 +192,13 @@
                                 StrokeThickness="1"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 Padding="4,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDesglosarIepsTapped" />
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*"
                                   ColumnSpacing="0"
-                                  VerticalOptions="Center">
+                                  VerticalOptions="Center"
+                                  InputTransparent="True">
                                 <CheckBox Grid.Column="0"
                                           IsChecked="{Binding DesglosarIeps}"
                                           Color="{toolkit:AppThemeResource Primary}"
@@ -222,9 +224,13 @@
                                 StrokeThickness="1"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 Padding="4,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnSoloEvidenciaTapped" />
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*"
                                   ColumnSpacing="0"
-                                  VerticalOptions="Center">
+                                  VerticalOptions="Center"
+                                  InputTransparent="True">
                                 <CheckBox Grid.Column="0"
                                           IsChecked="{Binding SoloEvidencia}"
                                           Color="{toolkit:AppThemeResource Primary}"
@@ -244,9 +250,13 @@
                                 StrokeThickness="1"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 Padding="4,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnEsUrgenteTapped" />
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*"
                                   ColumnSpacing="0"
-                                  VerticalOptions="Center">
+                                  VerticalOptions="Center"
+                                  InputTransparent="True">
                                 <CheckBox Grid.Column="0"
                                           IsChecked="{Binding EsUrgente}"
                                           IsEnabled="{Binding PuedeSerUrgente}"
@@ -262,20 +272,24 @@
                         </Border>
                     </Grid>
 
-                    <!-- Fila B: Captura remota (solo visible si SoloEvidencia) -->
+                    <!-- Fila B: Captura remota (oculto — siempre se envía false) -->
                     <Grid ColumnDefinitions="*,*"
                           Margin="0,8,0,0"
-                          ColumnSpacing="8">
+                          ColumnSpacing="8"
+                          IsVisible="False">
                         <Border Grid.Column="0"
-                                IsVisible="{Binding MostrarCapturaRemota}"
                                 BackgroundColor="{toolkit:AppThemeResource Background}"
                                 StrokeShape="RoundRectangle 10"
                                 StrokeThickness="1"
                                 Stroke="{toolkit:AppThemeResource Accent1}"
                                 Padding="4,0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCapturaRemotaTapped" />
+                            </Border.GestureRecognizers>
                             <Grid ColumnDefinitions="Auto,*"
                                   ColumnSpacing="0"
-                                  VerticalOptions="Center">
+                                  VerticalOptions="Center"
+                                  InputTransparent="True">
                                 <CheckBox Grid.Column="0"
                                           IsChecked="{Binding CapturaRemota}"
                                           Color="{toolkit:AppThemeResource Primary}"
@@ -500,9 +514,11 @@
                     </Button.Shadow>
                 </Button>
 
+                <!-- Enviar: mismo aspecto siempre. Con un solo crédito envía directo; con ambos
+                     abre el selector "Quién captura" y al elegir se hace el envío (IniciarEnvioCommand). -->
                 <Button Grid.Column="2"
                         Text="Enviar"
-                        Command="{Binding EnviarCommand}"
+                        Command="{Binding IniciarEnvioCommand}"
                         IsEnabled="{Binding PuedeEnviar}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource OnPrimary}"
@@ -513,8 +529,8 @@
                         FontAttributes="Bold"
                         ContentLayout="Left,6">
                     <Button.ImageSource>
-                        <FontImageSource FontFamily="FluentUI"
-                                         Glyph="{x:Static f:FluentUI.arrow_upload_20_regular}"
+                        <FontImageSource FontFamily="FluentUIFilled"
+                                         Glyph="{x:Static f:FluentUIFilled.arrow_upload_20_filled}"
                                          Color="{toolkit:AppThemeResource OnPrimary}" />
                     </Button.ImageSource>
                     <Button.Triggers>
@@ -533,6 +549,85 @@
             </Grid>
 
         </Grid>
+
+        <!-- Scrim: captura el tap fuera del flyout para cerrarlo.
+             BackgroundColor explícito para anular el estilo implícito de BoxView (Accent1 = gris). -->
+        <BoxView Color="Transparent"
+                 BackgroundColor="Transparent"
+                 IsVisible="{Binding MostrarFlyoutCredito}"
+                 InputTransparent="False">
+            <BoxView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCerrarFlyoutCredito" />
+            </BoxView.GestureRecognizers>
+        </BoxView>
+
+        <!-- Flyout: ¿Quién captura? — Mi Equipo (Autoservicio) / Contabee (Captura).
+             Efecto flotante 3D con sombra theme-aware (negra en claro, gris en oscuro). -->
+        <Border x:Name="FlyoutCredito"
+                IsVisible="{Binding MostrarFlyoutCredito}"
+                Opacity="0"
+                BackgroundColor="{toolkit:AppThemeResource Background}"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 16"
+                Padding="14,12"
+                WidthRequest="272"
+                HorizontalOptions="End"
+                VerticalOptions="End"
+                Margin="8,0,8,74">
+            <Border.Shadow>
+                <Shadow Brush="{AppThemeBinding Light=Black, Dark=#6E6E6E}" Offset="0,5" Radius="10" Opacity="1" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Quién captura"
+                       HorizontalOptions="Center"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <!-- Mi Equipo (Autoservicio) -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="{toolkit:AppThemeResource Auto}"
+                            StrokeShape="RoundRectangle 22"
+                            StrokeThickness="0"
+                            Padding="8,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoAuto" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="1" InputTransparent="True">
+                            <Label Text="Mi Equipo"
+                                   FontAttributes="Bold" FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="White" />
+                            <Label Text="{Binding CreditosAutoservicio, StringFormat='{0} créditos'}"
+                                   FontSize="10" Opacity="0.85"
+                                   HorizontalOptions="Center"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+                    </Border>
+                    <!-- Contabee (Captura) -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="{toolkit:AppThemeResource Captura}"
+                            StrokeShape="RoundRectangle 22"
+                            StrokeThickness="0"
+                            Padding="8,12">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoCaptura" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="1" InputTransparent="True">
+                            <Label Text="Contabee"
+                                   FontAttributes="Bold" FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                            <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
+                                   FontSize="10" Opacity="0.85"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
 
         <!-- ══════════════════════════════════════════════════════════════════════
              OVERLAY DE ENVÍO

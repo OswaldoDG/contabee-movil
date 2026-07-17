@@ -4,7 +4,6 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:f="clr-namespace:Fonts"
-    xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     HeightRequest="50">
 
@@ -51,8 +50,8 @@
                 <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
             <Label x:Name="IconFacturacion"
-                   Text="{x:Static f:FluentUIFilled.receipt_20_filled}"
-                   FontFamily="FluentUIFilled"
+                   Text="{x:Static f:MaterialSymbolsFilled.receipt}"
+                   FontFamily="MaterialSymbolsFilled"
                    FontSize="22"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
@@ -80,8 +79,8 @@
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
             <Label x:Name="IconDevoluciones"
-                   Text="{x:Static f:FluentUIFilled.arrow_swap_20_filled}"
-                   FontFamily="FluentUIFilled"
+                   Text="{x:Static f:MaterialSymbolsFilled.payment_arrow_down}"
+                   FontFamily="MaterialSymbolsFilled"
                    FontSize="22"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
@@ -109,8 +108,8 @@
                 <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
             </VerticalStackLayout.GestureRecognizers>
             <Label x:Name="IconComprobaciones"
-                   Text="{x:Static f:FluentUIFilled.clipboard_checkmark_20_filled}"
-                   FontFamily="FluentUIFilled"
+                   Text="{x:Static f:MaterialSymbolsFilled.price_check}"
+                   FontFamily="MaterialSymbolsFilled"
                    FontSize="22"
                    HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />

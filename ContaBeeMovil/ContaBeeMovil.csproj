@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.5.4</ApplicationDisplayVersion>
-		<ApplicationVersion>59</ApplicationVersion>
+		<ApplicationDisplayVersion>2.5.5</ApplicationDisplayVersion>
+		<ApplicationVersion>60</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -63,7 +63,7 @@
 	  <MtouchLink>SdkOnly</MtouchLink>
 	  <MtouchUseLlvm>True</MtouchUseLlvm>
 	  <!-- Paquetes con módulos AOT incompatibles con net10.0 — usar intérprete para ellos -->
-	  <MtouchInterpreter>-all,+MauiIcons.Core,+MauiIcons.Material,+MauiIcons.FontAwesome,+Newtonsoft.Json,+zxing,+ZXing.Net.Maui,+ZXing.Net.Maui.Controls</MtouchInterpreter>
+	  <MtouchInterpreter>-all,+Newtonsoft.Json,+zxing,+ZXing.Net.Maui,+ZXing.Net.Maui.Controls</MtouchInterpreter>
 	</PropertyGroup>
 	<ItemGroup>
 		<CFBundleURLTypes Include="contabee">
@@ -94,9 +94,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AathifMahir.Maui.MauiIcons.Core" Version="6.0.0" />
-		<PackageReference Include="AathifMahir.Maui.MauiIcons.FontAwesome" Version="6.0.0" />
-		<PackageReference Include="AathifMahir.Maui.MauiIcons.Material" Version="6.0.0" />
 		<PackageReference Include="banditoth.MAUI.DeviceId" Version="1.0.2" />
 		<PackageReference Include="Microsoft.Extensions.ApiDescription.Client" Version="10.0.7">
 		  <PrivateAssets>all</PrivateAssets>

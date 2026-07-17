@@ -3,8 +3,6 @@ using CommunityToolkit.Maui.Views;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
 using ContaBeeMovil.Helpers;
-using MauiIcons.Core;
-using MauiIcons.Material;
 
 namespace ContaBeeMovil.Views;
 

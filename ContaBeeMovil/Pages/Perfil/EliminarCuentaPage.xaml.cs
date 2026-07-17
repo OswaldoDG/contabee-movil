@@ -1,8 +1,6 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
-using MauiIcons.Core;
-using MauiIcons.Material;
 
 namespace ContaBeeMovil.Pages.Perfil;
 
