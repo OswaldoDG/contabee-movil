@@ -2,7 +2,6 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:f="clr-namespace:Fonts"
              xmlns:converters="clr-namespace:ContaBeeMovil.Converters"
              xmlns:transcript="clr-namespace:Contabee.Api.Transcript;assembly=Contabee.Api"
@@ -15,8 +14,6 @@
         <converters:EstadoBadgeTextoConverter x:Key="BadgeTexto" />
         <converters:EstadoBadgeColorConverter x:Key="BadgeColor" />
         <converters:EstadoBadgeTextColorConverter x:Key="BadgeTextColor" />
-        <converters:TipoProcesoCapturaIconConverter x:Key="TipoIcon" />
-        <converters:ClaveFormaPagoIconConverter x:Key="FormaPagoIcon" />
         <converters:ClaveFormaPagoEsTarjetaConverter x:Key="EsTarjeta" />
         <converters:UsoCfdiOErrorConverter x:Key="UsoCfdiOError" />
         <converters:NombreInicialesConverter x:Key="NombreIniciales" />

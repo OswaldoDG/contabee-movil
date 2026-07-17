@@ -89,6 +89,7 @@
     <toolkit:AppThemeColor x:Key="Overlay"         Light="#66000000" Dark="#99000000" />
     <toolkit:AppThemeColor x:Key="StatLabel"       Light="#000000"   Dark="#fec001"  />
     <toolkit:AppThemeColor x:Key="DarkSurface"     Light="#141414"   Dark="#404040"  />
+    <toolkit:AppThemeColor x:Key="Border1"         Light="#919191"   Dark="#d8d9db"  />
 
     <!-- ========================================= -->
     <!-- BRUSHES                                   -->

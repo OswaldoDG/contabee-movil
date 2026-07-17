@@ -112,9 +112,8 @@ public partial class App : Application
             var fontManager = Services.GetService<IFontManager>();
             if (fontManager is null) return;
 
-            // "MaterialIcons" = alias con el que MauiIcons.Material registra su fuente.
-            // "FluentUI" = fuente de íconos propia de la app (Resources/Fonts).
-            string[] familias = { "MaterialIcons", "FluentUI", "FluentUIFilled", "OpenSansRegular", "OpenSansSemibold" };
+            // Fuentes de íconos propias de la app (Resources/Fonts).
+            string[] familias = { "MaterialSymbols", "MaterialSymbolsFilled", "FluentUI", "FluentUIFilled", "OpenSansRegular", "OpenSansSemibold" };
             foreach (var familia in familias)
             {
                 var fuente = Microsoft.Maui.Font.OfSize(familia, 24);

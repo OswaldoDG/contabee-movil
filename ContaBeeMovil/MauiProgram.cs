@@ -29,7 +29,6 @@ using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
 using ContaBeeMovil.Services.Notifications;
-using MauiIcons.Material;
 using ZXing.Net.Maui.Controls;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Controls.Handlers;
@@ -53,7 +52,6 @@ namespace ContaBeeMovil
 
             builder.UseMauiApp<App>();
             builder.UseSkiaSharp();
-            builder.UseMaterialMauiIcons();
             builder.UseBarcodeReader();
             builder.UseMauiCommunityToolkit();
             builder.ConfigureSyncfusionToolkit();
@@ -86,6 +84,8 @@ namespace ContaBeeMovil
                 fonts.AddFont("SegoeUI-Semibold.ttf", "SegoeSemibold");
                 fonts.AddFont("FluentSystemIcons-Regular.ttf", FluentUI.FontFamily);
                 fonts.AddFont("FluentSystemIcons-Filled.ttf", Fonts.FluentUIFilled.FontFamily);
+                fonts.AddFont("MaterialSymbols-Regular.ttf", Fonts.MaterialSymbols.FontFamily);
+                fonts.AddFont("MaterialSymbols-Filled.ttf", Fonts.MaterialSymbolsFilled.FontFamily);
             });
 
 #if DEBUG

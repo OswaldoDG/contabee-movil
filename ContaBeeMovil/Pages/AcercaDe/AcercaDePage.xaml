@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:mi="http://www.aathifmahir.com/dotnet/2022/maui/icons"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
              x:Class="ContaBeeMovil.Pages.AcercaDe.AcercaDePage"
@@ -175,6 +174,33 @@
                            HorizontalTextAlignment="End"
                            IsVisible="False"
                            WidthRequest="120" />
+                </Grid>
+            </Border>
+
+            <!-- Logs (siempre visible) -->
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnLogsTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <Label Grid.Column="1"
+                                 Text="{x:Static f:FluentUIFilled.bug_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="Logs"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <Label Grid.Column="3"
+                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                 FontSize="20"
+                                 TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                 VerticalOptions="Center" />
                 </Grid>
             </Border>
 

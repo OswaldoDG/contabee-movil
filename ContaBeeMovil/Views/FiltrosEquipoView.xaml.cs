@@ -1,6 +1,5 @@
 using System.Windows.Input;
 using ContaBeeMovil.Services.Device;
-using MauiIcons.Material;
 using Newtonsoft.Json;
 using Busqueda = Contabee.Api.Identidad.Busqueda;
 using Filtro = Contabee.Api.Identidad.Filtro;
