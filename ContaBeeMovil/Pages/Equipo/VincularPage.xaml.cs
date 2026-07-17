@@ -50,6 +50,11 @@ public partial class VincularPage : ContentPage
     {
         base.OnAppearing();
         if (_viewModel.MostrarPasoUno)
-            Dispatcher.Dispatch(() => TokenEntry.Focus());
+        {
+            // Se enfoca con un pequeño retraso, no durante el layout inicial: en iOS, abrir
+            // el teclado antes de que la página termine de medirse deja un gap inferior que no
+            // se revierte. Al esperar a que el layout se asiente, el teclado sube limpio.
+            Dispatcher.DispatchDelayed(TimeSpan.FromMilliseconds(400), () => TokenEntry.Focus());
+        }
     }
 }
