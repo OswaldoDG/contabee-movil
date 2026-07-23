@@ -51,7 +51,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _procesadorDocumento = procesadorDocumento;
         _logs              = logs;
 
-        FormasPago = FormaPagoProvider.GetFormasPago();
+        FormasPago = FormaPagoProvider.GetFormasPago()
+                                      .OrderBy(f => f.Descripcion, StringComparer.CurrentCultureIgnoreCase)
+                                      .ToList();
         _capturas  = [];
         _capturas.CollectionChanged += OnCapturasCollectionChanged;
         ActualizarUsoCfdi();
@@ -77,7 +79,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         SelectorFormaPago.Elementos = FormasPago.Select(f => f.Descripcion).ToList();
         SelectorFormaPago.IndiceCambiado += OnFormaPagoCambiada;
         SelectorTarjeta.IndiceCambiado   += OnTarjetaCambiada;
-        SelectorUsoCfdi.Elementos = _usoCfdiOpciones.Select(u => u.Descripcion).ToList();
+        SelectorUsoCfdi.Elementos = ConstruirElementosUsoCfdi(_usoCfdiOpciones);
         SelectorUsoCfdi.IndiceCambiado   += OnUsoCfdiCambiado;
 
         RestaurarPreferencias();
@@ -245,10 +247,20 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task CargarTarjetasYRefrescarAsync()
     {
-        await _servicioSesion.GetLicenciaAsync();
-        if (AppState.Instance.Tarjetas is null)
-            await _servicioSesion.GetTarjetasAsync();
+        // Pinta el selector de inmediato con lo que ya esté en caché (AppState),
+        // así no aparece vacío mientras la red responde en conexiones lentas.
         RefrescarTarjetas();
+
+        // Si aún no hay tarjetas cargadas, tráelas y vuelve a refrescar al terminar.
+        if (AppState.Instance.Tarjetas is null)
+        {
+            await _servicioSesion.GetTarjetasAsync();
+            RefrescarTarjetas();
+        }
+
+        // La licencia/créditos es independiente del selector de tarjetas: se pide
+        // al final para no bloquear su render.
+        await _servicioSesion.GetLicenciaAsync();
     }
 
     // ── Parámetro de navegación ──────────────────────────────────────────────
@@ -349,6 +361,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private TarjetaModel? _tarjetaSeleccionada;
 
+    // Tarjetas ordenadas alfabéticamente por su etiqueta. Los índices del dropdown
+    // se resuelven contra esta lista, así que SIEMPRE hay que usar este helper en
+    // lugar de AppState.Instance.Tarjetas directamente.
+    private static List<TarjetaModel> TarjetasOrdenadas()
+        => (AppState.Instance.Tarjetas ?? [])
+           .OrderBy(t => t.DisplayLabel, StringComparer.CurrentCultureIgnoreCase)
+           .ToList();
+
     // El dropdown de tarjetas lleva "Sin tarjeta" en el índice 0 y las tarjetas
     // registradas a partir del índice 1.
     private static List<string> ConstruirElementosTarjeta(IReadOnlyList<TarjetaModel> tarjetas)
@@ -366,6 +386,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private List<UsoCfdi> _usoCfdiOpciones = [];
     private UsoCfdi? _usoCfdiSeleccionado;
+
+    // El catálogo c_UsoCFDI del SAT trae las descripciones con punto final; el de
+    // formas de pago no. Se recorta sólo para mostrar — el catálogo queda intacto.
+    private static List<string> ConstruirElementosUsoCfdi(IEnumerable<UsoCfdi> opciones)
+        => opciones.Select(u => u.Descripcion.TrimEnd('.')).ToList();
 
     // ── Desglosar IEPS ───────────────────────────────────────────────────────
 
@@ -587,7 +612,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             {
                 _formaPagoSeleccionada = FormasPago[idx];
                 SelectorFormaPago.IndiceSeleccionado = idx;
-                var tarjetas = AppState.Instance.Tarjetas ?? [];
+                var tarjetas = TarjetasOrdenadas();
                 SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
                 OnPropertyChanged(nameof(MostrarTarjetas));
                 OnPropertyChanged(nameof(MostrarSelectorTarjeta));
@@ -626,7 +651,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void RefrescarTarjetas()
     {
-        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var tarjetas = TarjetasOrdenadas();
         SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
 
         // Por defecto "Sin tarjeta" (índice 0); si hay una guardada, mantenerla.
@@ -653,11 +678,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void ActualizarUsoCfdi()
     {
         var regimen = AppState.Instance.CuentaFiscalActual?.ClaveRegimenFiscal;
-        _usoCfdiOpciones    = UsoCfdiProvider.GetUsoCfdi(regimen);
+        _usoCfdiOpciones    = UsoCfdiProvider.GetUsoCfdi(regimen)
+                                             .OrderBy(u => u.Descripcion, StringComparer.CurrentCultureIgnoreCase)
+                                             .ToList();
         _usoCfdiSeleccionado = null;
         if (SelectorUsoCfdi is null) return;
 
-        SelectorUsoCfdi.Elementos = _usoCfdiOpciones.Select(u => u.Descripcion).ToList();
+        SelectorUsoCfdi.Elementos = ConstruirElementosUsoCfdi(_usoCfdiOpciones);
 
         // Restaurar preferencia si el código guardado sigue siendo válido en el nuevo régimen
         var codigoUso = Preferences.Default.Get(PrefUsoCfdi, string.Empty);
@@ -682,7 +709,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (_formaPagoSeleccionada is not null)
             Preferences.Default.Set(PrefFormaPago, _formaPagoSeleccionada.Codigo);
 
-        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var tarjetas = TarjetasOrdenadas();
         SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
         _tarjetaSeleccionada = null;
         SelectorTarjeta.IndiceSeleccionado = -1;
@@ -715,7 +742,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void OnTarjetaCambiada(object? sender, int indice)
     {
-        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var tarjetas = TarjetasOrdenadas();
         _tarjetaSeleccionada = TarjetaDesdeIndice(tarjetas, indice);
         if (_tarjetaSeleccionada is not null)
             Preferences.Default.Set(PrefTarjeta, _tarjetaSeleccionada.Id);
@@ -890,7 +917,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         // La tarjeta es opcional: si el usuario elige "Sin tarjeta" (índice 0) o no
         // tiene tarjetas registradas, se envía "0000" como terminación del medio de pago.
         var requiereTarjeta = formaPago.Codigo is "4" or "28";
-        var tarjetas = AppState.Instance.Tarjetas ?? [];
+        var tarjetas = TarjetasOrdenadas();
         var tarjeta = requiereTarjeta
             ? TarjetaDesdeIndice(tarjetas, SelectorTarjeta.IndiceSeleccionado)
             : null;
