@@ -32,6 +32,13 @@ public partial class SelectorFlotante : ContentView
         BindableProperty.Create(nameof(IndicePlaceholder), typeof(int), typeof(SelectorFlotante),
             defaultValue: -1, propertyChanged: OnAparienciaChanged);
 
+    // Cuando es true, el popup de opciones ignora el ancho del trigger y se expande
+    // al ancho de la página. Útil para dropdowns con textos largos (p.ej. Uso CFDI)
+    // que de otro modo se envuelven en varios renglones.
+    public static readonly BindableProperty AnchoDropdownExpandidoProperty =
+        BindableProperty.Create(nameof(AnchoDropdownExpandido), typeof(bool), typeof(SelectorFlotante),
+            defaultValue: false);
+
     public string Titulo
     {
         get => (string)GetValue(TituloProperty);
@@ -72,6 +79,12 @@ public partial class SelectorFlotante : ContentView
     {
         get => (int)GetValue(IndicePlaceholderProperty);
         set => SetValue(IndicePlaceholderProperty, value);
+    }
+
+    public bool AnchoDropdownExpandido
+    {
+        get => (bool)GetValue(AnchoDropdownExpandidoProperty);
+        set => SetValue(AnchoDropdownExpandidoProperty, value);
     }
 
     public event EventHandler<int>? IndiceCambiado;
@@ -159,7 +172,7 @@ public partial class SelectorFlotante : ContentView
             contenido = lista;
         }
 
-        await OverlayFlotante.MostrarEnPagina(Trigger, contenido, Math.Max(Trigger.Width, 150));
+        await OverlayFlotante.MostrarEnPagina(Trigger, contenido, Math.Max(Trigger.Width, 150), AnchoDropdownExpandido);
     }
 
     private void SeleccionarIndice(int indice)

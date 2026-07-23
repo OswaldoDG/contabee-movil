@@ -170,6 +170,7 @@
                         <!-- Forma de pago -->
                         <views:SelectorFlotante Grid.Column="0"
                                                x:Name="SelectorFormaPago"
+                                               AnchoDropdownExpandido="True"
                                                Titulo="Medio Pago" />
 
                         <!-- Tarjeta (incluye la opción "Sin tarjeta") -->
@@ -185,6 +186,7 @@
                           ColumnSpacing="8">
                         <views:SelectorFlotante Grid.Column="0"
                                                x:Name="SelectorUsoCfdi"
+                                               AnchoDropdownExpandido="True"
                                                Titulo="Uso Factura" />
                         <Border Grid.Column="1"
                                 BackgroundColor="{toolkit:AppThemeResource Background}"

@@ -9,7 +9,11 @@ internal static class OverlayFlotante
     private static Layout? _raizActual;
     private static EventHandler? _handlerDesapareciendo;
 
-    internal static async Task MostrarEnPagina(View trigger, View contenido, double anchoMinimo = 0)
+    // Margen lateral respetado cuando el popup se expande o se reposiciona para no
+    // salirse del borde de la página.
+    private const double MargenLateral = 16;
+
+    internal static async Task MostrarEnPagina(View trigger, View contenido, double anchoMinimo = 0, bool expandirAnchoPagina = false)
     {
         Ocultar();
 
@@ -20,8 +24,13 @@ internal static class OverlayFlotante
 
         var posicion = ObtenerPosicionRelativa(trigger, raiz);
         var altoPagina = raiz.Height > 0 ? raiz.Height : DeviceDisplay.MainDisplayInfo.Height / DeviceDisplay.MainDisplayInfo.Density;
+        var anchoPagina = raiz.Width > 0 ? raiz.Width : DeviceDisplay.MainDisplayInfo.Width / DeviceDisplay.MainDisplayInfo.Density;
 
-        var ancho = anchoMinimo > 0 ? anchoMinimo : trigger.Width;
+        double ancho;
+        if (expandirAnchoPagina && anchoPagina > 0)
+            ancho = anchoPagina - 2 * MargenLateral;
+        else
+            ancho = anchoMinimo > 0 ? anchoMinimo : trigger.Width;
         if (ancho <= 0) ancho = 200;
 
         var contenedorDropdown = new Border
@@ -47,6 +56,10 @@ internal static class OverlayFlotante
 
         double top = posicion.Y + trigger.Height + 4;
         double left = posicion.X;
+
+        // Reposiciona si el popup (más ancho que el trigger) se saldría por la derecha.
+        if (anchoPagina > 0 && left + ancho > anchoPagina - MargenLateral)
+            left = Math.Max(MargenLateral, anchoPagina - ancho - MargenLateral);
 
         bool desbordaAbajo = top + 300 > altoPagina;
         if (desbordaAbajo)
