@@ -259,7 +259,7 @@ public partial class TiendaPage : ContentPage
 
     // ── Máquina de estados de compra ──────────────────────────────────────────
 
-    private async Task<bool> ProcesarCompraAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, bool silencioso = false)
+    private async Task<bool> ProcesarCompraAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, double montoStore, bool silencioso = false)
     {
         _logs.Log($"Tienda: procesando compra" +
                   $" | Id={compra.Id}" +
@@ -278,7 +278,7 @@ public partial class TiendaPage : ContentPage
         switch (compra.State)
         {
             case PurchaseState.Purchased:
-                return await EnviarAlBackendYCompletarAsync(compra, productoCatalogo, cfid, silencioso);
+                return await EnviarAlBackendYCompletarAsync(compra, productoCatalogo, cfid, montoStore, silencioso);
 
             case PurchaseState.Purchasing:
             case PurchaseState.Deferred:
@@ -295,7 +295,7 @@ public partial class TiendaPage : ContentPage
         }
     }
 
-    private async Task<bool> EnviarAlBackendYCompletarAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, bool silencioso)
+    private async Task<bool> EnviarAlBackendYCompletarAsync(InAppBillingPurchase compra, DtoProducto productoCatalogo, Guid cfid, double montoStore, bool silencioso)
     {
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
@@ -319,7 +319,7 @@ public partial class TiendaPage : ContentPage
             PasarelaId       = verificationData,
             CompraId         = compra.TransactionIdentifier,
             ProductoTiendaId = compra.ProductId,
-            MontoCompra      = precioPublico?.Precio ?? 0,
+            MontoCompra      = montoStore, // cobro real reportado por la store (MicrosPrice); pendiente endurecer server-side (B7)
             Elementos        =
             [
                 new DtoElementoCompra
@@ -424,7 +424,7 @@ public partial class TiendaPage : ContentPage
             switch (resultado.Estado)
             {
                 case ResultadoCompra.Ok:
-                    await ProcesarCompraAsync(resultado.Compra!, productoCatalogo, cuenta.CuentaFiscalId, silencioso: false);
+                    await ProcesarCompraAsync(resultado.Compra!, productoCatalogo, cuenta.CuentaFiscalId, modelo.PrecioValor, silencioso: false);
                     break;
                 case ResultadoCompra.Pendiente:
                     _logs.Log($"Tienda: compra pendiente de aprobación — producto={modelo.Clave}");

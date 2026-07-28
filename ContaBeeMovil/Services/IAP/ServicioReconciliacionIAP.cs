@@ -159,9 +159,18 @@ public class ServicioReconciliacionIAP : IServicioReconciliacionIAP
 
         var dispositivoId = await _servicioSesion.LeeIdDeDispositivo();
 
+        // Precio reportado por la store (MicrosPrice) por SKU, consultado una sola vez para todos los
+        // IDs restaurados. En restauración es el precio ACTUAL, que para una compra vieja podría diferir
+        // de lo cobrado; aun así es mejor que registrar 0.
+        var idsProductos = pendientes.Select(c => c.ProductId).Distinct().ToArray();
+        var preciosStore = new Dictionary<string, double>();
+        foreach (var sp in await _servicioIAP.ObtenerProductosAsync(idsProductos))
+            preciosStore[sp.ProductId] = sp.MicrosPrice / 1_000_000.0;
+
         foreach (var compra in pendientes)
         {
-            var comprobante = await ConstruirComprobanteMinimoAsync(compra, cfid, dispositivoId);
+            var montoStore = preciosStore.TryGetValue(compra.ProductId, out var m) ? m : 0;
+            var comprobante = await ConstruirComprobanteMinimoAsync(compra, cfid, dispositivoId, montoStore);
             if (comprobante is null)
             {
                 _logs.Log($"ReconciliacionIAP: sin verificationData para {compra.ProductId} — se omite");
@@ -186,9 +195,10 @@ public class ServicioReconciliacionIAP : IServicioReconciliacionIAP
         }
     }
 
-    // El backend deriva el producto acreditado del ProductoTiendaId (SKU validado), así que
-    // aquí no se necesita el catálogo: Elementos vacío y MontoCompra 0 son suficientes.
-    private async Task<DtoComprobanteCompra?> ConstruirComprobanteMinimoAsync(InAppBillingPurchase compra, Guid cfid, string dispositivoId)
+    // El backend deriva el producto acreditado del ProductoTiendaId (SKU validado), así que aquí no
+    // se necesita el catálogo (Elementos vacío). El monto sí se toma del precio reportado por la store
+    // (montoStore) para no registrar 0 en compras recuperadas por restauración.
+    private async Task<DtoComprobanteCompra?> ConstruirComprobanteMinimoAsync(InAppBillingPurchase compra, Guid cfid, string dispositivoId, double montoStore)
     {
         var verificationData = await ObtenerVerificationDataAsync(compra);
         if (string.IsNullOrEmpty(verificationData)) return null;
@@ -201,7 +211,7 @@ public class ServicioReconciliacionIAP : IServicioReconciliacionIAP
             PasarelaId       = verificationData,
             CompraId         = compra.TransactionIdentifier,
             ProductoTiendaId = compra.ProductId,
-            MontoCompra      = 0,
+            MontoCompra      = montoStore,
             Elementos        = [],
         };
     }
