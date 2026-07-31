@@ -547,6 +547,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             if (value)
             {
                 _progressDrawable.Progress = 0f;
+                // El arco toma el color del crédito con el que se está enviando:
+                // Captura → Primary (amarillo) | Autoservicio → Auto (azul)
+                _progressDrawable.ColorArco = UsarAutoservicio
+                    ? UIHelpers.GetColor("Auto")
+                    : UIHelpers.GetColor("Primary");
                 CircularProgress?.Invalidate();
             }
         }
@@ -1228,6 +1233,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         public float Progress { get; set; }   // 0.0 – 1.0
 
+        // Color del arco. Lo fija PaginaCaptura según el tipo de crédito en uso.
+        public Color? ColorArco { get; set; }
+
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
             var cx = dirtyRect.Width  / 2f;
@@ -1243,7 +1251,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             if (Progress <= 0) return;
 
             // Arco de progreso: arranca en las 12 en punto (270°) y gira a la derecha
-            canvas.StrokeColor   = UIHelpers.GetColor("Primary");
+            canvas.StrokeColor   = ColorArco ?? UIHelpers.GetColor("Primary");
             canvas.StrokeSize    = strokeWidth;
             canvas.StrokeLineCap = LineCap.Round;
 

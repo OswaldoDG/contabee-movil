@@ -585,6 +585,83 @@
         }
       }
     },
+    "/app/version-movil": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionMovilRespuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionMovilRespuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionMovilRespuesta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/app/version-movil/verifica": {
+      "get": {
+        "tags": [
+          "App"
+        ],
+        "parameters": [
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "plataforma",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/PlataformaMovil"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificacionVersionMovilRespuesta"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificacionVersionMovilRespuesta"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificacionVersionMovilRespuesta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
     "/connect/token": {
       "post": {
         "tags": [
@@ -2355,8 +2432,7 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado",
-            "nullable": true
+            "$ref": "#/components/schemas/Paginado"
           },
           "contar": {
             "type": "boolean"
@@ -2520,8 +2596,7 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado",
-            "nullable": true
+            "$ref": "#/components/schemas/Paginado"
           },
           "contar": {
             "type": "boolean"
@@ -2691,8 +2766,7 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado",
-            "nullable": true
+            "$ref": "#/components/schemas/Paginado"
           },
           "contar": {
             "type": "boolean"
@@ -3000,6 +3074,13 @@
         },
         "additionalProperties": false
       },
+      "PlataformaMovil": {
+        "enum": [
+          "Android",
+          "Ios"
+        ],
+        "type": "string"
+      },
       "RecuperacionContrasena": {
         "required": [
           "password",
@@ -3192,6 +3273,56 @@
           "UsuarioCaptura"
         ],
         "type": "string"
+      },
+      "VerificacionVersionMovilRespuesta": {
+        "type": "object",
+        "properties": {
+          "plataforma": {
+            "$ref": "#/components/schemas/PlataformaMovil"
+          },
+          "versionRecibida": {
+            "type": "string",
+            "nullable": true
+          },
+          "versionActual": {
+            "type": "string",
+            "nullable": true
+          },
+          "requiereActualizacion": {
+            "type": "boolean"
+          },
+          "urlActualizacion": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensaje": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "VersionMovilRespuesta": {
+        "type": "object",
+        "properties": {
+          "versionActual": {
+            "type": "string",
+            "nullable": true
+          },
+          "urlAndroid": {
+            "type": "string",
+            "nullable": true
+          },
+          "urlIos": {
+            "type": "string",
+            "nullable": true
+          },
+          "mensaje": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       }
     }
   }

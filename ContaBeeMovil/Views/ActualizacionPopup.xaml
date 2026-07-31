@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:f="clr-namespace:Fonts"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.ActualizacionPopup"
+               CanBeDismissedByTappingOutsideOfPopup="True"
+               Background="Transparent">
+
+    <!-- Popup dedicado al aviso de nueva versión. NO reutiliza AlertaPopup a
+         propósito: aquél es el alert genérico de toda la app y no debe cargar
+         con la identidad visual de esta pantalla. -->
+    <Border x:Name="ContenedorPopup"
+            BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+            Stroke="Transparent"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 20"
+            Padding="0"
+            Margin="20">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,6" Radius="20" Opacity="0.35" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="0">
+
+            <!-- ── HERO: banda de marca con el ícono ── -->
+            <Grid HeightRequest="118"
+                  BackgroundColor="{toolkit:AppThemeResource Primary}">
+
+                <!-- Círculos decorativos, apenas visibles sobre el amarillo -->
+                <Ellipse WidthRequest="150" HeightRequest="150"
+                         Fill="White" Opacity="0.16"
+                         HorizontalOptions="Start" VerticalOptions="Start"
+                         TranslationX="-55" TranslationY="-70"
+                         InputTransparent="True" />
+                <Ellipse WidthRequest="90" HeightRequest="90"
+                         Fill="White" Opacity="0.12"
+                         HorizontalOptions="End" VerticalOptions="End"
+                         TranslationX="30" TranslationY="40"
+                         InputTransparent="True" />
+
+                <Border WidthRequest="72" HeightRequest="72"
+                        BackgroundColor="{toolkit:AppThemeResource Accent3}"
+                        Stroke="Transparent" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 36"
+                        HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="{x:Static f:FluentUIFilled.arrow_download_24_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="34"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!-- ── CUERPO ── -->
+            <VerticalStackLayout Padding="24,20,24,20" Spacing="10">
+
+                <Label x:Name="LblTitulo"
+                       Text="Actualización disponible"
+                       Style="{StaticResource Title3}"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+
+                <Label x:Name="LblMensaje"
+                       Style="{StaticResource Body2}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center" />
+
+                <!-- Píldora instalada → nueva -->
+                <Border x:Name="PildoraVersiones"
+                        BackgroundColor="{toolkit:AppThemeResource Alternate}"
+                        Stroke="Transparent" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="16,8"
+                        Margin="0,4,0,0"
+                        HorizontalOptions="Center">
+                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                        <Label x:Name="LblVersionInstalada"
+                               Style="{StaticResource Caption1}"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}"
+                               VerticalOptions="Center" />
+                        <Label Text="{x:Static f:FluentUIFilled.arrow_right_20_filled}"
+                               FontFamily="FluentUIFilled"
+                               FontSize="15"
+                               TextColor="{toolkit:AppThemeResource Secondary}"
+                               VerticalOptions="Center" />
+                        <Label x:Name="LblVersionNueva"
+                               Style="{StaticResource Body2Strong}"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Button x:Name="BtnActualizar"
+                        Text="Actualizar"
+                        Style="{StaticResource PrimaryButton}"
+                        HeightRequest="50"
+                        Margin="0,10,0,0"
+                        Clicked="OnActualizar" />
+
+                <!-- "Ahora no" como texto plano: acción secundaria, sin peso visual -->
+                <Label x:Name="LblAhoraNo"
+                       Text="Ahora no"
+                       Style="{StaticResource Body2Strong}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"
+                       Padding="24,10">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAhoraNo" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

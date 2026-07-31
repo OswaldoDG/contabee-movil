@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.5.6</ApplicationDisplayVersion>
-		<ApplicationVersion>61</ApplicationVersion>
+		<ApplicationDisplayVersion>2.5.7</ApplicationDisplayVersion>
+		<ApplicationVersion>62</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -213,6 +213,11 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
+	  <!-- Fuera del inflador SourceGen: éste no embebe el .xaml como recurso y
+	       XAML Hot Reload truena al intentar inflarlo en runtime
+	       ("No embeddedresource found for __XamlGeneratedCode__.__Type..."").
+	       Default = Runtime en Debug (Hot Reload funciona), XamlC en Release. -->
+	  <MauiXaml Update="Views\ActualizacionPopup.xaml" Inflator="Default" />
 	  <MauiXaml Update="Services\Notifications\CustomToast.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

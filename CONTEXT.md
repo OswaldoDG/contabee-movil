@@ -5,6 +5,32 @@
 
 ---
 
+## 2026-07-31 — Aviso de actualización adaptado al contrato final del backend + botón de prueba
+
+**Contexto:** el backend ya deployó el control de versión, pero con un contrato **distinto** al que la app asumía. `GET /app/version-movil` (identity, `[AllowAnonymous]`) ya **no** devuelve `versionMinima` / `versionRecomendada`, solo `versionActual` + urls. La comparación ahora la hace el servidor en un endpoint nuevo. Con el contrato viejo el aviso **nunca se hubiera mostrado** (ambas versiones llegaban null → salía por el `return`).
+
+**Hecho** (`Services/ServicioActualizacion.cs`, `AppShell.xaml` + `.xaml.cs`):
+- **Nuevo endpoint:** `GET /api/identity/app/version-movil/verifica?version={mayor.menor.parche}&plataforma={Android|Ios}`. Se manda `AppInfo.Current.Version` recortada a 3 componentes (AppInfo puede traer 4). Respuesta: `requiereActualizacion` (único campo que decide), `urlActualizacion`, `versionActual`, `mensaje`.
+- **400 = no actualizar, seguir de largo.** Pasa naturalmente en builds internos/TestFlight adelantados a lo publicado, y en versión no parseable. Se loguea y se trata como "no hay update"; **no** cae al fallback de tienda.
+- **Se eliminó el concepto de versión obligatoria** (`_obligatoriaPendiente`, `VersionMinima`, popup sin botón cancelar): el backend ya no lo expone, el aviso es informativo y no bloqueante. Si más adelante reintroducen "versión mínima", hay que volver a agregarlo.
+- **Plataformas no contempladas** (Windows / MacCatalyst): se omite el chequeo, el backend solo conoce `Android` e `Ios`.
+- Fallback a tienda (iTunes lookup / scrape de Play) **se conserva** pero solo para cuando el backend no responde (red caída, 5xx); ahora hace la comparación local y produce el mismo `ResultadoVersion`.
+- DTO local renombrado a `RespuestaVerificacion` y **anidado privado** dentro del servicio: NSwag ya genera `VerificacionVersionMovilRespuesta` y `VersionMovilRespuesta` en `Contabee.Api.Identidad` y chocaban por nombre.
+- Throttle diario, ignore con caducidad de 3 días y guard `SemaphoreSlim` se mantienen igual; la clave `Actualizacion_VersionIgnorada` ahora guarda `versionActual` del servidor.
+- Hubo un botón dev en el menú lateral para forzar el aviso; se **eliminó** una vez validada la apariencia en dispositivo (junto con `MostrarAvisoDemoAsync`). Recuperable del historial si se vuelve a necesitar.
+
+**Apariencia — popup dedicado `Views/ActualizacionPopup.xaml`:** el aviso ya no usa `AlertaPopup`. Decisión deliberada: `AlertaPopup` es el alert genérico de toda la app (cerrar sesión, confirmaciones, errores) y no debe cargar con la identidad visual de esta pantalla. Diseño "hero de marca" elegido por Beto: banda superior `Primary #fec001` de 118px con dos elipses blancas decorativas (opacidad 0.16/0.12) y el ícono `arrow_download_24_filled` en círculo blanco de 72px; cuerpo con `Title3` + `Body2`; píldora `Alternate` con **instalada → nueva** (`1.0.38 → 2.5.6`); `PrimaryButton` a ancho completo y **"Ahora no" como texto plano** (no botón) para que la acción secundaria no compita.
+- La píldora se **oculta** si falta alguna de las dos versiones (fallback a tienda / backend sin configurar).
+- **Tocar fuera ≠ "Ahora no":** el popup expone `Confirmado` y `Pospuesto`; solo el "Ahora no" explícito persiste `Actualizacion_VersionIgnorada` (3 días). Cerrar tocando afuera no silencia nada — el throttle diario ya evita que insista ese día.
+- En el aviso de muestra (botón dev), si `versionActual` del backend coincide con la instalada se enseña la instalada +1 en el parche, para que la píldora no se vea `1.0.38 → 1.0.38`.
+- `ServicioActualizacion` ya **no** depende de `IServicioAlerta`; monta el popup directo con el guard de `PaginaSinConexion` que tenía `ServicioAlerta`.
+
+**Trampa de `MauiXamlInflator=SourceGen` (csproj:28) — leer antes de agregar XAML nuevo.** Al correr el popup por primera vez reventó con `XamlParseException: No embeddedresource found for __XamlGeneratedCode__.__Type<hash>`. Causa: el inflador SourceGen compila el XAML a C# y **no lo embebe como recurso**; cuando XAML Hot Reload detecta el archivo editado intenta inflarlo en runtime (`LoadFromXaml`) y no encuentra el recurso. No es defecto del XAML — le pega a cualquier archivo editado en sesión de depuración. Solución aplicada: `<MauiXaml Update="Views\ActualizacionPopup.xaml" Inflator="Default" />` (Runtime en Debug → Hot Reload funciona; XamlC en Release). Ya había precedente con `AppStyles.xaml` (`Inflator="Runtime"`). Verificado: con `Inflator="Default"` deja de generarse el `.xsg.cs` del archivo.
+
+**Estado:** probado en dispositivo por Beto — aprobado. Pendiente menor: revisar en tema claro/oscuro que el hero amarillo se recorte bien en las esquinas redondeadas (el clipping del `Border` puede variar por plataforma).
+
+---
+
 ## 2026-07-17 — Material Symbols como fuente propia + eliminación de MauiIcons (NuGet)
 
 **Contexto:** el jefe pidió 3 íconos de Material (`receipt`, `price_check`, `payment_arrow_down`) para las tabs de Facturación/Comprobaciones/Devoluciones; MauiIcons (NuGet) tenía historial de fallas ("tofu") y ya casi no se usaba.

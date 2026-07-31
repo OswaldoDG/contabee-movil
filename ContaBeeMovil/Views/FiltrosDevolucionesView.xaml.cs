@@ -1,4 +1,5 @@
 using System.Windows.Input;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using Microsoft.Extensions.DependencyInjection;
@@ -203,9 +204,7 @@ public partial class FiltrosDevolucionesView : ContentView
                 && SelectorMes.IndiceSeleccionado >= 0)
             {
                 var mes = SelectorMes.IndiceSeleccionado + 1;
-                var ultimoDia = DateTime.DaysInMonth(anio, mes);
-                var inicio = $"{anio:D4}-{mes:D2}-01 06:00:00.000Z";
-                var fin = $"{anio:D4}-{mes:D2}-{ultimoDia:D2} 06:00:00.000Z";
+                var (inicio, fin) = RangosFecha.RangoUtcDelMes(anio, mes);
 
                 filtros.Add(new Filtro
                 {

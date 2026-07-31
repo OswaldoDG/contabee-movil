@@ -1,4 +1,5 @@
 using Contabee.Api.Transcript;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Comunes;
 using ContaBeeMovil.Services.Device;
@@ -40,6 +41,12 @@ public partial class FiltrosFacturasView : ContentView
 
     private static readonly List<string> _envios =
         ["Todos", "Foto", "Email"];
+
+    private static readonly Dictionary<string, string> _envioEnum = new()
+    {
+        ["Foto"]  = nameof(FuenteCaptura.Camara),
+        ["Email"] = nameof(FuenteCaptura.Email),
+    };
 
     private static readonly List<string> _tipos =
         ["Todos", "Captura individual", "Comprobaçión", "Devolucion"];
@@ -247,9 +254,7 @@ public partial class FiltrosFacturasView : ContentView
             if (SelectorAnio.ElementoSeleccionado is string anioStr && int.TryParse(anioStr, out int anio) && SelectorMes.IndiceSeleccionado >= 0)
             {
                 int mes = SelectorMes.IndiceSeleccionado + 1;
-                int ultimoDia = DateTime.DaysInMonth(anio, mes);
-                string inicio = $"{anio:D4}-{mes:D2}-01 06:00:00.000Z";
-                string fin    = $"{anio:D4}-{mes:D2}-{ultimoDia:D2} 06:00:00.000Z";
+                var (inicio, fin) = RangosFecha.RangoUtcDelMes(anio, mes);
                 filtros.Add(new Filtro { Propiedad = "FechaCreacion", Operador = Operador.Entre, Valores = [inicio, fin] });
             }
 
@@ -257,8 +262,9 @@ public partial class FiltrosFacturasView : ContentView
                 && _estadoEnum.TryGetValue(estado, out string? estadoVal))
                 filtros.Add(new Filtro { Propiedad = "Estado", Operador = Operador.Igual, Valores = [estadoVal] });
 
-            if (SelectorEnvio.IndiceSeleccionado > 0 && SelectorEnvio.ElementoSeleccionado is string envio)
-                filtros.Add(new Filtro { Propiedad = "TipoRecepcion", Operador = Operador.Igual, Valores = [envio] });
+            if (SelectorEnvio.IndiceSeleccionado > 0 && SelectorEnvio.ElementoSeleccionado is string envio
+                && _envioEnum.TryGetValue(envio, out string? envioVal))
+                filtros.Add(new Filtro { Propiedad = "FuenteCaptura", Operador = Operador.Igual, Valores = [envioVal] });
 
             if (SelectorTipo.IndiceSeleccionado > 0 && SelectorTipo.ElementoSeleccionado is string tipo
                 && _tipoEnum.TryGetValue(tipo, out string? tipoVal))
@@ -289,9 +295,7 @@ public partial class FiltrosFacturasView : ContentView
         var hoy = DateTime.Now;
         SelectorAnio.ElementoSeleccionado = hoy.Year.ToString();
         SelectorMes.IndiceSeleccionado = hoy.Month - 1;
-        int ultimoDia = DateTime.DaysInMonth(hoy.Year, hoy.Month);
-        string inicio = $"{hoy.Year:D4}-{hoy.Month:D2}-01 06:00:00.000Z";
-        string fin    = $"{hoy.Year:D4}-{hoy.Month:D2}-{ultimoDia:D2} 06:00:00.000Z";
+        var (inicio, fin) = RangosFecha.RangoUtcDelMes(hoy.Year, hoy.Month);
         filtros.Add(new Filtro { Propiedad = "FechaCreacion", Operador = Operador.Entre, Valores = [inicio, fin] });
 
         SelectorEstado.IndiceSeleccionado  = 0;
