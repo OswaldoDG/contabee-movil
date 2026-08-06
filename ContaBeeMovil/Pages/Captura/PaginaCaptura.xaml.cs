@@ -190,8 +190,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     /// </summary>
     public bool FueraDeHorario => _estadoHorario is { Abierto: false };
 
-    public string MensajeHorario => _estadoHorario?.Mensaje ?? string.Empty;
-    public string ResumenHorario => _estadoHorario?.ResumenCorto ?? string.Empty;
+    public string MensajeHorario       => _estadoHorario?.Mensaje ?? string.Empty;
+    public string ResumenHorario       => _estadoHorario?.ResumenCorto ?? string.Empty;
+    public string MensajeBreveHorario  => _estadoHorario?.MensajeBreve ?? string.Empty;
 
     // Sin fotos el aviso ocupa la zona central con la mascota en grande y sustituye al
     // estado vacío "Sin Capturas". Con fotos NO se muestra nada en el cuerpo: la página
@@ -242,6 +243,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _estadoHorario = _servicioHorario.ObtenerEstado();
         OnPropertyChanged(nameof(MensajeHorario));
         OnPropertyChanged(nameof(ResumenHorario));
+        OnPropertyChanged(nameof(MensajeBreveHorario));
         NotificarPanelCentral();
     }
 

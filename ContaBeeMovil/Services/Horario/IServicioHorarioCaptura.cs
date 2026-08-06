@@ -15,12 +15,17 @@ namespace ContaBeeMovil.Services.Horario;
 /// Versión mínima del aviso para espacios estrechos (p. ej. "reanuda lun 9:00").
 /// Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
+/// <param name="MensajeBreve">
+/// Una línea para la franja de estado (p. ej. "Contabee reanuda el próximo lunes a
+/// las 9:00 a.m."). Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// </param>
 public sealed record EstadoHorarioCaptura(
     bool Abierto,
     DateTime AhoraCentral,
     DateTime? ProximaAperturaCentral,
     string Mensaje,
-    string ResumenCorto);
+    string ResumenCorto,
+    string MensajeBreve);
 
 /// <summary>
 /// Reglas del horario en que ContaBee realiza la captura delegada de tickets.

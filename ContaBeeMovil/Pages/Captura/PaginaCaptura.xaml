@@ -599,13 +599,51 @@
 
             </Grid>
 
-            <!-- ── Barra de acciones: con capturas (Cancelar + Cámara + Enviar al 33%) ── -->
-            <Grid Grid.Row="2"
-                  ColumnDefinitions="*,*,*"
-                  Padding="8"
-                  ColumnSpacing="8"
-                  BackgroundColor="{toolkit:AppThemeResource Background}"
-                  IsVisible="{Binding TieneCapturas}">
+            <!-- ── Barra de acciones: con capturas (franja de horario + los 3 botones) ── -->
+            <VerticalStackLayout Grid.Row="2"
+                                 Spacing="0"
+                                 Padding="8,4,8,8"
+                                 BackgroundColor="{toolkit:AppThemeResource Background}"
+                                 IsVisible="{Binding TieneCapturas}">
+
+            <!-- Franja de estado: el texto se lee sin tocar nada, que es lo que el
+                 badge del botón por sí solo no logra (un reloj suelto no se explica).
+                 Vive aquí, en la barra inferior, porque esta fila ya es Auto y crece
+                 sola: el área de fotos no pierde nada. Tap → mensaje completo. -->
+            <Grid IsVisible="{Binding MostrarAvisoHorario}"
+                  ColumnDefinitions="Auto,*,Auto"
+                  ColumnSpacing="6"
+                  Padding="4,2,2,6">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAvisoHorarioTapped" />
+                </Grid.GestureRecognizers>
+                <Label Grid.Column="0"
+                       Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                       FontFamily="FluentUIFilled"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource Primary}" />
+                <Label Grid.Column="1"
+                       Text="{Binding MensajeBreveHorario}"
+                       FontSize="11"
+                       VerticalOptions="Center"
+                       LineBreakMode="TailTruncation"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                <Label Grid.Column="2"
+                       Text="{x:Static f:FluentUI.chevron_right_20_regular}"
+                       FontFamily="FluentUI"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+            </Grid>
+
+            <!-- Botones a 44 px (antes 50): la franja cuesta ~26 px y así se recuperan
+                 6. 44 es el mínimo táctil de Apple; no bajar más. -->
+            <Grid ColumnDefinitions="*,*,*"
+                  ColumnSpacing="8">
 
                 <Button Grid.Column="0"
                         Text="Cancelar"
@@ -616,7 +654,7 @@
                         BorderColor="{toolkit:AppThemeResource SecondaryText}"
                         BorderWidth="1.5"
                         CornerRadius="12"
-                        HeightRequest="50"
+                        HeightRequest="44"
                         Padding="0"
                         FontSize="15" />
 
@@ -627,7 +665,7 @@
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
-                        HeightRequest="50">
+                        HeightRequest="44">
                     <Button.Shadow>
                         <Shadow Brush="{toolkit:AppThemeResource Shadow}" Offset="0,3" Radius="6" Opacity="0.35" />
                     </Button.Shadow>
@@ -646,7 +684,7 @@
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
-                        HeightRequest="50"
+                        HeightRequest="44"
                         Padding="14,0"
                         FontSize="15"
                         FontAttributes="Bold"
@@ -669,12 +707,15 @@
                     </Button.Shadow>
                 </Button>
 
-                <!-- Badge de horario, montado en la esquina del botón. Queda medio
-                     fuera del botón a propósito: así el tap que abre el mensaje no
-                     se come el área útil de Enviar.
-                     El relieve lo dan el contorno negro y la sombra propia, que se
-                     proyecta sobre el amarillo del botón. -->
-                <Border IsVisible="{Binding MostrarAvisoHorario}"
+                <!-- [DESACTIVADO] Badge de horario en la esquina del botón. Se apagó
+                     al entrar la franja de estado: con el texto ya visible arriba, el
+                     reloj sólo repetía el aviso sin decir nada por su cuenta. Se
+                     conserva por si se decide volver a él — para reactivarlo, cambiar
+                     IsVisible por {Binding MostrarAvisoHorario}.
+                     Queda medio fuera del botón a propósito: así el tap que abre el
+                     mensaje no se come el área útil de Enviar. El relieve lo dan el
+                     contorno negro y la sombra propia sobre el amarillo del botón. -->
+                <Border IsVisible="False"
                         HorizontalOptions="End"
                         VerticalOptions="Start"
                         TranslationX="4"
@@ -706,6 +747,8 @@
                 </Grid>
 
             </Grid>
+
+            </VerticalStackLayout>
 
         </Grid>
 

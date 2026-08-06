@@ -57,12 +57,14 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
                       && ahoraCentral.TimeOfDay <  HoraCierre;
 
         if (abierto)
-            return new EstadoHorarioCaptura(true, ahoraCentral, null, string.Empty, string.Empty);
+            return new EstadoHorarioCaptura(true, ahoraCentral, null,
+                                            string.Empty, string.Empty, string.Empty);
 
         var proxima = CalcularProximaApertura(ahoraCentral);
         return new EstadoHorarioCaptura(false, ahoraCentral, proxima,
                                         ConstruirMensaje(ahoraCentral, proxima),
-                                        ConstruirResumenCorto(ahoraCentral, proxima));
+                                        ConstruirResumenCorto(ahoraCentral, proxima),
+                                        ConstruirMensajeBreve(ahoraCentral, proxima));
     }
 
     public async Task PrecargarFeriadosAsync(CancellationToken ct = default)
@@ -128,6 +130,33 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
                    : NombreDia(dia.DayOfWeek)[..3];
 
         return $"reanuda {cuando} {proximaApertura.Hour}:{proximaApertura.Minute:00}";
+    }
+
+    /// <summary>
+    /// Franja de estado. Redacción deliberada: <b>"a partir de"</b>, no "se procesará
+    /// el/a las". La segunda forma se lee como un compromiso de que el envío de ESE
+    /// usuario queda listo a esa hora exacta, y lo que ocurre es que a esa hora
+    /// arranca el procesamiento de la cola. Sujeto en plural ("los envíos") por lo
+    /// mismo: habla de cuándo reanuda la operación, no de un caso particular.
+    /// </summary>
+    private static string ConstruirMensajeBreve(DateTime ahoraCentral, DateTime proximaApertura)
+        => $"Procesamos los envíos a partir {DescribirAperturaDesde(ahoraCentral, proximaApertura)}";
+
+    /// <summary>
+    /// Complemento de "a partir …": "de hoy 9:00 a.m." / "de mañana …" / "del lunes …".
+    /// Sin "a las" ni "el próximo" — la franja es de una sola línea y esos caracteres
+    /// son la diferencia entre que quepa o se trunque.
+    /// </summary>
+    private static string DescribirAperturaDesde(DateTime ahoraCentral, DateTime proximaApertura)
+    {
+        var hoy  = DateOnly.FromDateTime(ahoraCentral);
+        var dia  = DateOnly.FromDateTime(proximaApertura);
+        var hora = FormatearHora(proximaApertura);
+
+        if (dia == hoy)            return $"de hoy {hora}";
+        if (dia == hoy.AddDays(1)) return $"de mañana {hora}";
+
+        return $"del {NombreDia(dia.DayOfWeek)} {hora}";
     }
 
     private static string DescribirApertura(DateTime ahoraCentral, DateTime proximaApertura)
