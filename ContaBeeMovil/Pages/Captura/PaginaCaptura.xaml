@@ -187,8 +187,13 @@
              ══════════════════════════════════════════════════════════════════════ -->
         <Grid RowDefinitions="Auto,*,Auto" Padding="0">
 
-            <!-- ── Zona de controles (scroll por si el teclado sube) ───────────── -->
-            <ScrollView Grid.Row="0" VerticalScrollBarVisibility="Never">
+            <!-- ── Zona de controles (scroll por si el teclado sube) ─────────────
+                 MaximumHeightRequest se fija en OnSizeAllocated: esta fila es Auto y
+                 sin tope se queda con todo el alto de su contenido, dejando al
+                 carrusel sin espacio. -->
+            <ScrollView x:Name="ScrollControles"
+                        Grid.Row="0"
+                        VerticalScrollBarVisibility="Never">
                 <VerticalStackLayout Spacing="0" Padding="5,0,5,4">
 
                     <!-- 1. Barra RFC / CP -->
@@ -389,7 +394,9 @@
             </ScrollView>
 
             <!-- ── 7. Zona de capturas ─────────────────────────────────────────── -->
-            <Grid Grid.Row="1">
+            <Grid x:Name="ZonaCapturas"
+                  Grid.Row="1"
+                  SizeChanged="OnZonaCapturasSizeChanged">
 
                 <!-- Aviso amplio: fuera de horario y sin fotos todavía. Ocupa la zona
                      central en lugar del estado vacío — es el mismo hueco y así la
@@ -689,7 +696,7 @@
                          oscuro un glifo #1e1e1e sobre #141414 sería invisible. -->
                     <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
                            FontFamily="FluentUIFilled"
-                           FontSize="28"
+                           FontSize="25"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"
                            InputTransparent="True"

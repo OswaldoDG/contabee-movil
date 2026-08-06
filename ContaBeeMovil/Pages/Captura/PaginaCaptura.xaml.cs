@@ -701,13 +701,44 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
-    public double CapturaItemHeight => _capturaItemWidth * (MostrarMontoTicketInput ? 1.08 : 1.22);
+    private double _alturaZonaCapturas;
+
+    /// <summary>
+    /// Alto ideal de la tarjeta según su ancho, pero nunca mayor que el espacio que
+    /// realmente le quedó al carrusel. Antes sólo dependía del ancho, así que en
+    /// pantallas cortas con "Más opciones" abierto la tarjeta pedía más alto del
+    /// disponible y se recortaba por arriba — se perdía el botón de eliminar.
+    /// </summary>
+    public double CapturaItemHeight
+    {
+        get
+        {
+            var ideal = _capturaItemWidth * (MostrarMontoTicketInput ? 1.08 : 1.22);
+            return _alturaZonaCapturas > 0 ? Math.Min(ideal, _alturaZonaCapturas) : ideal;
+        }
+    }
+
+    private void OnZonaCapturasSizeChanged(object? sender, EventArgs e)
+    {
+        var alto = ZonaCapturas.Height;
+        // El umbral evita el bucle SizeChanged → relayout → SizeChanged.
+        if (alto <= 0 || Math.Abs(_alturaZonaCapturas - alto) < 0.5) return;
+
+        _alturaZonaCapturas = alto;
+        OnPropertyChanged(nameof(CapturaItemHeight));
+    }
 
     protected override void OnSizeAllocated(double width, double height)
     {
         base.OnSizeAllocated(width, height);
         if (width > 0)
             CapturaItemWidth = width - 24; // 12 px de margen a cada lado
+
+        // La fila de controles es Auto: sin tope se queda con todo el alto que pida su
+        // contenido y el carrusel se queda con las sobras. Con el tope, lo que no cabe
+        // se scrollea dentro del propio ScrollView y el área de fotos conserva su mitad.
+        if (height > 0)
+            ScrollControles.MaximumHeightRequest = height * 0.45;
     }
 
     // ── Progreso de envío ────────────────────────────────────────────────────
