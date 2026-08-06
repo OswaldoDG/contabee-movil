@@ -6,6 +6,9 @@
                BackgroundColor="Transparent"
                CanBeDismissedByTappingOutsideOfPopup="False">
 
+    <!-- Todos los cambios se aplican al instante (patrón de pantalla de ajustes):
+         no hay botón Guardar ni estado sucio; cada fila guarda al vuelo con su
+         propio indicador y revierte el switch si el backend falla. -->
     <Border x:Name="CardBorder"
             BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}"
             VerticalOptions="Center"
@@ -22,57 +25,90 @@
 
             <!-- Encabezado -->
             <VerticalStackLayout Grid.Row="0" Spacing="8">
-                <Grid ColumnDefinitions="*,Auto" HorizontalOptions="Fill">
-                    <HorizontalStackLayout Grid.Column="0"
-                                          HorizontalOptions="Center"
-                                          Spacing="8">
-                        <Label x:Name="LblTitulo"
-                               FontAttributes="Bold"
-                               FontSize="18"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}"
-                               VerticalOptions="Center" />
-                        <Border x:Name="BadgeYo"
-                                IsVisible="False"
-                                BackgroundColor="{toolkit:AppThemeResource Primary}"
-                                StrokeThickness="0"
-                                StrokeShape="RoundRectangle 4"
-                                Padding="6,2"
-                                VerticalOptions="Center">
-                            <Label Text="Yo"
-                                   FontSize="10"
-                                   TextColor="{toolkit:AppThemeResource OnPrimary}"
-                                   FontAttributes="Bold" />
-                        </Border>
-                    </HorizontalStackLayout>
-                    <Switch x:Name="SwitchActiva"
-                            Grid.Column="1"
-                            OnColor="{toolkit:AppThemeResource Primary}"
-                            Scale="0.9"
-                            VerticalOptions="Center" />
-                </Grid>
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                    <Label x:Name="LblTitulo"
+                           FontAttributes="Bold"
+                           FontSize="18"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}"
+                           VerticalOptions="Center" />
+                    <Border x:Name="BadgeYo"
+                            IsVisible="False"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 4"
+                            Padding="6,2"
+                            VerticalOptions="Center">
+                        <Label Text="Yo"
+                               FontSize="10"
+                               TextColor="{toolkit:AppThemeResource OnPrimary}"
+                               FontAttributes="Bold" />
+                    </Border>
+                </HorizontalStackLayout>
                 <BoxView Style="{StaticResource Divider}" />
             </VerticalStackLayout>
 
-            <!-- Contenido: formulario + spinner de carga -->
+            <!-- Contenido: formulario + spinner de carga inicial -->
             <Grid Grid.Row="1" Margin="0,16,0,16">
                 <VerticalStackLayout x:Name="FormContent" Spacing="8">
                     <Label Text="Propiedades"
                            FontSize="14"
                            TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
+                    <!-- Toggle: asociación activa. Afecta SOLO la pertenencia a ESTA
+                         cuenta fiscal; la cuenta propia del otro usuario sigue intacta,
+                         por eso se habla de "colaborador" y nunca de desactivar su cuenta. -->
+                    <Grid x:Name="FilaActiva" ColumnDefinitions="*,20,Auto" ColumnSpacing="6">
+                        <!-- El texto lo fija ActualizarEtiquetaActiva(): Activo / Inactivo -->
+                        <Label x:Name="LblActiva"
+                               Text="Activo"
+                               VerticalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}"
+                               FontAttributes="Bold"
+                               FontSize="15" />
+                        <!-- Opacity (no IsVisible) para que la fila no salte al aparecer -->
+                        <ActivityIndicator x:Name="SpinnerActiva"
+                                           Grid.Column="1"
+                                           IsRunning="False"
+                                           Opacity="0"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           VerticalOptions="Center"
+                                           Color="{toolkit:AppThemeResource Primary}" />
+                        <Switch x:Name="SwitchActiva"
+                                Grid.Column="2"
+                                OnColor="{toolkit:AppThemeResource Primary}"
+                                Scale="1.3"
+                                Margin="0,0,8,0" />
+                    </Grid>
+
                     <!-- Toggle: UsuarioCaptura -->
-                    <Grid x:Name="FilaCaptura" ColumnDefinitions="*,Auto">
+                    <Grid x:Name="FilaCaptura" ColumnDefinitions="*,20,Auto" ColumnSpacing="6">
                         <Label Text="Puede Capturar"
                                VerticalOptions="Center"
                                TextColor="{toolkit:AppThemeResource PrimaryText}"
                                FontAttributes="Bold"
                                FontSize="15" />
+                        <ActivityIndicator x:Name="SpinnerCaptura"
+                                           Grid.Column="1"
+                                           IsRunning="False"
+                                           Opacity="0"
+                                           WidthRequest="20"
+                                           HeightRequest="20"
+                                           VerticalOptions="Center"
+                                           Color="{toolkit:AppThemeResource Primary}" />
                         <Switch x:Name="SwitchCaptura"
-                                Grid.Column="1"
+                                Grid.Column="2"
                                 OnColor="{toolkit:AppThemeResource Primary}"
                                 Scale="1.3"
                                 Margin="0,0,8,0" />
                     </Grid>
+
+                    <!-- Explica por qué la fila de captura está bloqueada -->
+                    <Label x:Name="LblAyudaCaptura"
+                           IsVisible="False"
+                           Text="Un colaborador inactivo no puede capturar."
+                           FontSize="12"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
                     <!-- Panel debug (solo modo dev) -->
                     <Border x:Name="PanelDebug"
@@ -92,7 +128,7 @@
 
                 </VerticalStackLayout>
 
-                <!-- Spinner overlay mientras carga o guarda -->
+                <!-- Spinner de la carga inicial (el formulario aún no tiene datos) -->
                 <VerticalStackLayout x:Name="SpinnerPanel"
                                      IsVisible="False"
                                      Spacing="10"
@@ -102,37 +138,14 @@
                                        IsRunning="False"
                                        HorizontalOptions="Center"
                                        Color="{toolkit:AppThemeResource Primary}" />
-                    <Label x:Name="LblSpinner"
-                           IsVisible="False"
-                           HorizontalOptions="Center"
-                           FontSize="13"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
                 </VerticalStackLayout>
             </Grid>
 
-            <!-- Botones -->
-            <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
-                <Button Text="Cerrar"
-                        Style="{StaticResource SecondaryButton}"
-                        Clicked="OnCancelar" />
-                <Button x:Name="BtnGuardar"
-                        Grid.Column="1"
-                        Text="Guardar"
-                        BackgroundColor="{toolkit:AppThemeResource Primary}"
-                        TextColor="{toolkit:AppThemeResource PrimaryText}"
-                        CornerRadius="12"
-                        HeightRequest="48"
-                        IsEnabled="False"
-                        Clicked="OnGuardar">
-                    <Button.Triggers>
-                        <Trigger TargetType="Button" Property="IsEnabled" Value="False">
-                            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Disabled}" />
-                            <Setter Property="TextColor"       Value="{toolkit:AppThemeResource SecondaryText}" />
-                            <Setter Property="Opacity"         Value="1" />
-                        </Trigger>
-                    </Button.Triggers>
-                </Button>
-            </Grid>
+            <!-- Botón -->
+            <Button Grid.Row="2"
+                    Text="Cerrar"
+                    Style="{StaticResource SecondaryButton}"
+                    Clicked="OnCerrar" />
 
         </Grid>
     </Border>

@@ -11,14 +11,46 @@
              Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
              BackgroundColor="{toolkit:AppThemeResource Background}">
 
+    <ContentPage.Resources>
+        <!-- Chip de opción (Sólo evidencia / Urgente / Desglosar IEPS). El estado
+             activo lo pintan DataTriggers en cada chip, porque cada uno se enlaza a
+             una propiedad distinta y eso no se puede meter en el Style. -->
+        <Style x:Key="ChipOpcion" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Background}" />
+            <Setter Property="Stroke" Value="{toolkit:AppThemeResource Accent1}" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+            <Setter Property="HeightRequest" Value="40" />
+            <Setter Property="Padding" Value="4,0" />
+        </Style>
+
+        <Style x:Key="ChipTexto" TargetType="Label">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="HorizontalTextAlignment" Value="Center" />
+            <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <!-- Para que el tap llegue al Border que lo contiene -->
+            <Setter Property="InputTransparent" Value="True" />
+            <Setter Property="TextColor" Value="{toolkit:AppThemeResource PrimaryText}" />
+        </Style>
+    </ContentPage.Resources>
+
     <Shell.TitleView>
         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,2,0">
+            <!-- El tap sólo hace algo con Modo Desarrollador activo: recorre los
+                 horarios simulados para poder ver el aviso sin esperar a que sea
+                 de noche o fin de semana. -->
             <Label Grid.Column="0"
                    Text="Captura"
                    FontSize="25"
                    FontAttributes="Bold"
                    TextColor="{toolkit:AppThemeResource PrimaryText}"
-                   VerticalOptions="Center" />
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTituloCapturaTapped" />
+                </Label.GestureRecognizers>
+            </Label>
 
             <!-- Badge: solo créditos de captura (sin autoservicio). -->
             <Border Grid.Column="1"
@@ -180,101 +212,130 @@
                                                Titulo="Tarjeta" />
                     </Grid>
 
-                    <!-- 4+5. Uso CFDI + Desglosar IEPS -->
-                    <Grid ColumnDefinitions="*,*"
-                          Margin="0,8,0,0"
-                          ColumnSpacing="8">
-                        <views:SelectorFlotante Grid.Column="0"
-                                               x:Name="SelectorUsoCfdi"
-                                               AnchoDropdownExpandido="True"
-                                               Titulo="Uso Factura" />
-                        <Border Grid.Column="1"
-                                BackgroundColor="{toolkit:AppThemeResource Background}"
-                                StrokeShape="RoundRectangle 10"
-                                StrokeThickness="1"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                Padding="4,0">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnDesglosarIepsTapped" />
-                            </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,*"
-                                  ColumnSpacing="0"
-                                  VerticalOptions="Center"
-                                  InputTransparent="True">
-                                <CheckBox Grid.Column="0"
-                                          IsChecked="{Binding DesglosarIeps}"
-                                          Color="{toolkit:AppThemeResource Primary}"
-                                          VerticalOptions="Center" />
-                                <Label Grid.Column="1"
-                                       Text="Desglosar IEPS"
-                                       FontSize="12"
-                                       VerticalOptions="Center"
-                                       LineBreakMode="WordWrap"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            </Grid>
-                        </Border>
+                    <!-- 4. Uso CFDI (ancho completo desde que IEPS se fue al desplegable) -->
+                    <views:SelectorFlotante x:Name="SelectorUsoCfdi"
+                                            Margin="0,8,0,0"
+                                            AnchoDropdownExpandido="True"
+                                            Titulo="Uso Factura" />
+
+                    <!-- ── Cabecera "Más opciones" ──────────────────────────────
+                         Lo de uso frecuente (medio de pago, tarjeta, uso CFDI) queda
+                         siempre visible; el resto se colapsa para que el área de fotos
+                         no quede aplastada en pantallas chicas. El resumen de la
+                         derecha evita que queden opciones activas escondidas. -->
+                    <Grid ColumnDefinitions="Auto,Auto,*"
+                          Margin="0,10,0,0"
+                          ColumnSpacing="6"
+                          Padding="2,4">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnMasOpcionesTapped" />
+                        </Grid.GestureRecognizers>
+
+                        <Label Grid.Column="0"
+                               Text="{Binding IconoMasOpciones}"
+                               FontFamily="FluentUI"
+                               FontSize="16"
+                               VerticalOptions="Center"
+                               InputTransparent="True"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        <Label Grid.Column="1"
+                               Text="Más opciones"
+                               FontSize="13"
+                               VerticalOptions="Center"
+                               InputTransparent="True"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        <Label Grid.Column="2"
+                               Text="{Binding ResumenOpcionesAvanzadas}"
+                               FontSize="11"
+                               HorizontalTextAlignment="End"
+                               LineBreakMode="TailTruncation"
+                               VerticalOptions="Center"
+                               InputTransparent="True"
+                               TextColor="{toolkit:AppThemeResource Primary}" />
                     </Grid>
 
-                    <!-- 6. Opciones de evidencia -->
-                    <!-- Fila A: Sólo evidencia + Urgente -->
-                    <Grid ColumnDefinitions="*,*"
+                    <!-- ── Contenido colapsable ───────────────────────────────── -->
+                    <VerticalStackLayout IsVisible="{Binding OpcionesAvanzadasVisibles}"
+                                         Spacing="0">
+
+                    <!-- 6. Opciones de evidencia — las tres en una sola fila.
+                         Se sustituyeron los CheckBox por chips: el CheckBox de MAUI
+                         reserva ~40dp fijos antes del texto, así que a un tercio de
+                         ancho no quedaba espacio para la etiqueta y hacían falta dos
+                         filas. El chip usa el ancho completo para el texto y el estado
+                         se lee por relleno: activo = amarillo Primary + negrita;
+                         inactivo = sólo contorno. -->
+                    <Grid ColumnDefinitions="*,*,*"
                           Margin="0,8,0,0"
-                          ColumnSpacing="8">
-                        <Border Grid.Column="0"
-                                BackgroundColor="{toolkit:AppThemeResource Background}"
-                                StrokeShape="RoundRectangle 10"
-                                StrokeThickness="1"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                Padding="4,0">
+                          ColumnSpacing="6">
+
+                        <!-- Sólo evidencia -->
+                        <Border Grid.Column="0" Style="{StaticResource ChipOpcion}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnSoloEvidenciaTapped" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,*"
-                                  ColumnSpacing="0"
-                                  VerticalOptions="Center"
-                                  InputTransparent="True">
-                                <CheckBox Grid.Column="0"
-                                          IsChecked="{Binding SoloEvidencia}"
-                                          Color="{toolkit:AppThemeResource Primary}"
-                                          VerticalOptions="Center" />
-                                <Label Grid.Column="1"
-                                       Text="Sólo evidencia"
-                                       FontSize="12"
-                                       VerticalOptions="Center"
-                                       LineBreakMode="WordWrap"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            </Grid>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding SoloEvidencia}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}" />
+                                    <Setter Property="Stroke" Value="{toolkit:AppThemeResource Primary}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="Sólo evidencia" Style="{StaticResource ChipTexto}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding SoloEvidencia}" Value="True">
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
                         </Border>
 
+                        <!-- Urgente (se atenúa después de las 20 h: ya no da tiempo) -->
                         <Border Grid.Column="1"
-                                BackgroundColor="{toolkit:AppThemeResource Background}"
-                                StrokeShape="RoundRectangle 10"
-                                StrokeThickness="1"
-                                Stroke="{toolkit:AppThemeResource Accent1}"
-                                Padding="4,0">
+                                Style="{StaticResource ChipOpcion}"
+                                Opacity="{Binding OpacidadUrgente}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Tapped="OnEsUrgenteTapped" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,*"
-                                  ColumnSpacing="0"
-                                  VerticalOptions="Center"
-                                  InputTransparent="True">
-                                <CheckBox Grid.Column="0"
-                                          IsChecked="{Binding EsUrgente}"
-                                          IsEnabled="{Binding PuedeSerUrgente}"
-                                          Color="{toolkit:AppThemeResource Primary}"
-                                          VerticalOptions="Center" />
-                                <Label Grid.Column="1"
-                                       Text="Urgente"
-                                       FontSize="12"
-                                       VerticalOptions="Center"
-                                       LineBreakMode="WordWrap"
-                                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                            </Grid>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding EsUrgente}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}" />
+                                    <Setter Property="Stroke" Value="{toolkit:AppThemeResource Primary}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="Urgente" Style="{StaticResource ChipTexto}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding EsUrgente}" Value="True">
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+
+                        <!-- Desglosar IEPS -->
+                        <Border Grid.Column="2" Style="{StaticResource ChipOpcion}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDesglosarIepsTapped" />
+                            </Border.GestureRecognizers>
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding DesglosarIeps}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Primary}" />
+                                    <Setter Property="Stroke" Value="{toolkit:AppThemeResource Primary}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Label Text="Desglosar IEPS" Style="{StaticResource ChipTexto}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding DesglosarIeps}" Value="True">
+                                        <Setter Property="TextColor" Value="{toolkit:AppThemeResource OnPrimary}" />
+                                        <Setter Property="FontAttributes" Value="Bold" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
                         </Border>
                     </Grid>
 
-                    <!-- Fila B: Captura remota (oculto — siempre se envía false) -->
+                    <!-- Fila C: Captura remota (oculto — siempre se envía false) -->
                     <Grid ColumnDefinitions="*,*"
                           Margin="0,8,0,0"
                           ColumnSpacing="8"
@@ -322,18 +383,67 @@
                                BackgroundColor="Transparent" />
                     </Border>
 
+                    </VerticalStackLayout>
+
                 </VerticalStackLayout>
             </ScrollView>
 
             <!-- ── 7. Zona de capturas ─────────────────────────────────────────── -->
             <Grid Grid.Row="1">
 
+                <!-- Aviso amplio: fuera de horario y sin fotos todavía. Ocupa la zona
+                     central en lugar del estado vacío — es el mismo hueco y así la
+                     mascota se ve en grande. -->
+                <Grid Grid.Row="0"
+                      IsVisible="{Binding MostrarAvisoHorarioAmplio}"
+                      RowDefinitions="*,Auto,Auto"
+                      RowSpacing="14"
+                      Padding="24,10,24,6">
+
+                    <!-- La mascota se queda con todo el alto sobrante: luce lo más
+                         grande que permita la pantalla y se encoge sola en equipos
+                         chicos sin empujar el texto fuera de vista. -->
+                    <Image Grid.Row="0"
+                           Source="contabeepet.png"
+                           Aspect="AspectFit"
+                           VerticalOptions="Fill"
+                           HorizontalOptions="Center"
+                           MinimumHeightRequest="110" />
+
+                    <Border Grid.Row="1"
+                            BackgroundColor="{toolkit:AppThemeResource Primary}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            Padding="12,6"
+                            HorizontalOptions="Center">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                                   FontFamily="FluentUIFilled"
+                                   FontSize="16"
+                                   VerticalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                            <Label Text="Fuera de horario de captura"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   VerticalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                        </HorizontalStackLayout>
+                    </Border>
+
+                    <Label Grid.Row="2"
+                           Text="{Binding MensajeHorario}"
+                           FontSize="14"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                </Grid>
+
                 <!-- Estado vacío -->
                 <VerticalStackLayout VerticalOptions="Center"
                                      HorizontalOptions="Center"
                                      Spacing="8"
                                      Grid.Row="0"
-                                     IsVisible="{Binding TieneCapturas, Converter={StaticResource InvertedBoolConverter}}">
+                                     IsVisible="{Binding MostrarEstadoVacio}">
                     <Label Text="{x:Static f:FluentUI.copy_20_regular}" FontFamily="FluentUI"
                                  FontSize="52"
                                  HorizontalOptions="Center"
@@ -516,10 +626,14 @@
                     </Button.Shadow>
                 </Button>
 
+                <!-- Enviar + su badge de horario. El badge va montado en la esquina del
+                     botón porque es justo donde va a mirar el usuario cuando ya tiene
+                     fotos; así el aviso no necesita robar una fila del cuerpo. -->
+                <Grid Grid.Column="2">
+
                 <!-- Enviar: mismo aspecto siempre. Con un solo crédito envía directo; con ambos
                      abre el selector "Quién captura" y al elegir se hace el envío (IniciarEnvioCommand). -->
-                <Button Grid.Column="2"
-                        Text="Enviar"
+                <Button Text="Enviar"
                         Command="{Binding IniciarEnvioCommand}"
                         IsEnabled="{Binding PuedeEnviar}"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
@@ -548,6 +662,42 @@
                     </Button.Shadow>
                 </Button>
 
+                <!-- Badge de horario, montado en la esquina del botón. Queda medio
+                     fuera del botón a propósito: así el tap que abre el mensaje no
+                     se come el área útil de Enviar.
+                     El relieve lo dan el contorno negro y la sombra propia, que se
+                     proyecta sobre el amarillo del botón. -->
+                <Border IsVisible="{Binding MostrarAvisoHorario}"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start"
+                        TranslationX="4"
+                        TranslationY="-8"
+                        WidthRequest="28"
+                        HeightRequest="28"
+                        Padding="0"
+                        StrokeShape="RoundRectangle 14"
+                        Stroke="Black"
+                        StrokeThickness="0"
+                        BackgroundColor="{toolkit:AppThemeResource Background}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAvisoHorarioTapped" />
+                    </Border.GestureRecognizers>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,3" Radius="5" Opacity="0.45" />
+                    </Border.Shadow>
+                    <!-- PrimaryText, no OnPrimary: el fondo ahora sigue al tema y en
+                         oscuro un glifo #1e1e1e sobre #141414 sería invisible. -->
+                    <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="28"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"
+                           InputTransparent="True"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                </Border>
+
+                </Grid>
+
             </Grid>
 
         </Grid>
@@ -564,21 +714,28 @@
         </BoxView>
 
         <!-- Flyout: ¿Quién captura? — Mi Equipo (Autoservicio) / Contabee (Captura).
-             Efecto flotante 3D con sombra theme-aware (negra en claro, gris en oscuro). -->
+             Efecto flotante 3D. Tres cosas que importan y es fácil romper:
+             · Opacity de la sombra BAJO (0.35). Con Opacity=1 no se lee como sombra
+               sino como una mancha negra con filo duro.
+             · El Margin lateral tiene que ser MAYOR que el Radius de la sombra. Con
+               margin 8 y radius 10 la sombra no cabía y Android la recortaba contra
+               el borde de la pantalla — ese era el corte que se veía.
+             · Stroke hairline: en tema oscuro una sombra negra sobre #141414 no se
+               distingue, y el filo claro es lo único que define el borde de la tarjeta. -->
         <Border x:Name="FlyoutCredito"
                 IsVisible="{Binding MostrarFlyoutCredito}"
                 Opacity="0"
                 BackgroundColor="{toolkit:AppThemeResource Background}"
-                Stroke="Transparent"
-                StrokeThickness="0"
+                Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
+                StrokeThickness="1"
                 StrokeShape="RoundRectangle 16"
                 Padding="14,12"
                 WidthRequest="272"
                 HorizontalOptions="End"
                 VerticalOptions="End"
-                Margin="8,0,8,74">
+                Margin="20,0,20,74">
             <Border.Shadow>
-                <Shadow Brush="{AppThemeBinding Light=Black, Dark=#6E6E6E}" Offset="0,5" Radius="10" Opacity="1" />
+                <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
             </Border.Shadow>
             <VerticalStackLayout Spacing="12">
                 <Label Text="Quién captura"

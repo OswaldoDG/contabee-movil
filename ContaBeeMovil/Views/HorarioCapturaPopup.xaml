@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:f="clr-namespace:Fonts"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               x:Class="ContaBeeMovil.Views.HorarioCapturaPopup"
+               CanBeDismissedByTappingOutsideOfPopup="True"
+               Background="Transparent">
+
+    <!-- Aviso de fuera de horario de captura. Es el mismo contenido que la versión
+         amplia de PaginaCaptura (mascota + píldora + mensaje), pero en popup para
+         cuando la pantalla ya está ocupada por las fotos. -->
+    <Border x:Name="ContenedorPopup"
+            BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+            Stroke="Transparent"
+            StrokeThickness="0"
+            StrokeShape="RoundRectangle 20"
+            Padding="20,18"
+            Margin="20">
+        <Border.Shadow>
+            <Shadow Brush="Black" Offset="0,6" Radius="20" Opacity="0.35" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="14">
+
+            <Image Source="contabeepet.png"
+                   Aspect="AspectFit"
+                   HeightRequest="140"
+                   HorizontalOptions="Center" />
+
+            <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="0"
+                    Padding="12,6"
+                    HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="6">
+                    <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="16"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                    <Label Text="Fuera de horario de captura"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <Label x:Name="LblMensaje"
+                   FontSize="14"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="WordWrap"
+                   TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+            <Button Text="Entendido"
+                    Clicked="OnCerrar"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    TextColor="{toolkit:AppThemeResource OnPrimary}"
+                    CornerRadius="12"
+                    HeightRequest="48"
+                    FontSize="15"
+                    FontAttributes="Bold" />
+
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

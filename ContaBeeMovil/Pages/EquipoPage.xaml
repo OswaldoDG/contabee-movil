@@ -195,9 +195,8 @@
                                        FontSize="12"
                                        TextColor="{toolkit:AppThemeResource SecondaryText}"
                                        LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding TipoCuentaTexto}"
-                                       FontSize="12"
-                                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                                <!-- Sin etiqueta de tipo: es la tarjeta del usuario en
+                                     sesion y el badge "Yo" ya lo identifica. -->
                             </VerticalStackLayout>
 
                             <Label Grid.Column="2"

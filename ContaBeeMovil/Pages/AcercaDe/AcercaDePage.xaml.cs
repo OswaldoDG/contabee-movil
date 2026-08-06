@@ -16,15 +16,18 @@ public partial class AcercaDePage : ContentPage
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioAlmacenamiento _almacenamiento;
     private readonly IServicioToast _servicioToast;
+    private readonly IServicioActualizacion _servicioActualizacion;
     private CancellationTokenSource? _ctsLoader;
     private CancellationTokenSource? _ctsLoaderCargaActual;
+    private CancellationTokenSource? _ctsLoaderActualizacion;
+    private bool _verificandoActualizacion;
     private int _tapCount = 0;
     private const string ClaveMododDev = "ModoDeveloper";
 
     private static bool UsuarioLogueado
         => Application.Current?.Windows.FirstOrDefault()?.Page is Shell;
 
-    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript, IServicioSesion servicioSesion, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast)
+    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript, IServicioSesion servicioSesion, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast, IServicioActualizacion servicioActualizacion)
     {
         InitializeComponent();
         _servicioSalud = servicioSalud;
@@ -32,6 +35,7 @@ public partial class AcercaDePage : ContentPage
         _servicioSesion = servicioSesion;
         _almacenamiento = almacenamiento;
         _servicioToast = servicioToast;
+        _servicioActualizacion = servicioActualizacion;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
     }
 
@@ -59,6 +63,45 @@ public partial class AcercaDePage : ContentPage
         Connectivity.ConnectivityChanged -= OnConectividadCambiada;
         _ctsLoader?.Cancel();
         _ctsLoaderCargaActual?.Cancel();
+        _ctsLoaderActualizacion?.Cancel();
+    }
+
+    private async void OnBuscarActualizacionTapped(object? sender, TappedEventArgs e)
+    {
+        // Doble tap mientras la consulta sigue viva: se ignora.
+        if (_verificandoActualizacion)
+            return;
+
+        _verificandoActualizacion = true;
+        IconoActualizacion.IsVisible = false;
+        LoaderActualizacion.IsVisible = true;
+
+        _ctsLoaderActualizacion = new CancellationTokenSource();
+        var animacion = AnimarPuntosActualizacionAsync(_ctsLoaderActualizacion.Token);
+
+        var resultado = await _servicioActualizacion.VerificarManualAsync();
+
+        _ctsLoaderActualizacion.Cancel();
+        await animacion;
+
+        LoaderActualizacion.IsVisible = false;
+        IconoActualizacion.IsVisible = true;
+        _verificandoActualizacion = false;
+
+        // Con actualización disponible el propio servicio ya mostró el aviso,
+        // así que aquí solo se avisa cuando NO hubo popup que ver.
+        switch (resultado)
+        {
+            case ResultadoChequeoManual.Actualizado:
+                await _servicioToast.MostrarAsync($"Ya tienes la última versión ({AppInfo.VersionString})", ToastIcono.Info, ToastPosicion.Bottom);
+                break;
+            case ResultadoChequeoManual.SinConexion:
+                await _servicioToast.MostrarAsync("Sin conexión a internet", ToastIcono.Warning, ToastPosicion.Bottom);
+                break;
+            case ResultadoChequeoManual.NoDisponible:
+                await _servicioToast.MostrarAsync("No se pudo verificar la versión, intenta más tarde", ToastIcono.Warning, ToastPosicion.Bottom);
+                break;
+        }
     }
 
     private async void OnVersionTapped(object? sender, TappedEventArgs e)
@@ -176,6 +219,18 @@ public partial class AcercaDePage : ContentPage
         while (!token.IsCancellationRequested)
         {
             LoaderCargaActual.Text = new string('.', (i % 3) + 1);
+            i++;
+            try { await Task.Delay(400, token); }
+            catch (TaskCanceledException) { break; }
+        }
+    }
+
+    private async Task AnimarPuntosActualizacionAsync(CancellationToken token)
+    {
+        int i = 0;
+        while (!token.IsCancellationRequested)
+        {
+            LoaderActualizacion.Text = new string('.', (i % 3) + 1);
             i++;
             try { await Task.Delay(400, token); }
             catch (TaskCanceledException) { break; }

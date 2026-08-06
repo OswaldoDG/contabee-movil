@@ -61,6 +61,44 @@
                     </VerticalStackLayout>
                 </Grid>
             </Border>
+            <!-- Buscar actualizaciones (chequeo manual) -->
+            <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBuscarActualizacionTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                    <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                    <Label Grid.Column="1"
+                                 Text="{x:Static f:FluentUIFilled.arrow_sync_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="2"
+                           Text="Buscar actualizaciones"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                    <Label x:Name="LoaderActualizacion"
+                           Grid.Column="3"
+                           Text="..."
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           TextColor="{toolkit:AppThemeResource Primary}"
+                           VerticalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           WidthRequest="28"
+                           IsVisible="False" />
+                    <Label x:Name="IconoActualizacion"
+                                 Grid.Column="3"
+                                 Text="{x:Static f:FluentUI.chevron_right_20_regular}" FontFamily="FluentUI"
+                                 FontSize="20"
+                                 TextColor="{toolkit:AppThemeResource SecondaryText}"
+                                 VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
             <Border Style="{StaticResource ElevatedCard}" Padding="10">
                 <Grid ColumnDefinitions="4,Auto,*" ColumnSpacing="10">
                     <BoxView Grid.Column="0"

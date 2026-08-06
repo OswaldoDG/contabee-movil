@@ -24,6 +24,7 @@ using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
+using ContaBeeMovil.Services.Horario;
 using ContaBeeMovil.Services.Pdf;
 using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
@@ -108,6 +109,10 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioActualizacion, ServicioActualizacion>();
             builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
             builder.Services.AddSingleton<IServicioRenderPdf, ServicioRenderPdf>();
+            // Horario de captura delegada. Sustituir ProveedorFeriadosVacio por la
+            // implementación contra el endpoint de feriados cuando llegue al backend.
+            builder.Services.AddSingleton<IProveedorFeriados, ProveedorFeriadosVacio>();
+            builder.Services.AddSingleton<IServicioHorarioCaptura, ServicioHorarioCaptura>();
             builder.Services.AddTransient<AuthHandler>();
 
 

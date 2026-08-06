@@ -181,6 +181,7 @@ _logs.Log("mensaje");   // alias de Info
 
 ## Proceso de desarrollo
 
+- **Compilar y probar la app lo hace Beto, no Claude.** En cada sesión, tras modificar algo, es **el usuario** quien compila, corre la app y verifica en dispositivo. Claude puede compilar para detectar errores de compilación, pero **no debe intentar ejecutar la app** ni dar por verificado un cambio: se entrega el código y se indica **qué probar**. (Además, el `obj\` suele estar bloqueado por el IDE y los builds de Claude fallan por locks.)
 - **Git flow:** feature branches → release branches → main
 - **GitHub repo:** OswaldoDG/contabee-movil
 - **iOS signing:** Apple Development (debug) / Apple Distribution: Neurofant Mexico (release)
