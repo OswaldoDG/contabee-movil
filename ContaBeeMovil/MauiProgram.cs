@@ -26,6 +26,7 @@ using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
 using ContaBeeMovil.Services.Horario;
 using ContaBeeMovil.Services.Pdf;
+using ContaBeeMovil.Services.Permisos;
 using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
@@ -101,6 +102,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<ContaBeeMovil.Services.Sesion.ICoordinadorSesion, ContaBeeMovil.Services.Sesion.CoordinadorSesion>();
             builder.Services.AddSingleton<IServicioAlerta, ServicioAlerta>();
             builder.Services.AddSingleton(AppState.Instance);
+            builder.Services.AddSingleton<IServicioPermisos, ServicioPermisos>();
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioReconciliacionIAP, ServicioReconciliacionIAP>();

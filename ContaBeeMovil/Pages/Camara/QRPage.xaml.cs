@@ -1,6 +1,7 @@
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Permisos;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 
@@ -9,6 +10,7 @@ namespace ContaBeeMovil.Pages.Camara;
 public partial class QRPage : ContentPage
 {
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioPermisos _permisos;
     private readonly IServicioLogs _logs;
     private bool _isProcessing;
 
@@ -22,10 +24,11 @@ public partial class QRPage : ContentPage
     /// </summary>
     public Func<Task>? AlRegistrarDemo { get; set; }
 
-    public QRPage(IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public QRPage(IServicioAlerta servicioAlerta, IServicioPermisos permisos, IServicioLogs logs)
     {
         InitializeComponent();
         _servicioAlerta = servicioAlerta;
+        _permisos = permisos;
         _logs = logs;
 
         BarcodeReader.Options = new BarcodeReaderOptions
@@ -43,11 +46,17 @@ public partial class QRPage : ContentPage
         _isProcessing = false;
         BarcodeReader.IsVisible = true;
 
-        var status = await Permissions.RequestAsync<Permissions.Camera>();
-        if (status == PermissionStatus.Granted)
+        // Se re-evalúa en cada OnAppearing — también al volver de los ajustes del sistema,
+        // así el escáner queda operativo sin tener que reiniciar la app.
+        if (await _permisos.AsegurarCamaraAsync("para escanear el código QR"))
+        {
             BarcodeReader.IsDetecting = true;
-        else
-            await _servicioAlerta.MostrarAsync("Permiso requerido", "Se necesita acceso a la cámara para escanear QR.", verBotonCancelar: false, confirmarText: "OK");
+        }
+        else if (Navigation.ModalStack.Contains(this))
+        {
+            // Sin permiso el visor queda en negro: se cierra en lugar de dejar al usuario atorado.
+            await Navigation.PopModalAsync();
+        }
     }
 
     protected override void OnDisappearing()

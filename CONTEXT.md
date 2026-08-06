@@ -5,6 +5,20 @@
 
 ---
 
+## 2026-08-06 — Permiso de cámara: re-pedir en cada intento + salida a Ajustes
+
+**Bug:** si el usuario negaba el permiso de cámara (aunque fuera por error), la función quedaba muerta: `TomarFotoAsync`/`EscanearQrAsync` llamaban `Permissions.RequestAsync` y con `!= Granted` devolvían `string.Empty` **sin decir nada**. Tras la 2ª negación (Android) o la 1ª (iOS) el SO ya no muestra su diálogo, así que el botón dejaba de responder para siempre.
+
+**Hecho** — nuevo `Services/Permisos/IServicioPermisos` + `ServicioPermisos` (singleton en `MauiProgram`), único punto para pedir permisos:
+- `CheckStatusAsync` → si ya está concedido, ni molesta. Si no, **re-pide en cada intento** (la negación no se cachea nunca).
+- Distingue negación temporal de permanente con **`Permissions.ShouldShowRationale<T>()`**: `true` → el SO sí volverá a preguntar, se ofrece "Permitir" y se re-pide en un loop; `false` → negación permanente (Android "no volver a preguntar" / iOS cualquier negación) → alerta con **"Abrir ajustes"** (`AppInfo.Current.ShowSettingsUI()`), que es el único camino real.
+- Todo lo de `Permissions` va por `MainThread.InvokeOnMainThreadAsync` con cast explícito (`(Func<Task<PermissionStatus>>)`) — sin el cast la sobrecarga `Func<T>` vs `Func<Task<T>>` queda ambigua y no compila.
+- `ServicioCamara` (foto y QR) y `QRPage.OnAppearing` ya solo llaman al servicio. `QRPage` **cierra el modal** si no hay permiso (antes dejaba visor negro con un alert sin salida) y al volver de Ajustes su `OnAppearing` re-evalúa → el escáner queda operativo sin reiniciar la app.
+
+**Pendiente:** probar en dispositivo el ciclo completo (negar 1 vez → volver a tocar → aparece diálogo; negar 2 veces → "Abrir ajustes" → activar → tocar de nuevo funciona), en Android e iOS. Compiló verde (`-t:Compile`, net10.0-android). El permiso de **notificaciones iOS** (`SharedImageHandler`) sigue pidiéndose solo si `NotDetermined` y no ofrece Ajustes — quedó fuera de alcance.
+
+---
+
 ## 2026-08-06 — Propiedades de usuario (Equipo): modelo de "aplicar al instante"
 
 **Regla de trabajo (vale para todas las sesiones, también en CLAUDE.md):** **Beto compila y corre la app.** Claude entrega el código y dice qué probar; compilar solo para cazar errores de compilación, nunca dar por verificado en dispositivo.
