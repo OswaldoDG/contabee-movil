@@ -753,15 +753,17 @@
         </Grid>
 
         <!-- Scrim: captura el tap fuera del flyout para cerrarlo.
-             BackgroundColor explícito para anular el estilo implícito de BoxView (Accent1 = gris). -->
-        <BoxView Color="Transparent"
-                 BackgroundColor="Transparent"
-                 IsVisible="{Binding MostrarFlyoutCredito}"
-                 InputTransparent="False">
-            <BoxView.GestureRecognizers>
+             Grid y no BoxView: en iOS el BoxView totalmente transparente no recibía el
+             toque y el selector no se podía cerrar tocando fuera (en Android sí).
+             #01000000 es 1/255 de alpha — invisible a la vista, pero suficiente para que
+             iOS considere la vista "pintada" y la incluya en el hit-test. Con
+             Transparent puro vuelve a fallar. -->
+        <Grid IsVisible="{Binding MostrarFlyoutCredito}"
+              BackgroundColor="#01000000">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCerrarFlyoutCredito" />
-            </BoxView.GestureRecognizers>
-        </BoxView>
+            </Grid.GestureRecognizers>
+        </Grid>
 
         <!-- Contenedor del selector: aviso de horario a pantalla completa (si aplica) +
              flyout anclado abajo. Existe para que ambos entren y salgan con la misma
@@ -779,16 +781,21 @@
              sólo lo tapa de blanco y se pierde la noción de que hay algo detrás.
              Va a sangre y cubriendo las dos filas (incluida la del flyout) para que no
              quede una franja sin atenuar debajo del selector.
-             InputTransparent: el tap tiene que atravesarlo hasta el scrim de atrás, que
-             es quien cierra el flyout — sin esto, tocar fuera dejaría de funcionar.
-             BackgroundColor="Transparent" NO es redundante: el estilo implícito de
-             BoxView (Styles.xaml) pinta el fondo de Accent1, un gris OPACO, y sin
-             anularlo el velo tapa la página con gris plano en vez de atenuarla. -->
-        <BoxView Grid.RowSpan="2"
-                 IsVisible="{Binding FueraDeHorario}"
-                 Color="{toolkit:AppThemeResource Overlay}"
-                 BackgroundColor="Transparent"
-                 InputTransparent="True" />
+             Grid con BackgroundColor y no BoxView con Color: como BoxView, en iOS no
+             pintaba nada (la página se veía sin atenuar) mientras que en Android sí, y
+             además obligaba a anular a mano el estilo implícito de BoxView, que le mete
+             un BackgroundColor gris OPACO encima. BackgroundColor sobre un layout se
+             comporta igual en las dos plataformas y esquiva ese estilo.
+             Lleva su propio TapGestureRecognizer en lugar de InputTransparent: así el
+             cierre no depende de que el toque atraviese hasta el scrim de atrás, que es
+             justo el mecanismo que fallaba en iOS. -->
+        <Grid Grid.RowSpan="2"
+              IsVisible="{Binding FueraDeHorario}"
+              BackgroundColor="{toolkit:AppThemeResource Overlay}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCerrarFlyoutCredito" />
+            </Grid.GestureRecognizers>
+        </Grid>
 
         <!-- Aviso de horario dentro del selector: es el único momento en que el dato es
              ACCIONABLE — el usuario todavía puede mandar el lote a Mi Equipo, que no
