@@ -52,7 +52,8 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
                 else if (e.PropertyName == nameof(AppState.EsLoginLess))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLoginLess);
-                else if (e.PropertyName == nameof(AppState.ModoOffline))
+                else if (e.PropertyName == nameof(AppState.ModoOffline) ||
+                         e.PropertyName == nameof(AppState.ServicioNoDisponible))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadOffline);
             };
 
@@ -165,20 +166,25 @@ namespace ContaBeeMovil
 
         private string? _emailUsuario;
 
+        // Sin red o con el backend caído, estas acciones no pueden completarse: da lo mismo
+        // por qué falta el servicio, el resultado para el usuario es el mismo.
+        private static bool ServicioDegradado =>
+            AppState.Instance.ModoOffline || AppState.Instance.ServicioNoDisponible;
+
         private void ActualizarVisibilidadLoginLess()
         {
             var esLoginLess = AppState.Instance.EsLoginLess;
-            TiendaCard.IsVisible = !esLoginLess && !AppState.Instance.ModoOffline;
+            TiendaCard.IsVisible = !esLoginLess && !ServicioDegradado;
             BtnCerrarSesion.IsVisible = !esLoginLess;
         }
 
         private void ActualizarVisibilidadOffline()
         {
-            var offline = AppState.Instance.ModoOffline;
-            TiendaCard.IsVisible = !AppState.Instance.EsLoginLess && !offline;
-            CuponesCard.IsVisible = !offline;
-            VincularmeCard.IsVisible = !offline;
-            BuzonItem.IsVisible = !offline;
+            var degradado = ServicioDegradado;
+            TiendaCard.IsVisible = !AppState.Instance.EsLoginLess && !degradado;
+            CuponesCard.IsVisible = !degradado;
+            VincularmeCard.IsVisible = !degradado;
+            BuzonItem.IsVisible = !degradado;
         }
 
         private void ActualizarNombreLabel()

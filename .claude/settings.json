@@ -16,7 +16,8 @@
       "Bash(dotnet build-server *)",
       "Bash(tasklist)",
       "PowerShell(try { [xml]\\(Get-Content \"ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml\" -Raw\\) | Out-Null; \"XAML OK\" } catch { \"FALLA: $\\($_.Exception.Message\\)\" })",
-      "PowerShell(dotnet build ContaBeeMovil\\\\ContaBeeMovil.csproj -f net10.0-android -t:Compile -v m -nologo)"
+      "PowerShell(dotnet build ContaBeeMovil\\\\ContaBeeMovil.csproj -f net10.0-android -t:Compile -v m -nologo)",
+      "PowerShell(try { [xml]$d = Get-Content 'ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml' -Raw -Encoding UTF8; \"XML OK\" } catch { \"XML MAL: $\\($_.Exception.Message\\)\" })"
     ]
   }
 }

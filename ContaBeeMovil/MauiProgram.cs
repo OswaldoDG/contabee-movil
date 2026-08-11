@@ -111,10 +111,11 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioActualizacion, ServicioActualizacion>();
             builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
             builder.Services.AddSingleton<IServicioRenderPdf, ServicioRenderPdf>();
-            // Horario de captura delegada. Sustituir ProveedorFeriadosVacio por la
-            // implementación contra el endpoint de feriados cuando llegue al backend.
-            builder.Services.AddSingleton<IProveedorFeriados, ProveedorFeriadosVacio>();
+            // Horario de captura delegada. Feriados desde GET /captura/diasinhabiles;
+            // si el endpoint falla, el horario degrada a la regla de lunes a viernes.
+            builder.Services.AddSingleton<IProveedorFeriados, ProveedorFeriadosApi>();
             builder.Services.AddSingleton<IServicioHorarioCaptura, ServicioHorarioCaptura>();
+            builder.Services.AddSingleton<InterruptorApi>();
             builder.Services.AddTransient<AuthHandler>();
 
 
@@ -130,6 +131,10 @@ namespace ContaBeeMovil
             {
                 client.BaseAddress = new Uri(appConfig.UrlIdentityToken);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                // El default de HttpClient son 100 s: con el identity caído, la UI se quedaba
+                // colgada minuto y medio antes de que el refresh siquiera fallara. 15 s es de
+                // sobra para un token, y AuthHandler reintenta con backoff.
+                client.Timeout = TimeSpan.FromSeconds(15);
             });
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>

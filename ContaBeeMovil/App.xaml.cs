@@ -144,6 +144,12 @@ public partial class App : Application
         {
             AppState.Instance.ModoOffline = false;
 
+            // Los fallos acumulados mientras no había red eran del dispositivo, no del
+            // servidor: borrarlos evita arrastrar un interruptor abierto (y un banner de
+            // "servicio caído") justo cuando la conexión acaba de volver.
+            Services.GetRequiredService<InterruptorApi>().Reiniciar();
+            AppState.Instance.ServicioNoDisponible = false;
+
             if (Preferences.Get("TarjetasPendienteSincronizacion", false))
                 _ = Task.Delay(2000).ContinueWith(_ =>
                     Services.GetRequiredService<IServicioSesion>().GetTarjetasAsync());

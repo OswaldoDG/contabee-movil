@@ -113,9 +113,14 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
 
     // ── Mensaje ──────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Aviso completo. Lo que le importa al usuario no es a qué hora vuelve ContaBee,
+    /// sino qué le pasa a lo que envíe <b>ahora</b>: se recibe, pero no se procesa hasta
+    /// la reanudación. Por eso el sujeto es su captura y no nuestro horario.
+    /// </summary>
     private static string ConstruirMensaje(DateTime ahoraCentral, DateTime proximaApertura)
-        => $"Las actividades de captura de Contabee reiniciarán {DescribirApertura(ahoraCentral, proximaApertura)} " +
-            "y haremos nuestro mejor esfuerzo por tenerlas listas a la brevedad.";
+        => "Puedes enviar tu captura ahora, pero quedará en espera: no la procesaremos hasta " +
+           $"{DescribirApertura(ahoraCentral, proximaApertura)}, cuando reanudemos operaciones.";
 
     /// <summary>
     /// Variante mínima para huecos estrechos (el flyout "Quién captura"): "reanuda lun 9:00".
@@ -133,30 +138,35 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
     }
 
     /// <summary>
-    /// Franja de estado. Redacción deliberada: <b>"a partir de"</b>, no "se procesará
-    /// el/a las". La segunda forma se lee como un compromiso de que el envío de ESE
-    /// usuario queda listo a esa hora exacta, y lo que ocurre es que a esa hora
-    /// arranca el procesamiento de la cola. Sujeto en plural ("los envíos") por lo
-    /// mismo: habla de cuándo reanuda la operación, no de un caso particular.
+    /// Franja de estado: "Fuera de horario · Se procesará el lunes 9:00 a.m.".
     /// </summary>
+    /// <remarks>
+    /// Nota de redacción, por si alguien la revisa a futuro: "se procesará" en singular
+    /// puede leerse como que el envío de ESE usuario queda listo a esa hora exacta,
+    /// cuando lo que ocurre a esa hora es que arranca el procesamiento de la cola. Se
+    /// eligió así de forma deliberada por ser más directa; si en soporte aparecen
+    /// reclamos de "dijeron que a las 9 estaría", el cambio a hacer es volver a un
+    /// sujeto en plural del tipo "Procesamos los envíos a partir de…".
+    /// </remarks>
     private static string ConstruirMensajeBreve(DateTime ahoraCentral, DateTime proximaApertura)
-        => $"Procesamos los envíos a partir {DescribirAperturaDesde(ahoraCentral, proximaApertura)}";
+        => $"Fuera de horario · Se procesará {DescribirAperturaProceso(ahoraCentral, proximaApertura)}";
 
     /// <summary>
-    /// Complemento de "a partir …": "de hoy 9:00 a.m." / "de mañana …" / "del lunes …".
-    /// Sin "a las" ni "el próximo" — la franja es de una sola línea y esos caracteres
+    /// Complemento de "Se procesará …": "hoy 9:00 a.m." / "mañana …" / "el lunes …".
+    /// El artículo va sólo con el nombre del día — "el hoy" / "el mañana" no se dicen.
+    /// Sin "a las" ni "el próximo": la franja es de una sola línea y esos caracteres
     /// son la diferencia entre que quepa o se trunque.
     /// </summary>
-    private static string DescribirAperturaDesde(DateTime ahoraCentral, DateTime proximaApertura)
+    private static string DescribirAperturaProceso(DateTime ahoraCentral, DateTime proximaApertura)
     {
         var hoy  = DateOnly.FromDateTime(ahoraCentral);
         var dia  = DateOnly.FromDateTime(proximaApertura);
         var hora = FormatearHora(proximaApertura);
 
-        if (dia == hoy)            return $"de hoy {hora}";
-        if (dia == hoy.AddDays(1)) return $"de mañana {hora}";
+        if (dia == hoy)            return $"hoy {hora}";
+        if (dia == hoy.AddDays(1)) return $"mañana {hora}";
 
-        return $"del {NombreDia(dia.DayOfWeek)} {hora}";
+        return $"el {NombreDia(dia.DayOfWeek)} {hora}";
     }
 
     private static string DescribirApertura(DateTime ahoraCentral, DateTime proximaApertura)

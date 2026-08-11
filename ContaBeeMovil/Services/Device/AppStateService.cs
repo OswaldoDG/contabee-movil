@@ -349,4 +349,20 @@ public partial class AppState : ObservableObject
         get => _modoOffline;
         set => SetProperty(ref _modoOffline, value);
     }
+
+    // ── ServicioNoDisponible ───────────────────────────────────────────────────
+    private bool _servicioNoDisponible;
+
+    /// <summary>
+    /// Indica que hay internet pero el backend de ContaBee no está respondiendo
+    /// (5xx, timeout, gateway caído). Es un estado distinto de <see cref="ModoOffline"/>:
+    /// ahí el problema es del dispositivo y solo cabe esperar; aquí el problema es del
+    /// servidor y sí tiene sentido ofrecer "Reintentar".
+    /// Lo maneja AuthHandler junto con InterruptorApi. No persiste entre sesiones.
+    /// </summary>
+    public bool ServicioNoDisponible
+    {
+        get => _servicioNoDisponible;
+        set => SetProperty(ref _servicioNoDisponible, value);
+    }
 }

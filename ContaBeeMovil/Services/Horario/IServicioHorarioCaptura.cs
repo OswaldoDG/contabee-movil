@@ -16,8 +16,8 @@ namespace ContaBeeMovil.Services.Horario;
 /// Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
 /// <param name="MensajeBreve">
-/// Una línea para la franja de estado (p. ej. "Contabee reanuda el próximo lunes a
-/// las 9:00 a.m."). Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// Una línea para la franja de estado (p. ej. "Fuera de horario · Se procesará el
+/// lunes 9:00 a.m."). Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
 public sealed record EstadoHorarioCaptura(
     bool Abierto,

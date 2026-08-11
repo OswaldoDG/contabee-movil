@@ -763,6 +763,91 @@
             </BoxView.GestureRecognizers>
         </BoxView>
 
+        <!-- Contenedor del selector: aviso de horario a pantalla completa (si aplica) +
+             flyout anclado abajo. Existe para que ambos entren y salgan con la misma
+             animación. La fila 0 es "*" aunque el aviso esté oculto: así el flyout
+             conserva exactamente la misma posición dentro y fuera de horario. -->
+        <Grid x:Name="PanelCredito"
+              IsVisible="{Binding MostrarFlyoutCredito}"
+              Opacity="0"
+              RowDefinitions="*,Auto"
+              HorizontalOptions="Fill"
+              VerticalOptions="Fill">
+
+        <!-- Velo sobre la página. Usa el recurso Overlay (negro translúcido), NO el color
+             Background: pintar el fondo de la página con su propio color no atenúa nada,
+             sólo lo tapa de blanco y se pierde la noción de que hay algo detrás.
+             Va a sangre y cubriendo las dos filas (incluida la del flyout) para que no
+             quede una franja sin atenuar debajo del selector.
+             InputTransparent: el tap tiene que atravesarlo hasta el scrim de atrás, que
+             es quien cierra el flyout — sin esto, tocar fuera dejaría de funcionar.
+             BackgroundColor="Transparent" NO es redundante: el estilo implícito de
+             BoxView (Styles.xaml) pinta el fondo de Accent1, un gris OPACO, y sin
+             anularlo el velo tapa la página con gris plano en vez de atenuarla. -->
+        <BoxView Grid.RowSpan="2"
+                 IsVisible="{Binding FueraDeHorario}"
+                 Color="{toolkit:AppThemeResource Overlay}"
+                 BackgroundColor="Transparent"
+                 InputTransparent="True" />
+
+        <!-- Aviso de horario dentro del selector: es el único momento en que el dato es
+             ACCIONABLE — el usuario todavía puede mandar el lote a Mi Equipo, que no
+             depende del horario de Contabee. Por eso vive aquí y no encima del botón.
+             Sólo aparece con ambos créditos, porque es la única vía que abre el flyout.
+             La tarjeta es obligatoria, no decorativa: contabeepet.png es line-art negro
+             sobre transparente y sobre el velo oscuro desaparecería. Necesita una
+             superficie clara debajo. -->
+        <Border Grid.Row="0"
+                IsVisible="{Binding FueraDeHorario}"
+                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                Stroke="Transparent"
+                StrokeThickness="0"
+                StrokeShape="RoundRectangle 20"
+                Margin="20,20,20,6"
+                Padding="20,22"
+                VerticalOptions="End"
+                InputTransparent="True">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,6" Radius="20" Opacity="0.35" />
+            </Border.Shadow>
+
+            <!-- Filas Auto (no "*") y alto fijo en la mascota: la tarjeta se ajusta a su
+                 contenido en vez de estirarse a toda la fila. Ese es el punto — si crece
+                 hasta llenar la pantalla tapa la página y se pierde el efecto de velo,
+                 que sólo se nota si queda fondo atenuado a la vista. -->
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="16">
+
+                <Image Grid.Row="0"
+                       Source="contabeepet.png"
+                       Aspect="AspectFit"
+                       HeightRequest="150"
+                       HorizontalOptions="Center" />
+
+                <VerticalStackLayout Grid.Row="1" Spacing="10">
+
+                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                        <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                               FontFamily="FluentUIFilled"
+                               FontSize="22"
+                               VerticalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource Primary}" />
+                        <Label Text="Fuera de horario"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                    </HorizontalStackLayout>
+
+                    <Label Text="{Binding MensajeHorario}"
+                           FontSize="15"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
         <!-- Flyout: ¿Quién captura? — Mi Equipo (Autoservicio) / Contabee (Captura).
              Efecto flotante 3D. Tres cosas que importan y es fácil romper:
              · Opacity de la sombra BAJO (0.35). Con Opacity=1 no se lee como sombra
@@ -773,8 +858,7 @@
              · Stroke hairline: en tema oscuro una sombra negra sobre #141414 no se
                distingue, y el filo claro es lo único que define el borde de la tarjeta. -->
         <Border x:Name="FlyoutCredito"
-                IsVisible="{Binding MostrarFlyoutCredito}"
-                Opacity="0"
+                Grid.Row="1"
                 BackgroundColor="{toolkit:AppThemeResource Background}"
                 Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
                 StrokeThickness="1"
@@ -782,7 +866,6 @@
                 Padding="14,12"
                 WidthRequest="272"
                 HorizontalOptions="End"
-                VerticalOptions="End"
                 Margin="20,0,20,74">
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
@@ -837,6 +920,8 @@
                 </Grid>
             </VerticalStackLayout>
         </Border>
+
+        </Grid>
 
         <!-- ══════════════════════════════════════════════════════════════════════
              OVERLAY DE ENVÍO

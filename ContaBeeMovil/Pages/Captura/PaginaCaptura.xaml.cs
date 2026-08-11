@@ -1097,15 +1097,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task AbrirFlyoutCreditoAsync()
     {
+        // Se anima el contenedor, no el flyout: arrastra también al aviso de horario
+        // para que los dos entren como una sola pieza.
         MostrarFlyoutCredito = true;
-        FlyoutCredito.Opacity = 0;
-        FlyoutCredito.TranslationY = 14;
-        FlyoutCredito.Scale = 0.92;
+        PanelCredito.Opacity = 0;
+        PanelCredito.TranslationY = 14;
+        PanelCredito.Scale = 0.92;
 
         await Task.WhenAll(
-            FlyoutCredito.FadeTo(1, 180, Easing.CubicOut),
-            FlyoutCredito.TranslateTo(0, 0, 220, Easing.SpringOut),
-            FlyoutCredito.ScaleTo(1, 220, Easing.SpringOut));
+            PanelCredito.FadeTo(1, 180, Easing.CubicOut),
+            PanelCredito.TranslateTo(0, 0, 220, Easing.SpringOut),
+            PanelCredito.ScaleTo(1, 220, Easing.SpringOut));
     }
 
     private async Task CerrarFlyoutCreditoAsync()
@@ -1113,9 +1115,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (!MostrarFlyoutCredito) return;
 
         await Task.WhenAll(
-            FlyoutCredito.FadeTo(0, 140, Easing.CubicIn),
-            FlyoutCredito.TranslateTo(0, 14, 140, Easing.CubicIn),
-            FlyoutCredito.ScaleTo(0.92, 140, Easing.CubicIn));
+            PanelCredito.FadeTo(0, 140, Easing.CubicIn),
+            PanelCredito.TranslateTo(0, 14, 140, Easing.CubicIn),
+            PanelCredito.ScaleTo(0.92, 140, Easing.CubicIn));
 
         MostrarFlyoutCredito = false;
     }

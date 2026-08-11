@@ -67,17 +67,34 @@
 
     <Grid RowDefinitions="Auto,*,Auto">
 
-        <!-- Banner de modo offline -->
+        <!-- Banner degradado: sin conexión (dispositivo) o servicio caído (backend) -->
         <Grid x:Name="BannerOffline"
               Grid.Row="0"
               IsVisible="False"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="8"
               BackgroundColor="{toolkit:AppThemeResource Warning}"
               Padding="10,6">
-            <Label Text="Sin Conexión"
+            <Label x:Name="LabelBanner"
+                   Grid.Column="0"
+                   Text="Sin Conexión"
                    TextColor="{toolkit:AppThemeResource Info}"
                    FontSize="12"
                    HorizontalOptions="Center"
                    VerticalOptions="Center" />
+            <!-- Solo aparece cuando el problema es del servidor: ahí sí tiene sentido reintentar -->
+            <Label x:Name="BtnReintentarBanner"
+                   Grid.Column="1"
+                   Text="{x:Static f:FluentUI.arrow_clockwise_20_regular}"
+                   FontFamily="FluentUI"
+                   FontSize="18"
+                   IsVisible="False"
+                   TextColor="{toolkit:AppThemeResource Info}"
+                   VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnReintentarBannerTapped" />
+                </Label.GestureRecognizers>
+            </Label>
         </Grid>
 
         <!-- Área de contenido dinámico -->

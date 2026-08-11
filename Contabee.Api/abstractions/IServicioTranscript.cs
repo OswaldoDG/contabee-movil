@@ -51,6 +51,13 @@ public interface IServicioTranscript
     Task<RespuestaPayload<ValorInstantaneoCaptura>> ObtenerInstantaneosAsync(
         CancellationToken ct = default);
 
+    /// <summary>
+    /// Catálogo de días inhábiles (feriados) de un país para un año. Alimenta el cálculo
+    /// del horario de captura delegada.
+    /// </summary>
+    Task<RespuestaPayload<ICollection<DiaInhabil>>> ObtenerDiasInhabilesAsync(
+        string pais, int ano, CancellationToken ct = default);
+
     Task<RespuestaPayload<LoteCaptura>> CrearLoteAsync(
         CreaLoteCaptura request, CancellationToken ct = default);
 

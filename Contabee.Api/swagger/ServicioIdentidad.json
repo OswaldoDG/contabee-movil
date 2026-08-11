@@ -1,4 +1,4 @@
-{
+﻿{
   "openapi": "3.0.1",
   "info": {
     "title": "contabee.api.identity",
@@ -2432,7 +2432,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2596,7 +2597,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
@@ -2766,7 +2768,8 @@
             "nullable": true
           },
           "paginado": {
-            "$ref": "#/components/schemas/Paginado"
+            "$ref": "#/components/schemas/Paginado",
+            "nullable": true
           },
           "contar": {
             "type": "boolean"
