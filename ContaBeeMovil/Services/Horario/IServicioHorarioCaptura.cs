@@ -9,7 +9,11 @@ namespace ContaBeeMovil.Services.Horario;
 /// Cuándo se reanuda la captura (hora central). Null cuando <paramref name="Abierto"/> es true.
 /// </param>
 /// <param name="Mensaje">
-/// Leyenda lista para mostrar al usuario. Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// Leyenda lista para mostrar al usuario. Es la misma en las tres vistas que la usan
+/// (aviso de la página sin fotos, popup de la franja y tarjeta del selector "Quién
+/// captura"), y por eso está redactada en plural y sin condicional: en dos de esas tres
+/// el usuario no está enviando nada — en el aviso de la página ni siquiera ha tomado la
+/// foto. Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
 /// <param name="ResumenCorto">
 /// Versión mínima del aviso para espacios estrechos (p. ej. "reanuda lun 9:00").

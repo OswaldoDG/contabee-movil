@@ -118,9 +118,21 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
     /// sino qué le pasa a lo que envíe <b>ahora</b>: se recibe, pero no se procesa hasta
     /// la reanudación. Por eso el sujeto es su captura y no nuestro horario.
     /// </summary>
+    /// <remarks>
+    /// Dos cosas que parecen detalle y no lo son:
+    /// · No abre diciendo que se está fuera de horario porque las vistas que lo muestran
+    ///   ya lo llevan como título — repetirlo costaba ~50 caracteres, y el texto va justo
+    ///   de espacio: sólo caben unas 5 líneas antes de que la tarjeta recorte a la mascota.
+    /// · Plural y sin condicional a propósito. De las tres vistas que lo muestran sólo el
+    ///   selector "Quién captura" aparece con un envío en curso; en las otras dos un "si
+    ///   continúas…" le hablaría al usuario de un envío que no está haciendo.
+    /// Se evaluó cerrar con "no necesitas enviarlas de nuevo" para desincentivar el reenvío
+    /// duplicado — que se paga en créditos y en trabajo de captura — y se descartó por
+    /// brevedad. Es el primer candidato a volver si soporte reporta envíos repetidos.
+    /// </remarks>
     private static string ConstruirMensaje(DateTime ahoraCentral, DateTime proximaApertura)
-        => "Puedes enviar tu captura ahora, pero quedará en espera: no la procesaremos hasta " +
-           $"{DescribirApertura(ahoraCentral, proximaApertura)}, cuando reanudemos operaciones.";
+        => "Las capturas que envíes quedarán en espera y las procesaremos a partir " +
+           $"{DescribirAperturaDesde(ahoraCentral, proximaApertura)}.";
 
     /// <summary>
     /// Variante mínima para huecos estrechos (el flyout "Quién captura"): "reanuda lun 9:00".
@@ -169,21 +181,24 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
         return $"el {NombreDia(dia.DayOfWeek)} {hora}";
     }
 
-    private static string DescribirApertura(DateTime ahoraCentral, DateTime proximaApertura)
+    /// <summary>
+    /// Complemento de "a partir …": "de hoy 9:00 a.m." / "de mañana …" / "del lunes …".
+    /// </summary>
+    private static string DescribirAperturaDesde(DateTime ahoraCentral, DateTime proximaApertura)
     {
         var hoy  = DateOnly.FromDateTime(ahoraCentral);
         var dia  = DateOnly.FromDateTime(proximaApertura);
         var hora = FormatearHora(proximaApertura);
 
-        if (dia == hoy)             return $"hoy a las {hora}";
-        if (dia == hoy.AddDays(1))  return $"mañana a las {hora}";
+        if (dia == hoy)             return $"de hoy {hora}";
+        if (dia == hoy.AddDays(1))  return $"de mañana {hora}";
 
-        var cuando = $"el próximo {NombreDia(dia.DayOfWeek)}";
+        var cuando = $"del {NombreDia(dia.DayOfWeek)}";
         // Más allá de la semana en curso el nombre del día ya no basta para ubicarlo.
         if (dia.DayNumber - hoy.DayNumber > 6)
             cuando += $" {dia.Day} de {NombreMes(dia.Month)}";
 
-        return $"{cuando} a las {hora}";
+        return $"{cuando} {hora}";
     }
 
     // Nombres fijos en español: la app es sólo para México y así el texto no depende
