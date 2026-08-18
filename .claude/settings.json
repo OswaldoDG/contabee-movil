@@ -17,7 +17,17 @@
       "Bash(tasklist)",
       "PowerShell(try { [xml]\\(Get-Content \"ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml\" -Raw\\) | Out-Null; \"XAML OK\" } catch { \"FALLA: $\\($_.Exception.Message\\)\" })",
       "PowerShell(dotnet build ContaBeeMovil\\\\ContaBeeMovil.csproj -f net10.0-android -t:Compile -v m -nologo)",
-      "PowerShell(try { [xml]$d = Get-Content 'ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml' -Raw -Encoding UTF8; \"XML OK\" } catch { \"XML MAL: $\\($_.Exception.Message\\)\" })"
+      "PowerShell(try { [xml]$d = Get-Content 'ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml' -Raw -Encoding UTF8; \"XML OK\" } catch { \"XML MAL: $\\($_.Exception.Message\\)\" })",
+      "Bash(curl -s -m 15 \"https://api.contabee.mx/api/identity/app/version-movil\")",
+      "Bash(curl -s -m 15 -w \"\\\\nHTTP %{http_code}\\\\n\" \"https://api.contabee.mx/api/identity/app/version-movil/verifica?version=2.5.7&plataforma=Android\")",
+      "Bash(curl -s -m 15 -w \"\\\\nHTTP %{http_code}\\\\n\" \"https://api.contabee.mx/api/identity/app/version-movil/verifica?version=2.5.8&plataforma=Android\")",
+      "PowerShell(foreach \\($f in @\\('ContaBeeMovil\\\\Pages\\\\Captura\\\\PaginaCaptura.xaml','ContaBeeMovil\\\\Views\\\\HorarioCapturaPopup.xaml'\\)\\) { try { [xml]$d = Get-Content $f -Raw -Encoding UTF8; \"OK  $f\" } catch { \"MAL $f : $\\($_.Exception.Message\\)\" } })",
+      "PowerShell(dotnet build ContaBeeMovil/ContaBeeMovil.csproj -t:Compile -f net10.0-android -v:m --nologo 2>&1)",
+      "PowerShell(Set-Location C:\\\\dev\\\\contabee\\\\contabee-movil; $out = \"C:\\\\Users\\\\BETODE~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--dev-contabee-contabee-movil\\\\c5e4a988-c0d6-49f2-9e49-bb3957547b46\\\\scratchpad\\\\gen\"; dotnet build ContaBeeMovil\\\\ContaBeeMovil.csproj -t:Compile -f net10.0-android -p:EmitCompilerGeneratedFiles=true -p:CompilerGeneratedFilesOutputPath=$out -v:q --nologo 2>&1 | Select-String -Pattern \": error|Error\\\\\\(s\\\\\\)\" | Select-Object -First 5)",
+      "PowerShell(Set-Location C:\\\\dev\\\\contabee\\\\contabee-movil; $out = \"C:\\\\Users\\\\BETODE~1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--dev-contabee-contabee-movil\\\\c5e4a988-c0d6-49f2-9e49-bb3957547b46\\\\scratchpad\\\\gen2\"; dotnet build ContaBeeMovil\\\\ContaBeeMovil.csproj -t:Compile -f net10.0-android -p:EmitCompilerGeneratedFiles=true -p:CompilerGeneratedFilesOutputPath=$out -v:q --nologo 2>&1 | Select-String -Pattern \": error|Error\\\\\\(s\\\\\\)\" | Select-Object -First 10)",
+      "Bash(awk '$1>1')",
+      "Bash(python -c ' *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $i = [System.Drawing.Image]::FromFile\\(\"c:\\\\dev\\\\contabee\\\\contabee-movil\\\\ContaBeeMovil\\\\Resources\\\\Images\\\\contabeepet2.png\"\\); \"$\\($i.Width\\) x $\\($i.Height\\)\"; $i.Dispose\\(\\))"
     ]
   }
 }

@@ -5,6 +5,87 @@
 
 ---
 
+## 2026-08-17 — Aviso de horario con fotos: coach mark de la mascota (estilo tutorial)
+
+**Idea de Beto:** con fotos ya tomadas, el aviso de fuera de horario lo da la mascota entrando desde la esquina izquierda con un globo de diálogo, cerca del botón Enviar — como el tutorial de un videojuego.
+
+**Hecho** — nuevo control `Views/MascotaAvisoView.xaml(.cs)`, reusable:
+- API: `Mensaje`, `Titulo` (bindables), `MostrarAsync(segundos = 6)`, `OcultarAsync()`, `OcultarInmediato()`.
+- **Primera versión se descartó por parecer una notificación** (mascota como ícono dentro de una tarjeta + globo con pico, todo entrando junto). La diferencia con un cuadro de diálogo de juego **no está en la caja sino en el personaje**; la versión vigente:
+  1. **La mascota va PARADA ENCIMA del borde superior de la caja**, medio cuerpo fuera, dibujada después de la caja en el XAML para quedar por delante del marco. Ya no hay globo ni pico: la caja *es* el diálogo, y así el texto usa el ancho completo.
+  2. **Entrada en dos vectores a la vez**: la caja se desliza desde el borde izquierdo (`CubicOut`) y 130 ms después la mascota se deja caer desde arriba con `BounceOut` + `SpringOut` en escala y giro (aterriza, rebota y se endereza). Que todo entre junto es justo lo que la hacía leerse como notificación.
+  3. **Bamboleo en bucle** (±6 px, 1.7 s) mientras está en pantalla: es lo que hace que el personaje se sienta vivo y no una imagen pegada.
+  4. **Tecleo letra por letra** del mensaje, y al terminar parpadea el chevron de "continuar". **Tap a media frase completa el texto de golpe; tap con el texto completo cierra** — comportamiento de cuadro de diálogo de juego.
+  - Marco de **2 px en `Primary`** en vez del filo hairline de las tarjetas de la app: el borde grueso de color es lo que lo lee como UI de juego.
+- **`LblMedida`**: copia del mensaje completo en `Opacity=0` detrás del visible. Reserva el alto de todas las líneas desde el primer frame; sin él el tecleo iría agregando renglones y la caja daría saltos de altura a media frase. Las dos etiquetas deben mantener idénticos fuente y tamaño.
+- Todo se anima con `Animation` comprometidas contra la vista (`Commit`/`AbortAnimation`) y **no** con bucles de `Task.Delay`: van sincronizadas al ticker de la plataforma y se cortan de golpe, que es lo que necesitan el bamboleo y el parpadeo (bucles infinitos). El `finished` de una `Animation` corre **también al abortarla**, y de eso depende que el `await` del tecleo siempre libere.
+- El desplazamiento de entrada usa el **ancho del display**, no el de la caja: con `IsVisible=false` la vista no está medida (`Width = 0`) y quedarse corto hace que la caja "aparezca" a medio camino.
+- **Halo detrás de la mascota** (`Light=#26FEC001 / Dark=#3DFFFFFF`): no es decoración — `contabeepet.png` es un dibujo de contornos negros y suelto sobre el fondo oscuro (#141414) perdería la silueta.
+- ⚠ **NO lleva metadata `Inflator` en el csproj** — ver abajo, el bug de arranque que destapó.
+
+**El coach mark quedó como ÚNICO aviso de horario.** Los otros tres se desactivaron con `IsVisible="False"` + comentario `[DESACTIVADO]` (mismo patrón que el badge del botón Enviar), sin borrar el markup:
+1. **Aviso amplio** (sin fotos, mascota en grande al centro) — con él encendido el mismo mensaje se daba dos veces seguidas: mascota grande al entrar, y otra vez la del coach mark al tomar la primera foto. Al apagarlo hubo que devolver `MostrarEstadoVacio` a `!TieneCapturas`, o la zona de capturas quedaba en blanco fuera de horario.
+2. **Franja de estado** (`Se procesará el lunes 9:00 a.m.`). ⚠ **Al apagarla se perdió la única forma de volver a leer el aviso**: el coach mark sale una vez por lote y se retrae solo, y era el tap en la franja lo que lo volvía a llamar. Es lo primero que hay que reactivar si eso hace falta — `OnAvisoHorarioTapped` sigue existiendo y sigue apuntando al coach mark, así que es cambiar una línea.
+3. **Bloque dentro del selector "Quién captura"**. Era el más defendible de los tres: es el único momento en que el dato es **accionable**, porque ahí el usuario todavía puede mandar el lote a Mi Equipo, que no depende del horario de Contabee. Si alguno merece volver, es éste.
+
+**En `PaginaCaptura`:**
+- El coach mark se monta en el Grid raíz con `Margin="10,0,10,56"` (apoyado sobre la fila de botones sin comerse su área de toque), **después** del contenido y **antes** del scrim, para que el flyout "Quién captura" lo tape.
+- Disparo enganchado a `NotificarPanelCentral()` — ahí desembocan todos los caminos que agregan fotos (cámara, imagen compartida y fotos guardadas pasan por `OnCapturasCollectionChanged`), más el cambio de crédito y el timer del minuto. La bandera `_coachMarkHorarioMostrado` es la que garantiza **una vez por lote**; se rearma al quedar el lote en 0 (envío exitoso o borrar todas).
+- Delay de 450 ms antes de animar: con fotos guardadas el disparo cae dentro de `OnAppearing` y sin la pausa la entrada se ve a tirones. `OnDisappearing` llama `OcultarInmediato()` para no dejar animaciones corriendo sobre una página que ya se fue.
+- Tocar la **franja de estado** ahora vuelve a llamar a la mascota en vez de abrir el popup centrado.
+
+**Redacción nueva (dada por negocio):** título **"Sigue enviando tus fotos"** + mensaje *"Estamos fuera de horario hábil pero las procesaremos a la brevedad {hoy | mañana | el próximo lunes} a primera hora, o antes si es posible."*
+- El título se aplicó a **las tres vistas** que muestran `Mensaje` (aviso amplio, coach mark y tarjeta del selector "Quién captura") porque el **"las" de "las procesaremos" toma de ahí su antecedente**. Sustituye al viejo "Fuera de horario" del selector y al "Haremos lo posible por tenerlas antes…" del aviso amplio, que ahora sería redundante. Si se cambia el título, revisar que el pronombre siga teniendo a qué referirse.
+- **La regla se enunció como "menos de 24 h → mañana; más de 24 h → día de la semana", pero se implementó por día de calendario.** Coinciden en todos los casos menos uno, y ahí la de 24 h se equivoca: a las **7:00 de un martes** la reanudación es ese mismo martes a las 9:00 — faltan 2 horas ("menos de 24") pero decir "mañana" sería falso. Por eso existe la rama **"hoy"**, que la regla original no contempla porque sólo pensaba en el caso de después de las 18:00.
+- Se agregó coma antes de "o antes si es posible" y punto final; el resto es literal.
+- `MensajeBreve` (la franja: *"Se procesará el lunes 9:00 a.m."*) y `ResumenCorto` (*"reanuda lun 9:00"*) **no se tocaron**: son huecos de una línea y ahí sí se espera la hora exacta. La redacción nueva dice "a primera hora" a propósito — el compromiso es de prontitud, no de reloj.
+
+**Decisiones tomadas (con Beto):**
+- **No bloquea, sin velo.** Se descartó el modal con scrim de la imagen de referencia: interrumpe justo cuando el usuario iba a enviar y contradice la decisión vigente de que el horario sólo informa.
+- **Se retrae sola a los 6 s** contados **desde que termina de teclear** (no desde que aparece), dejando la franja de estado como rastro permanente — tocarla la vuelve a llamar. Se descartó que se quedara hasta cerrarla porque tapa la esquina del carrusel mientras el usuario decide.
+- **Una vez por lote**, no por foto: a la tercera foto la animación estorbaría a quien captura varios tickets seguidos.
+
+**Bug de arranque destapado de paso: `Inflator` en el csproj tronaba la app, y la nota de julio tenía el diagnóstico al revés.**
+- Síntoma: `XamlParseException: No embeddedresource found for __XamlGeneratedCode__.__Type21484A13DD1B76E5` al correr. El tipo NO era ninguno de los archivos nuevos: era **`Resources/Styles/AppStyles.xaml`**, que `App.xaml` carga al arrancar.
+- Causa real: con `MauiXamlInflator=SourceGen` **el .xaml no se embebe como recurso** (verificado sobre el binario: 0 ocurrencias de XML de XAML dentro de `ContaBeeMovil.dll`; los `ContaBee.*.xaml` que sí aparecen son argumentos del atributo `XamlResourceId`, no recursos). SourceGen emite para cada XAML un stub `.sg.cs` cuyo `InitializeComponent` llama `LoadFromXaml`, y aparte el `.xsg.cs` con la implementación real que lo reemplaza. **Poner `Inflator` impide que se genere el `.xsg.cs`**, así que el archivo se queda con el stub, llama `LoadFromXaml` y busca el recurso inexistente. `Inflator="Runtime"` falla siempre; `Inflator="Default"` falla en Debug (Default = Runtime en Debug, XamlC en Release) — por eso `ActualizacionPopup` "pasó" las pruebas de julio, que fueron en Release.
+- Se eliminaron **los dos** overrides del csproj (`AppStyles.xaml` y `ActualizacionPopup.xaml`) y quedó un comentario grande prohibiéndolos. Comprobado con `-p:EmitCompilerGeneratedFiles=true`: antes 74 `.xsg.cs` y esos dos archivos sin el suyo; después 76, y **ningún** XAML del proyecto se queda sin implementación compilada.
+- **Costo:** se pierde XAML Hot Reload sobre esos dos archivos. Es lo que se estaba comprando a cambio de que la app no arrancara.
+- Cómo diagnosticar si vuelve a pasar: `dotnet build -p:EmitCompilerGeneratedFiles=true -p:CompilerGeneratedFilesOutputPath=<dir>` y buscar el hash del error en `<dir>` — el archivo que lo declara es el culpable.
+
+**Se evaluó una segunda opción y se descartó.** `MascotaAvisoComicView` (mascota a la **derecha**, globo con pico y título en mayúsculas, sin tarjeta detrás) convivió con la actual detrás de un conmutador de Modo Dev. **Beto eligió la de la izquierda**; el control, la interfaz `IAvisoMascota` y el conmutador se eliminaron. Recuperable del historial de git si se quiere retomar.
+
+**Ajustes finales pedidos por Beto sobre la opción ganadora:**
+- Se probó **la caja arriba y la mascota abajo** para que el texto no se disputara la franja inferior con el selector "Quién captura", y **se revirtió**: quedó la disposición original —mascota parada sobre el borde superior de la caja— y el conflicto con el selector se resolvió por el otro lado (ver abajo: el aviso sube por encima de la tarjeta).
+- **Efecto de capas**: la mascota se lee como un plano por delante de la caja. Lo que lo consigue es que su **disco de fondo pasó de velo translúcido a opaco (`CardBackground`) con filo hairline y sombra propia** — sin algo opaco que proyecte sombra, mascota y caja se ven como un solo plano. Y el solape subió de 28 a 40 px (`Margin` superior de la caja 72 → 60).
+  - ⚠ La sombra va en ese `Border` y **no en el `Image`**: en Android la sombra de una imagen con transparencia sigue el rectángulo del control, no la silueta del dibujo — saldría un cuadro oscuro detrás de la mascota.
+  - El disco opaco además sustituye al halo como solución del contraste en tema oscuro (los contornos negros de `contabeepet.png` sobre #141414).
+- **Botón de cerrar (✕) en su propia fila, abajo a la derecha**, no junto al título. Ahí arriba compite con el hueco de 96 px de la mascota y con el reloj, y en pantallas de 360 dp no quedaba ancho para que el título entrara en una sola línea.
+- **Se quitó el tecleo letra por letra.** El mensaje aparece completo. Eso volvió innecesario el truco de `LblMedida` (la copia en opacidad 0 que reservaba el alto para que la caja no saltara de tamaño a media frase) y también el chevron de "continuar" con su parpadeo: se eliminaron los tres.
+- **Ya no se retrae solo** — se queda hasta que lo cierren. Se fue toda la maquinaria de auto-ocultado (`CancellationTokenSource`, `segundosVisible`). Tocar la caja también cierra, como antes.
+- Lo único que quedó del "está vivo" es el **bamboleo en bucle**, que ahora corre indefinidamente mientras el aviso esté en pantalla.
+
+**Se está probando una tercera forma: `MascotaVinetaView` (la activa hoy).** Tira de cómic **vertical pegada al borde izquierdo**, globos de diálogo arriba y la mascota al pie; entra deslizándose desde la izquierda y los globos brotan **uno tras otro** (simultáneos parecerían dos bloques de texto sueltos). `MascotaAvisoView` se conserva sin borrar: **las dos exponen la misma API**, así que volver es cambiar el tipo en el XAML de `PaginaCaptura`, sin tocar el code-behind.
+- **Media pantalla exacta, sin cuentas:** la raíz es un `Grid` de dos columnas iguales del que sólo se usa la primera. Nada de `WidthRequest` calculado.
+- **Sin marco ni fondo**: el contenedor es transparente, sólo se ven la mascota (grande, a todo el ancho de la media pantalla) y los globos. Nació con marco grueso de viñeta y **Beto pidió quitarlo**. Dos consecuencias: (1) el contraste pasó a cada globo, que llevan **sombra propia** — en tema claro el blanco del globo y el #fefdfc del fondo son casi el mismo color; (2) la mascota se quedó **sin respaldo**, así que en tema oscuro sus contornos negros pierden nitidez contra el #141414. Es el precio aceptado de quitar la card.
+- Sin fondo, el contenedor ya no captura toques de forma fiable: **el tap para cerrar vive en cada globo**, que sí tienen relleno.
+- **El margen superior lo pone la página** (`ActualizarMargenAviso`), no el XAML: sale de `ZonaCapturas.Y` — donde terminan los formularios, que cambia al desplegar "Más opciones". Se llama en `OnZonaCapturasSizeChanged` **fuera del guard de "el alto no cambió"**, porque la posición de la zona de fotos se mueve aunque el alto acabe igual.
+- **Al abrir el selector, es el SELECTOR el que se repliega a la mitad derecha** (`ActualizarMargenFlyout`), no la tira la que se encoge — ocupa justo el hueco que ella deja. Sin la tira en pantalla recupera su ancho completo. ⚠ A media pantalla las dos tarjetas de crédito ("Mi Equipo" / "Contabee") quedan estrechas; si el texto se corta, toca apilarlas en vertical.
+- Globos sin trazo y picos `Polygon` del mismo relleno: con borde propio habría que tapar la línea del globo en la base del pico y esa costura siempre se ve.
+
+**Dos consecuencias de que el aviso ya no se cierre solo, y cómo se resolvieron:**
+- **Abrir una foto lo mataba para siempre.** El visor de imagen navega → `OnDisappearing` → `OcultarInmediato()`, y al volver la bandera de "una vez por lote" impedía que el disparo normal lo repitiera. Ahora `OnDisappearing` guarda `_avisoHorarioPendienteReanudar = AvisoMascotaHorario.IsVisible` y `OnAppearing` lo vuelve a sacar. La distinción clave: **si el usuario lo cerró, `IsVisible` ya era false**, así que cerrar sigue siendo definitivo. Al reanudar se revalida `MostrarAvisoHorario && TieneCapturas` por si entró el horario hábil mientras estuvo fuera.
+- **Se disputaba la franja inferior con el selector "Quién captura".** En vez de ocultarlo —el usuario necesita leerlo justo cuando decide quién captura— **el aviso sube por encima de la tarjeta al abrirla y baja al cerrarla** (`SubirAvisoSobreFlyoutAsync`). Además se movió en el XAML a **después** del selector, para que el scrim no lo atenúe y siga legible.
+  - El desplazamiento se calcula con `FlyoutCredito.Height` + los márgenes, que están **replicados como constantes en el code-behind** (`MargenInferiorFlyout=74`, `MargenInferiorAviso=56`): si cambian en el XAML hay que actualizarlos ahí.
+  - Lleva un `Task.Delay(16)` antes de medir: en la **primera** apertura la tarjeta aún no está medida y `Height` devuelve 0, lo que dejaría el aviso encimado en vez de arriba. Hay un valor de respaldo (170) por si aun así llega en 0.
+
+**Pendiente:**
+- Probar en dispositivo (Android/iOS). Compiló verde en `net10.0-android` (`-t:Compile`, 0 errores).
+- **Sin verificar:** en un build incremental aparecieron 4 XAML preexistentes sin `.xsg.cs` (`DetalleComprobacionPage`, `PaginaComprobaciones`, `DetalleDevolucionPage`, `RestablecerContrasenaPage`). El compile completo anterior daba 0, así que lo más probable es que sea artefacto de `EmitCompilerGeneratedFiles` en incremental — y esas páginas funcionan en producción, cosa imposible si de verdad cayeran a `LoadFromXaml`. **No se pudo confirmar con un `-t:Rebuild`: el `obj\` estaba bloqueado por el IDE.** Vale la pena rehacer la medición tras un Rebuild limpio.
+- El csproj tiene **7 entradas `MauiXaml Update` duplicadas** (`FiltrosDevolucionesView`, `CrearDevolucionPopup`, `ActualizarDevolucionPopup`, `ActualizarComprobacionPopup`, `DetalleDevolucionPage`, `PaginaComprobaciones`, `DetalleComprobacionPage`). No parecen causar daño —todas tienen su `.xsg.cs`— pero son ruido y conviene limpiarlas.
+- **`Views/HorarioCapturaPopup.xaml` quedó sin usar** — era el único destino del tap en la franja. Se conserva por si el coach mark no convence en dispositivo; si convence, se puede borrar.
+
+---
+
 ## 2026-08-06 — Permiso de cámara: re-pedir en cada intento + salida a Ajustes
 
 **Bug:** si el usuario negaba el permiso de cámara (aunque fuera por error), la función quedaba muerta: `TomarFotoAsync`/`EscanearQrAsync` llamaban `Permissions.RequestAsync` y con `!= Granted` devolvían `string.Empty` **sin decir nada**. Tras la 2ª negación (Android) o la 1ª (iOS) el SO ya no muestra su diálogo, así que el botón dejaba de responder para siempre.
@@ -107,7 +188,9 @@
 - En el aviso de muestra (botón dev), si `versionActual` del backend coincide con la instalada se enseña la instalada +1 en el parche, para que la píldora no se vea `1.0.38 → 1.0.38`.
 - `ServicioActualizacion` ya **no** depende de `IServicioAlerta`; monta el popup directo con el guard de `PaginaSinConexion` que tenía `ServicioAlerta`.
 
-**Trampa de `MauiXamlInflator=SourceGen` (csproj:28) — leer antes de agregar XAML nuevo.** Al correr el popup por primera vez reventó con `XamlParseException: No embeddedresource found for __XamlGeneratedCode__.__Type<hash>`. Causa: el inflador SourceGen compila el XAML a C# y **no lo embebe como recurso**; cuando XAML Hot Reload detecta el archivo editado intenta inflarlo en runtime (`LoadFromXaml`) y no encuentra el recurso. No es defecto del XAML — le pega a cualquier archivo editado en sesión de depuración. Solución aplicada: `<MauiXaml Update="Views\ActualizacionPopup.xaml" Inflator="Default" />` (Runtime en Debug → Hot Reload funciona; XamlC en Release). Ya había precedente con `AppStyles.xaml` (`Inflator="Runtime"`). Verificado: con `Inflator="Default"` deja de generarse el `.xsg.cs` del archivo.
+**Trampa de `MauiXamlInflator=SourceGen` (csproj:28) — leer antes de agregar XAML nuevo.** Al correr el popup por primera vez reventó con `XamlParseException: No embeddedresource found for __XamlGeneratedCode__.__Type<hash>`. Se aplicó `<MauiXaml Update="Views\ActualizacionPopup.xaml" Inflator="Default" />` copiando el precedente de `AppStyles.xaml` (`Inflator="Runtime"`).
+
+> ⛔ **CORRECCIÓN (2026-08-17): ese diagnóstico estaba al revés y el "arreglo" era la CAUSA.** Ver la entrada del 2026-08-17; ambos overrides se eliminaron del csproj. El síntoma que se anotó aquí como evidencia a favor —"con `Inflator="Default"` deja de generarse el `.xsg.cs` del archivo"— es exactamente el defecto: sin `.xsg.cs` el archivo se queda sólo con el stub `.sg.cs`, que llama `LoadFromXaml` y busca un recurso que bajo SourceGen no existe.
 
 **Estado:** probado en dispositivo por Beto — aprobado. Pendiente menor: revisar en tema claro/oscuro que el hero amarillo se recorte bien en las esquinas redondeadas (el clipping del `Border` puede variar por plataforma).
 

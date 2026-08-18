@@ -398,11 +398,17 @@
                   Grid.Row="1"
                   SizeChanged="OnZonaCapturasSizeChanged">
 
-                <!-- Aviso amplio: fuera de horario y sin fotos todavía. Ocupa la zona
-                     central en lugar del estado vacío — es el mismo hueco y así la
-                     mascota se ve en grande. -->
+                <!-- [DESACTIVADO] Aviso amplio: fuera de horario y sin fotos todavía.
+                     Ocupaba la zona central en lugar del estado vacío. Se apagó al
+                     quedar el coach mark de la mascota como ÚNICO aviso de horario:
+                     con dos mascotas —ésta en grande al entrar, y la del coach mark al
+                     tomar la primera foto— el mismo mensaje se daba dos veces seguidas.
+                     Sin fotos ya no se dice nada del horario; el aviso llega cuando el
+                     usuario captura, que es cuando le sirve.
+                     Para reactivarlo: IsVisible="{Binding MostrarAvisoHorarioAmplio}" y
+                     devolver MostrarEstadoVacio a "!TieneCapturas && !MostrarAvisoHorario". -->
                 <Grid Grid.Row="0"
-                      IsVisible="{Binding MostrarAvisoHorarioAmplio}"
+                      IsVisible="False"
                       RowDefinitions="*,Auto,Auto"
                       RowSpacing="14"
                       Padding="24,10,24,6">
@@ -417,25 +423,17 @@
                            HorizontalOptions="Center"
                            MinimumHeightRequest="110" />
 
-                    <Border Grid.Row="1"
-                            BackgroundColor="{toolkit:AppThemeResource Primary}"
-                            StrokeShape="RoundRectangle 14"
-                            StrokeThickness="0"
-                            Padding="12,6"
-                            HorizontalOptions="Center">
-                        <HorizontalStackLayout Spacing="6">
-                            <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
-                                   FontFamily="FluentUIFilled"
-                                   FontSize="16"
-                                   VerticalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                            <Label Text="Fuera de horario de captura"
-                                   FontSize="13"
-                                   FontAttributes="Bold"
-                                   VerticalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                        </HorizontalStackLayout>
-                    </Border>
+                    <!-- Título del aviso. Va fijo aquí y no en IServicioHorarioCaptura
+                         porque no depende de la fecha. Es además el antecedente del
+                         "las procesaremos" del mensaje de abajo: si se cambia, revisar
+                         que el pronombre siga teniendo a qué referirse. -->
+                    <Label Grid.Row="1"
+                           Text="Sigue enviando tus fotos"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
                     <Label Grid.Row="2"
                            Text="{Binding MensajeHorario}"
@@ -606,11 +604,16 @@
                                  BackgroundColor="{toolkit:AppThemeResource Background}"
                                  IsVisible="{Binding TieneCapturas}">
 
-            <!-- Franja de estado: el texto se lee sin tocar nada, que es lo que el
-                 badge del botón por sí solo no logra (un reloj suelto no se explica).
-                 Vive aquí, en la barra inferior, porque esta fila ya es Auto y crece
-                 sola: el área de fotos no pierde nada. Tap → mensaje completo. -->
-            <Grid IsVisible="{Binding MostrarAvisoHorario}"
+            <!-- [DESACTIVADO] Franja de estado ("Se procesará el lunes 9:00 a.m." con
+                 reloj y chevron). Se apagó al quedar el coach mark de la mascota como
+                 único aviso de horario.
+                 ⚠ Al apagarla se perdió la ÚNICA forma de volver a leer el aviso: el
+                 coach mark sale una vez por lote y se retrae solo, y era el tap en esta
+                 franja lo que lo volvía a llamar. Si hace falta recuperar eso, esto es
+                 lo primero que hay que reactivar: IsVisible="{Binding MostrarAvisoHorario}".
+                 El handler OnAvisoHorarioTapped sigue existiendo y sigue apuntando al
+                 coach mark, así que revivirla es cambiar sólo esta línea. -->
+            <Grid IsVisible="False"
                   ColumnDefinitions="Auto,*,Auto"
                   ColumnSpacing="6"
                   Padding="4,2,2,6">
@@ -752,132 +755,117 @@
 
         </Grid>
 
-        <!-- Scrim: captura el tap fuera del flyout para cerrarlo.
-             Grid y no BoxView: en iOS el BoxView totalmente transparente no recibía el
-             toque y el selector no se podía cerrar tocando fuera (en Android sí).
-             #01000000 es 1/255 de alpha — invisible a la vista, pero suficiente para que
-             iOS considere la vista "pintada" y la incluya en el hit-test. Con
-             Transparent puro vuelve a fallar. -->
+        <!-- Scrim: atenúa la página y captura el tap fuera de la tarjeta para cerrarla.
+             Hace las dos cosas a la vez; antes eran dos capas apiladas.
+             Se muestra SIEMPRE que el selector esté abierto, no sólo fuera de horario:
+             sin él la tarjeta no se despega de la página y se lee como una franja suelta.
+             Vive fuera de PanelCredito a propósito. Ahí dentro heredaría el Scale 0.92 de
+             la animación de entrada y durante esos milisegundos dejaría los bordes de la
+             pantalla sin cubrir.
+             Grid y no BoxView: en iOS el BoxView no pintaba el Color (la página se veía
+             sin atenuar) y encima el estilo implícito de BoxView le mete un
+             BackgroundColor gris opaco que hay que anular a mano. BackgroundColor sobre
+             un layout se comporta igual en las dos plataformas.
+             Overlay y no el color Background: pintar el fondo de la página con su propio
+             color no atenúa nada, sólo lo tapa y se pierde la noción de que hay algo
+             detrás. -->
         <Grid IsVisible="{Binding MostrarFlyoutCredito}"
-              BackgroundColor="#01000000">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnCerrarFlyoutCredito" />
-            </Grid.GestureRecognizers>
-        </Grid>
-
-        <!-- Contenedor del selector: aviso de horario a pantalla completa (si aplica) +
-             flyout anclado abajo. Existe para que ambos entren y salgan con la misma
-             animación. La fila 0 es "*" aunque el aviso esté oculto: así el flyout
-             conserva exactamente la misma posición dentro y fuera de horario. -->
-        <Grid x:Name="PanelCredito"
-              IsVisible="{Binding MostrarFlyoutCredito}"
-              Opacity="0"
-              RowDefinitions="*,Auto"
-              HorizontalOptions="Fill"
-              VerticalOptions="Fill">
-
-        <!-- Velo sobre la página. Usa el recurso Overlay (negro translúcido), NO el color
-             Background: pintar el fondo de la página con su propio color no atenúa nada,
-             sólo lo tapa de blanco y se pierde la noción de que hay algo detrás.
-             Va a sangre y cubriendo las dos filas (incluida la del flyout) para que no
-             quede una franja sin atenuar debajo del selector.
-             Grid con BackgroundColor y no BoxView con Color: como BoxView, en iOS no
-             pintaba nada (la página se veía sin atenuar) mientras que en Android sí, y
-             además obligaba a anular a mano el estilo implícito de BoxView, que le mete
-             un BackgroundColor gris OPACO encima. BackgroundColor sobre un layout se
-             comporta igual en las dos plataformas y esquiva ese estilo.
-             Lleva su propio TapGestureRecognizer en lugar de InputTransparent: así el
-             cierre no depende de que el toque atraviese hasta el scrim de atrás, que es
-             justo el mecanismo que fallaba en iOS. -->
-        <Grid Grid.RowSpan="2"
-              IsVisible="{Binding FueraDeHorario}"
               BackgroundColor="{toolkit:AppThemeResource Overlay}">
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCerrarFlyoutCredito" />
             </Grid.GestureRecognizers>
         </Grid>
 
-        <!-- Aviso de horario dentro del selector: es el único momento en que el dato es
-             ACCIONABLE — el usuario todavía puede mandar el lote a Mi Equipo, que no
-             depende del horario de Contabee. Por eso vive aquí y no encima del botón.
-             Sólo aparece con ambos créditos, porque es la única vía que abre el flyout.
-             La tarjeta es obligatoria, no decorativa: contabeepet.png es line-art negro
-             sobre transparente y sobre el velo oscuro desaparecería. Necesita una
-             superficie clara debajo. -->
-        <Border Grid.Row="0"
-                IsVisible="{Binding FueraDeHorario}"
+        <!-- Contenedor de la tarjeta. Existe porque es lo que se anima al abrir y cerrar;
+             el scrim queda fuera para que no lo arrastre el Scale. -->
+        <Grid x:Name="PanelCredito"
+              IsVisible="{Binding MostrarFlyoutCredito}"
+              Opacity="0"
+              HorizontalOptions="Fill"
+              VerticalOptions="Fill">
+
+        <!-- Tarjeta única: aviso de horario (si aplica) + selector "Quién captura".
+             Antes eran dos tarjetas apiladas de anchos distintos; ahora es una sola pieza.
+             El aviso vive aquí y no encima del botón Enviar porque es el único momento en
+             que el dato es ACCIONABLE: el usuario todavía puede mandar el lote a Mi
+             Equipo, que no depende del horario de Contabee. Sólo aparece con ambos
+             créditos, que es la única vía que abre este selector.
+             La superficie clara no es decorativa: contabeepet.png es line-art negro sobre
+             transparente y sobre el velo oscuro desaparecería.
+             Tres cosas de la sombra que es fácil romper:
+             · El Margin lateral tiene que ser MAYOR que el Radius de la sombra. Con
+               margin 8 y radius 10 la sombra no cabía y Android la recortaba contra el
+               borde de la pantalla — ese era el corte que se veía. Hoy: margin 20 sobre
+               radius 16.
+             · Opacity BAJO (0.35). Con Opacity=1 no se lee como sombra sino como una
+               mancha negra con filo duro.
+             · Stroke hairline: en tema oscuro una sombra negra sobre #141414 no se
+               distingue, y el filo claro es lo único que define el borde de la tarjeta
+               contra el scrim. -->
+        <Border x:Name="FlyoutCredito"
                 BackgroundColor="{toolkit:AppThemeResource CardBackground}"
-                Stroke="Transparent"
-                StrokeThickness="0"
+                Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
+                StrokeThickness="1"
                 StrokeShape="RoundRectangle 20"
-                Margin="20,20,20,6"
                 Padding="20,22"
+                HorizontalOptions="Fill"
                 VerticalOptions="End"
-                InputTransparent="True">
+                Margin="20,0,20,74">
             <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,6" Radius="20" Opacity="0.35" />
+                <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
             </Border.Shadow>
+            <VerticalStackLayout Spacing="14">
 
-            <!-- Filas Auto (no "*") y alto fijo en la mascota: la tarjeta se ajusta a su
-                 contenido en vez de estirarse a toda la fila. Ese es el punto — si crece
-                 hasta llenar la pantalla tapa la página y se pierde el efecto de velo,
-                 que sólo se nota si queda fondo atenuado a la vista. -->
-            <Grid RowDefinitions="Auto,Auto" RowSpacing="16">
-
-                <Image Grid.Row="0"
+                <!-- [DESACTIVADO] Bloque del aviso de horario dentro del selector
+                     (mascota + título + mensaje + separador). Se apagó al quedar el
+                     coach mark como único aviso de horario.
+                     Era el aviso más defendible de los tres, porque es el único momento
+                     en que el dato es ACCIONABLE: aquí el usuario todavía puede mandar
+                     el lote a Mi Equipo, que no depende del horario de Contabee. Si
+                     alguno de los tres merece volver, es éste.
+                     Para reactivarlo: devolver los CUATRO elementos de abajo a
+                     IsVisible="{Binding FueraDeHorario}".
+                     Los cuatro comparten el mismo IsVisible en vez de ir envueltos en un
+                     layout extra: dentro de un VerticalStackLayout un hijo oculto no deja
+                     hueco ni arrastra su Spacing, así que la tarjeta queda exactamente
+                     como el selector de siempre. -->
+                <Image IsVisible="False"
                        Source="contabeepet.png"
                        Aspect="AspectFit"
                        HeightRequest="150"
                        HorizontalOptions="Center" />
 
-                <VerticalStackLayout Grid.Row="1" Spacing="10">
+                <HorizontalStackLayout IsVisible="False"
+                                       Spacing="8"
+                                       HorizontalOptions="Center">
+                    <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="22"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource Primary}" />
+                    <!-- Mismo título que el aviso amplio y el coach mark: es de donde
+                         toma su antecedente el "las procesaremos" del mensaje. -->
+                    <Label Text="Sigue enviando tus fotos"
+                           FontSize="17"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                </HorizontalStackLayout>
 
-                    <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
-                        <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
-                               FontFamily="FluentUIFilled"
-                               FontSize="22"
-                               VerticalOptions="Center"
-                               TextColor="{toolkit:AppThemeResource Primary}" />
-                        <Label Text="Fuera de horario"
-                               FontSize="18"
-                               FontAttributes="Bold"
-                               VerticalOptions="Center"
-                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                    </HorizontalStackLayout>
+                <Label IsVisible="False"
+                       Text="{Binding MensajeHorario}"
+                       FontSize="15"
+                       HorizontalTextAlignment="Center"
+                       LineBreakMode="WordWrap"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
 
-                    <Label Text="{Binding MensajeHorario}"
-                           FontSize="15"
-                           HorizontalTextAlignment="Center"
-                           LineBreakMode="WordWrap"
-                           TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                <!-- Separador entre el aviso y el selector. Grid y no BoxView: el estilo
+                     implícito de BoxView le mete un BackgroundColor propio y en iOS el
+                     Color no pinta. -->
+                <Grid IsVisible="False"
+                      HeightRequest="1"
+                      BackgroundColor="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}" />
 
-                </VerticalStackLayout>
-            </Grid>
-        </Border>
-
-        <!-- Flyout: ¿Quién captura? — Mi Equipo (Autoservicio) / Contabee (Captura).
-             Efecto flotante 3D. Tres cosas que importan y es fácil romper:
-             · Opacity de la sombra BAJO (0.35). Con Opacity=1 no se lee como sombra
-               sino como una mancha negra con filo duro.
-             · El Margin lateral tiene que ser MAYOR que el Radius de la sombra. Con
-               margin 8 y radius 10 la sombra no cabía y Android la recortaba contra
-               el borde de la pantalla — ese era el corte que se veía.
-             · Stroke hairline: en tema oscuro una sombra negra sobre #141414 no se
-               distingue, y el filo claro es lo único que define el borde de la tarjeta. -->
-        <Border x:Name="FlyoutCredito"
-                Grid.Row="1"
-                BackgroundColor="{toolkit:AppThemeResource Background}"
-                Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
-                StrokeThickness="1"
-                StrokeShape="RoundRectangle 16"
-                Padding="14,12"
-                WidthRequest="272"
-                HorizontalOptions="End"
-                Margin="20,0,20,74">
-            <Border.Shadow>
-                <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
-            </Border.Shadow>
-            <VerticalStackLayout Spacing="12">
                 <Label Text="Quién captura"
                        HorizontalOptions="Center"
                        FontSize="13"
@@ -929,6 +917,29 @@
         </Border>
 
         </Grid>
+
+        <!-- ── Aviso de horario de la mascota ───────────────────────────────────
+             Entra desde el borde izquierdo justo encima de la barra de botones, que es
+             donde está mirando el usuario que ya tiene fotos y va a enviar. Se dispara
+             solo una vez por lote —al pasar de 0 fotos a la primera— y se queda hasta
+             que lo cierren.
+             Va DESPUÉS del selector "Quién captura" a propósito: así el scrim no lo
+             atenúa y sigue legible mientras el usuario elige quién captura, que es
+             justo cuando el dato le sirve.
+             ⚠ El Margin lo RECALCULA la página en ActualizarMargenAviso(); lo de aquí
+             es sólo el valor inicial. El superior sale de dónde empieza la zona de
+             fotos (para no tapar los formularios, cuyo alto cambia al desplegar "Más
+             opciones") y el inferior se estira para librar el selector cuando se abre.
+             Para volver al cuadro de diálogo horizontal: cambiar el tipo por
+             views:MascotaAvisoView, que expone la misma API de mostrar/ocultar. Lo que
+             NO expone es AnchoOcupado, que ActualizarMargenFlyout() usa para acomodar el
+             selector en el hueco a la derecha de la mascota; en un cuadro horizontal ese
+             hueco no existe, así que el cambio de tipo pide también volver el selector a
+             su ancho completo. -->
+        <views:MascotaVinetaView x:Name="AvisoMascotaHorario"
+                                 Titulo="Sigue enviando tus fotos"
+                                 Mensaje="{Binding MensajeHorario}"
+                                 Margin="0,0,0,56" />
 
         <!-- ══════════════════════════════════════════════════════════════════════
              OVERLAY DE ENVÍO

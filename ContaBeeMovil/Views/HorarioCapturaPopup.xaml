@@ -28,24 +28,15 @@
                    HeightRequest="140"
                    HorizontalOptions="Center" />
 
-            <Border BackgroundColor="{toolkit:AppThemeResource Primary}"
-                    StrokeShape="RoundRectangle 14"
-                    StrokeThickness="0"
-                    Padding="12,6"
-                    HorizontalOptions="Center">
-                <HorizontalStackLayout Spacing="6">
-                    <Label Text="{x:Static f:FluentUIFilled.clock_20_filled}"
-                           FontFamily="FluentUIFilled"
-                           FontSize="16"
-                           VerticalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                    <Label Text="Fuera de horario de captura"
-                           FontSize="13"
-                           FontAttributes="Bold"
-                           VerticalOptions="Center"
-                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                </HorizontalStackLayout>
-            </Border>
+            <!-- Sustituye a la píldora "Fuera de horario de captura": dice lo mismo con
+                 más contexto. Fijo en el XAML porque no depende de la fecha; lo variable
+                 (cuándo se reanuda) llega en el mensaje que arma IServicioHorarioCaptura
+                 y se pinta abajo. -->
+            <Label Text="Haremos lo posible por tenerlas antes pero estamos fuera del horario hábil de Contabee."
+                   FontSize="14"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="WordWrap"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
             <Label x:Name="LblMensaje"
                    FontSize="14"
