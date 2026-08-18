@@ -777,12 +777,23 @@
         </Grid>
 
         <!-- Contenedor de la tarjeta. Existe porque es lo que se anima al abrir y cerrar;
-             el scrim queda fuera para que no lo arrastre el Scale. -->
+             el scrim queda fuera para que no lo arrastre el Scale.
+
+             ⚠ InputTransparent + CascadeInputTransparent="False", y NO se pueden quitar:
+             este Grid ocupa la pantalla entera aunque sólo se vea la tarjeta de abajo, y
+             va montado ENCIMA del scrim. En iOS un contenedor transparente igual recibe
+             los toques (en Android no), así que sin esto se comía el tap de cerrar y el
+             selector no había forma de cerrarlo tocando fuera — sólo navegando hacia
+             atrás o enviando. El Cascade en False es la otra mitad: deja pasar los
+             toques de ESTE Grid pero no los de sus hijos, que es lo que mantiene vivos
+             los taps de las dos tarjetas de crédito. -->
         <Grid x:Name="PanelCredito"
               IsVisible="{Binding MostrarFlyoutCredito}"
               Opacity="0"
               HorizontalOptions="Fill"
-              VerticalOptions="Fill">
+              VerticalOptions="Fill"
+              InputTransparent="True"
+              CascadeInputTransparent="False">
 
         <!-- Tarjeta única: aviso de horario (si aplica) + selector "Quién captura".
              Antes eran dos tarjetas apiladas de anchos distintos; ahora es una sola pieza.
