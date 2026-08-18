@@ -8,6 +8,19 @@ using System.Text.RegularExpressions;
 
 namespace ContaBeeMovil.Services;
 
+/// <summary>Resultado de un chequeo pedido por el usuario (Acerca de → Buscar actualizaciones).</summary>
+public enum ResultadoChequeoManual
+{
+    /// <summary>Hay versión nueva: ya se mostró el aviso.</summary>
+    HayActualizacion,
+    /// <summary>La versión instalada es la vigente.</summary>
+    Actualizado,
+    /// <summary>Sin red: no se pudo consultar.</summary>
+    SinConexion,
+    /// <summary>No se pudo determinar (backend y tienda sin responder, plataforma no soportada, u otro chequeo en curso).</summary>
+    NoDisponible,
+}
+
 public interface IServicioActualizacion
 {
     /// <summary>
@@ -21,6 +34,14 @@ public interface IServicioActualizacion
     /// false = reanudación (App.OnResume): sin espera inicial.
     /// </param>
     Task VerificarAsync(bool esArranque = true);
+
+    /// <summary>
+    /// Chequeo pedido explícitamente por el usuario. A diferencia de
+    /// <see cref="VerificarAsync"/> no aplica el throttle diario ni respeta la
+    /// versión que se haya ignorado antes, y devuelve el resultado para que la
+    /// pantalla pueda avisar también cuando NO hay actualización.
+    /// </summary>
+    Task<ResultadoChequeoManual> VerificarManualAsync();
 }
 
 public class ServicioActualizacion(IHttpClientFactory factory, IServicioLogs logs) : IServicioActualizacion
@@ -76,38 +97,7 @@ public class ServicioActualizacion(IHttpClientFactory factory, IServicioLogs log
                 if (DateTime.UtcNow - ultimoChequeo < INTERVALO_ENTRE_CHEQUEOS)
                     return;
 
-                var info = await ConsultarAsync();
-                if (info is null)
-                    return;
-
-                // Consulta exitosa: registrar para el throttle.
-                Preferences.Set(CLAVE_ULTIMO_CHEQUEO, DateTime.UtcNow);
-
-                if (!info.RequiereActualizacion)
-                    return;
-
-                // Versión ya ignorada: no repetir el aviso mientras siga dentro del
-                // plazo PERIODO_REMOSTRAR_IGNORADA. Pasado ese plazo, vuelve a avisar.
-                var versionServidor = info.VersionActual ?? string.Empty;
-                if (versionServidor.Length > 0 &&
-                    Preferences.Get(CLAVE_VERSION_IGNORADA, string.Empty) == versionServidor)
-                {
-                    var fechaIgnorada = Preferences.Get(CLAVE_FECHA_IGNORADA, DateTime.MinValue);
-                    if (DateTime.UtcNow - fechaIgnorada < PERIODO_REMOSTRAR_IGNORADA)
-                        return;
-                }
-
-                logs.Info($"Actualización disponible: instalada {VersionInstalada()}, vigente {versionServidor}");
-                var respuesta = await MostrarAvisoAsync(
-                    info.Mensaje, info.VersionActual, UrlTienda(info.UrlActualizacion));
-
-                // Solo un "Ahora no" explícito silencia esta versión; cerrar tocando
-                // fuera no cuenta (el throttle diario ya evita que insista hoy).
-                if (respuesta == RespuestaAviso.Pospuesto && versionServidor.Length > 0)
-                {
-                    Preferences.Set(CLAVE_VERSION_IGNORADA, versionServidor);
-                    Preferences.Set(CLAVE_FECHA_IGNORADA, DateTime.UtcNow);
-                }
+                await ConsultarYAvisarAsync(respetarIgnorada: true);
             }
             finally
             {
@@ -119,6 +109,80 @@ public class ServicioActualizacion(IHttpClientFactory factory, IServicioLogs log
             // El chequeo de versión nunca debe interrumpir el arranque de la app
             logs.Warn($"Chequeo de versión falló: {ex.Message}");
         }
+    }
+
+    public async Task<ResultadoChequeoManual> VerificarManualAsync()
+    {
+        var access = Connectivity.Current.NetworkAccess;
+        if (access is not NetworkAccess.Internet and not NetworkAccess.ConstrainedInternet)
+            return ResultadoChequeoManual.SinConexion;
+
+        // Si ya hay un chequeo corriendo (o un aviso en pantalla) no se apila otro.
+        if (!await _gate.WaitAsync(0))
+            return ResultadoChequeoManual.NoDisponible;
+
+        try
+        {
+            // Sin throttle y sin respetar la versión ignorada: el usuario está
+            // pidiendo el chequeo, así que siempre se consulta y siempre se avisa.
+            return await ConsultarYAvisarAsync(respetarIgnorada: false);
+        }
+        catch (Exception ex)
+        {
+            logs.Warn($"Chequeo manual de versión falló: {ex.Message}");
+            return ResultadoChequeoManual.NoDisponible;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    /// <summary>
+    /// Núcleo compartido por el chequeo automático y el manual: consulta,
+    /// registra el throttle y muestra el aviso si corresponde. Debe llamarse
+    /// con <see cref="_gate"/> ya tomado.
+    /// </summary>
+    /// <param name="respetarIgnorada">
+    /// true = no repetir el aviso de una versión que el usuario pospuso, mientras
+    /// siga dentro de PERIODO_REMOSTRAR_IGNORADA.
+    /// </param>
+    private async Task<ResultadoChequeoManual> ConsultarYAvisarAsync(bool respetarIgnorada)
+    {
+        var info = await ConsultarAsync();
+        if (info is null)
+            return ResultadoChequeoManual.NoDisponible;
+
+        // Consulta exitosa: registrar para el throttle.
+        Preferences.Set(CLAVE_ULTIMO_CHEQUEO, DateTime.UtcNow);
+
+        if (!info.RequiereActualizacion)
+            return ResultadoChequeoManual.Actualizado;
+
+        // Versión ya ignorada: no repetir el aviso mientras siga dentro del
+        // plazo PERIODO_REMOSTRAR_IGNORADA. Pasado ese plazo, vuelve a avisar.
+        var versionServidor = info.VersionActual ?? string.Empty;
+        if (respetarIgnorada && versionServidor.Length > 0 &&
+            Preferences.Get(CLAVE_VERSION_IGNORADA, string.Empty) == versionServidor)
+        {
+            var fechaIgnorada = Preferences.Get(CLAVE_FECHA_IGNORADA, DateTime.MinValue);
+            if (DateTime.UtcNow - fechaIgnorada < PERIODO_REMOSTRAR_IGNORADA)
+                return ResultadoChequeoManual.HayActualizacion;
+        }
+
+        logs.Info($"Actualización disponible: instalada {VersionInstalada()}, vigente {versionServidor}");
+        var respuesta = await MostrarAvisoAsync(
+            info.Mensaje, info.VersionActual, UrlTienda(info.UrlActualizacion));
+
+        // Solo un "Ahora no" explícito silencia esta versión; cerrar tocando
+        // fuera no cuenta (el throttle diario ya evita que insista hoy).
+        if (respuesta == RespuestaAviso.Pospuesto && versionServidor.Length > 0)
+        {
+            Preferences.Set(CLAVE_VERSION_IGNORADA, versionServidor);
+            Preferences.Set(CLAVE_FECHA_IGNORADA, DateTime.UtcNow);
+        }
+
+        return ResultadoChequeoManual.HayActualizacion;
     }
 
     // ── Consulta al backend ──────────────────────────────────────────────────

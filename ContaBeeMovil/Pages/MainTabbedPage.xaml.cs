@@ -1,6 +1,7 @@
 using Contabee.Api.Crm;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Services;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -21,7 +22,9 @@ public partial class MainTabbedPage : ContentPage
     private View? _equipoView;
 
     private int _currentIndex = -1;
-    private bool _estabaOffline;
+    private bool _estabaDegradado;   // sin red O servicio caído
+    private bool _eraSinRed;         // cuál de los dos, para el mensaje de recuperación
+    private bool _reintentando;
     private bool _estabaActualizandoCF;
 
     internal static event Action? EquipoRequested;
@@ -71,7 +74,8 @@ public partial class MainTabbedPage : ContentPage
             if (e.PropertyName == nameof(AppState.EsLoginLess) ||
                 e.PropertyName == nameof(AppState.CuentaFiscalActual))
                 MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
-            else if (e.PropertyName == nameof(AppState.ModoOffline))
+            else if (e.PropertyName == nameof(AppState.ModoOffline) ||
+                     e.PropertyName == nameof(AppState.ServicioNoDisponible))
                 MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
             else if (e.PropertyName == nameof(AppState.EstaActualizandoCF))
                 MainThread.BeginInvokeOnMainThread(OnEstadoActualizacionCFCambiado);
@@ -104,14 +108,60 @@ public partial class MainTabbedPage : ContentPage
     private void ActualizarModoOffline()
     {
         var offline = AppState.Instance.ModoOffline;
-        BannerOffline.IsVisible = offline;
+        var servicioCaido = AppState.Instance.ServicioNoDisponible;
+        var degradado = offline || servicioCaido;
 
-        if (_estabaOffline && !offline)
+        BannerOffline.IsVisible = degradado;
+
+        // Si no hay red, el servicio "caído" es consecuencia y no causa: gana ese mensaje,
+        // y no ofrecemos Reintentar porque no hay nada que reintentar contra.
+        LabelBanner.Text = offline ? "Sin Conexión" : "No pudimos conectar con ContaBee";
+        BtnReintentarBanner.IsVisible = servicioCaido && !offline;
+
+        if (_estabaDegradado && !degradado)
         {
             var toast = App.Services.GetRequiredService<IServicioToast>();
-            _ = toast.MostrarAsync("Conexión Restaurada", ToastIcono.Info, ToastPosicion.Bottom);
+            _ = toast.MostrarAsync(
+                _eraSinRed ? "Conexión Restaurada" : "Servicio restablecido",
+                ToastIcono.Info, ToastPosicion.Bottom);
         }
-        _estabaOffline = offline;
+
+        _estabaDegradado = degradado;
+        _eraSinRed = offline;
+    }
+
+    private async void OnReintentarBannerTapped(object? sender, TappedEventArgs e)
+    {
+        if (_reintentando) return;
+        _reintentando = true;
+        BtnReintentarBanner.Opacity = 0.4;
+
+        try
+        {
+            // El usuario pide explícitamente reintentar: el interruptor no debe cortarle la
+            // llamada por lo aprendido hace un rato.
+            App.Services.GetRequiredService<InterruptorApi>().Reiniciar();
+
+            // Recarga completa del estado de sesión (perfil, asociaciones, tarjetas, licencia).
+            // Si el backend ya volvió, AuthHandler apagará ServicioNoDisponible al primer 2xx
+            // y el banner se esconde solo.
+            await App.Services.GetRequiredService<IServicioSesion>().PosLoginAsync();
+
+            if (AppState.Instance.ServicioNoDisponible)
+            {
+                var toast = App.Services.GetRequiredService<IServicioToast>();
+                await toast.MostrarAsync("El servicio sigue sin responder", ToastIcono.Warning, ToastPosicion.Bottom);
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Services.GetRequiredService<IServicioLogs>().Error($"[Banner] Reintento falló: {ex.Message}");
+        }
+        finally
+        {
+            BtnReintentarBanner.Opacity = 1;
+            _reintentando = false;
+        }
     }
 
     /// <summary>

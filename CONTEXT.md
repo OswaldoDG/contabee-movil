@@ -5,6 +5,88 @@
 
 ---
 
+## 2026-08-06 — Permiso de cámara: re-pedir en cada intento + salida a Ajustes
+
+**Bug:** si el usuario negaba el permiso de cámara (aunque fuera por error), la función quedaba muerta: `TomarFotoAsync`/`EscanearQrAsync` llamaban `Permissions.RequestAsync` y con `!= Granted` devolvían `string.Empty` **sin decir nada**. Tras la 2ª negación (Android) o la 1ª (iOS) el SO ya no muestra su diálogo, así que el botón dejaba de responder para siempre.
+
+**Hecho** — nuevo `Services/Permisos/IServicioPermisos` + `ServicioPermisos` (singleton en `MauiProgram`), único punto para pedir permisos:
+- `CheckStatusAsync` → si ya está concedido, ni molesta. Si no, **re-pide en cada intento** (la negación no se cachea nunca).
+- Distingue negación temporal de permanente con **`Permissions.ShouldShowRationale<T>()`**: `true` → el SO sí volverá a preguntar, se ofrece "Permitir" y se re-pide en un loop; `false` → negación permanente (Android "no volver a preguntar" / iOS cualquier negación) → alerta con **"Abrir ajustes"** (`AppInfo.Current.ShowSettingsUI()`), que es el único camino real.
+- Todo lo de `Permissions` va por `MainThread.InvokeOnMainThreadAsync` con cast explícito (`(Func<Task<PermissionStatus>>)`) — sin el cast la sobrecarga `Func<T>` vs `Func<Task<T>>` queda ambigua y no compila.
+- `ServicioCamara` (foto y QR) y `QRPage.OnAppearing` ya solo llaman al servicio. `QRPage` **cierra el modal** si no hay permiso (antes dejaba visor negro con un alert sin salida) y al volver de Ajustes su `OnAppearing` re-evalúa → el escáner queda operativo sin reiniciar la app.
+
+**Pendiente:** probar en dispositivo el ciclo completo (negar 1 vez → volver a tocar → aparece diálogo; negar 2 veces → "Abrir ajustes" → activar → tocar de nuevo funciona), en Android e iOS. Compiló verde (`-t:Compile`, net10.0-android). El permiso de **notificaciones iOS** (`SharedImageHandler`) sigue pidiéndose solo si `NotDetermined` y no ofrece Ajustes — quedó fuera de alcance.
+
+---
+
+## 2026-08-06 — Propiedades de usuario (Equipo): modelo de "aplicar al instante"
+
+**Regla de trabajo (vale para todas las sesiones, también en CLAUDE.md):** **Beto compila y corre la app.** Claude entrega el código y dice qué probar; compilar solo para cazar errores de compilación, nunca dar por verificado en dispositivo.
+
+**Hecho** (`Views/PropiedadesUsuarioPopup.*`, `Pages/Equipo/EquipoViewModel.cs`):
+- El switch de **Usuario activo** salió del encabezado y bajó a la lista de Propiedades, junto a *Puede Capturar*, con el mismo estilo.
+- **Se eliminó el botón Guardar.** Antes convivían dos modelos de guardado en el mismo formulario (activo = instantáneo, captura = diferido) sin nada que lo señalara; juntos en la misma lista eso era indistinguible. Ahora **ambos switches guardan al vuelo**, con indicador en su propia fila (el formulario ya no se oculta ni salta) y reversión + toast si el backend falla. Único botón: **Cerrar**.
+- Efecto secundario resuelto: ya no se pueden perder cambios pendientes al desactivar al usuario (antes *Guardar* se deshabilitaba y el cambio de captura quedaba huérfano).
+- **Desactivar pide confirmación** (`IServicioAlerta`) por ser destructivo; activar no. Etiqueta de ayuda cuando la fila de captura está bloqueada — antes solo se atenuaba sin explicación.
+- **Vocabulario: "colaborador", no "usuario" ni "vínculo".** `SetActivaAsociacion` desactiva **solo la pertenencia a esta cuenta fiscal**; la cuenta de ContaBee del otro usuario sigue funcionando normal. Textos: "Colaborador activo" / "Desactivar colaborador" / "Colaborador desactivado". **No** redactar como si se le desactivara la cuenta al usuario ("vínculo" y "miembro" se probaron y se descartaron). La confirmación se dejó corta a propósito (`¿Desea desactivar a {nombre}?`). ⚠ Ojo: "colaborador" aquí NO se refiere al **crédito de Colaboración** (comprobaciones/devoluciones) — son cosas distintas con nombre parecido.
+
+**Etiqueta de tipo en las tarjetas de Equipo** (`EquipoUsuarioItem.TipoCuentaTexto` + `TemplatePropio`): ahora describe el rol en el equipo, no el tipo de cuenta. Solo 3 casos: `LoginLessCliente` → "Colaborador Login Less", `UsuarioCaptura` → "Captura", resto → "Colaborador". En la tarjeta del **usuario en sesión se quitó la etiqueta** (el badge "Yo" ya lo identifica). Se perdieron a propósito "Propietario", "Empleado" y "Empleado / Cliente".
+- ⚠ El valor inicial de *Puede Capturar* se asigna con `_suprimirEventos = true`: sin eso, abrir el popup dispararía un guardado.
+
+**Ocultar capturistas de la lista: se hará en el BACKEND, no en la app.** Se probó un `.Where(u => u.TipoCuenta != UsuarioCaptura)` en `MapearItems` y **se revirtió**: el `Total` lo manda el servidor, así que filtrar del lado del cliente descuadra el contador ("N encontrados" ≠ tarjetas visibles) y deja páginas cortas o vacías. La búsqueda de identidad tampoco expone `TipoCuenta` como propiedad filtrable (acepta `NombreEmail`, `AsociacionActiva`, `PuedeCapturar`). Beto lo excluye desde el endpoint → la UI no cambia.
+
+**Pendiente:** probar en dispositivo el **`AlertaPopup` sobre el popup abierto** (popup anidado — no hay precedente en el proyecto; los demás alerts salen desde una página). Si en Android queda detrás o cierra el popup de propiedades, cambiar a una fila de confirmación en línea dentro de la misma tarjeta.
+
+---
+
+## 2026-08-05 — Horario de captura de ContaBee (aviso en PaginaCaptura)
+
+**Regla:** ContaBee captura Lun-Vie 9:00-18:00 **hora central de México**, salvo feriado. En los **últimos 3 días del mes** el horario aplica siempre (9-18), aunque caiga en sábado, domingo o feriado — es el cierre mensual.
+
+**Hecho:**
+- `Services/Horario/` nuevo: `IServicioHorarioCaptura` + `ServicioHorarioCaptura` (regla, cálculo del siguiente día hábil y redacción del mensaje) e `IProveedorFeriados` + `ProveedorFeriadosVacio`. Registrados en `MauiProgram`.
+- `PaginaCaptura`, el aviso vive en **tres lugares y ninguno ocupa espacio permanente**:
+  1. **Sin fotos** (`MostrarAvisoHorarioAmplio`): ocupa la zona central con la mascota `contabeepet.png` a todo el alto sobrante + píldora "Fuera de horario de captura" + el mensaje. Sustituye al estado vacío "Sin Capturas" (`MostrarEstadoVacio`) — es el mismo hueco.
+  2. **Badge de reloj montado en la esquina del botón Enviar** (`MostrarAvisoHorario`); tap → `Views/HorarioCapturaPopup` con la mascota y el mensaje completo. Va medio fuera del botón (`TranslationX=4, Y=-8`) para que su área de toque no se coma la de Enviar, y con fondo `OnPrimary` porque el botón ya es amarillo. Estuvo en el `TitleView` un rato, pero ahí quedaba pegado al badge de créditos y con `SoloCaptura` se veían dos píldoras amarillas iguales.
+  3. **Flyout "Quién captura"**: bajo los créditos de Contabee sale `ResumenHorario` ("reanuda lun 9:00"), que es el momento en que el usuario decide. Usa `FueraDeHorario` (sin mirar el crédito activo), no `MostrarAvisoHorario`.
+- Texto: *"Las actividades de captura de Contabee reiniciarán {…} y haremos nuestro mejor esfuerzo por tenerlas listas a la brevedad."*
+- Las visibilidades se recalculan juntas en `NotificarPanelCentral()`, que hay que llamar donde cambie `TieneCapturas` o el crédito activo — si no, el aviso y el estado vacío se pisan.
+
+**Reorganización de `PaginaCaptura` (mismo cambio):** la pantalla ya venía apretada y en celulares chicos el área de fotos quedaba inservible. Ahora Medio Pago, Tarjeta y **Uso Factura (ancho completo)** quedan siempre visibles; Sólo evidencia, Urgente, Desglosar IEPS y Notas se fueron a un desplegable **"Más opciones"** (`OpcionesAvanzadasVisibles`, colapsado por default, se recuerda en `Preferences`). Cuando está colapsado, `ResumenOpcionesAvanzadas` lista en la cabecera lo que quedó activo ("Evidencia · IEPS") — **no quitar**: son opciones que cambian el CFDI y no deben esconderse.
+- El texto adapta el "cuándo": `hoy a las 9:00 a.m.` / `mañana a las…` / `el próximo lunes…` (+ día y mes si cae a más de 6 días).
+- Se reevalúa cada minuto con un `IDispatcherTimer` mientras la página está visible (arranca en `OnAppearing`, para en `OnDisappearing`), para que el aviso aparezca/desaparezca al cruzar las 9:00 / 18:00 sin salir de la pantalla.
+- Se renombró `Resources/Images/ContabeePet.png` → `contabeepet.png`: Resizetizer exige nombres en minúsculas y **rompía el build de Android**.
+
+**Decisiones tomadas (con Beto):**
+- **Solo informa, no bloquea.** Fuera de horario el usuario puede seguir tomando fotos y enviando; el lote entra a la cola. Bloquear el envío arriesgaba tirar el trabajo de capturar.
+- **Solo aplica al crédito de Captura** (`UsarCaptura`). En Autoservicio captura el propio usuario, así que el horario de ContaBee no lo afecta y el banner no aparece.
+- **Sin feriados por ahora.** `ProveedorFeriadosVacio` devuelve siempre false; la lógica de feriados ya está escrita y probada en `ServicioHorarioCaptura`, solo falta la fuente de datos.
+- Hora central resuelta por `TimeZoneInfo` (`America/Mexico_City` → `Central Standard Time (Mexico)` → UTC-6 fijo como último recurso). **No** se usa la hora del dispositivo: puede estar mal configurada o el usuario de viaje.
+
+**Pendiente:**
+- **Enchufar el endpoint de feriados** (ya existe en una rama pendiente del backend): implementar `IProveedorFeriados` contra el cliente NSwag y cambiar el registro en `MauiProgram` — no toca ni el servicio ni la página.
+- Verificar el aviso en dispositivo. Para forzarlo: activa **Modo Desarrollador** (10 taps a la versión en Acerca de) y toca el título "Captura" — cada tap recorre los modos de `SimulacionesHorario` (hora real / sábado 11:00 / hoy 21:00 / hoy 07:00 / último día del mes) y escribe `ServicioHorarioCaptura.MomentoSimuladoCentral`. Se guarda en `Preferences`. **No** está tras `#if DEBUG` a propósito: las pruebas son en celular con builds normales, donde ese símbolo no existe; el gate real es `AppState.EsDev`.
+- `PuedeSerUrgente` sigue usando `DateTime.Now.Hour < 20` (hora **del dispositivo**, no central). Quedó fuera de alcance, pero es la misma clase de bug que este cambio evita.
+- **Nada de esta sesión pasó por el compilador**: el `obj\` de Android estuvo bloqueado por el IDE (`banditoth.MAUI.DeviceId.dll` en uso) toda la sesión. Solo se validó que los XAML parsean como XML bien formado. El único error de compilación que sí salió y se corrigió: `ShowPopupAsync` vive en `CommunityToolkit.Maui.Extensions`, no en `.Views`.
+- **Las preferencias `captura_*` son por dispositivo, no por usuario.** `Preferences` es de la instalación y **nadie llama a `LimpiarPreferencias()`** en el logout (existe en `ServicioAlmacenamiento` sin un solo llamador). Si otro usuario entra en el mismo celular hereda tarjeta, notas, forma de pago y las banderas de CFDI del anterior — no solo el estado del desplegable. Preexistente, no lo introdujo este cambio. Arreglo propuesto y **no** implementado (Beto lo dejó pasar por ahora): prefijar las claves con el id de usuario (`captura_tarjeta_id__{userId}`), preferible a limpiar todo en el logout porque eso también borraría modo dev, versión ignorada y caché del dashboard.
+
+---
+
+## 2026-08-04 — "Buscar actualizaciones" manual en Acerca de
+
+**Hecho:**
+- `IServicioActualizacion.VerificarManualAsync()` (nuevo) + enum `ResultadoChequeoManual` (`HayActualizacion` / `Actualizado` / `SinConexion` / `NoDisponible`). El núcleo común quedó en `ConsultarYAvisarAsync(respetarIgnorada)`, que ahora comparte con `VerificarAsync`; se llama con el `SemaphoreSlim` ya tomado.
+- Diferencias del chequeo manual vs. el automático: **no** aplica el throttle diario ni respeta `Actualizacion_VersionIgnorada` (si el usuario lo pide, se consulta y se avisa siempre), y **devuelve** resultado para poder responder también cuando NO hay actualización. Sí sigue registrando `Actualizacion_UltimoChequeo` y sí sigue guardando el "Ahora no".
+- `AcercaDePage`: tarjeta nueva "Buscar actualizaciones" (`arrow_sync_20_filled`) justo bajo la de versión, con loader de puntos reusando el patrón de Servicios/Carga actual y guard `_verificandoActualizacion` contra doble tap. Con actualización disponible el aviso lo muestra el servicio; el toast de la página solo cubre los casos sin popup (al día / sin conexión / no disponible).
+
+**Decisiones tomadas:**
+- Si ya hay un chequeo en curso (o un aviso en pantalla) el manual sale con `NoDisponible` en lugar de esperar — el `_gate` se toma con `WaitAsync(0)`, igual que el automático, para no apilar popups.
+- En Windows/MacCatalyst el chequeo devuelve `NoDisponible` (el backend solo conoce Android e Ios). No se ocultó el botón por plataforma.
+
+**Pendiente:** probar en dispositivo (Android/iOS): al día, con versión nueva, y en modo avión.
+
+---
+
 ## 2026-07-31 — Aviso de actualización adaptado al contrato final del backend + botón de prueba
 
 **Contexto:** el backend ya deployó el control de versión, pero con un contrato **distinto** al que la app asumía. `GET /app/version-movil` (identity, `[AllowAnonymous]`) ya **no** devuelve `versionMinima` / `versionRecomendada`, solo `versionActual` + urls. La comparación ahora la hace el servidor en un endpoint nuevo. Con el contrato viejo el aviso **nunca se hubiera mostrado** (ambas versiones llegaban null → salía por el `return`).

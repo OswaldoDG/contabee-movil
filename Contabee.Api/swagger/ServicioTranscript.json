@@ -1,10 +1,71 @@
-{
+﻿{
   "openapi": "3.0.1",
   "info": {
     "title": "contabee.api.transcript",
     "version": "1.0"
   },
   "paths": {
+    "/captura/diasinhabiles": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "parameters": [
+          {
+            "name": "pais",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ano",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DiaInhabil"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DiaInhabil"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DiaInhabil"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/captura/instantaneos": {
       "get": {
         "tags": [
@@ -52,6 +113,14 @@
             "schema": {
               "type": "integer",
               "format": "int64"
+            }
+          },
+          {
+            "name": "cuentaFiscalId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -288,6 +357,213 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/contabee.model.transcript.estadisticas.ResultadoEstadistica"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/mi/equipos": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/usuario/{usuarioId}/equipos": {
+      "get": {
+        "tags": [
+          "Captura"
+        ],
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoEquipoCaptura"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/equipos/miembro": {
+      "post": {
+        "tags": [
+          "Captura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/captura/equipos/miembro/eliminar": {
+      "post": {
+        "tags": [
+          "Captura"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/contabee.model.transcript.captura.DtoUpsertMiembroCaptura"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/contabee.model.transcript.captura.MiembroEquipoCaptura"
                 }
               }
             }
@@ -1341,42 +1617,6 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/api/Files/download-xml": {
-      "get": {
-        "tags": [
-          "Files"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Files/download-pdf": {
-      "get": {
-        "tags": [
-          "Files"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Files/download-zip": {
-      "get": {
-        "tags": [
-          "Files"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -2530,6 +2770,128 @@
         ],
         "type": "string"
       },
+      "contabee.model.transcript.captura.DiaInhabil": {
+        "required": [
+          "codigoPais",
+          "motivo"
+        ],
+        "type": "object",
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dia": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "motivo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoPais": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.captura.DtoEquipoCaptura": {
+        "required": [
+          "nombre"
+        ],
+        "type": "object",
+        "properties": {
+          "equipoId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.captura.TipoEquipoCaptura"
+          },
+          "identificadorExterno": {
+            "type": "string",
+            "nullable": true
+          },
+          "nombre": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.captura.DtoUpsertMiembroCaptura": {
+        "required": [
+          "equipo"
+        ],
+        "type": "object",
+        "properties": {
+          "equipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoExternoEquipo": {
+            "type": "string",
+            "nullable": true
+          },
+          "usuarioId": {
+            "type": "string",
+            "nullable": true
+          },
+          "codigoExternoUsuario": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.captura.TipoEquipoCaptura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.captura.MiembroEquipoCaptura": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "equipoCapturaId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuarioIdLocal": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "usuarioIdExterno": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaCreacion": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/contabee.model.transcript.captura.TipoEquipoCaptura"
+          }
+        },
+        "additionalProperties": false
+      },
+      "contabee.model.transcript.captura.TipoEquipoCaptura": {
+        "enum": [
+          "CuentaFiscal",
+          "CrmExternoEspo"
+        ],
+        "type": "string"
+      },
       "contabee.model.transcript.comentarios.ActualizaComentario": {
         "required": [
           "contenido"
@@ -3184,6 +3546,18 @@
             "format": "int64",
             "nullable": true
           },
+          "convertidoGlobal": {
+            "type": "boolean"
+          },
+          "fechaConversion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "conteoPaginas": {
+            "type": "integer",
+            "format": "int32"
+          },
           "creditosDisponibles": {
             "type": "integer",
             "format": "int64"
@@ -3278,6 +3652,18 @@
             "type": "integer",
             "format": "int64",
             "nullable": true
+          },
+          "convertidoGlobal": {
+            "type": "boolean"
+          },
+          "fechaConversion": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "conteoPaginas": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3310,6 +3696,9 @@
         "additionalProperties": false
       },
       "contabee.model.transcript.paginas.CompletarCapturaPagina": {
+        "required": [
+          "archivoEvidencia"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3354,6 +3743,10 @@
           "total": {
             "type": "number",
             "format": "double",
+            "nullable": true
+          },
+          "archivoEvidencia": {
+            "type": "string",
             "nullable": true
           }
         },

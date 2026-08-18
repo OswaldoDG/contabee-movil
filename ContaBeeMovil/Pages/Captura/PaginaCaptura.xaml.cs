@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
+using CommunityToolkit.Maui.Views;
 using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages;
@@ -14,7 +15,10 @@ using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
+using ContaBeeMovil.Services.Horario;
 using ContaBeeMovil.Services.Notifications;
+using ContaBeeMovil.Views;
+using CommunityToolkit.Maui.Extensions;
 
 namespace ContaBeeMovil.Pages.Captura;
 
@@ -26,6 +30,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioProcesadorDocumento _procesadorDocumento;
+    private readonly IServicioHorarioCaptura _servicioHorario;
     private readonly IServicioLogs _logs;
 
     // ── Preferencias recordadas ──────────────────────────────────────────────
@@ -41,7 +46,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
-    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioProcesadorDocumento procesadorDocumento, IServicioLogs logs)
+    public PaginaCaptura(IServicioCamara servicioCamara, IServicioAlerta servicioAlerta, IServicioToast servicioToast, IServicioSesion servicioSesion, IServicioTranscript servicioTranscript, IServicioProcesadorDocumento procesadorDocumento, IServicioHorarioCaptura servicioHorario, IServicioLogs logs)
     {
         _servicioCamara    = servicioCamara;
         _servicioAlerta    = servicioAlerta;
@@ -49,6 +54,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _servicioSesion    = servicioSesion;
         _servicioTranscript = servicioTranscript;
         _procesadorDocumento = procesadorDocumento;
+        _servicioHorario   = servicioHorario;
         _logs              = logs;
 
         FormasPago = FormaPagoProvider.GetFormasPago()
@@ -130,6 +136,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         AppState.Instance.PropertyChanged += OnAppStatePropertyChanged;
         SharedImageHandler.ImagenCompartidaRecibida += OnImagenCompartidaRecibida;
 
+        IniciarSeguimientoHorario();
+
         _ = CargarTarjetasYRefrescarAsync();
 
         if (_pendienteVerificarFotos)
@@ -152,6 +160,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
+        NotificarPanelCentral();
         await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
     }
 
@@ -160,6 +169,124 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         base.OnDisappearing();
         AppState.Instance.PropertyChanged -= OnAppStatePropertyChanged;
         SharedImageHandler.ImagenCompartidaRecibida -= OnImagenCompartidaRecibida;
+        _timerHorario?.Stop();
+    }
+
+    // ── Horario de captura de ContaBee ───────────────────────────────────────
+
+    private EstadoHorarioCaptura? _estadoHorario;
+    private IDispatcherTimer? _timerHorario;
+
+    /// <summary>
+    /// El aviso sólo aplica al crédito de <b>Captura</b>: en Autoservicio captura el
+    /// propio usuario, así que el horario de ContaBee no lo afecta.
+    /// </summary>
+    public bool MostrarAvisoHorario => UsarCaptura && FueraDeHorario;
+
+    /// <summary>
+    /// Fuera de horario, sin mirar el tipo de crédito. Lo usa el flyout "Quién captura",
+    /// que muestra las dos opciones a la vez y necesita el dato en la de Contabee
+    /// aunque el crédito activo en ese instante sea el de Autoservicio.
+    /// </summary>
+    public bool FueraDeHorario => _estadoHorario is { Abierto: false };
+
+    public string MensajeHorario       => _estadoHorario?.Mensaje ?? string.Empty;
+    public string ResumenHorario       => _estadoHorario?.ResumenCorto ?? string.Empty;
+    public string MensajeBreveHorario  => _estadoHorario?.MensajeBreve ?? string.Empty;
+
+    // Sin fotos el aviso ocupa la zona central con la mascota en grande y sustituye al
+    // estado vacío "Sin Capturas". Con fotos NO se muestra nada en el cuerpo: la página
+    // ya va apretada en pantallas chicas, así que sólo queda el reloj de la barra de
+    // título (tap → popup) y el dato dentro del flyout de Enviar.
+    public bool MostrarAvisoHorarioAmplio => MostrarAvisoHorario && !TieneCapturas;
+    public bool MostrarEstadoVacio        => !TieneCapturas && !MostrarAvisoHorario;
+
+    private void NotificarPanelCentral()
+    {
+        OnPropertyChanged(nameof(MostrarAvisoHorario));
+        OnPropertyChanged(nameof(FueraDeHorario));
+        OnPropertyChanged(nameof(MostrarAvisoHorarioAmplio));
+        OnPropertyChanged(nameof(MostrarEstadoVacio));
+    }
+
+    private async void OnAvisoHorarioTapped(object sender, TappedEventArgs e)
+    {
+        if (!FueraDeHorario) return;
+        await this.ShowPopupAsync(new HorarioCapturaPopup(MensajeHorario));
+    }
+
+    private void IniciarSeguimientoHorario()
+    {
+        _simIndice = Math.Clamp(Preferences.Default.Get(PrefSimHorario, 0), 0, SimulacionesHorario.Length - 1);
+        AplicarSimulacionHorario();
+        _ = PrecargarFeriadosAsync();
+
+        // La página puede quedar abierta cuando se cruza el límite de las 9:00 / 18:00,
+        // así que se reevalúa cada minuto mientras esté visible.
+        if (_timerHorario is null)
+        {
+            _timerHorario = Dispatcher.CreateTimer();
+            _timerHorario.Interval = TimeSpan.FromMinutes(1);
+            _timerHorario.Tick += (_, _) => RefrescarHorario();
+        }
+        _timerHorario.Start();
+    }
+
+    private async Task PrecargarFeriadosAsync()
+    {
+        await _servicioHorario.PrecargarFeriadosAsync();
+        MainThread.BeginInvokeOnMainThread(RefrescarHorario);
+    }
+
+    private void RefrescarHorario()
+    {
+        _estadoHorario = _servicioHorario.ObtenerEstado();
+        OnPropertyChanged(nameof(MensajeHorario));
+        OnPropertyChanged(nameof(ResumenHorario));
+        OnPropertyChanged(nameof(MensajeBreveHorario));
+        NotificarPanelCentral();
+    }
+
+    // ── Simulación de horario (sólo con Modo Desarrollador) ──────────────────
+    // Sin esto habría que esperar a que sea de noche o fin de semana para ver el
+    // aviso. Con el modo dev activo (10 taps a la versión en Acerca de), cada tap en
+    // el título "Captura" recorre estos modos. Para un usuario normal el tap no hace
+    // nada y el momento simulado siempre queda en null.
+
+    private const string PrefSimHorario = "dev_horario_simulacion";
+
+    private static readonly (string Etiqueta, Func<DateTime, DateTime?> Momento)[] SimulacionesHorario =
+    [
+        ("hora real",              _   => null),
+        ("sábado 11:00",           hoy => ProximoDiaSemana(hoy, DayOfWeek.Saturday).AddHours(11)),
+        ("hoy 21:00",              hoy => hoy.AddHours(21)),
+        ("hoy 07:00",              hoy => hoy.AddHours(7)),
+        ("último día del mes 11:00", hoy => new DateTime(hoy.Year, hoy.Month, DateTime.DaysInMonth(hoy.Year, hoy.Month)).AddHours(11)),
+    ];
+
+    private int _simIndice;
+
+    private static DateTime ProximoDiaSemana(DateTime desde, DayOfWeek dia)
+        => desde.AddDays(((int)dia - (int)desde.DayOfWeek + 7) % 7);
+
+    private async void OnTituloCapturaTapped(object sender, TappedEventArgs e)
+    {
+        if (!AppState.Instance.EsDev) return;
+
+        _simIndice = (_simIndice + 1) % SimulacionesHorario.Length;
+        Preferences.Default.Set(PrefSimHorario, _simIndice);
+        AplicarSimulacionHorario();
+
+        await _servicioToast.MostrarAsync($"Horario simulado: {SimulacionesHorario[_simIndice].Etiqueta}",
+                                          ToastIcono.Info, ToastPosicion.Bottom);
+    }
+
+    private void AplicarSimulacionHorario()
+    {
+        ServicioHorarioCaptura.MomentoSimuladoCentral = AppState.Instance.EsDev
+            ? SimulacionesHorario[_simIndice].Momento(DateTime.Today)
+            : null;
+        RefrescarHorario();
     }
 
     protected override bool OnBackButtonPressed()
@@ -175,6 +302,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
+        NotificarPanelCentral();
         _ = _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
     }
 
@@ -310,6 +438,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             OnPropertyChanged(nameof(MostrarCapturaRemota));
             OnPropertyChanged(nameof(MostrarMontoTicketInput));
             OnPropertyChanged(nameof(CapturaItemHeight));
+            OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
         }
     }
 
@@ -338,6 +467,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             _esUrgente = value;
             Preferences.Default.Set(PrefUrgente, value);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
         }
     }
 
@@ -349,11 +479,66 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             _puedeSerUrgente = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(OpacidadUrgente));
         }
     }
 
+    // El chip no es un CheckBox, así que no hereda el atenuado de IsEnabled: se hace
+    // a mano. El tap ya lo bloquea OnEsUrgenteTapped.
+    public double OpacidadUrgente => PuedeSerUrgente ? 1.0 : 0.4;
+
     public bool MostrarCapturaRemota   => SoloEvidencia;
     public bool MostrarMontoTicketInput => SoloEvidencia && !CapturaRemota;
+
+    // ── "Más opciones" (sección colapsable) ──────────────────────────────────
+    // Medio de pago, tarjeta y uso CFDI se usan en cada captura y quedan siempre a la
+    // vista. El resto se colapsa: en pantallas chicas esas cuatro filas dejaban el área
+    // de fotos inservible.
+
+    private const string PrefMasOpciones = "captura_mas_opciones";
+
+    private bool _opcionesAvanzadasVisibles;
+    public bool OpcionesAvanzadasVisibles
+    {
+        get => _opcionesAvanzadasVisibles;
+        set
+        {
+            if (_opcionesAvanzadasVisibles == value) return;
+            _opcionesAvanzadasVisibles = value;
+            Preferences.Default.Set(PrefMasOpciones, value);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IconoMasOpciones));
+            OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
+        }
+    }
+
+    public string IconoMasOpciones => OpcionesAvanzadasVisibles
+        ? Fonts.FluentUI.chevron_down_20_regular
+        : Fonts.FluentUI.chevron_right_20_regular;
+
+    /// <summary>
+    /// Qué opciones avanzadas quedaron activas, para que no se escondan al colapsar la
+    /// sección — cambian el CFDI y el usuario tiene que poder verlas de un vistazo.
+    /// Vacío cuando la sección está abierta (ahí ya se ven los checkboxes).
+    /// </summary>
+    public string ResumenOpcionesAvanzadas
+    {
+        get
+        {
+            if (OpcionesAvanzadasVisibles) return string.Empty;
+
+            var activas = new List<string>(4);
+            if (SoloEvidencia)                              activas.Add("Evidencia");
+            if (EsUrgente)                                  activas.Add("Urgente");
+            if (DesglosarIeps)                              activas.Add("IEPS");
+            if (!string.IsNullOrWhiteSpace(NotasAdicionales)) activas.Add("Notas");
+
+            return string.Join(" · ", activas);
+        }
+    }
+
+    private void OnMasOpcionesTapped(object sender, TappedEventArgs e)
+        => OpcionesAvanzadasVisibles = !OpcionesAvanzadasVisibles;
 
     // ── Tarjetas ─────────────────────────────────────────────────────────────
 
@@ -402,6 +587,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             _desglosarIeps = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
             Preferences.Default.Set(PrefDesgIeps, value);
         }
     }
@@ -416,6 +602,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             _notasAdicionales = value;
             OnPropertyChanged();
+            OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
             Preferences.Default.Set(PrefNotas, value);
         }
     }
@@ -484,6 +671,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             OnPropertyChanged(nameof(ColorCreditoActivo));
             OnPropertyChanged(nameof(ColorContrasteCredito));
             OnPropertyChanged(nameof(BrushContrasteCredito));
+            NotificarPanelCentral();
         }
     }
     public bool UsarCaptura => !UsarAutoservicio;
@@ -515,13 +703,44 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
-    public double CapturaItemHeight => _capturaItemWidth * (MostrarMontoTicketInput ? 1.08 : 1.22);
+    private double _alturaZonaCapturas;
+
+    /// <summary>
+    /// Alto ideal de la tarjeta según su ancho, pero nunca mayor que el espacio que
+    /// realmente le quedó al carrusel. Antes sólo dependía del ancho, así que en
+    /// pantallas cortas con "Más opciones" abierto la tarjeta pedía más alto del
+    /// disponible y se recortaba por arriba — se perdía el botón de eliminar.
+    /// </summary>
+    public double CapturaItemHeight
+    {
+        get
+        {
+            var ideal = _capturaItemWidth * (MostrarMontoTicketInput ? 1.08 : 1.22);
+            return _alturaZonaCapturas > 0 ? Math.Min(ideal, _alturaZonaCapturas) : ideal;
+        }
+    }
+
+    private void OnZonaCapturasSizeChanged(object? sender, EventArgs e)
+    {
+        var alto = ZonaCapturas.Height;
+        // El umbral evita el bucle SizeChanged → relayout → SizeChanged.
+        if (alto <= 0 || Math.Abs(_alturaZonaCapturas - alto) < 0.5) return;
+
+        _alturaZonaCapturas = alto;
+        OnPropertyChanged(nameof(CapturaItemHeight));
+    }
 
     protected override void OnSizeAllocated(double width, double height)
     {
         base.OnSizeAllocated(width, height);
         if (width > 0)
             CapturaItemWidth = width - 24; // 12 px de margen a cada lado
+
+        // La fila de controles es Auto: sin tope se queda con todo el alto que pida su
+        // contenido y el carrusel se queda con las sobras. Con el tope, lo que no cabe
+        // se scrollea dentro del propio ScrollView y el área de fotos conserva su mitad.
+        if (height > 0)
+            ScrollControles.MaximumHeightRequest = height * 0.45;
     }
 
     // ── Progreso de envío ────────────────────────────────────────────────────
@@ -607,6 +826,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(MostrarMontoTicketInput));
         _esUrgente = Preferences.Default.Get(PrefUrgente, false);
         OnPropertyChanged(nameof(EsUrgente));
+
+        // Colapsado por default: es lo que libera el espacio del área de fotos.
+        _opcionesAvanzadasVisibles = Preferences.Default.Get(PrefMasOpciones, false);
+        OnPropertyChanged(nameof(OpcionesAvanzadasVisibles));
+        OnPropertyChanged(nameof(IconoMasOpciones));
+        OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
 
         // Forma de pago
         var codigoFP = Preferences.Default.Get(PrefFormaPago, string.Empty);
@@ -872,15 +1097,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async Task AbrirFlyoutCreditoAsync()
     {
+        // Se anima el contenedor, no el flyout: arrastra también al aviso de horario
+        // para que los dos entren como una sola pieza.
         MostrarFlyoutCredito = true;
-        FlyoutCredito.Opacity = 0;
-        FlyoutCredito.TranslationY = 14;
-        FlyoutCredito.Scale = 0.92;
+        PanelCredito.Opacity = 0;
+        PanelCredito.TranslationY = 14;
+        PanelCredito.Scale = 0.92;
 
         await Task.WhenAll(
-            FlyoutCredito.FadeTo(1, 180, Easing.CubicOut),
-            FlyoutCredito.TranslateTo(0, 0, 220, Easing.SpringOut),
-            FlyoutCredito.ScaleTo(1, 220, Easing.SpringOut));
+            PanelCredito.FadeTo(1, 180, Easing.CubicOut),
+            PanelCredito.TranslateTo(0, 0, 220, Easing.SpringOut),
+            PanelCredito.ScaleTo(1, 220, Easing.SpringOut));
     }
 
     private async Task CerrarFlyoutCreditoAsync()
@@ -888,9 +1115,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (!MostrarFlyoutCredito) return;
 
         await Task.WhenAll(
-            FlyoutCredito.FadeTo(0, 140, Easing.CubicIn),
-            FlyoutCredito.TranslateTo(0, 14, 140, Easing.CubicIn),
-            FlyoutCredito.ScaleTo(0.92, 140, Easing.CubicIn));
+            PanelCredito.FadeTo(0, 140, Easing.CubicIn),
+            PanelCredito.TranslateTo(0, 14, 140, Easing.CubicIn),
+            PanelCredito.ScaleTo(0.92, 140, Easing.CubicIn));
 
         MostrarFlyoutCredito = false;
     }
@@ -1212,6 +1439,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(TieneCapturas));
         OnPropertyChanged(nameof(ColumnSpanCamara));
         OnPropertyChanged(nameof(PuedeEnviar));
+        NotificarPanelCentral();
     }
 
     private void OnCapturaPropertyChanged(object? sender, PropertyChangedEventArgs e)

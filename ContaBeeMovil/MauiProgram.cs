@@ -24,7 +24,9 @@ using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Documento;
+using ContaBeeMovil.Services.Horario;
 using ContaBeeMovil.Services.Pdf;
+using ContaBeeMovil.Services.Permisos;
 using Plugin.Maui.OCR;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.IAP;
@@ -100,6 +102,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<ContaBeeMovil.Services.Sesion.ICoordinadorSesion, ContaBeeMovil.Services.Sesion.CoordinadorSesion>();
             builder.Services.AddSingleton<IServicioAlerta, ServicioAlerta>();
             builder.Services.AddSingleton(AppState.Instance);
+            builder.Services.AddSingleton<IServicioPermisos, ServicioPermisos>();
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioReconciliacionIAP, ServicioReconciliacionIAP>();
@@ -108,6 +111,11 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioActualizacion, ServicioActualizacion>();
             builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
             builder.Services.AddSingleton<IServicioRenderPdf, ServicioRenderPdf>();
+            // Horario de captura delegada. Feriados desde GET /captura/diasinhabiles;
+            // si el endpoint falla, el horario degrada a la regla de lunes a viernes.
+            builder.Services.AddSingleton<IProveedorFeriados, ProveedorFeriadosApi>();
+            builder.Services.AddSingleton<IServicioHorarioCaptura, ServicioHorarioCaptura>();
+            builder.Services.AddSingleton<InterruptorApi>();
             builder.Services.AddTransient<AuthHandler>();
 
 
@@ -123,6 +131,10 @@ namespace ContaBeeMovil
             {
                 client.BaseAddress = new Uri(appConfig.UrlIdentityToken);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                // El default de HttpClient son 100 s: con el identity caído, la UI se quedaba
+                // colgada minuto y medio antes de que el refresh siquiera fallara. 15 s es de
+                // sobra para un token, y AuthHandler reintenta con backoff.
+                client.Timeout = TimeSpan.FromSeconds(15);
             });
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>

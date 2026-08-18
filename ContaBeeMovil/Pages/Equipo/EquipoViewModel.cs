@@ -48,12 +48,12 @@ public class EquipoUsuarioItem
 
         TieneEmail = !string.IsNullOrWhiteSpace(Email);
 
+        // Describe el rol dentro de ESTE equipo, no el tipo de cuenta en ContaBee:
+        // solo se distingue al capturista y al colaborador sin contraseña.
+        // La tarjeta del usuario en sesion no muestra esta etiqueta (TemplatePropio).
         TipoCuentaTexto = u.TipoCuenta switch
         {
-            TipoCuentaUsuario.Cliente          => "Propietario",
-            TipoCuentaUsuario.Empleado         => "Empleado",
-            TipoCuentaUsuario.EmpleadoCliente  => "Empleado / Cliente",
-            TipoCuentaUsuario.LoginLessCliente => "Sin contraseña",
+            TipoCuentaUsuario.LoginLessCliente => "Colaborador Login Less",
             TipoCuentaUsuario.UsuarioCaptura   => "Captura",
             _                                  => "Colaborador"
         };
@@ -288,7 +288,7 @@ public class EquipoViewModel : INotifyPropertyChanged
     {
         var cfid = _appState.CuentaFiscalActual?.CuentaFiscalId;
         if (cfid == null) return;
-        var popup = new PropiedadesUsuarioPopup(_servicioCrm, _toast, _appState, cfid.Value, item.Id, item.Nombre, item.AsociacionActiva, item.EsUsuarioPropio,
+        var popup = new PropiedadesUsuarioPopup(_servicioCrm, _toast, _servicioAlerta, _appState, cfid.Value, item.Id, item.Nombre, item.AsociacionActiva, item.EsUsuarioPropio,
             onAsociacionCambiada: async () =>
             {
                 await _servicioSesion.GetMisUsuariosAsync();

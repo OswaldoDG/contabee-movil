@@ -7,33 +7,40 @@ using ContaBeeMovil.Services.Device;
 
 namespace ContaBeeMovil.Views;
 
+// Popup de propiedades de un usuario del equipo. Modelo de interaccion: todo se
+// aplica al instante, como una pantalla de ajustes. No hay boton Guardar ni
+// estado sucio; cada switch llama al backend al vuelo, muestra su propio
+// indicador en la fila y se revierte si la llamada falla.
 public partial class PropiedadesUsuarioPopup : Popup
 {
     private readonly IServicioCrm _servicioCrm;
     private readonly IServicioToast _toast;
+    private readonly IServicioAlerta _alerta;
     private readonly Guid _cfid;
     private readonly Guid _usuarioId;
+    private readonly string _nombre;
     private readonly Func<Task>? _onAsociacionCambiada;
     private List<PropiedadUsuarioCF> _originales = [];
-    private bool _valorOriginalCaptura;
-    private bool _valorOriginalActiva;
-    private bool _suprimirActiva;
+    private bool _suprimirEventos;   // evita re-disparar el handler al revertir un switch
+    private bool _guardando;
 
-    public PropiedadesUsuarioPopup(IServicioCrm servicioCrm, IServicioToast toast, AppState appState, Guid cfid, Guid usuarioId, string nombre, bool asociacionActiva, bool esPropio = false, Func<Task>? onAsociacionCambiada = null)
+    public PropiedadesUsuarioPopup(IServicioCrm servicioCrm, IServicioToast toast, IServicioAlerta alerta, AppState appState, Guid cfid, Guid usuarioId, string nombre, bool asociacionActiva, bool esPropio = false, Func<Task>? onAsociacionCambiada = null)
     {
         InitializeComponent();
         _servicioCrm          = servicioCrm;
         _toast                = toast;
+        _alerta               = alerta;
         _cfid                 = cfid;
         _usuarioId            = usuarioId;
+        _nombre               = nombre;
         _onAsociacionCambiada = onAsociacionCambiada;
 
         LblTitulo.Text    = nombre;
         BadgeYo.IsVisible = esPropio;
 
-        _valorOriginalActiva   = asociacionActiva;
-        SwitchActiva.IsToggled  = asociacionActiva;
-        SwitchActiva.IsVisible  = !esPropio;
+        SwitchActiva.IsToggled = asociacionActiva;
+        FilaActiva.IsVisible   = !esPropio;
+        ActualizarEtiquetaActiva();
 
         if (appState.EsDev && esPropio)
         {
@@ -52,113 +59,138 @@ public partial class PropiedadesUsuarioPopup : Popup
         CardBorder.WidthRequest = (info.Width / density) - 40;
 
         SwitchActiva.Toggled  += OnSwitchActivaToggled;
-        SwitchCaptura.Toggled += (_, _) => ActualizarControles();
+        SwitchCaptura.Toggled += OnSwitchCapturaToggled;
 
         _ = CargarAsync();
     }
 
-    private void ActualizarControles()
+    // Un usuario inactivo no puede capturar: la fila de captura se bloquea y se
+    // explica el porque en vez de solo atenuarla.
+    // La etiqueta refleja el estado actual, no el nombre de la propiedad.
+    private void ActualizarEtiquetaActiva() =>
+        LblActiva.Text = SwitchActiva.IsToggled ? "Activo" : "Inactivo";
+
+    private void ActualizarDependencias()
     {
+        ActualizarEtiquetaActiva();
         bool activa = SwitchActiva.IsToggled;
-        SwitchCaptura.IsEnabled = activa;
-        FilaCaptura.Opacity     = activa ? 1 : 0.4;
-        BtnGuardar.IsEnabled    = activa && SwitchCaptura.IsToggled != _valorOriginalCaptura;
+        SwitchCaptura.IsEnabled   = activa && !_guardando;
+        FilaCaptura.Opacity       = activa ? 1 : 0.4;
+        LblAyudaCaptura.IsVisible = !activa && FilaActiva.IsVisible;
     }
 
     private async Task CargarAsync()
     {
-        SetCargando(true);
+        SetCargandoInicial(true);
         var resp = await _servicioCrm.GetPropiedadesUsuario(_cfid, _usuarioId);
         if (!resp.Ok)
         {
-            bool es403 = resp.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
-            await _toast.MostrarAsync(
-                es403 ? "Solo el propietario puede gestionar permisos" : resp.Error?.Mensaje ?? "Error al cargar propiedades",
-                ToastIcono.Error);
+            await MostrarErrorAsync(resp, "Error al cargar propiedades");
             await CloseAsync();
             return;
         }
         _originales = resp.Payload ?? [];
-        _valorOriginalCaptura    = EsBoolTrue(Obtener("UsuarioCaptura"));
-        SwitchCaptura.IsToggled  = _valorOriginalCaptura;
-        SetCargando(false);
-        ActualizarControles();
+
+        // El valor inicial no debe disparar un guardado
+        _suprimirEventos        = true;
+        SwitchCaptura.IsToggled = EsBoolTrue(Obtener("UsuarioCaptura"));
+        _suprimirEventos        = false;
+
+        SetCargandoInicial(false);
+        ActualizarDependencias();
     }
 
-    // El switch de asociación guarda al instante: muestra spinner, llama al backend,
-    // refresca la lista de usuarios y mantiene abierto el popup.
+    // Desactivar saca al colaborador de ESTA cuenta fiscal (no toca su cuenta
+    // propia de ContaBee): es destructivo y se confirma antes. Activar no lo es.
     private async void OnSwitchActivaToggled(object? sender, ToggledEventArgs e)
     {
-        if (_suprimirActiva) return;
-
+        if (_suprimirEventos) return;
         bool nuevoValor = e.Value;
-        SetCargando(true, nuevoValor ? "Activando…" : "Desactivando…");
+        ActualizarEtiquetaActiva();   // sigue al switch, aun antes de confirmar
+
+        if (!nuevoValor)
+        {
+            bool confirmado = await _alerta.MostrarAsync(
+                "Desactivar colaborador",
+                $"¿Desea desactivar a {_nombre}?",
+                confirmarText: "Desactivar");
+            if (!confirmado)
+            {
+                RevertirSwitch(SwitchActiva, true);
+                return;
+            }
+        }
+
+        SetGuardando(SpinnerActiva, true);
         var resp = await _servicioCrm.SetActivaAsociacion(_cfid, _usuarioId, nuevoValor);
-        SetCargando(false);
+        SetGuardando(SpinnerActiva, false);
 
         if (!resp.Ok)
         {
-            bool es403 = resp.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
-            await _toast.MostrarAsync(
-                es403 ? "Solo el propietario puede gestionar permisos" : resp.Error?.Mensaje ?? "Error al actualizar la asociación",
-                ToastIcono.Error);
-            // Revertir el switch sin volver a disparar el handler
-            _suprimirActiva = true;
-            SwitchActiva.IsToggled = !nuevoValor;
-            _suprimirActiva = false;
-            ActualizarControles();
+            await MostrarErrorAsync(resp, "Error al actualizar el colaborador");
+            RevertirSwitch(SwitchActiva, !nuevoValor);
             return;
         }
 
-        _valorOriginalActiva = nuevoValor;
-        ActualizarControles();
-        await _toast.MostrarAsync(nuevoValor ? "Usuario activado" : "Usuario desactivado", ToastIcono.Info);
+        ActualizarDependencias();
+        await _toast.MostrarAsync(nuevoValor ? "Colaborador activado" : "Colaborador desactivado", ToastIcono.Info);
 
         if (_onAsociacionCambiada is not null)
             await _onAsociacionCambiada();
     }
 
-    private async void OnGuardar(object sender, EventArgs e)
+    private async void OnSwitchCapturaToggled(object? sender, ToggledEventArgs e)
     {
-        if (SwitchCaptura.IsToggled == _valorOriginalCaptura)
+        if (_suprimirEventos) return;
+        bool nuevoValor = e.Value;
+
+        SetGuardando(SpinnerCaptura, true);
+        var resp = await _servicioCrm.SetPropiedadUsuario(_cfid, _usuarioId, "UsuarioCaptura", nuevoValor ? "1" : "0");
+        SetGuardando(SpinnerCaptura, false);
+
+        if (!resp.Ok)
         {
-            await CloseAsync();
+            await MostrarErrorAsync(resp, "Error al guardar");
+            RevertirSwitch(SwitchCaptura, !nuevoValor);
             return;
         }
 
-        SetCargando(true, "Guardando…");
-        try
-        {
-            var resp = await _servicioCrm.SetPropiedadUsuario(_cfid, _usuarioId, "UsuarioCaptura", SwitchCaptura.IsToggled ? "1" : "0");
-            if (!resp.Ok)
-            {
-                bool es403 = resp.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
-                await _toast.MostrarAsync(
-                    es403 ? "Solo el propietario puede gestionar permisos" : resp.Error?.Mensaje ?? "Error al guardar",
-                    ToastIcono.Error);
-                return;
-            }
-
-            await _toast.MostrarAsync("Propiedades guardadas", ToastIcono.Info);
-            await CloseAsync();
-        }
-        finally
-        {
-            SetCargando(false);
-        }
+        await _toast.MostrarAsync(nuevoValor ? "Captura habilitada" : "Captura deshabilitada", ToastIcono.Info);
     }
 
-    private async void OnCancelar(object sender, EventArgs e) => await CloseAsync();
+    private async void OnCerrar(object sender, EventArgs e) => await CloseAsync();
 
-    private void SetCargando(bool cargando, string? texto = null)
+    private void RevertirSwitch(Switch control, bool valor)
+    {
+        _suprimirEventos   = true;
+        control.IsToggled  = valor;
+        _suprimirEventos   = false;
+        ActualizarDependencias();
+    }
+
+    // Indicador en la propia fila: el formulario permanece visible y no salta.
+    private void SetGuardando(ActivityIndicator indicador, bool guardando)
+    {
+        _guardando             = guardando;
+        indicador.IsRunning    = guardando;
+        indicador.Opacity      = guardando ? 1 : 0;
+        SwitchActiva.IsEnabled = !guardando;
+        ActualizarDependencias();
+    }
+
+    private void SetCargandoInicial(bool cargando)
     {
         Spinner.IsRunning      = cargando;
         SpinnerPanel.IsVisible = cargando;
-        LblSpinner.Text        = texto ?? "";
-        LblSpinner.IsVisible   = cargando && !string.IsNullOrEmpty(texto);
         FormContent.IsVisible  = !cargando;
-        SwitchActiva.IsEnabled = !cargando;
-        if (cargando) BtnGuardar.IsEnabled = false;
+    }
+
+    private async Task MostrarErrorAsync(Contabee.Api.Respuesta resp, string mensajeGenerico)
+    {
+        bool es403 = resp.Error?.HttpCode == System.Net.HttpStatusCode.Forbidden;
+        await _toast.MostrarAsync(
+            es403 ? "Solo el propietario puede gestionar permisos" : resp.Error?.Mensaje ?? mensajeGenerico,
+            ToastIcono.Error);
     }
 
     private string Obtener(string prop) =>

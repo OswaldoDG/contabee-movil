@@ -30,6 +30,14 @@ public class CoordinadorSesion : ICoordinadorSesion
     private readonly AppState _appState;
     private readonly IServicioLogs _logs;
 
+    // Deduplicación de cierres. La carga post-login dispara varias llamadas (perfil,
+    // asociaciones, tarjetas, licencia) y las páginas visibles tienen las suyas: cuando el
+    // backend falla, cada una pide su propio cierre. Sin esta ventana el usuario ve la
+    // navegación a Login repetida y una ristra de toasts idénticos.
+    private readonly Lock _cierreLock = new();
+    private DateTime _ultimoCierre = DateTime.MinValue;
+    private static readonly TimeSpan _ventanaCierre = TimeSpan.FromSeconds(5);
+
     public CoordinadorSesion(IServicioSesion sesion, IServiceProvider serviceProvider, AppState appState, IServicioLogs logs)
     {
         _sesion = sesion;
@@ -53,7 +61,12 @@ public class CoordinadorSesion : ICoordinadorSesion
             // Con el Shell ya como raíz, retomar la intención pendiente del widget de
             // captura (usuario que tocó el widget sin sesión y acaba de autenticarse).
             if (destino == DestinoNavegacion.AppShell)
+            {
+                // Hay sesión viva de nuevo: la ventana de deduplicación de cierres pertenece
+                // a la sesión anterior y no debe silenciar un cierre legítimo de esta.
+                lock (_cierreLock) _ultimoCierre = DateTime.MinValue;
                 Helpers.DeepLinkHandler.ProcesarLinkPendiente();
+            }
         });
     }
 
@@ -72,6 +85,25 @@ public class CoordinadorSesion : ICoordinadorSesion
                 : "Problema temporal al cargar tus datos. Reintenta en un momento.");
             return false;
         }
+
+        // Sección crítica deliberadamente sin await: solo se decide quién gana y se estampa
+        // la hora. El cierre real corre fuera del lock, así nada puede reentrar y trabarse.
+        bool duplicado;
+        lock (_cierreLock)
+        {
+            duplicado = DateTime.Now - _ultimoCierre < _ventanaCierre;
+            if (!duplicado) _ultimoCierre = DateTime.Now;
+        }
+
+        // Ya se cerró hace un instante por otra llamada en vuelo: la sesión efectivamente
+        // terminó (devolvemos true), pero no repetimos limpieza, navegación ni toast.
+        if (duplicado)
+        {
+            _logs.Info($"[Coordinador] Cierre duplicado ignorado ({motivo})");
+            return true;
+        }
+
+        _logs.Warn($"[Coordinador] Cerrando sesión — motivo={motivo}");
 
         // Toda terminación real borra los tokens (incl. loginless) y va a Login. La
         // desactivación de asociación ya NO termina sesión: se maneja como recarga en modo

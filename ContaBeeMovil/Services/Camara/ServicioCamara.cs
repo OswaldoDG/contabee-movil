@@ -1,4 +1,5 @@
 using ContaBeeMovil.Services.Dev;
+using ContaBeeMovil.Services.Permisos;
 using SkiaSharp;
 using ZXing;
 
@@ -7,12 +8,14 @@ namespace ContaBeeMovil.Services.Camara;
 public class ServicioCamara : IServicioCamara
 {
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioPermisos _permisos;
     private readonly IServicioLogs _logs;
     private TaskCompletionSource<string>? _scanTcs;
 
-    public ServicioCamara(IServicioAlerta servicioAlerta, IServicioLogs logs)
+    public ServicioCamara(IServicioAlerta servicioAlerta, IServicioPermisos permisos, IServicioLogs logs)
     {
         _servicioAlerta = servicioAlerta;
+        _permisos = permisos;
         _logs = logs;
     }
 
@@ -20,9 +23,8 @@ public class ServicioCamara : IServicioCamara
 
     public async Task<string> TomarFotoAsync()
     {
-        var status = await Permissions.RequestAsync<Permissions.Camera>();
-
-        if (status != PermissionStatus.Granted)
+        // Se pide en cada intento: si el usuario negó antes, aquí se vuelve a pedir.
+        if (!await _permisos.AsegurarCamaraAsync("para tomar la foto de tu ticket"))
             return string.Empty;
 
         try
@@ -152,8 +154,7 @@ public class ServicioCamara : IServicioCamara
 
     public async Task<string> EscanearQrAsync()
     {
-        var status = await Permissions.RequestAsync<Permissions.Camera>();
-        if (status != PermissionStatus.Granted)
+        if (!await _permisos.AsegurarCamaraAsync("para escanear el código QR"))
             return string.Empty;
 
         _scanTcs = new TaskCompletionSource<string>();

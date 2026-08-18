@@ -349,6 +349,32 @@ public class ServicioTranscript(HttpClient httpClient) : IServicioTranscript
         return r;
     }
 
+    public async Task<RespuestaPayload<ICollection<DiaInhabil>>> ObtenerDiasInhabilesAsync(
+        string pais, int ano, CancellationToken ct = default)
+    {
+        RespuestaPayload<ICollection<DiaInhabil>> r = new();
+        try
+        {
+            r.Payload = await servicioTranscript.DiasinhabilesAsync(pais, ano, ct);
+            r.Ok = true;
+        }
+        catch (ApiException ex)
+        {
+            r.Error = new ErrorProceso
+            {
+                Mensaje  = ex.Response,
+                HttpCode = (System.Net.HttpStatusCode)ex.StatusCode,
+                Origen   = "ServicioTranscript-ObtenerDiasInhabiles"
+            };
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioTranscript-ObtenerDiasInhabiles");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<LoteCaptura>> CrearLoteAsync(
         CreaLoteCaptura request, CancellationToken ct = default)
     {
