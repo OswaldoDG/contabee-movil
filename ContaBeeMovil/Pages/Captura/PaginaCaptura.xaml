@@ -807,7 +807,7 @@
                 Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
                 StrokeThickness="1"
                 StrokeShape="RoundRectangle 20"
-                Padding="20,22"
+                Padding="16,18"
                 HorizontalOptions="Fill"
                 VerticalOptions="End"
                 Margin="20,0,20,74">
@@ -871,13 +871,17 @@
                        FontSize="13"
                        FontAttributes="Bold"
                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <!-- Padding y ColumnSpacing apretados a propósito: con el aviso de la
+                     mascota en pantalla la tarjeta arranca a la derecha de ella, así que
+                     estas dos comparten un ancho bastante menor que el de la pantalla y
+                     el aire de antes (8,12 y spacing 12) les comía el texto. -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <!-- Mi Equipo (Autoservicio) -->
                     <Border Grid.Column="0"
                             BackgroundColor="{toolkit:AppThemeResource Auto}"
                             StrokeShape="RoundRectangle 22"
                             StrokeThickness="0"
-                            Padding="8,12">
+                            Padding="6,10">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnSeleccionarCreditoAuto" />
                         </Border.GestureRecognizers>
@@ -897,7 +901,7 @@
                             BackgroundColor="{toolkit:AppThemeResource Captura}"
                             StrokeShape="RoundRectangle 22"
                             StrokeThickness="0"
-                            Padding="8,12">
+                            Padding="6,10">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnSeleccionarCreditoCaptura" />
                         </Border.GestureRecognizers>
