@@ -43,6 +43,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private const string PrefSoloEvidencia = "captura_solo_evidencia";
     private const string PrefCapturaRemota = "captura_remota";
     private const string PrefUrgente       = "captura_urgente";
+    private const string PrefEstiloHorarioNuevo = "dev_captura_estilo_horario_nuevo";
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -100,6 +101,12 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         if (e.PropertyName is nameof(AppState.Licenciamiento))
             RefrescarCreditos();
+        else if (e.PropertyName is nameof(AppState.EsDev))
+        {
+            OnPropertyChanged(nameof(EsDev));
+            NotificarCambioEstiloHorario();
+            AplicarEstiloHorario();
+        }
     }
 
     // ── Ciclo de vida ────────────────────────────────────────────────────────
@@ -131,6 +138,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         // Shell.TitleView no refresca bindings cuando la página estuvo en segundo plano
         RefrescarCreditos();
+        OnPropertyChanged(nameof(EsDev));
+        NotificarCambioEstiloHorario();
 
         PuedeSerUrgente = DateTime.Now.Hour < 20;
         AppState.Instance.PropertyChanged += OnAppStatePropertyChanged;
@@ -202,6 +211,76 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public string ResumenHorario       => _estadoHorario?.ResumenCorto ?? string.Empty;
     public string MensajeBreveHorario  => _estadoHorario?.MensajeBreve ?? string.Empty;
 
+    /// <summary>
+    /// [PROPUESTA franja] Texto de la franja fija sobre la barra de botones. Es el aviso
+    /// de horario de la propuesta que sustituye al coach mark de la mascota.
+    /// </summary>
+    /// <remarks>
+    /// Con <see cref="EsUrgente"/> marcado cambia el mensaje entero, no se le agrega una
+    /// coletilla: fuera de horario, lo que le interesa a quien marcó Urgente no es que
+    /// puede seguir enviando —eso ya lo decidió— sino qué le compró esa marca, y la
+    /// respuesta es el primer lugar en la cola al reanudar.
+    /// <para>
+    /// Ojo con el cruce de horarios: Urgente se puede marcar hasta las 20:00
+    /// (<see cref="PuedeSerUrgente"/>) y la franja aparece desde las 18:00, así que entre
+    /// esas dos horas conviven. Después de las 20:00 el chip ya no se puede marcar, pero
+    /// si venía marcado de antes sigue en true y esta franja lo sigue diciendo — que es
+    /// correcto, porque el envío se manda con Urgente igual.
+    /// </para>
+    /// </remarks>
+    public string MensajeFranjaHorario => _estadoHorario is null
+        ? string.Empty
+        : EsUrgente ? _estadoHorario.MensajeFranjaUrgente : _estadoHorario.MensajeFranja;
+
+    // ── Selector de estilo (sólo Modo desarrollador) ─────────────────────────
+
+    /// <summary>
+    /// El selector visual sólo existe para cuentas con el Modo desarrollador de la app.
+    /// En uso normal la página siempre conserva el diseño clásico.
+    /// </summary>
+    public bool EsDev => AppState.Instance.EsDev;
+
+    private bool _usarEstiloNuevoHorario;
+
+    public bool UsarEstiloNuevoHorario
+    {
+        get => EsDev && _usarEstiloNuevoHorario;
+        set
+        {
+            // Una preferencia dev nunca debe cambiar la experiencia de un usuario normal.
+            var nuevoValor = EsDev && value;
+            if (_usarEstiloNuevoHorario == nuevoValor) return;
+
+            _usarEstiloNuevoHorario = nuevoValor;
+            Preferences.Default.Set(PrefEstiloHorarioNuevo, nuevoValor);
+            NotificarCambioEstiloHorario();
+            AplicarEstiloHorario();
+        }
+    }
+
+    public bool UsarEstiloClasicoHorario => !UsarEstiloNuevoHorario;
+    public bool MostrarFranjaHorario     => UsarEstiloNuevoHorario && MostrarAvisoHorario;
+    private void NotificarCambioEstiloHorario()
+    {
+        OnPropertyChanged(nameof(UsarEstiloNuevoHorario));
+        OnPropertyChanged(nameof(UsarEstiloClasicoHorario));
+        OnPropertyChanged(nameof(MostrarFranjaHorario));
+    }
+
+    private void AplicarEstiloHorario()
+    {
+        // Cancela cualquier animación pendiente antes de cambiar de representación.
+        _avisoHorarioPendienteReanudar = false;
+        _coachMarkHorarioMostrado = false;
+        AvisoMascotaHorario.OcultarInmediato();
+
+        if (UsarEstiloClasicoHorario)
+            EvaluarCoachMarkHorario();
+
+        if (MostrarFlyoutCredito)
+            ActualizarMargenFlyout();
+    }
+
     // El coach mark de la mascota quedó como ÚNICO aviso de horario; el aviso amplio,
     // la franja de estado y el bloque dentro del selector "Quién captura" están
     // desactivados en el XAML (ver los comentarios [DESACTIVADO] de PaginaCaptura.xaml).
@@ -218,6 +297,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void NotificarPanelCentral()
     {
         OnPropertyChanged(nameof(MostrarAvisoHorario));
+        OnPropertyChanged(nameof(MostrarFranjaHorario));
         OnPropertyChanged(nameof(FueraDeHorario));
         OnPropertyChanged(nameof(MostrarAvisoHorarioAmplio));
         OnPropertyChanged(nameof(MostrarEstadoVacio));
@@ -249,6 +329,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void EvaluarCoachMarkHorario()
     {
+        if (!UsarEstiloClasicoHorario) return;
+
         if (!TieneCapturas)
         {
             _coachMarkHorarioMostrado = false;
@@ -284,7 +366,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             // guardadas terminando en "Eliminar"— y el aviso saldría sobre cero fotos.
             // Se rearma la bandera para que vuelva a dispararse cuando haya de nuevo
             // motivo; si no, este lote se quedaría sin aviso para siempre.
-            if (!TieneCapturas || !MostrarAvisoHorario)
+            if (!UsarEstiloClasicoHorario || !TieneCapturas || !MostrarAvisoHorario)
             {
                 _coachMarkHorarioMostrado = false;
                 return Task.CompletedTask;
@@ -312,7 +394,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         // Se revalida: mientras el usuario estuvo fuera pudo entrar el horario hábil o
         // pudo quedarse sin fotos.
-        if (MostrarAvisoHorario && TieneCapturas)
+        if (UsarEstiloClasicoHorario && MostrarAvisoHorario && TieneCapturas)
             _ = MostrarCoachMarkHorarioAsync();
     }
 
@@ -345,6 +427,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(MensajeHorario));
         OnPropertyChanged(nameof(ResumenHorario));
         OnPropertyChanged(nameof(MensajeBreveHorario));
+        OnPropertyChanged(nameof(MensajeFranjaHorario));
         NotificarPanelCentral();
     }
 
@@ -379,6 +462,16 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         AplicarSimulacionHorario();
 
         await _servicioToast.MostrarAsync($"Horario simulado: {SimulacionesHorario[_simIndice].Etiqueta}",
+                                          ToastIcono.Info, ToastPosicion.Bottom);
+    }
+
+    private async void OnCambiarEstiloHorarioTapped(object sender, TappedEventArgs e)
+    {
+        if (!EsDev) return;
+
+        UsarEstiloNuevoHorario = !UsarEstiloNuevoHorario;
+        var estilo = UsarEstiloNuevoHorario ? "Nuevo: franja y modal" : "Clásico: mascota y viñeta";
+        await _servicioToast.MostrarAsync($"Estilo de horario: {estilo}",
                                           ToastIcono.Info, ToastPosicion.Bottom);
     }
 
@@ -569,6 +662,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             Preferences.Default.Set(PrefUrgente, value);
             OnPropertyChanged();
             OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
+            // [PROPUESTA franja] La franja de horario dice otra cosa con Urgente marcado.
+            OnPropertyChanged(nameof(MensajeFranjaHorario));
         }
     }
 
@@ -593,8 +688,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // ── "Más opciones" (sección colapsable) ──────────────────────────────────
     // Medio de pago, tarjeta y uso CFDI se usan en cada captura y quedan siempre a la
-    // vista. El resto se colapsa: en pantallas chicas esas cuatro filas dejaban el área
-    // de fotos inservible.
+    // vista. El resto vive en este desplegable, que arranca ABIERTO y recuerda lo que el
+    // usuario deje (ver dónde se lee PrefMasOpciones). Cerrarlo libera alto para el área
+    // de fotos, que en pantallas chicas es lo que estaba en juego, pero esa decisión es
+    // del usuario y no del arranque.
 
     private const string PrefMasOpciones = "captura_mas_opciones";
 
@@ -739,6 +836,23 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     public bool TieneAmbosCreditos        => TieneCreditosCaptura && TieneCreditosAutoservicio;
     public bool SinCreditos               => !TieneCreditosCaptura && !TieneCreditosAutoservicio;
 
+    /// <summary>
+    /// [PROPUESTA modal] A partir de cuántos créditos el saldo deja de pintarse en rojo
+    /// en el modal de envío.
+    /// </summary>
+    /// <remarks>
+    /// Cinco es un número de diseño, no de negocio: no pasa nada especial al bajar de 5,
+    /// sólo se quiere que el usuario vea venir el momento de recargar antes de quedarse
+    /// en cero. Si negocio define un umbral real, es el sitio donde ponerlo.
+    /// </remarks>
+    private const int CreditosParaAlerta = 5;
+
+    public Color ColorCreditosAutoservicio => UIHelpers.GetColor(
+        CreditosAutoservicio <= CreditosParaAlerta ? "Error" : "Success");
+
+    public Color ColorCreditosCaptura => UIHelpers.GetColor(
+        CreditosCaptura <= CreditosParaAlerta ? "Error" : "Success");
+
     private void RefrescarCreditos()
     {
         OnPropertyChanged(nameof(CreditosCaptura));
@@ -750,6 +864,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(TieneAmbosCreditos));
         OnPropertyChanged(nameof(SinCreditos));
         OnPropertyChanged(nameof(CreditosActivos));
+        OnPropertyChanged(nameof(ColorCreditosAutoservicio));
+        OnPropertyChanged(nameof(ColorCreditosCaptura));
 
         if (TieneCreditosCaptura)        // SoloCaptura o Ambos → captura por defecto
             UsarAutoservicio = false;
@@ -916,6 +1032,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private void RestaurarPreferencias()
     {
+        // El valor puede recordarse entre sesiones, pero el getter sólo lo aplica si el
+        // Modo desarrollador continúa activo. Para todos los demás el clásico es fijo.
+        _usarEstiloNuevoHorario = Preferences.Default.Get(PrefEstiloHorarioNuevo, false);
+        NotificarCambioEstiloHorario();
+
         // DesglosarIeps (directo al campo para no reescribir la preferencia en el setter)
         _desglosarIeps = Preferences.Default.Get(PrefDesgIeps, false);
         OnPropertyChanged(nameof(DesglosarIeps));
@@ -930,11 +1051,21 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         OnPropertyChanged(nameof(CapturaRemota));
         OnPropertyChanged(nameof(MostrarCapturaRemota));
         OnPropertyChanged(nameof(MostrarMontoTicketInput));
+        // Se escribe el campo y no la propiedad, así que hay que notificar a mano lo que
+        // depende de él: la franja de horario cambia de texto con Urgente marcado, y esta
+        // preferencia se restaura al entrar a la página.
         _esUrgente = Preferences.Default.Get(PrefUrgente, false);
         OnPropertyChanged(nameof(EsUrgente));
+        OnPropertyChanged(nameof(MensajeFranjaHorario));
 
-        // Colapsado por default: es lo que libera el espacio del área de fotos.
-        _opcionesAvanzadasVisibles = Preferences.Default.Get(PrefMasOpciones, false);
+        // DESPLEGADO por default, y colapsado sólo si el usuario lo colapsó alguna vez.
+        // Estuvo al revés: colapsar liberaba el alto del área de fotos, pero a cambio
+        // escondía opciones que nadie sabía que existían. Se prefiere que se vean la
+        // primera vez y que quien no las use las cierre — cerrar es un toque, descubrir
+        // algo que no se ve no lo es.
+        // El true es sólo el valor de arranque: el setter guarda cada cambio, así que en
+        // cuanto el usuario toca la cabecera manda su preferencia y esto ya no aplica.
+        _opcionesAvanzadasVisibles = Preferences.Default.Get(PrefMasOpciones, true);
         OnPropertyChanged(nameof(OpcionesAvanzadasVisibles));
         OnPropertyChanged(nameof(IconoMasOpciones));
         OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
@@ -1186,10 +1317,14 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private async void OnCerrarFlyoutCredito(object sender, TappedEventArgs e) => await CerrarFlyoutCreditoAsync();
 
-    // Al elegir el tipo en el selector (regla 3: ambos créditos) se fija el tipo y se envía.
+    // En el clásico las tarjetas conservan el comportamiento de la captura de referencia:
+    // elegir una opción envía inmediatamente. En el diseño nuevo sólo se marca y el botón
+    // "Confirmar envío" realiza la acción.
     private async void OnSeleccionarCreditoCaptura(object sender, TappedEventArgs e)
     {
         UsarAutoservicio = false;
+        if (UsarEstiloNuevoHorario) return;
+
         await CerrarFlyoutCreditoAsync();
         await EnviarAsync();
     }
@@ -1197,9 +1332,32 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private async void OnSeleccionarCreditoAuto(object sender, TappedEventArgs e)
     {
         UsarAutoservicio = true;
+        if (UsarEstiloNuevoHorario) return;
+
         await CerrarFlyoutCreditoAsync();
         await EnviarAsync();
     }
+
+    /// <summary>
+    /// [PROPUESTA modal] Cierra el modal y envía con el tipo de crédito marcado.
+    /// </summary>
+    private async void OnConfirmarEnvio(object sender, EventArgs e)
+    {
+        await CerrarFlyoutCreditoAsync();
+        await EnviarAsync();
+    }
+
+    /// <summary>
+    /// [PROPUESTA modal] Salida sin enviar. Hace lo mismo que tocar el velo, pero visible:
+    /// el velo sólo lo descubre quien ya sabe que está ahí.
+    /// </summary>
+    /// <remarks>
+    /// Es un handler aparte y no <see cref="OnCerrarFlyoutCredito"/> porque aquél lo
+    /// dispara un TapGestureRecognizer (<c>TappedEventArgs</c>) y éste un Button
+    /// (<c>EventArgs</c>); las firmas no son compatibles.
+    /// </remarks>
+    private async void OnVolverFlyoutCredito(object sender, EventArgs e)
+        => await CerrarFlyoutCreditoAsync();
 
     // ── Límites del aviso de horario ─────────────────────────────────────────
     // La tira de la mascota es alta y va pegada al borde izquierdo, así que sus dos
@@ -1210,7 +1368,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     // metería encima de los formularios, que es justo lo que se quiere evitar.
     // Los números salen del XAML de esta misma página; si allá cambian, actualizarlos aquí.
 
-    /// <summary>Margen inferior de la tarjeta del selector (<c>FlyoutCredito</c>).</summary>
+    /// <summary>Margen inferior de la tarjeta del selector clásico.</summary>
     private const double MargenInferiorFlyout = 74;
 
     /// <summary>Margen lateral de la tarjeta del selector cuando ocupa el ancho completo.</summary>
@@ -1242,28 +1400,20 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     }
 
     /// <summary>
-    /// Con la tira de la mascota en pantalla, el selector se repliega a <b>todo lo que
-    /// queda libre a la derecha de ella</b>: arranca donde termina el dibujo y llega
-    /// hasta el borde derecho. Así conviven sin taparse y sin que ninguno de los dos
-    /// tenga que encogerse en alto.
+    /// Sitúa el selector clásico en el hueco libre a la derecha de la mascota. El modal
+    /// nuevo se mantiene centrado y con margen simétrico desde el XAML.
     /// </summary>
     /// <remarks>
     /// El límite lo da <see cref="MascotaVinetaView.AnchoOcupado"/> y no una mitad de
-    /// pantalla: la mascota ocupa ~123 px de ancho real, así que partir por la mitad le
-    /// regalaba al hueco unos 70 px que nadie usaba y dejaba al selector más estrecho de
-    /// lo necesario.
-    /// <para>
-    /// Sin la tira el selector recupera su ancho completo: no tiene sentido dejarlo
-    /// angosto cuando no hay nada que esquivar.
-    /// </para>
+    /// pantalla: se aprovecha todo el espacio que el dibujo deja libre.
     /// </remarks>
     private void ActualizarMargenFlyout()
     {
-        var izquierda = AvisoMascotaHorario.IsVisible
+        var izquierda = UsarEstiloClasicoHorario && AvisoMascotaHorario.IsVisible
             ? AvisoMascotaHorario.AnchoOcupado + AireEntreAvisoYFlyout
             : MargenLateralFlyout;
 
-        FlyoutCredito.Margin =
+        FlyoutCreditoClasico.Margin =
             new Thickness(izquierda, 0, MargenLateralFlyout, MargenInferiorFlyout);
     }
 

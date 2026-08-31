@@ -37,7 +37,7 @@
     </ContentPage.Resources>
 
     <Shell.TitleView>
-        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" Padding="0,0,2,0">
+        <Grid ColumnDefinitions="*,Auto,Auto" VerticalOptions="Center" Padding="0,0,2,0">
             <!-- El tap sólo hace algo con Modo Desarrollador activo: recorre los
                  horarios simulados para poder ver el aviso sin esperar a que sea
                  de noche o fin de semana. -->
@@ -52,8 +52,44 @@
                 </Label.GestureRecognizers>
             </Label>
 
-            <!-- Badge: solo créditos de captura (sin autoservicio). -->
+            <!-- Acceso discreto al comparador de estilos. Sólo existe en Modo
+                 desarrollador y alterna directamente Clásico/Nuevo. -->
             <Border Grid.Column="1"
+                    IsVisible="{Binding EsDev}"
+                    Margin="0,0,6,0"
+                    WidthRequest="30"
+                    HeightRequest="30"
+                    Padding="0"
+                    BackgroundColor="Transparent"
+                    Stroke="{toolkit:AppThemeResource Auto}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 8"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCambiarEstiloHorarioTapped" />
+                </Border.GestureRecognizers>
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding UsarEstiloNuevoHorario}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{toolkit:AppThemeResource Auto}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Label Text="{x:Static f:FluentUI.settings_20_regular}"
+                       FontFamily="FluentUI"
+                       FontSize="17"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource Auto}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding UsarEstiloNuevoHorario}" Value="True">
+                            <Setter Property="TextColor" Value="White" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+
+            <!-- Badge: solo créditos de captura (sin autoservicio). -->
+            <Border Grid.Column="2"
                     IsVisible="{Binding SoloCaptura}"
                     Opacity="{Binding OpacidadCreditos}"
                     StrokeShape="RoundRectangle 10"
@@ -76,7 +112,7 @@
             </Border>
 
             <!-- Badge: solo créditos de autoservicio (sin captura). -->
-            <Border Grid.Column="1"
+            <Border Grid.Column="2"
                     IsVisible="{Binding SoloAutoservicio}"
                     Opacity="{Binding OpacidadCreditos}"
                     StrokeShape="RoundRectangle 10"
@@ -99,7 +135,7 @@
             </Border>
 
             <!-- Badge: sin créditos de ningún tipo. -->
-            <Border Grid.Column="1"
+            <Border Grid.Column="2"
                     IsVisible="{Binding SinCreditos}"
                     Opacity="{Binding OpacidadCreditos}"
                     StrokeShape="RoundRectangle 10"
@@ -185,7 +221,11 @@
         <!-- ══════════════════════════════════════════════════════════════════════
              CONTENIDO PRINCIPAL
              ══════════════════════════════════════════════════════════════════════ -->
-        <Grid RowDefinitions="Auto,*,Auto" Padding="0">
+        <!-- La fila 2 es de la franja de horario y la 3 de la barra de botones. Son dos
+             filas Auto seguidas y no una sola con las dos cosas dentro porque hay DOS
+             barras (con capturas y sin capturas) que se alternan: metiendo la franja en
+             cada una habría que mantenerla dos veces. -->
+        <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="0">
 
             <!-- ── Zona de controles (scroll por si el teclado sube) ─────────────
                  MaximumHeightRequest se fija en OnSizeAllocated: esta fila es Auto y
@@ -562,8 +602,63 @@
 
             </Grid>
 
+            <!-- ── [PROPUESTA] Franja de horario ────────────────────────────────
+                 El aviso de horario como una franja fija, en lugar del coach mark de la
+                 mascota (seleccionable sólo desde el control [DEV]). Es el
+                 cambio de fondo de la propuesta: el aviso deja de ser un momento —algo
+                 que aparece, se anima y hay que cerrar— y pasa a ser un estado, ahí
+                 puesto mientras dure. Por eso no lleva ✕ ni animación de entrada, y por
+                 eso su texto (MensajeFranjaHorario) se basta solo: no tiene ningún
+                 título encima del que tomar contexto.
+
+                 Va PEGADA A LOS BOTONES, y no arriba con los campos donde estuvo
+                 primero: el aviso sólo importa en el instante de decidir si se envía, y
+                 ese instante ocurre con el pulgar sobre "Enviar". Arriba se leía al
+                 entrar y se olvidaba; aquí se lee justo cuando sirve.
+                 Fuera del ScrollView de los controles a propósito: ahí se iba de la
+                 pantalla al subir el teclado o al desplegar "Más opciones".
+
+                 El texto y el ícono van en OnPrimary (#1e1e1e, negro fijo en los dos
+                 temas), y el FONDO cambia con el tema porque ese negro no funciona igual
+                 en los dos:
+                 · Claro: amarillo al 12 %. Basta para que se lea como aviso sin competir
+                   con los botones, que son lo accionable, y el negro contrasta de sobra
+                   sobre una superficie clara.
+                 · Oscuro: amarillo SÓLIDO. El mismo tinte al 15 % sobre el #141414 del
+                   fondo daba una superficie casi negra y el texto negro desaparecía.
+                   Relleno lleno es el par Primary/OnPrimary de los botones, que es justo
+                   para lo que existe OnPrimary.
+                 O sea que en oscuro la franja pesa más que en claro. Es a propósito: es
+                 el precio de que el texto sea negro. -->
+            <Border Grid.Row="2"
+                    IsVisible="{Binding MostrarFranjaHorario}"
+                    Margin="12,0,12,2"
+                    Padding="10,7"
+                    StrokeThickness="0"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{AppThemeBinding Light=#1FFEC001, Dark=#FEC001}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="7">
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="14"
+                           VerticalOptions="Start"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                    <!-- WordWrap y no TailTruncation: aquí el dato que se truncaría es
+                         justo la hora, que es lo único que el usuario necesita de esta
+                         franja. Que ocupe dos renglones antes que perderla. -->
+                    <Label Grid.Column="1"
+                           Text="{Binding MensajeFranjaHorario}"
+                           FontSize="12"
+                           LineBreakMode="WordWrap"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                </Grid>
+            </Border>
+
             <!-- ── Barra de acciones: sin capturas (Cancelar + Cámara al 50%) ── -->
-            <Grid Grid.Row="2"
+            <Grid Grid.Row="3"
                   ColumnDefinitions="*,*"
                   Padding="12,8,12,12"
                   ColumnSpacing="8"
@@ -598,7 +693,7 @@
             </Grid>
 
             <!-- ── Barra de acciones: con capturas (franja de horario + los 3 botones) ── -->
-            <VerticalStackLayout Grid.Row="2"
+            <VerticalStackLayout Grid.Row="3"
                                  Spacing="0"
                                  Padding="8,4,8,8"
                                  BackgroundColor="{toolkit:AppThemeResource Background}"
@@ -813,7 +908,12 @@
              · Stroke hairline: en tema oscuro una sombra negra sobre #141414 no se
                distingue, y el filo claro es lo único que define el borde de la tarjeta
                contra el scrim. -->
-        <Border x:Name="FlyoutCredito"
+
+        <!-- ESTILO CLÁSICO (predeterminado): selector horizontal de la captura de
+             referencia. La mascota se pinta en una capa posterior y esta tarjeta se
+             recorre a la derecha cuando ambas coinciden. Tocar una opción envía. -->
+        <Border x:Name="FlyoutCreditoClasico"
+                IsVisible="{Binding UsarEstiloClasicoHorario}"
                 BackgroundColor="{toolkit:AppThemeResource CardBackground}"
                 Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
                 StrokeThickness="1"
@@ -822,6 +922,85 @@
                 HorizontalOptions="Fill"
                 VerticalOptions="End"
                 Margin="20,0,20,74">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="14">
+                <Label Text="Quién captura"
+                       HorizontalOptions="Center"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <!-- Mi Equipo (Autoservicio) -->
+                    <Border Grid.Column="0"
+                            BackgroundColor="{toolkit:AppThemeResource Auto}"
+                            StrokeShape="RoundRectangle 22"
+                            StrokeThickness="0"
+                            Padding="6,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoAuto" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="1" InputTransparent="True">
+                            <Label Text="Mi Equipo"
+                                   FontAttributes="Bold"
+                                   FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="White" />
+                            <Label Text="{Binding CreditosAutoservicio, StringFormat='{0} créditos'}"
+                                   FontSize="10"
+                                   Opacity="0.85"
+                                   HorizontalOptions="Center"
+                                   TextColor="White" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Contabee (Captura) -->
+                    <Border Grid.Column="1"
+                            BackgroundColor="{toolkit:AppThemeResource Captura}"
+                            StrokeShape="RoundRectangle 22"
+                            StrokeThickness="0"
+                            Padding="6,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoCaptura" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="1" InputTransparent="True">
+                            <Label Text="Contabee"
+                                   FontAttributes="Bold"
+                                   FontSize="14"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                            <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
+                                   FontSize="10"
+                                   Opacity="0.85"
+                                   HorizontalOptions="Center"
+                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- ESTILO NUEVO (alternativa dev): se conserva completo para poder compararlo
+             desde el selector [DEV]. Fuera del modo desarrollador permanece oculto. -->
+        <!-- [PROPUESTA] VerticalOptions="Center" y no "End": deja de ser una hoja que
+             sube desde abajo y pasa a ser un modal de decisión. No es sólo estética —
+             pegada abajo, la tarjeta caía bajo el pulgar justo donde el usuario acababa
+             de tocar Enviar, y era fácil encadenar el segundo toque sin leerla. En el
+             centro hay que subir la vista y la mano.
+             El Margin lo recalcula ActualizarMargenFlyout(); lo de aquí es el valor
+             inicial. -->
+        <Border x:Name="FlyoutCreditoNuevo"
+                IsVisible="{Binding UsarEstiloNuevoHorario}"
+                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 20"
+                Padding="16,18"
+                HorizontalOptions="Fill"
+                VerticalOptions="Center"
+                Margin="20,0,20,0">
             <Border.Shadow>
                 <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
             </Border.Shadow>
@@ -877,56 +1056,126 @@
                       HeightRequest="1"
                       BackgroundColor="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}" />
 
-                <Label Text="Quién captura"
-                       HorizontalOptions="Center"
-                       FontSize="13"
+                <!-- ── [PROPUESTA] Modal de decisión ────────────────────────────
+                     Antes eran dos tarjetas de color lleno, una junto a otra, y tocar
+                     cualquiera de las dos ENVIABA en ese mismo toque. Eran botones de
+                     envío disfrazados de selector: no había manera de abrir el selector,
+                     mirar los dos saldos y salirse.
+                     Ahora son dos filas que sólo se marcan, y el envío lo dispara
+                     "Confirmar envío". Eso obliga a dos cambios más que van juntos:
+                     · Filas y no columnas: cada opción necesita una línea que explique
+                       qué implica ("Tu personal captura los datos"), y eso no cabe en
+                       media tarjeta. Es la información que faltaba para poder decidir.
+                     · Color de la marca y no de relleno: con las dos tarjetas pintadas a
+                       tope no se distinguía la ELEGIDA de la otra. Ahora el relleno es
+                       tenue y el trazo grueso es lo que dice cuál está marcada. -->
+                <Label Text="¿Quién captura estos tickets?"
+                       FontSize="17"
                        FontAttributes="Bold"
                        TextColor="{toolkit:AppThemeResource PrimaryText}" />
-                <!-- Padding y ColumnSpacing apretados a propósito: con el aviso de la
-                     mascota en pantalla la tarjeta arranca a la derecha de ella, así que
-                     estas dos comparten un ancho bastante menor que el de la pantalla y
-                     el aire de antes (8,12 y spacing 12) les comía el texto. -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                    <!-- Mi Equipo (Autoservicio) -->
-                    <Border Grid.Column="0"
-                            BackgroundColor="{toolkit:AppThemeResource Auto}"
-                            StrokeShape="RoundRectangle 22"
-                            StrokeThickness="0"
-                            Padding="6,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoAuto" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="1" InputTransparent="True">
-                            <Label Text="Mi Equipo"
-                                   FontAttributes="Bold" FontSize="14"
-                                   HorizontalOptions="Center"
-                                   TextColor="White" />
-                            <Label Text="{Binding CreditosAutoservicio, StringFormat='{0} créditos'}"
-                                   FontSize="10" Opacity="0.85"
-                                   HorizontalOptions="Center"
-                                   TextColor="White" />
-                        </VerticalStackLayout>
-                    </Border>
-                    <!-- Contabee (Captura) -->
-                    <Border Grid.Column="1"
-                            BackgroundColor="{toolkit:AppThemeResource Captura}"
-                            StrokeShape="RoundRectangle 22"
-                            StrokeThickness="0"
-                            Padding="6,10">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnSeleccionarCreditoCaptura" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="1" InputTransparent="True">
-                            <Label Text="Contabee"
-                                   FontAttributes="Bold" FontSize="14"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                            <Label Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
-                                   FontSize="10" Opacity="0.85"
-                                   HorizontalOptions="Center"
-                                   TextColor="{toolkit:AppThemeResource OnPrimary}" />
-                        </VerticalStackLayout>
-                    </Border>
+
+                <!-- El costo va aquí arriba y no junto al botón: es la consecuencia de
+                     la decisión, y se lee ANTES de elegir. -->
+                <Label Text="Se descontará 1 crédito por ticket."
+                       Margin="0,-10,0,0"
+                       FontSize="12.5"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+                <!-- Mi equipo (Autoservicio) -->
+                <Border BackgroundColor="{AppThemeBinding Light=#0A2456C9, Dark=#1A2456C9}"
+                        Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="12,10">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSeleccionarCreditoAuto" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding UsarAutoservicio}" Value="True">
+                            <Setter Property="Stroke" Value="{toolkit:AppThemeResource Auto}" />
+                            <Setter Property="StrokeThickness" Value="2" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" InputTransparent="True">
+                        <Label Grid.Row="0" Grid.Column="0"
+                               Text="Mi equipo"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding CreditosAutoservicio, StringFormat='{0} créditos'}"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               TextColor="{Binding ColorCreditosAutoservicio}" />
+                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="Tu personal captura los datos."
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </Grid>
+                </Border>
+
+                <!-- Contabee (Captura) -->
+                <Border Margin="0,-6,0,0"
+                        BackgroundColor="{AppThemeBinding Light=#14FEC001, Dark=#1AFEC001}"
+                        Stroke="{AppThemeBinding Light=#14000000, Dark=#33FFFFFF}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="12,10">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSeleccionarCreditoCaptura" />
+                    </Border.GestureRecognizers>
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding UsarAutoservicio}" Value="False">
+                            <Setter Property="Stroke" Value="{toolkit:AppThemeResource Captura}" />
+                            <Setter Property="StrokeThickness" Value="2" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" InputTransparent="True">
+                        <Label Grid.Row="0" Grid.Column="0"
+                               Text="Contabee"
+                               FontSize="15"
+                               FontAttributes="Bold"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                        <Label Grid.Row="0" Grid.Column="1"
+                               Text="{Binding CreditosCaptura, StringFormat='{0} créditos'}"
+                               FontSize="12"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"
+                               TextColor="{Binding ColorCreditosCaptura}" />
+                        <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="Nosotros capturamos por ti."
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                    </Grid>
+                </Border>
+
+                <!-- Volver a la izquierda y angosto, Confirmar a la derecha ocupando el
+                     resto: el peso visual tiene que estar en la acción, no en la salida.
+                     Confirmar toma el color del crédito MARCADO (ColorCreditoActivo), así
+                     que cambia de azul a amarillo al cambiar de fila — es el eco que
+                     confirma qué se eligió sin tener que volver a mirar arriba. -->
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <Button Grid.Column="0"
+                            Text="Volver"
+                            Clicked="OnVolverFlyoutCredito"
+                            BackgroundColor="Transparent"
+                            TextColor="{toolkit:AppThemeResource PrimaryText}"
+                            BorderColor="{toolkit:AppThemeResource SecondaryText}"
+                            BorderWidth="1.5"
+                            CornerRadius="12"
+                            HeightRequest="44"
+                            Padding="18,0"
+                            FontSize="15" />
+                    <Button Grid.Column="1"
+                            Text="Confirmar envío"
+                            Clicked="OnConfirmarEnvio"
+                            BackgroundColor="{Binding ColorCreditoActivo}"
+                            TextColor="{Binding ColorContrasteCredito}"
+                            CornerRadius="12"
+                            HeightRequest="44"
+                            FontSize="15"
+                            FontAttributes="Bold" />
                 </Grid>
             </VerticalStackLayout>
         </Border>
