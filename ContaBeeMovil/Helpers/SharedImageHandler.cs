@@ -109,13 +109,19 @@ public static class SharedImageHandler
         try
         {
             const string appGroupId = "group.mx.contabee.app";
+            const string diagnosticLogName = "shareext_log.txt";
             var defaults = new Foundation.NSUserDefaults(appGroupId, Foundation.NSUserDefaultsType.SuiteName);
-            var fileName = defaults.StringForKey("pendingSharedImage");
-
-            if (string.IsNullOrEmpty(fileName)) return;
-
             var groupContainer = Foundation.NSFileManager.DefaultManager.GetContainerUrl(appGroupId);
-            if (groupContainer?.Path is not { } containerPath) return;
+            if (groupContainer?.Path is not { } containerPath)
+            {
+                Logs?.Log("[SharedImage] GetContainerUrl devolvió null");
+                return;
+            }
+
+            ImportShareExtensionLog(Path.Combine(containerPath, diagnosticLogName));
+
+            var fileName = defaults.StringForKey("pendingSharedImage");
+            if (string.IsNullOrEmpty(fileName)) return;
 
             var srcPath = System.IO.Path.Combine(containerPath, fileName);
             var destPath = System.IO.Path.Combine(Microsoft.Maui.Storage.FileSystem.AppDataDirectory, fileName);
@@ -133,6 +139,31 @@ public static class SharedImageHandler
         }
 #endif
     }
+
+#if IOS || MACCATALYST
+    private static void ImportShareExtensionLog(string logPath)
+    {
+        try
+        {
+            if (!File.Exists(logPath)) return;
+            const string offsetKey = "ShareExtensionDiagnosticLogOffset";
+            var length = new FileInfo(logPath).Length;
+            var offset = Preferences.Get(offsetKey, 0L);
+            if (offset < 0 || offset > length) offset = 0;
+
+            using var stream = new FileStream(logPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            stream.Seek(offset, SeekOrigin.Begin);
+            using var reader = new StreamReader(stream);
+            while (reader.ReadLine() is { } line)
+                Logs?.Log($"[SharedImage] diagnóstico extensión — {line}");
+            Preferences.Set(offsetKey, stream.Position);
+        }
+        catch (Exception ex)
+        {
+            Logs?.Log($"[SharedImage] error leyendo diagnóstico de extensión — {ex.Message}");
+        }
+    }
+#endif
 
     private static void ProcessPendingImage()
     {

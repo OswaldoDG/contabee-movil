@@ -35,8 +35,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.5.8</ApplicationDisplayVersion>
-		<ApplicationVersion>63</ApplicationVersion>
+		<ApplicationDisplayVersion>2.5.10</ApplicationDisplayVersion>
+		<ApplicationVersion>65</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -212,12 +212,35 @@
 	  <MauiXaml Update="Pages\Registro\PaginaRegistro.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Resources\Styles\AppStyles.xaml" Inflator="Runtime" />
-	  <!-- Fuera del inflador SourceGen: éste no embebe el .xaml como recurso y
-	       XAML Hot Reload truena al intentar inflarlo en runtime
-	       ("No embeddedresource found for __XamlGeneratedCode__.__Type..."").
-	       Default = Runtime en Debug (Hot Reload funciona), XamlC en Release. -->
-	  <MauiXaml Update="Views\ActualizacionPopup.xaml" Inflator="Default" />
+	  <!-- ⛔ NO poner metadata Inflator en ningún MauiXaml de este proyecto.
+	       Aquí vivían dos overrides —AppStyles.xaml con Inflator="Runtime" y
+	       ActualizacionPopup.xaml con Inflator="Default"— puestos para que XAML Hot
+	       Reload dejara de tronar con
+	         "No embeddedresource found for __XamlGeneratedCode__.__Type...".
+	       Eran justo lo que CAUSABA ese error, no el remedio:
+	       · Con MauiXamlInflator=SourceGen el .xaml NO se embebe como recurso.
+	         Verificado sobre el ensamblado compilado: 0 ocurrencias de XML de XAML
+	         dentro de ContaBeeMovil.dll.
+	       · Inflator="Runtime" (siempre) e Inflator="Default" (= Runtime en Debug)
+	         hacen que InitializeComponent genere LoadFromXaml(this, typeof(...)),
+	         que va a buscar precisamente ese recurso inexistente.
+	       AppStyles.xaml lo carga App.xaml al arrancar, así que su override reventaba
+	       la app en el primer frame. Bajo SourceGen —el resto de los ~90 XAML del
+	       proyecto— no hay búsqueda de recurso y no falla.
+	       Costo de quitarlos: se pierde Hot Reload sobre esos dos archivos. -->
+
+	  <!-- Precedente: MascotaAvisoView.xaml (ago-2026) también se creó con
+	       Inflator="Default" copiando estas líneas y reventó igual. -->
+
+	  <!-- OJO: MascotaAvisoView NO lleva Inflator="Default". Se le puso por precaución
+	       copiando la línea de arriba y reventó en dispositivo con
+	       "No embeddedresource found for __XamlGeneratedCode__.__Type...".
+	       El precedente no aplica: ActualizacionPopup es un Popup que se crea desde C#,
+	       mientras que MascotaAvisoView es un ContentView instanciado DESDE otro XAML
+	       (PaginaCaptura.xaml, compilado por SourceGen). Con Inflator="Default" el
+	       archivo se infla en runtime en Debug y busca el .xaml embebido como recurso,
+	       que bajo MauiXamlInflator=SourceGen no existe. Bajo SourceGen —como el resto
+	       de los ContentView del proyecto— no hay búsqueda de recurso y no falla. -->
 	  <MauiXaml Update="Services\Notifications\CustomToast.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

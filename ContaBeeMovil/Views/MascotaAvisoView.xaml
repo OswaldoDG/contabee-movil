@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:f="clr-namespace:Fonts"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Views.MascotaAvisoView"
+             IsVisible="False"
+             HorizontalOptions="Fill"
+             VerticalOptions="End">
+
+    <!-- Cuadro de diálogo estilo tutorial de videojuego. La diferencia con una
+         notificación no está en la caja sino en el personaje: la mascota NO va dentro
+         de la tarjeta como si fuera un ícono, va PARADA ENCIMA del borde superior,
+         medio cuerpo fuera de la caja, se deja caer con rebote al entrar y respira
+         (bamboleo en bucle) mientras el aviso está en pantalla.
+
+         No lleva velo ni bloquea: el usuario puede seguir tocando fotos, opciones y
+         Enviar mientras está en pantalla. Y NO se retrae solo — se queda hasta que lo
+         cierren con la ✕ o tocando la caja. -->
+    <Grid x:Name="Contenedor" Opacity="0">
+
+        <!-- ── Caja de diálogo: la capa de atrás ────────────────────────────────
+             El margen superior es el hueco por donde asoma la mascota; cuanto menor,
+             más se encima ella y más se nota el apilado. Trazo de 2 en Primary y no el
+             filo hairline de las tarjetas de la app: el marco grueso de color es justo
+             lo que hace que se lea como UI de juego y no como una notificación del
+             sistema. -->
+        <Border x:Name="Caja"
+                Margin="0,60,0,0"
+                VerticalOptions="End"
+                BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                Stroke="{toolkit:AppThemeResource Primary}"
+                StrokeThickness="2"
+                StrokeShape="RoundRectangle 18"
+                Padding="16,12,16,10">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,6" Radius="16" Opacity="0.35" />
+            </Border.Shadow>
+
+            <!-- Tocar la caja también cierra. La ✕ es la señal visible de que se puede
+                 (el aviso ya no se va solo); esto es el atajo para quien no la busca. -->
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnTapped" />
+            </Border.GestureRecognizers>
+
+            <Grid RowDefinitions="Auto,Auto" RowSpacing="5">
+
+                <!-- El margen izquierdo libra a la mascota, que baja hasta aquí: son
+                     los 100 px de su ancho más su margen de 14, menos el padding de la
+                     caja. Si cambia el tamaño de la mascota, cambia este número.
+                     Grid con columna * y WordWrap, no un HorizontalStackLayout: con ese
+                     hueco comiéndose 96 px, un título largo en un stack se saldría de
+                     la caja y quedaría cortado a media palabra. -->
+                <Grid Grid.Row="0"
+                      ColumnDefinitions="Auto,*"
+                      ColumnSpacing="6"
+                      Margin="96,0,0,0"
+                      InputTransparent="True">
+                    <Label Grid.Column="0"
+                           Text="{x:Static f:FluentUIFilled.clock_20_filled}"
+                           FontFamily="FluentUIFilled"
+                           FontSize="15"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource Primary}" />
+                    <Label Grid.Column="1"
+                           x:Name="LblTitulo"
+                           Text="Fuera de horario"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           LineBreakMode="WordWrap"
+                           VerticalOptions="Center"
+                           TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                </Grid>
+
+                <Label Grid.Row="1"
+                       x:Name="LblMensaje"
+                       FontSize="12.5"
+                       LineBreakMode="WordWrap"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}" />
+
+            </Grid>
+        </Border>
+
+        <!-- ── Cerrar ───────────────────────────────────────────────────────────
+             Montado sobre el borde superior derecho de la caja, igual que la mascota lo
+             está sobre el izquierdo: así no gasta una fila del contenido.
+             Los 38 del margen superior salen de los 60 del margen de la caja menos 22:
+             deja 10 px del botón dentro de la caja y 22 fuera. Ese reparto no es
+             estético — con más de 12 px dentro se le encimaría a la fila del título,
+             que empieza en el padding de 12 de la caja.
+             Mismo trazo Primary de 2 que la caja, para que se lea como parte de la misma
+             pieza y no como un ícono pegado encima. -->
+        <Border HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0,38,12,0"
+                WidthRequest="32"
+                HeightRequest="32"
+                Padding="0"
+                StrokeShape="RoundRectangle 16"
+                Stroke="{toolkit:AppThemeResource Primary}"
+                StrokeThickness="2"
+                BackgroundColor="{toolkit:AppThemeResource CardBackground}">
+            <Border.Shadow>
+                <Shadow Brush="Black" Offset="0,2" Radius="5" Opacity="0.30" />
+            </Border.Shadow>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCerrarTapped" />
+            </Border.GestureRecognizers>
+            <Label Text="{x:Static f:FluentUI.dismiss_20_regular}"
+                   FontFamily="FluentUI"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   InputTransparent="True"
+                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+        </Border>
+
+        <!-- ── Mascota: la capa de enfrente ─────────────────────────────────────
+             Va DESPUÉS de la caja en el XAML a propósito: así se dibuja encima y el
+             medio cuerpo de abajo queda por delante del marco, como si estuviera
+             parada en el borde. -->
+        <Grid HorizontalOptions="Start"
+              VerticalOptions="Start"
+              Margin="14,0,0,0"
+              WidthRequest="100"
+              HeightRequest="100"
+              InputTransparent="True">
+
+            <!-- Halo. Resuelve un problema real, no es decoración: contabeepet.png es
+                 un dibujo de contornos negros y, en la parte que sobresale de la caja
+                 sobre el fondo oscuro (#141414), perdería la silueta.
+                 Se probó volverlo un disco OPACO (CardBackground) con filo y sombra
+                 propia para dar efecto de capas, y se descartó: no gustó cómo quedaba.
+                 Si se vuelve a intentar, la sombra va en este Border y NO en el Image —
+                 en Android la sombra de una imagen con transparencia sigue el rectángulo
+                 del control, no la silueta del dibujo. -->
+            <Border WidthRequest="94"
+                    HeightRequest="94"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    StrokeThickness="0"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 47"
+                    InputTransparent="True"
+                    BackgroundColor="{AppThemeBinding Light=#26FEC001, Dark=#3DFFFFFF}" />
+
+            <Image x:Name="Mascota"
+                   Source="contabeepet.png"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Fill"
+                   VerticalOptions="Fill"
+                   InputTransparent="True" />
+        </Grid>
+
+    </Grid>
+
+</ContentView>

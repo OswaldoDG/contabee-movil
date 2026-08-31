@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="ContaBeeMovil.Views.MascotaVinetaView"
+             IsVisible="False"
+             HorizontalOptions="Fill"
+             VerticalOptions="Fill">
+
+    <!-- Viñeta de cómic VERTICAL pegada al borde izquierdo: la mascota abajo y, JUSTO
+         SOBRE SU CABEZA, lo que dice. Entra deslizándose desde la izquierda.
+
+         Lo que dice son dos piezas distintas a propósito, y no dos globos iguales:
+         · el TÍTULO es una PILL — cápsula que se ciñe a su texto, sin pico. Es la
+           etiqueta de la escena ("Sigue enviando tus fotos"), no una frase hablada.
+         · el MENSAJE sí es un globo de diálogo con pico apuntando a la mascota: es lo
+           que ella está diciendo.
+         Que no se parezcan es lo que hace que se lean como cosas distintas.
+
+         Dos restricciones de las que depende que no estorbe, y que hay que respetar:
+         · Arriba arranca donde arranca la zona de fotos, para no tapar los formularios.
+           Ese margen superior lo pone la página en ActualizarMargenAviso() a partir de
+           la posición real de ZonaCapturas — no se puede fijar aquí porque el alto de
+           los controles cambia al desplegar "Más opciones".
+         · Abajo se queda por encima de la barra de botones (y del selector "Quién
+           captura" cuando está abierto), también vía el margen que pone la página.
+
+         No bloquea con velo y NO se retrae sola — se queda hasta que la cierren.
+
+         ⚠ NO poner InputTransparent en esta vista ni en sus contenedores. Se probó
+         (InputTransparent + CascadeInputTransparent="False" en el ContentView, el
+         Contenedor y la Vineta) para que los toques atravesaran el aire de la tira y
+         llegaran a las fotos de atrás. En iOS salió mal: los toques SÍ atravesaban, pero
+         el Cascade en False no salvó a los hijos — el tap de "Entendido" se le escapaba a
+         la foto de abajo, que abría el visor. Y como al navegar corre OcultarInmediato(),
+         el aviso desaparecía y parecía que el botón había funcionado.
+         El precio de no ponerlo es que la tira se come los toques en su franja aunque
+         casi toda sea aire; es como se comportó siempre y nadie lo ha reclamado. Si
+         alguna vez hace falta de verdad, el camino NO es este atributo: es que la vista
+         deje de ocupar la pantalla entera. -->
+    <Grid x:Name="Contenedor" Opacity="0">
+
+        <!-- ── La tira: pill + globo ────────────────────────────────────────────
+             SIN fondo ni marco: sólo se ven la mascota y los globos, flotando sobre la
+             página. Es la pieza que se anima como bloque (entra y sale) — de ahí que
+             tenga nombre.
+             Era un Border y hoy es un Grid; el cambio vino de un intento de hacerla
+             transparente a los toques que se descartó (ver el aviso de arriba), pero se
+             quedó porque el Grid hace lo mismo con un nivel menos de anidamiento.
+             Al no haber panel detrás, el contraste pasó a cada globo: llevan sombra
+             propia (ver abajo). Y la mascota se quedó sin respaldo — es el precio de
+             quitar la card; en tema oscuro sus contornos negros pierden nitidez contra
+             el #141414 del fondo.
+
+             Va anclado ABAJO (VerticalOptions=End) y no arriba: lo que dice la mascota
+             tiene que salirle de la cabeza, no flotar lejos. Los 264 de margen inferior
+             son de dónde queda esa cabeza — el dibujo empieza a ~22 px del techo de su
+             caja de 280 (el PNG trae aire transparente arriba), o sea a 258 del suelo de
+             la tira; 264 deja unos 6 px de aire entre la punta del pico y ella. Si
+             cambia el tamaño de la mascota, cambia este número.
+             Como crece hacia arriba, un mensaje largo se sube en vez de empujar a la
+             mascota; el tope es el margen superior que pone la página.
+
+             Las columnas 3*/2* son el 60 % / 40 % del ancho, y de ahí sale el tope del
+             globo del mensaje: vive en la primera. No se fija con un WidthRequest para
+             que sea el 60 % exacto en cualquier equipo, sin cuentas ni medidas.
+             El 60 % es un punto medio buscado: a media pantalla el mensaje salía en
+             cinco renglones angostos, y a ancho completo se leía como una franja del
+             sistema en vez de como un globo.
+             La PILL no respeta ese tope —abarca las dos columnas— porque "Sigue enviando
+             tus fotos" no cabe en una línea dentro del 60 %, y una pill de dos líneas
+             deja de ser pill. -->
+        <Grid x:Name="Vineta"
+              RowDefinitions="Auto,Auto"
+              ColumnDefinitions="3*,2*"
+              RowSpacing="6"
+              Margin="8,0,0,264"
+              VerticalOptions="End">
+
+            <!-- ── La PILL del título ───────────────────────────────────────
+                 Cápsula: radio 17 ≈ la mitad de su alto de una línea (13 de texto +
+                 8+8 de padding), que es lo que le da los extremos redondos. Si el
+                 título se va a dos líneas deja de ser cápsula y se ve como un
+                 rectángulo muy redondeado — sigue leyéndose bien, pero es la razón
+                 para que el texto sea corto.
+                 HorizontalOptions=Start: se ciñe al texto. Estirada a todo el ancho
+                 parecería un globo, que es justo de lo que se la quiere distinguir.
+                 Va suelta en la fila y no dentro de un HorizontalStackLayout: en el
+                 stack se mediría con ancho infinito y un título largo se saldría de
+                 la pantalla sin cortarse; aquí respeta el ancho disponible y el
+                 texto acaba envolviendo, que es feo pero se ve.
+                 En Primary (amarillo) y no en CardBackground como el globo: es la
+                 otra mitad de la distinción — una es etiqueta de la app, el otro es
+                 lo que ella dice. El texto va en OnPrimary y no en PrimaryText
+                 porque PrimaryText es casi blanco en tema oscuro y sobre el amarillo
+                 desaparecería; OnPrimary es #1e1e1e en los dos temas, que es justo
+                 para lo que existe.
+                 Sin trazo y con sombra, igual que el globo.
+                 AnchorX=0 / AnchorY=1: brota desde su esquina inferior izquierda,
+                 hacia donde está la mascota. -->
+            <Border x:Name="Globo1"
+                    Grid.Row="0"
+                    Grid.ColumnSpan="2"
+                    AnchorX="0"
+                    AnchorY="1"
+                    HorizontalOptions="Start"
+                    BackgroundColor="{toolkit:AppThemeResource Primary}"
+                    Stroke="Transparent"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 17"
+                    Padding="14,8">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Offset="0,3" Radius="8" Opacity="0.28" />
+                </Border.Shadow>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTapped" />
+                </Border.GestureRecognizers>
+                <Label x:Name="LblTitulo"
+                       Text="Fuera de horario"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       LineBreakMode="WordWrap"
+                       InputTransparent="True"
+                       TextColor="{toolkit:AppThemeResource OnPrimary}" />
+            </Border>
+
+            <!-- ── Globo 2: el mensaje, lo único que ella "dice" ────────────
+                 Tope: el 60 % del ancho, que es la columna en la que vive.
+                 Va SIN trazo y CON sombra: con borde propio habría que tapar su
+                 línea justo en la base del pico y esa costura siempre se acaba
+                 viendo.
+                 Radius 8 en la sombra y no más: la tira lleva 8 px de margen izquierdo,
+                 y una sombra más ancha que ese margen la recorta Android contra el
+                 borde de la pantalla. -->
+            <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="Auto,Auto">
+                <Border x:Name="Globo2"
+                        Grid.Row="0"
+                        AnchorX="0"
+                        AnchorY="1"
+                        BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                        Stroke="Transparent"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="10,8">
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Offset="0,3" Radius="8" Opacity="0.28" />
+                    </Border.Shadow>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTapped" />
+                    </Border.GestureRecognizers>
+                    <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+
+                        <!-- 14 y no los 12 de origen: el mensaje es lo que la
+                             mascota dice y es lo único que hay que leer, así que
+                             pesa más que la pill (13), aunque de costumbre el título
+                             sea el grande. El precio es un renglón o dos de más
+                             dentro del 60 %; el sitio está. -->
+                        <Label x:Name="LblMensaje"
+                               Grid.Row="0"
+                               FontSize="14"
+                               LineBreakMode="WordWrap"
+                               InputTransparent="True"
+                               TextColor="{toolkit:AppThemeResource PrimaryText}" />
+
+                        <!-- ── Cerrar: "Entendido" ──────────────────────────
+                             Reemplaza a la ✕ que flotaba en la esquina. El aviso NO
+                             se retrae solo, así que hace falta una salida evidente,
+                             y un botón con palabra es más claro que un ícono — de
+                             paso es el gesto de tutorial de videojuego, que es el
+                             estilo de toda la pieza.
+                             Va DENTRO del globo y alineado a la derecha: es la
+                             respuesta a lo que ella dice, y es donde cae el pulgar.
+                             Contorno y no relleno: la pill de arriba ya es amarilla
+                             y dos manchas Primary en la misma tira se pelean. Si se
+                             quiere más presencia, es cambiar BackgroundColor a
+                             Primary y el texto a OnPrimary.
+                             Radio 14 ≈ la mitad de su alto (12 de texto + 5+5 de
+                             padding), para que sea cápsula como la pill. -->
+                        <Border Grid.Row="1"
+                                HorizontalOptions="End"
+                                BackgroundColor="Transparent"
+                                Stroke="{toolkit:AppThemeResource PrimaryText}"
+                                StrokeThickness="1.5"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="14,5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCerrarTapped" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Entendido"
+                                   FontSize="12"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"
+                                   InputTransparent="True"
+                                   TextColor="{toolkit:AppThemeResource PrimaryText}" />
+                        </Border>
+
+                    </Grid>
+                </Border>
+
+                <!-- Pico apuntando hacia abajo, a la CABEZA de la mascota. Mismo
+                     relleno que el globo y sin trazo; el margen negativo lo mete un
+                     pixel bajo el globo para que no aparezca una rendija.
+                     Los 50 de margen izquierdo no son estéticos: la cabeza cae a
+                     unos 67 px del filo de la pantalla (centro del dibujo dentro de
+                     su caja de 280, menos el margen de -72), y el pico vive dentro
+                     de la tira, que ya lleva 8; 50 + 8 deja la punta justo ahí. Si
+                     cambia el tamaño de la mascota, cambia este número. -->
+                <Polygon x:Name="Pico2"
+                         Grid.Row="1"
+                         Points="0,0 20,0 5,12"
+                         WidthRequest="20"
+                         HeightRequest="12"
+                         Aspect="None"
+                         Margin="50,-1,0,0"
+                         HorizontalOptions="Start"
+                         InputTransparent="True"
+                         Fill="{toolkit:AppThemeResource CardBackground}" />
+            </Grid>
+
+        </Grid>
+
+        <!-- ── Mascota, al pie de la tira ───────────────────────────────────────
+             Va FUERA de la tira de los globos a propósito: dentro quedaba presa del
+             ancho de esa columna y no podía crecer más. Aquí el único límite es el
+             tamaño que se le pida.
+
+             Tres números y de dónde salen — si se cambia uno, revisar los otros:
+
+             · 280 (ancho = alto): el PNG es CUADRADO (3000×3000) y el dibujo sólo ocupa
+               ~44 % de ese ancho y ~82 % del alto; el resto es transparente. O sea que
+               de estos 280 se ven ~123 de ancho por ~230 de alto. Es el número a tocar
+               para hacerla más grande o más chica.
+             · -72 de margen izquierdo: la mascota se pide "pegada al borde", y el aire
+               transparente que el PNG trae por la izquierda son ~72 px a este tamaño
+               (0.2575 × 280). Cancelarlo deja el DIBUJO al filo de la pantalla — por eso
+               el control ya no lleva margen izquierdo (lo tiene el Border de los globos)
+               y lo único que se sale de los límites es transparencia, que Android puede
+               recortar sin que se note. Si cambia el 280, este número es ≈ -0.2575 ×
+               ancho. Si la mascota apareciera cortada por la izquierda, el arreglo es un
+               PNG recortado sin tanto aire, no subir más este número.
+             · contabeepet2.png y no contabeepet.png: es la MISMA mascota volteada en
+               espejo, para que mire hacia los globos. Ojo: el "TICKET" que sostiene
+               queda escrito al revés — es el precio de voltear el PNG entero.
+
+             AnchorX=0 / AnchorY=1: crece y se endereza desde su esquina inferior
+             izquierda, que es donde está plantada. Con el anclaje al centro (el que
+             viene por defecto) la animación de entrada la hace derrapar de lado.
+
+             InputTransparent: aunque tape parte de los globos si el mensaje es largo,
+             el tap para cerrar sigue llegando al globo que está debajo. -->
+        <Image x:Name="Mascota"
+               Source="contabeepet2.png"
+               Aspect="AspectFit"
+               WidthRequest="280"
+               HeightRequest="280"
+               Margin="-72,0,0,0"
+               AnchorX="0"
+               AnchorY="1"
+               HorizontalOptions="Start"
+               VerticalOptions="End"
+               InputTransparent="True" />
+
+    </Grid>
+
+</ContentView>

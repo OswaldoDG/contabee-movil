@@ -10,18 +10,34 @@ namespace ContaBeeMovil.Services.Horario;
 /// </param>
 /// <param name="Mensaje">
 /// Leyenda lista para mostrar al usuario. Es la misma en las tres vistas que la usan
-/// (aviso de la página sin fotos, popup de la franja y tarjeta del selector "Quién
+/// (aviso de la página sin fotos, coach mark de la mascota y tarjeta del selector "Quién
 /// captura"), y por eso está redactada en plural y sin condicional: en dos de esas tres
 /// el usuario no está enviando nada — en el aviso de la página ni siquiera ha tomado la
-/// foto. Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// foto. <b>Da por hecho que la vista lleva encima el título "Sigue enviando tus fotos"</b>:
+/// de ahí toma su antecedente el "las" de "las procesaremos". Cadena vacía cuando
+/// <paramref name="Abierto"/> es true.
 /// </param>
 /// <param name="ResumenCorto">
 /// Versión mínima del aviso para espacios estrechos (p. ej. "reanuda lun 9:00").
 /// Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
 /// <param name="MensajeBreve">
-/// Una línea para la franja de estado (p. ej. "Fuera de horario · Se procesará el
-/// lunes 9:00 a.m."). Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// Una línea para la franja de estado (p. ej. "Se procesará el lunes 9:00 a.m.").
+/// Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// </param>
+/// <param name="MensajeFranja">
+/// El aviso en una línea para la franja fija que va sobre la barra de botones de la
+/// página de captura (p. ej. "Sigue enviando: los procesamos desde las 9:00 a.m.").
+/// A diferencia de <paramref name="MensajeBreve"/> se basta solo, porque no lleva encima
+/// ningún título del que tomar contexto. Empieza por la acción y no por el estado: se lee
+/// con el pulgar sobre Enviar. Cadena vacía cuando <paramref name="Abierto"/> es true.
+/// </param>
+/// <param name="MensajeFranjaUrgente">
+/// La misma franja cuando el lote va marcado como <b>Urgente</b> (p. ej. "Tu envío
+/// urgente será el primero en atenderse al reanudar, el lunes 9:00 a.m."). Se calculan
+/// las dos variantes de una vez y elige la vista, porque el servicio no sabe —ni tiene
+/// por qué— qué opciones lleva marcadas el lote.
+/// Cadena vacía cuando <paramref name="Abierto"/> es true.
 /// </param>
 public sealed record EstadoHorarioCaptura(
     bool Abierto,
@@ -29,7 +45,9 @@ public sealed record EstadoHorarioCaptura(
     DateTime? ProximaAperturaCentral,
     string Mensaje,
     string ResumenCorto,
-    string MensajeBreve);
+    string MensajeBreve,
+    string MensajeFranja,
+    string MensajeFranjaUrgente);
 
 /// <summary>
 /// Reglas del horario en que ContaBee realiza la captura delegada de tickets.

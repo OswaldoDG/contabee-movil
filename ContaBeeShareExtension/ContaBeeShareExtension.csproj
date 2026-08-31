@@ -5,6 +5,7 @@
     <RuntimeIdentifiers Condition="'$(OS)' != 'Windows_NT'">ios-arm64;iossimulator-arm64;iossimulator-x64</RuntimeIdentifiers>
     <OutputType>Library</OutputType>
     <IsAppExtension>true</IsAppExtension>
+    <Registrar>static</Registrar>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationId>mx.contabee.app.shareextension</ApplicationId>
@@ -20,17 +21,20 @@
     <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
     <CodesignProvision>ContaBee ShareExtension Development</CodesignProvision>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <!-- iOS extensions no permiten JIT: usar intérprete de Mono en lugar de JIT -->
-    <MtouchInterpreter>all</MtouchInterpreter>
+    <!-- La extensión debe poder resolver sus callbacks administrados desde el arranque.
+         AOT-compilar todos los assemblies evita que el host invoque un wrapper cuyo
+         método todavía no esté disponible en el intérprete. -->
+    <UseInterpreter>false</UseInterpreter>
+    <MtouchLink>SdkOnly</MtouchLink>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <CodesignKey>Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)</CodesignKey>
     <CodesignProvision>ContaBee ShareExtension AppStore</CodesignProvision>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
-    <!-- AOT + intérprete para módulos problemáticos (mismo patrón que la app principal) -->
+    <!-- La extensión no usa los módulos dinámicos de la aplicación principal. -->
     <MtouchLink>SdkOnly</MtouchLink>
-    <MtouchInterpreter>all</MtouchInterpreter>
+    <UseInterpreter>false</UseInterpreter>
   </PropertyGroup>
 
 </Project>

@@ -58,13 +58,16 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
 
         if (abierto)
             return new EstadoHorarioCaptura(true, ahoraCentral, null,
-                                            string.Empty, string.Empty, string.Empty);
+                                            string.Empty, string.Empty, string.Empty,
+                                            string.Empty, string.Empty);
 
         var proxima = CalcularProximaApertura(ahoraCentral);
         return new EstadoHorarioCaptura(false, ahoraCentral, proxima,
                                         ConstruirMensaje(ahoraCentral, proxima),
                                         ConstruirResumenCorto(ahoraCentral, proxima),
-                                        ConstruirMensajeBreve(ahoraCentral, proxima));
+                                        ConstruirMensajeBreve(ahoraCentral, proxima),
+                                        ConstruirMensajeFranja(ahoraCentral, proxima),
+                                        ConstruirMensajeFranjaUrgente(ahoraCentral, proxima));
     }
 
     public async Task PrecargarFeriadosAsync(CancellationToken ct = default)
@@ -115,24 +118,24 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
 
     /// <summary>
     /// Aviso completo. Lo que le importa al usuario no es a qué hora vuelve ContaBee,
-    /// sino qué le pasa a lo que envíe <b>ahora</b>: se recibe, pero no se procesa hasta
-    /// la reanudación. Por eso el sujeto es su captura y no nuestro horario.
+    /// sino qué le pasa a lo que envíe <b>ahora</b>: se recibe igual y se procesa en
+    /// cuanto se reanuda. Por eso el sujeto son sus capturas y no nuestro horario.
     /// </summary>
     /// <remarks>
-    /// Dos cosas que parecen detalle y no lo son:
-    /// · No abre diciendo que se está fuera de horario porque las vistas que lo muestran
-    ///   ya lo llevan como título — repetirlo costaba ~50 caracteres, y el texto va justo
-    ///   de espacio: sólo caben unas 5 líneas antes de que la tarjeta recorte a la mascota.
+    /// Redacción dada por negocio. Tres cosas que parecen detalle y no lo son:
+    /// · El "las" de "las procesaremos" se apoya en el título de la vista que lo muestra
+    ///   ("Sigue enviando tus fotos"). Si alguna vista futura lo pinta sin ese título, el
+    ///   pronombre queda sin antecedente y hay que darle uno.
+    /// · "A primera hora" y no la hora exacta: el compromiso es de prontitud, no de reloj.
+    ///   La hora concreta sí aparece en <see cref="ConstruirMensajeBreve"/>, que es una
+    ///   franja de estado y ahí sí se espera un dato duro.
     /// · Plural y sin condicional a propósito. De las tres vistas que lo muestran sólo el
     ///   selector "Quién captura" aparece con un envío en curso; en las otras dos un "si
     ///   continúas…" le hablaría al usuario de un envío que no está haciendo.
-    /// Se evaluó cerrar con "no necesitas enviarlas de nuevo" para desincentivar el reenvío
-    /// duplicado — que se paga en créditos y en trabajo de captura — y se descartó por
-    /// brevedad. Es el primer candidato a volver si soporte reporta envíos repetidos.
     /// </remarks>
     private static string ConstruirMensaje(DateTime ahoraCentral, DateTime proximaApertura)
-        => "Las capturas que envíes quedarán en espera y las procesaremos a partir " +
-           $"{DescribirAperturaDesde(ahoraCentral, proximaApertura)}.";
+        => "Estamos fuera de horario hábil pero las procesaremos a la brevedad " +
+           $"{DescribirAperturaPrimeraHora(ahoraCentral, proximaApertura)}, o antes si es posible.";
 
     /// <summary>
     /// Variante mínima para huecos estrechos (el flyout "Quién captura"): "reanuda lun 9:00".
@@ -150,7 +153,9 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
     }
 
     /// <summary>
-    /// Franja de estado: "Fuera de horario · Se procesará el lunes 9:00 a.m.".
+    /// Franja de estado: "Se procesará el lunes 9:00 a.m.". Sin prefijo de "fuera de
+    /// horario" — la franja sólo aparece cuando ya se está fuera, y el reloj que la
+    /// acompaña en la UI da el contexto.
     /// </summary>
     /// <remarks>
     /// Nota de redacción, por si alguien la revisa a futuro: "se procesará" en singular
@@ -161,7 +166,77 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
     /// sujeto en plural del tipo "Procesamos los envíos a partir de…".
     /// </remarks>
     private static string ConstruirMensajeBreve(DateTime ahoraCentral, DateTime proximaApertura)
-        => $"Fuera de horario · Se procesará {DescribirAperturaProceso(ahoraCentral, proximaApertura)}";
+        => $"Se procesará {DescribirAperturaProceso(ahoraCentral, proximaApertura)}";
+
+    /// <summary>
+    /// Aviso en una línea para la franja fija de la página de captura:
+    /// "¡Envía tus capturas! Procesamos todo desde las 9:00 a.m.".
+    /// </summary>
+    /// <remarks>
+    /// Arranca con la acción y NO con "Fuera de horario", que es como estuvo primero. La
+    /// franja vive pegada a la barra de botones, o sea que se lee con el pulgar sobre
+    /// Enviar, y en ese instante lo que importa es qué hacer, no en qué estado está el
+    /// servicio.
+    /// <para>
+    /// Se pierde el dato explícito de estar fuera de horario; lo carga implícito el
+    /// "desde las 9:00 a.m.", y la franja sólo existe cuando se está fuera. Si en soporte
+    /// aparecen dudas de "¿por qué me sale esto?", es lo primero a reconsiderar.
+    /// </para>
+    /// <para>
+    /// "Todo" en vez de un pronombre esquiva el problema que sí tiene
+    /// <see cref="ConstruirMensaje"/>, cuyo "las procesaremos" necesita un título encima
+    /// del que tomar antecedente. Aquí no hay título del que colgarse.
+    /// </para>
+    /// </remarks>
+    private static string ConstruirMensajeFranja(DateTime ahoraCentral, DateTime proximaApertura)
+        => $"¡Envía tus capturas! Procesamos todo {DescribirAperturaFranja(ahoraCentral, proximaApertura)}";
+
+    /// <summary>
+    /// La franja cuando el lote va marcado como <b>Urgente</b>: "Tu envío urgente será el
+    /// primero en atenderse al reanudar, el lunes 9:00 a.m.".
+    /// </summary>
+    /// <remarks>
+    /// Es la única variante que NO empieza por la acción, y con motivo: a quien ya marcó
+    /// Urgente no hay que animarlo a enviar — lo que necesita saber es qué le compró esa
+    /// marca estando fuera de horario. La respuesta es el lugar en la cola, no que se
+    /// procese antes de las 9.
+    /// <para>
+    /// "Será el primero" es un compromiso de ORDEN, no de hora, y así tiene que quedarse.
+    /// Redactado como que se atiende "de inmediato" o "antes" prometería algo que el
+    /// horario no puede cumplir: fuera de horario no hay nadie capturando.
+    /// </para>
+    /// <para>
+    /// Usa <see cref="DescribirAperturaProceso"/> y no <see cref="DescribirAperturaFranja"/>
+    /// porque aquí la fecha va detrás de una coma y no de un verbo: "al reanudar, el lunes
+    /// 9:00 a.m.". Con la otra saldría "al reanudar, desde el lunes…", que dice dos veces
+    /// lo mismo.
+    /// </para>
+    /// </remarks>
+    private static string ConstruirMensajeFranjaUrgente(DateTime ahoraCentral, DateTime proximaApertura)
+        => "Tu envío urgente será el primero en atenderse al reanudar, " +
+           $"{DescribirAperturaProceso(ahoraCentral, proximaApertura)}";
+
+    /// <summary>
+    /// Complemento de "…procesamos": "desde las 9:00 a.m." / "desde mañana …" /
+    /// "desde el lunes …".
+    /// </summary>
+    /// <remarks>
+    /// Es la única de las tres formas de describir la apertura que lleva preposición,
+    /// porque es la única que va detrás de un verbo. Cuando la reanudación es HOY se
+    /// omite el día — "procesamos desde hoy 9:00 a.m." suena a que empieza una etapa, y
+    /// lo que se quiere decir es una hora.
+    /// </remarks>
+    private static string DescribirAperturaFranja(DateTime ahoraCentral, DateTime proximaApertura)
+    {
+        var hoy  = DateOnly.FromDateTime(ahoraCentral);
+        var dia  = DateOnly.FromDateTime(proximaApertura);
+        var hora = FormatearHora(proximaApertura);
+
+        if (dia == hoy)            return $"desde las {hora}";
+        if (dia == hoy.AddDays(1)) return $"desde mañana {hora}";
+
+        return $"desde el {NombreDia(dia.DayOfWeek)} {hora}";
+    }
 
     /// <summary>
     /// Complemento de "Se procesará …": "hoy 9:00 a.m." / "mañana …" / "el lunes …".
@@ -182,23 +257,34 @@ public sealed class ServicioHorarioCaptura : IServicioHorarioCaptura
     }
 
     /// <summary>
-    /// Complemento de "a partir …": "de hoy 9:00 a.m." / "de mañana …" / "del lunes …".
+    /// Complemento de "…a la brevedad": "hoy a primera hora" / "mañana a primera hora" /
+    /// "el próximo lunes a primera hora".
     /// </summary>
-    private static string DescribirAperturaDesde(DateTime ahoraCentral, DateTime proximaApertura)
+    /// <remarks>
+    /// La regla de negocio se enunció como "menos de 24 horas → mañana; más de 24 horas →
+    /// el día de la semana", pero se implementa por <b>día de calendario</b>, que es lo
+    /// que el usuario lee en el reloj. Las dos formas coinciden en todos los casos salvo
+    /// uno, y ahí la de 24 horas se equivoca: a las 7:00 de un martes la reanudación es
+    /// ese mismo martes a las 9:00 — faltan 2 horas, o sea "menos de 24", pero decir
+    /// "mañana" sería falso. Por eso existe la rama "hoy", que la regla original no
+    /// contempla porque sólo pensaba en el caso de después de las 18:00.
+    /// </remarks>
+    private static string DescribirAperturaPrimeraHora(DateTime ahoraCentral, DateTime proximaApertura)
     {
-        var hoy  = DateOnly.FromDateTime(ahoraCentral);
-        var dia  = DateOnly.FromDateTime(proximaApertura);
-        var hora = FormatearHora(proximaApertura);
+        var hoy = DateOnly.FromDateTime(ahoraCentral);
+        var dia = DateOnly.FromDateTime(proximaApertura);
 
-        if (dia == hoy)             return $"de hoy {hora}";
-        if (dia == hoy.AddDays(1))  return $"de mañana {hora}";
+        if (dia == hoy)            return "hoy a primera hora";
+        if (dia == hoy.AddDays(1)) return "mañana a primera hora";
 
-        var cuando = $"del {NombreDia(dia.DayOfWeek)}";
+        var cuando = $"el próximo {NombreDia(dia.DayOfWeek)}";
         // Más allá de la semana en curso el nombre del día ya no basta para ubicarlo.
+        // Hoy es inalcanzable (el cierre mensual garantiza un día hábil dentro del mes);
+        // queda como red de seguridad si algún día cambian las reglas o los feriados.
         if (dia.DayNumber - hoy.DayNumber > 6)
             cuando += $" {dia.Day} de {NombreMes(dia.Month)}";
 
-        return $"{cuando} {hora}";
+        return $"{cuando} a primera hora";
     }
 
     // Nombres fijos en español: la app es sólo para México y así el texto no depende

@@ -5,156 +5,181 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:f="clr-namespace:Fonts"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-    HeightRequest="50">
+    HeightRequest="54">
+
+    <ContentView.Resources>
+        <!-- Cada tab usa filas fijas (RowDefinitions="*,Auto,3" inline en cada Grid) para que
+             el icono NO defina la altura: las métricas de FluentUI vs MaterialSymbols difieren
+             en iOS y desplazaban el subrayado fuera del área visible del Border contenedor.
+             Las RowDefinitions no van en el Style porque la colección se compartiría entre los
+             5 tabs y arrastraría el alto calculado de uno a otro. -->
+        <Style x:Key="TabContenedor" TargetType="Grid">
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="RowSpacing" Value="1" />
+            <Setter Property="Padding" Value="0,4,0,4" />
+            <Setter Property="HorizontalOptions" Value="Fill" />
+            <Setter Property="VerticalOptions" Value="Fill" />
+        </Style>
+
+        <Style x:Key="TabIcono" TargetType="Label">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="HeightRequest" Value="26" />
+            <Setter Property="LineBreakMode" Value="NoWrap" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="Center" />
+            <Setter Property="VerticalTextAlignment" Value="Center" />
+            <Setter Property="HorizontalTextAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="TabTexto" TargetType="Label">
+            <Setter Property="FontSize" Value="8" />
+            <Setter Property="MaxLines" Value="1" />
+            <Setter Property="LineBreakMode" Value="TailTruncation" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="HorizontalTextAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="TabSubrayado" TargetType="BoxView">
+            <Setter Property="HeightRequest" Value="3" />
+            <Setter Property="WidthRequest" Value="40" />
+            <Setter Property="HorizontalOptions" Value="Center" />
+            <Setter Property="VerticalOptions" Value="End" />
+        </Style>
+    </ContentView.Resources>
 
     <Grid x:Name="TabsGrid"
           ColumnDefinitions="*,*,*,*,*"
           BackgroundColor="{toolkit:AppThemeResource Background}">
 
         <!-- Tab 0: Inicio -->
-        <VerticalStackLayout Grid.Column="0"
-                             x:Name="TabInicio"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="1">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid Grid.Column="0"
+              x:Name="TabInicio"
+              RowDefinitions="*,Auto,3"
+              Style="{StaticResource TabContenedor}">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabInicio_Tapped" />
-            </VerticalStackLayout.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <Label x:Name="IconInicio"
+                   Grid.Row="0"
+                   Style="{StaticResource TabIcono}"
                    Text="{x:Static f:FluentUIFilled.home_20_filled}"
                    FontFamily="FluentUIFilled"
-                   FontSize="22"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblInicio"
+                   Grid.Row="1"
+                   Style="{StaticResource TabTexto}"
                    Text="Inicio"
-                   FontSize="8"
-                   HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineInicio"
-                     HeightRequest="4"
-                     WidthRequest="40"
+                     Grid.Row="2"
+                     Style="{StaticResource TabSubrayado}"
                      Color="{toolkit:AppThemeResource Primary}"
-                     HorizontalOptions="Center"
-                     Margin="0,2,0,0"
                      IsVisible="True" />
-        </VerticalStackLayout>
+        </Grid>
 
         <!-- Tab 1: Facturación -->
-        <VerticalStackLayout Grid.Column="1"
-                             x:Name="TabFacturacion"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="1">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid Grid.Column="1"
+              x:Name="TabFacturacion"
+              RowDefinitions="*,Auto,3"
+              Style="{StaticResource TabContenedor}">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabFacturacion_Tapped" />
-            </VerticalStackLayout.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <Label x:Name="IconFacturacion"
+                   Grid.Row="0"
+                   Style="{StaticResource TabIcono}"
                    Text="{x:Static f:MaterialSymbolsFilled.receipt}"
                    FontFamily="MaterialSymbolsFilled"
-                   FontSize="22"
-                   HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblFacturacion"
+                   Grid.Row="1"
+                   Style="{StaticResource TabTexto}"
                    Text="Facturación"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   FontSize="8"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineFacturacion"
-                     HeightRequest="3"
-                     WidthRequest="40"
+                     Grid.Row="2"
+                     Style="{StaticResource TabSubrayado}"
                      Color="{toolkit:AppThemeResource Primary}"
-                     HorizontalOptions="Center"
-                     Margin="0,2,0,0"
                      IsVisible="False" />
-        </VerticalStackLayout>
+        </Grid>
 
         <!-- Tab 2: Devoluciones -->
-        <VerticalStackLayout Grid.Column="2"
-                             x:Name="TabDevoluciones"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="1">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid Grid.Column="2"
+              x:Name="TabDevoluciones"
+              RowDefinitions="*,Auto,3"
+              Style="{StaticResource TabContenedor}">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabDevoluciones_Tapped" />
-            </VerticalStackLayout.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <Label x:Name="IconDevoluciones"
+                   Grid.Row="0"
+                   Style="{StaticResource TabIcono}"
                    Text="{x:Static f:MaterialSymbolsFilled.payment_arrow_down}"
                    FontFamily="MaterialSymbolsFilled"
-                   FontSize="22"
-                   HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblDevoluciones"
+                   Grid.Row="1"
+                   Style="{StaticResource TabTexto}"
                    Text="Reembolsos"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   FontSize="8"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineDevoluciones"
-                     HeightRequest="3"
-                     WidthRequest="40"
+                     Grid.Row="2"
+                     Style="{StaticResource TabSubrayado}"
                      Color="{toolkit:AppThemeResource Primary}"
-                     HorizontalOptions="Center"
-                     Margin="0,2,0,0"
                      IsVisible="False" />
-        </VerticalStackLayout>
+        </Grid>
 
         <!-- Tab 3: Comprobaciones -->
-        <VerticalStackLayout Grid.Column="3"
-                             x:Name="TabComprobaciones"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="1">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid Grid.Column="3"
+              x:Name="TabComprobaciones"
+              RowDefinitions="*,Auto,3"
+              Style="{StaticResource TabContenedor}">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabComprobaciones_Tapped" />
-            </VerticalStackLayout.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <Label x:Name="IconComprobaciones"
+                   Grid.Row="0"
+                   Style="{StaticResource TabIcono}"
                    Text="{x:Static f:MaterialSymbolsFilled.price_check}"
                    FontFamily="MaterialSymbolsFilled"
-                   FontSize="22"
-                   HorizontalOptions="Center"
                    TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblComprobaciones"
+                   Grid.Row="1"
+                   Style="{StaticResource TabTexto}"
                    Text="Comprobaciones"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   FontSize="8"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineComprobaciones"
-                     HeightRequest="3"
-                     WidthRequest="40"
+                     Grid.Row="2"
+                     Style="{StaticResource TabSubrayado}"
                      Color="{toolkit:AppThemeResource Primary}"
-                     HorizontalOptions="Center"
-                     Margin="0,2,0,0"
                      IsVisible="False" />
-        </VerticalStackLayout>
+        </Grid>
 
         <!-- Tab 4: Equipo -->
-        <VerticalStackLayout Grid.Column="4"
-                             x:Name="TabEquipo"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             Spacing="1">
-            <VerticalStackLayout.GestureRecognizers>
+        <Grid Grid.Column="4"
+              x:Name="TabEquipo"
+              RowDefinitions="*,Auto,3"
+              Style="{StaticResource TabContenedor}">
+            <Grid.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnTabEquipo_Tapped" />
-            </VerticalStackLayout.GestureRecognizers>
+            </Grid.GestureRecognizers>
             <Label x:Name="IconEquipo"
+                   Grid.Row="0"
+                   Style="{StaticResource TabIcono}"
                    Text="{x:Static f:FluentUIFilled.people_20_filled}"
                    FontFamily="FluentUIFilled"
-                   FontSize="22"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <Label x:Name="LblEquipo"
+                   Grid.Row="1"
+                   Style="{StaticResource TabTexto}"
                    Text="Equipo"
-                   TextColor="{toolkit:AppThemeResource SecondaryIcon}"
-                   FontSize="10"
-                   HorizontalOptions="Center" />
+                   TextColor="{toolkit:AppThemeResource SecondaryIcon}" />
             <BoxView x:Name="UnderlineEquipo"
-                     HeightRequest="3"
-                     WidthRequest="40"
+                     Grid.Row="2"
+                     Style="{StaticResource TabSubrayado}"
                      Color="{toolkit:AppThemeResource Primary}"
-                     HorizontalOptions="Center"
-                     Margin="0,2,0,0"
                      IsVisible="False" />
-        </VerticalStackLayout>
+        </Grid>
 
     </Grid>
 
