@@ -310,8 +310,8 @@ public partial class AppState : ObservableObject
     private bool _esDev;
 
     /// <summary>
-    /// Indica si el modo desarrollador está activo para esta sesión.
-    /// Se evalúa en cada login desde SecureStorage. No persiste en Preferences.
+    /// Indica si el modo desarrollador está activo.
+    /// ServicioModoDeveloper valida su vigencia al arrancar, reanudar y completar el login.
     /// </summary>
     public bool EsDev
     {

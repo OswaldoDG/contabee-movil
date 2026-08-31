@@ -1,8 +1,7 @@
 using Contabee.Api.abstractions;
-using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Services;
-using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -11,18 +10,17 @@ namespace ContaBeeMovil.Pages.Login;
 public partial class PaginaLogin : ContentPage
 {
     private readonly LoginViewModel _viewModel;
-    private readonly IServicioAlmacenamiento _almacenamiento;
+    private readonly IServicioModoDeveloper _modoDeveloper;
     private readonly IServicioToast _servicioToast;
-    private const string ClaveMododDev = "ModoDeveloper";
     private int _tapCount = 0;
 
     public static bool LimpiarAlNavegar { get; set; }
 
-    public PaginaLogin(LoginViewModel viewModel, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast)
+    public PaginaLogin(LoginViewModel viewModel, IServicioModoDeveloper modoDeveloper, IServicioToast servicioToast)
     {
         InitializeComponent();
         this._viewModel = viewModel;
-        this._almacenamiento = almacenamiento;
+        this._modoDeveloper = modoDeveloper;
         this._servicioToast = servicioToast;
         BindingContext = this._viewModel;
     }
@@ -79,13 +77,7 @@ public partial class PaginaLogin : ContentPage
 
         if (_tapCount >= 10)
         {
-            var dto = new ModoDeveloperDto
-            {
-                EsDev = true,
-                FechaActivacion = DateTime.UtcNow.ToString("O")
-            };
-            await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
-            AppState.Instance.EsDev = true;
+            _modoDeveloper.Activar();
             LogsButton.IsVisible = true;
             await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom);
             _tapCount = 0;

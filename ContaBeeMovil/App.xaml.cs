@@ -5,6 +5,7 @@ using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.SinConexion;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.IAP;
 namespace ContaBeeMovil;
 
@@ -12,11 +13,13 @@ public partial class App : Application
 {
     public static IServiceProvider Services { get; private set; }
     private readonly DeviceService _deviceService;
+    private readonly IServicioModoDeveloper _modoDeveloper;
 
     protected override void OnStart()
     {
         base.OnStart();
         AppState.Instance.CargarDesdePreferencias();
+        _ = _modoDeveloper.ValidarVigenciaAsync();
         _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync();
         _ = Services.GetRequiredService<IServicioReconciliacionIAP>().ReconciliarAsync();
     }
@@ -25,6 +28,7 @@ public partial class App : Application
     {
         base.OnResume();
         AppState.Instance.CargarDesdePreferencias();
+        _ = _modoDeveloper.ValidarVigenciaAsync();
         _ = Services.GetRequiredService<IServicioSesion>().VerificarSesionAlReanudarAsync();
         _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync(esArranque: false);
         _ = Services.GetRequiredService<IServicioReconciliacionIAP>().ReconciliarAsync();
@@ -92,10 +96,11 @@ public partial class App : Application
                 Application.Current!.Windows[0].Page = Services.GetRequiredService<PaginaSinConexion>());
     }
 
-    public App(IServiceProvider services, DeviceService deviceService)
+    public App(IServiceProvider services, DeviceService deviceService, IServicioModoDeveloper modoDeveloper)
     {
         Services = services;
         _deviceService = deviceService;
+        _modoDeveloper = modoDeveloper;
         InitializeComponent();
         Connectivity.Current.ConnectivityChanged += OnConnectivityChanged;
 

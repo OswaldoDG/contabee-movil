@@ -1,9 +1,8 @@
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Helpers;
-using ContaBeeMovil.Models;
 using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Services;
-using ContaBeeMovil.Services.Almacenamiento;
+using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Notifications;
 
@@ -14,7 +13,7 @@ public partial class AcercaDePage : ContentPage
     private readonly IServicioSalud _servicioSalud;
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioSesion _servicioSesion;
-    private readonly IServicioAlmacenamiento _almacenamiento;
+    private readonly IServicioModoDeveloper _modoDeveloper;
     private readonly IServicioToast _servicioToast;
     private readonly IServicioActualizacion _servicioActualizacion;
     private CancellationTokenSource? _ctsLoader;
@@ -22,18 +21,17 @@ public partial class AcercaDePage : ContentPage
     private CancellationTokenSource? _ctsLoaderActualizacion;
     private bool _verificandoActualizacion;
     private int _tapCount = 0;
-    private const string ClaveMododDev = "ModoDeveloper";
 
     private static bool UsuarioLogueado
         => Application.Current?.Windows.FirstOrDefault()?.Page is Shell;
 
-    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript, IServicioSesion servicioSesion, IServicioAlmacenamiento almacenamiento, IServicioToast servicioToast, IServicioActualizacion servicioActualizacion)
+    public AcercaDePage(IServicioSalud servicioSalud, IServicioTranscript servicioTranscript, IServicioSesion servicioSesion, IServicioModoDeveloper modoDeveloper, IServicioToast servicioToast, IServicioActualizacion servicioActualizacion)
     {
         InitializeComponent();
         _servicioSalud = servicioSalud;
         _servicioTranscript = servicioTranscript;
         _servicioSesion = servicioSesion;
-        _almacenamiento = almacenamiento;
+        _modoDeveloper = modoDeveloper;
         _servicioToast = servicioToast;
         _servicioActualizacion = servicioActualizacion;
         LabelVersion.Text = $"Versión {AppInfo.VersionString}";
@@ -118,13 +116,7 @@ public partial class AcercaDePage : ContentPage
 
         if (_tapCount >= 10)
         {
-            var dto = new ModoDeveloperDto
-            {
-                EsDev = true,
-                FechaActivacion = DateTime.UtcNow.ToString("O")
-            };
-            await _almacenamiento.GuardarSeguroAsync(ClaveMododDev, dto);
-            AppState.Instance.EsDev = true;
+            _modoDeveloper.Activar();
             await _servicioToast.MostrarAsync("Modo Desarrollador activado", ToastIcono.Info, ToastPosicion.Bottom, duracionMs: 1000);
             _tapCount = 0;
         }

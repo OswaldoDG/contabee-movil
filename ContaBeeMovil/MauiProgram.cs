@@ -107,6 +107,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioReconciliacionIAP, ServicioReconciliacionIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
+            builder.Services.AddSingleton<IServicioModoDeveloper, ServicioModoDeveloper>();
             builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddSingleton<IServicioActualizacion, ServicioActualizacion>();
             builder.Services.AddSingleton<IServicioProcesadorDocumento, ServicioProcesadorDocumento>();
