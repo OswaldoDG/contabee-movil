@@ -125,25 +125,32 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!--
-            <VerticalStackLayout x:Name="DebugCompraDirecta"
+            <VerticalStackLayout x:Name="DebugReembolsoApple"
                                  Grid.Row="0"
                                  Padding="10,8,10,0"
                                  Spacing="6"
                                  IsVisible="False">
-                <Label Text="[DEV] Compra directa"
+                <Label Text="[DEV] Reembolso Apple Sandbox"
                        Style="{StaticResource Caption1}"
                        TextColor="{toolkit:AppThemeResource SecondaryText}"
                        HorizontalOptions="Center"/>
-                <Button Text="Comprar captura15 directo"
+                <Entry x:Name="AppleTransactionIdEntry"
+                       Placeholder="Transaction ID de Apple"
+                       Keyboard="Numeric"
+                       ClearButtonVisibility="WhileEditing" />
+                <Button x:Name="SolicitarReembolsoAppleButton"
+                        Text="Solicitar reembolso de la última compra"
                         BackgroundColor="{toolkit:AppThemeResource Primary}"
                         TextColor="{toolkit:AppThemeResource OnPrimary}"
                         CornerRadius="12"
                         Padding="16,12"
                         HorizontalOptions="Fill"
-                        Clicked="OnCompraDirectaClicked"/>
+                        Clicked="OnSolicitarReembolsoAppleClicked"/>
+                <Label Text="Realiza primero una compra Sandbox. También puedes pegar manualmente su Transaction ID."
+                       Style="{StaticResource Caption1}"
+                       TextColor="{toolkit:AppThemeResource SecondaryText}"
+                       HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
-            -->
 
             <!-- Descripción de la categoría activa -->
             <Label x:Name="DescripcionCategoria"

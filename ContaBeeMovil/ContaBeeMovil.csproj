@@ -124,6 +124,11 @@
 		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.9" />
 	</ItemGroup>
 
+	<ItemGroup Condition="$(TargetFramework.Contains('-ios')) AND '$(Configuration)'=='Debug'">
+		<!-- Herramienta Sandbox de modo developer; no se incluye en builds Release. -->
+		<PackageReference Include="SwiftBindings.Apple.StoreKit2" Version="26.2.9" />
+	</ItemGroup>
+
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Contabee.Api\Contabee.Api.csproj" />

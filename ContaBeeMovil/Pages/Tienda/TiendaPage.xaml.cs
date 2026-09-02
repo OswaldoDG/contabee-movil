@@ -23,6 +23,7 @@ public partial class TiendaPage : ContentPage
     private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
     private readonly IServicioReconciliacionIAP _reconciliador;
+    private readonly IServicioReembolsoApple _reembolsoApple;
 
     private static readonly PopupOptions _popupOpts = new()
     {
@@ -48,7 +49,8 @@ public partial class TiendaPage : ContentPage
     private CollectionView? _listaProductos;
     private FlexLayout? _tabsCategorias;
     private VerticalStackLayout? _estadoVacio;
-    private VerticalStackLayout? _debugCompraDirecta;
+    private VerticalStackLayout? _debugReembolsoApple;
+    private Entry? _appleTransactionIdEntry;
     private Label? _descripcionCategoria;
 
     private static readonly Dictionary<string, string> DescripcionesCategoria = new()
@@ -70,7 +72,7 @@ public partial class TiendaPage : ContentPage
         ("REGALOS",                "Regalos"),
     ];
 
-    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs, IServicioReconciliacionIAP reconciliador)
+    public TiendaPage(IServicioEcommerce servicioEcommerce, IServicioIAP servicioIAP, IServicioSesion servicioSesion, IServicioAlerta servicioAlerta, IServicioToast toast, IServicioLogs logs, IServicioReconciliacionIAP reconciliador, IServicioReembolsoApple reembolsoApple)
     {
         InitializeComponent();
         _servicioEcommerce = servicioEcommerce;
@@ -80,6 +82,7 @@ public partial class TiendaPage : ContentPage
         _toast             = toast;
         _logs              = logs;
         _reconciliador     = reconciliador;
+        _reembolsoApple    = reembolsoApple;
     }
 
     protected override async void OnAppearing()
@@ -90,15 +93,19 @@ public partial class TiendaPage : ContentPage
         _listaProductos     = this.FindByName<CollectionView>("ListaProductos");
         _tabsCategorias     = this.FindByName<FlexLayout>("TabsCategorias");
         _estadoVacio        = this.FindByName<VerticalStackLayout>("EstadoVacio");
-        _debugCompraDirecta = this.FindByName<VerticalStackLayout>("DebugCompraDirecta");
+        _debugReembolsoApple = this.FindByName<VerticalStackLayout>("DebugReembolsoApple");
+        _appleTransactionIdEntry = this.FindByName<Entry>("AppleTransactionIdEntry");
         _descripcionCategoria = this.FindByName<Label>("DescripcionCategoria");
 
-        if (_debugCompraDirecta is not null)
-#if DEBUG
-            _debugCompraDirecta.IsVisible = AppState.Instance.EsDev;
+        if (_debugReembolsoApple is not null)
+#if IOS && DEBUG
+            _debugReembolsoApple.IsVisible = AppState.Instance.EsDev;
 #else
-            _debugCompraDirecta.IsVisible = false;   // el panel de compra directa nunca aparece en Release
+            _debugReembolsoApple.IsVisible = false;
 #endif
+
+        if (_appleTransactionIdEntry is not null && string.IsNullOrWhiteSpace(_appleTransactionIdEntry.Text))
+            _appleTransactionIdEntry.Text = _reembolsoApple.ObtenerUltimaTransaccionId();
 
         if (_cargado) return;
         _cargado = true;
@@ -424,6 +431,7 @@ public partial class TiendaPage : ContentPage
             switch (resultado.Estado)
             {
                 case ResultadoCompra.Ok:
+                    RegistrarTransaccionApple(resultado.Compra!);
                     await ProcesarCompraAsync(resultado.Compra!, productoCatalogo, cuenta.CuentaFiscalId, modelo.PrecioValor, silencioso: false);
                     break;
                 case ResultadoCompra.Pendiente:
@@ -482,6 +490,7 @@ public partial class TiendaPage : ContentPage
             switch (resultado.Estado)
             {
                 case ResultadoCompra.Ok:
+                    RegistrarTransaccionApple(resultado.Compra!);
                     await ProcesarCompraDirectaAsync(resultado.Compra!, cuenta.CuentaFiscalId);
                     break;
                 case ResultadoCompra.Pendiente:
@@ -593,6 +602,84 @@ public partial class TiendaPage : ContentPage
             await _servicioAlerta.MostrarAsync("¡Compra exitosa!", "Los créditos captura15 ya están disponibles.", verBotonCancelar: false, confirmarText: "Aceptar");
         else
             await _servicioAlerta.MostrarAsync("Compra pendiente", "La compra se realizó pero no pudo verificarse de inmediato. Los créditos se acreditarán pronto.", verBotonCancelar: false, confirmarText: "Aceptar");
+    }
+
+    private void RegistrarTransaccionApple(InAppBillingPurchase compra)
+    {
+#if IOS && DEBUG
+        if (!_reembolsoApple.RegistrarTransaccion(compra.TransactionIdentifier))
+        {
+            _logs.Log($"IAP Apple: TransactionIdentifier inválido — {compra.TransactionIdentifier}");
+            return;
+        }
+
+        if (_appleTransactionIdEntry is not null)
+            _appleTransactionIdEntry.Text = compra.TransactionIdentifier;
+#endif
+    }
+
+    private async void OnSolicitarReembolsoAppleClicked(object sender, EventArgs e)
+    {
+#if IOS && DEBUG
+        if (!AppState.Instance.EsDev || sender is not Button boton)
+            return;
+
+        var transaccionId = _appleTransactionIdEntry?.Text?.Trim();
+        if (string.IsNullOrWhiteSpace(transaccionId))
+        {
+            await _servicioAlerta.MostrarAsync(
+                "Sin transacción",
+                "Realiza una compra Sandbox o pega el Transaction ID de Apple.",
+                verBotonCancelar: false,
+                confirmarText: "Aceptar");
+            return;
+        }
+
+        var confirmar = await _servicioAlerta.MostrarAsync(
+            "Solicitar reembolso Sandbox",
+            $"Apple mostrará la solicitud para la transacción {transaccionId}. ¿Deseas continuar?",
+            cancelarText: "Cancelar",
+            confirmarText: "Continuar");
+
+        if (!confirmar)
+            return;
+
+        boton.IsEnabled = false;
+        try
+        {
+            var resultado = await _reembolsoApple.SolicitarAsync(transaccionId);
+            switch (resultado.Estado)
+            {
+                case EstadoSolicitudReembolsoApple.Enviada:
+                    await _servicioAlerta.MostrarAsync(
+                        "Solicitud enviada",
+                        "Apple recibió la solicitud. En Sandbox debe generar la notificación para el backend.",
+                        verBotonCancelar: false,
+                        confirmarText: "Aceptar");
+                    break;
+
+                case EstadoSolicitudReembolsoApple.Cancelada:
+                    await _toast.MostrarAsync(
+                        "Solicitud cancelada",
+                        ToastIcono.Warning,
+                        ToastPosicion.Bottom,
+                        1000);
+                    break;
+
+                default:
+                    await _servicioAlerta.MostrarAsync(
+                        "No se pudo solicitar",
+                        resultado.Detalle ?? "No fue posible abrir la solicitud de reembolso.",
+                        verBotonCancelar: false,
+                        confirmarText: "Aceptar");
+                    break;
+            }
+        }
+        finally
+        {
+            boton.IsEnabled = true;
+        }
+#endif
     }
 
     private async void OnVerDetalleLicenciaClicked(object sender, EventArgs e)
