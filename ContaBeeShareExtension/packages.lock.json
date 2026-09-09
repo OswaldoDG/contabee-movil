@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0-ios26.2": {
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.5, )",
+        "resolved": "10.0.5",
+        "contentHash": "A+5ZuQ0f449tM+MQrhf6R9ZX7lYpjk/ODEwLYKrnF6111rtARx8fVsm4YznUnQiKnnXfaXNBqgxmil6RW3L3SA=="
+      }
+    },
+    "net10.0-ios26.2/ios-arm64": {},
+    "net10.0-ios26.2/iossimulator-arm64": {},
+    "net10.0-ios26.2/iossimulator-x64": {}
+  }
+}

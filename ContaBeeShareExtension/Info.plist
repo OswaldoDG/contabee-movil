@@ -8,10 +8,6 @@
 	<string>ContaBee</string>
 	<key>CFBundleName</key>
 	<string>ContaBeeShareExtension</string>
-	<key>CFBundleVersion</key>
-	<string>32</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.0.32</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionPointIdentifier</key>

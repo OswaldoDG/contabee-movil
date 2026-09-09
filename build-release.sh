@@ -1,20 +1,32 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
 CODESIGN_KEY="Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)"
 CODESIGN_PROVISION="ContaBee_AppStore"
 PROJECT_DIR="$(dirname "$0")/ContaBeeMovil"
+EXTENSION_PROJECT_DIR="$(dirname "$0")/ContaBeeShareExtension"
 IPA_PATH="$PROJECT_DIR/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa"
-OUTPUT_IPA="$PROJECT_DIR/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil_signed.ipa"
-PROVISION_FILE="$HOME/Library/MobileDevice/Provisioning Profiles/ContaBee_AppStore.mobileprovision"
-WORK_DIR="/tmp/ContaBeeReSign"
+WORK_DIR="$(mktemp -d /tmp/contabee-release.XXXXXX)"
+
+cleanup() {
+  rm -rf "$WORK_DIR"
+}
+trap cleanup EXIT
+
+echo "==> Verificando certificado en keychain..."
+if ! security find-identity -v -p codesigning | grep -Fq "$CODESIGN_KEY"; then
+    echo "ERROR: Certificado con clave privada no encontrado o no válido: $CODESIGN_KEY"
+    echo "Ejecuta: security find-identity -v -p codesigning"
+    exit 1
+fi
 
 echo "==> Limpiando artefactos anteriores..."
-rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj"
+rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj" \
+       "$EXTENSION_PROJECT_DIR/bin" "$EXTENSION_PROJECT_DIR/obj"
 
 echo "==> Restaurando paquetes NuGet..."
-dotnet restore "$PROJECT_DIR"
+dotnet restore "$PROJECT_DIR" --locked-mode
 
 echo "==> Generando IPA de Release..."
 dotnet publish "$PROJECT_DIR" \
@@ -25,58 +37,30 @@ dotnet publish "$PROJECT_DIR" \
   -p:CodesignKey="$CODESIGN_KEY" \
   -p:CodesignProvision="$CODESIGN_PROVISION"
 
-echo ""
-echo "==> Verificando certificado en keychain..."
-if ! security find-identity -v -p codesigning | grep -q "$(echo "$CODESIGN_KEY" | sed 's/.*(\(.*\))/\1/')"; then
-    echo "ERROR: Certificado no encontrado en keychain: $CODESIGN_KEY"
-    echo "Ejecuta: security find-identity -v -p codesigning"
-    exit 1
-fi
-
-echo "==> Limpiando directorio temporal..."
-rm -rf "$WORK_DIR"
-
-echo "==> Extrayendo IPA..."
+echo "==> Verificando contenido y firmas del IPA..."
 unzip -q "$IPA_PATH" -d "$WORK_DIR"
 
 APP="$WORK_DIR/Payload/ContaBeeMovil.app"
+EXTENSION="$APP/PlugIns/ContaBeeShareExtension.appex"
 
-echo "==> Extrayendo entitlements del perfil de aprovisionamiento..."
-security cms -D -i "$PROVISION_FILE" > /tmp/provision.plist
-/usr/libexec/PlistBuddy -x -c "Print :Entitlements" /tmp/provision.plist > /tmp/entitlements.plist
+if [ ! -d "$EXTENSION" ]; then
+    echo "ERROR: El IPA no contiene ContaBeeShareExtension.appex"
+    exit 1
+fi
 
-echo "==> Embediendo perfil de aprovisionamiento..."
-cp "$PROVISION_FILE" "$APP/embedded.mobileprovision"
+codesign --verify --deep --strict --verbose=2 "$APP"
+codesign --verify --deep --strict --verbose=2 "$EXTENSION"
 
-echo "==> Firmando dylibs sueltos..."
-find "$APP" -name "*.dylib" | while read -r item; do
-    echo "    dylib: $(basename "$item")"
-    codesign --force --sign "$CODESIGN_KEY" --timestamp "$item"
-done
+APP_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist")
+APP_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist")
+EXTENSION_VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$EXTENSION/Info.plist")
+EXTENSION_BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$EXTENSION/Info.plist")
 
-echo "==> Firmando frameworks (binario interno primero, luego bundle)..."
-find "$APP/Frameworks" -name "*.framework" | while read -r fw; do
-    name=$(basename "$fw" .framework)
-    binary="$fw/$name"
-    if [ -f "$binary" ]; then
-        echo "    binario: $name"
-        codesign --force --sign "$CODESIGN_KEY" --timestamp "$binary"
-    fi
-    echo "    framework: $name.framework"
-    codesign --force --sign "$CODESIGN_KEY" --timestamp "$fw"
-done
-
-echo "==> Firmando la app principal..."
-codesign --force --sign "$CODESIGN_KEY" --timestamp --entitlements /tmp/entitlements.plist "$APP"
-
-echo "==> Verificando firma..."
-codesign --verify --deep --strict "$APP" && echo "    Firma válida." || { echo "ERROR: Firma inválida"; exit 1; }
-
-echo "==> Reempaquetando IPA..."
-cd "$WORK_DIR"
-zip -qr "$OLDPWD/$OUTPUT_IPA" Payload
-cd "$OLDPWD"
+if [ "$APP_VERSION" != "$EXTENSION_VERSION" ] || [ "$APP_BUILD" != "$EXTENSION_BUILD" ]; then
+    echo "ERROR: La versión de la app ($APP_VERSION/$APP_BUILD) no coincide con la extensión ($EXTENSION_VERSION/$EXTENSION_BUILD)."
+    exit 1
+fi
 
 echo ""
-echo "✓ Listo. Sube el IPA firmado a Transporter:"
-echo "  $OUTPUT_IPA"
+echo "✓ IPA firmado y validado: $APP_VERSION ($APP_BUILD)"
+echo "  $IPA_PATH"
