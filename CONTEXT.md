@@ -18,7 +18,9 @@
 
 **Verificación:**
 - El mismo comando de restore bloqueado que usará CI terminó correctamente para `ContaBeeMovil` y `Contabee.Api`.
-- Pendiente volver a ejecutar `Build Android` sobre la rama con esta corrección.
+- La segunda ejecución superó la separación de plataformas, pero falló porque `global.json` permitía `latestPatch`: GitHub eligió un SDK posterior cuyo `Microsoft.NET.ILLink.Tasks` implícito era `10.0.8`, mientras el SDK local `10.0.201` fijó `10.0.5` en el lockfile.
+- Cambiado `rollForward` a `disable`, como requiere el uso estricto de lockfiles, y fijado `workloadVersion` en `10.0.201`. El workflow ahora imprime ambas versiones para comprobarlo.
+- Pendiente volver a ejecutar `Build Android`; antes del restore debe mostrar SDK y workload `10.0.201`.
 
 ---
 

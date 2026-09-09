@@ -26,6 +26,12 @@ jobs:
           global-json-file: global.json
           workloads: maui-android
 
+      - name: Mostrar versiones instaladas
+        shell: bash
+        run: |
+          dotnet --version
+          dotnet workload --version
+
       - name: Reconstruir keystore
         shell: bash
         env:
