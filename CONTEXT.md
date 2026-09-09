@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-09-08 — Preparación para automatizar builds y publicación desde GitHub
+
+**Etapa 0: completada.**
+
+**Hecho:**
+- Seguridad: se quitó de la URL del remoto local el PAT de GitHub que estaba embebido en texto claro. El usuario confirmó que el token fue revocado; el remoto quedó como URL HTTPS sin credenciales.
+- Versionado iOS: `ContaBeeShareExtension/Info.plist` ya no fija `1.0.32 (32)`. La extensión hereda `ApplicationDisplayVersion`/`ApplicationVersion` de la app mediante `AdditionalProperties`. Verificado con build Release de simulador: app y extensión generan `2.5.10 (65)`.
+- Firma iOS: `build-release.sh` dejó de re-firmar manualmente el contenido del IPA (el `ContaBeeMovil_signed.ipa` existente fallaba `codesign --verify --deep --strict`). Ahora usa el IPA producido y firmado por `dotnet publish`, limpia también `bin/obj` de la Share Extension para no reutilizar su `Info.plist`, valida firma profunda de app/extensión y comprueba que ambas versiones coincidan.
+- Reproducibilidad: agregado `global.json` para el SDK `10.0.201` con `latestPatch`; `Plugin.Maui.OCR` quedó fijado en `1.1.1`; generados `packages.lock.json` para los tres proyectos.
+- Perfiles auditados: existen perfiles App Store de app y Share Extension, ambos con vencimiento 1-abr-2027.
+- Android: localizado el keystore vigente fuera del repositorio (`../contabee-release.keystore`), alias `contabee`; nunca apareció en el historial y `*.keystore`/`*.jks` ya están ignorados. Permisos restringidos de `644` a `600`. Agregado `build-android-release.sh`: lee contraseña de forma interactiva o por variables CI, usa archivos temporales para MSBuild, fuerza formato AAB y valida firma con `jarsigner`.
+- Corrección posterior: todas las rutas de `build-android-release.sh` se convierten en absolutas. MSBuild resolvía la ruta relativa del keystore desde el directorio del `.csproj` y producía `XA4310` aunque el archivo sí existía.
+- Google Play: el usuario confirmó que la huella SHA-256 del certificado usado para firmar el AAB coincide con el `Upload key certificate` configurado en Play Console.
+
+**Verificación:**
+- `dotnet build ContaBeeMovil/ContaBeeMovil.csproj -f net10.0-ios -r iossimulator-arm64 -c Release -p:ArchiveOnBuild=false -p:EnableCodeSigning=false --no-restore`: exitoso, 0 errores (warnings preexistentes).
+- `./build-release.sh` fuera del sandbox: exitoso. Generó `ContaBeeMovil.ipa`; firma profunda válida para app y Share Extension; ambas quedaron en `2.5.10 (65)`.
+- `./build-android-release.sh`: exitoso. Generó `mx.contabee.app-Signed.aab` (54 MB), validado por `jarsigner` (`jar verified`). Certificado autofirmado RSA 2048/SHA384, vigente hasta 17-ago-2053; SHA-256 de la clave de carga: `BE:07:DF:3F:11:04:E1:9A:3F:E0:43:64:1C:8C:5D:40:EB:00:A3:4D:E6:C2:6C:6F:98:D4:D7:36:16:22:8E:10`.
+- `dotnet restore ContaBeeMovil.slnx --locked-mode`: exitoso para los tres proyectos.
+- `bash -n build-release.sh`, `plutil -lint ContaBeeShareExtension/Info.plist` y `git diff --check`: exitosos.
+
+**Siguiente etapa:**
+- Etapa 1 iniciada: creado `.github/workflows/build-android.yml`. Se ejecuta manualmente, instala el SDK fijado por `global.json` y el workload `maui-android`, reconstruye el keystore desde secretos, llama a `build-android-release.sh` y conserva el AAB firmado como artifact durante 14 días.
+- El usuario confirmó que `ANDROID_KEYSTORE_BASE64` y `ANDROID_SIGNING_PASSWORD` ya están registrados como GitHub Actions Secrets.
+- Seguridad preventiva para la siguiente parte: agregados `*.p12` y `*.mobileprovision` a `.gitignore`; no hay archivos de firma rastreados por Git.
+- Pendiente: el usuario hará el commit, el merge a `main` y el push; después se debe probar la primera ejecución de Android desde Actions.
+- Después de validar Android en GitHub, crear el workflow equivalente de iOS.
+
+---
+
 ## 2026-08-17 — Aviso de horario con fotos: coach mark de la mascota (estilo tutorial)
 
 **Idea de Beto:** con fotos ya tomadas, el aviso de fuera de horario lo da la mascota entrando desde la esquina izquierda con un globo de diálogo, cerca del botón Enviar — como el tutorial de un videojuego.
