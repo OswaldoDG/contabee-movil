@@ -63,12 +63,16 @@ echo "==> Limpiando artefactos Android anteriores..."
 rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj"
 
 echo "==> Restaurando paquetes NuGet..."
-dotnet restore "$PROJECT_DIR" --locked-mode
+dotnet restore "$PROJECT_DIR" \
+  --locked-mode \
+  -p:ContaBeeAndroidOnly=true
 
 echo "==> Generando Android App Bundle de Release..."
 dotnet publish "$PROJECT_DIR" \
   -f net10.0-android \
   -c Release \
+  --no-restore \
+  -p:ContaBeeAndroidOnly=true \
   -p:RunAOTCompilation=false \
   -p:AndroidPackageFormats=aab \
   -p:AndroidKeyStore=true \

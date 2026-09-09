@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-09-09 — Primer build Android en GitHub Actions
+
+**Resultado inicial:**
+- El workflow reconstruyó correctamente el keystore y confirmó la misma huella SHA-256 registrada en Google Play.
+- Falló en `dotnet restore --locked-mode` con `NU1004`: el restore Android de Linux se estaba comparando contra el lockfile MAUI multiplataforma.
+
+**Corrección:**
+- Agregada la propiedad de build `ContaBeeAndroidOnly` para que el script limite únicamente el proyecto MAUI a `net10.0-android`, sin alterar el framework `net10.0` de `Contabee.Api`.
+- Agregado `ContaBeeMovil/packages.android.lock.json`, separado del lockfile multiplataforma que se conservará para iOS.
+- `build-android-release.sh` usa esa propiedad durante restore y publish; el publish lleva `--no-restore` para no ejecutar una segunda restauración con otra configuración.
+
+**Verificación:**
+- El mismo comando de restore bloqueado que usará CI terminó correctamente para `ContaBeeMovil` y `Contabee.Api`.
+- Pendiente volver a ejecutar `Build Android` sobre la rama con esta corrección.
+
+---
+
 ## 2026-09-08 — Preparación para automatizar builds y publicación desde GitHub
 
 **Etapa 0: completada.**
