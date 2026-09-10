@@ -1,0 +1,54 @@
+name: Release móvil
+run-name: Release móvil (${{ inputs.platforms }}) desde ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: Plataformas que se compilarán
+        required: true
+        default: android-ios
+        type: choice
+        options:
+          - android-ios
+          - android
+          - ios
+      upload_to_stores:
+        description: Subir a las tiendas sin enviar a revisión ni publicar
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-mobile-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  android:
+    name: Android
+    if: ${{ inputs.platforms == 'android-ios' || inputs.platforms == 'android' }}
+    uses: ./.github/workflows/build-android.yml
+    with:
+      upload_to_google_play: ${{ inputs.upload_to_stores }}
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+
+  ios:
+    name: iOS
+    if: ${{ inputs.platforms == 'android-ios' || inputs.platforms == 'ios' }}
+    uses: ./.github/workflows/build-ios.yml
+    with:
+      upload_to_app_store_connect: ${{ inputs.upload_to_stores }}
+    secrets:
+      IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+      IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+      IOS_EXTENSION_PROFILE_BASE64: ${{ secrets.IOS_EXTENSION_PROFILE_BASE64 }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
