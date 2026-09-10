@@ -11,6 +11,7 @@ PRIVATE_KEYS_DIRECTORY="$HOME/private_keys"
 PRIVATE_KEY_PATH=""
 PRIVATE_KEY_CREATED=false
 PRIVATE_KEYS_DIRECTORY_CREATED=false
+WORK_DIR="$(mktemp -d /tmp/contabee-app-store.XXXXXX)"
 
 cleanup() {
   if [ "$PRIVATE_KEY_CREATED" = true ]; then
@@ -19,6 +20,7 @@ cleanup() {
   if [ "$PRIVATE_KEYS_DIRECTORY_CREATED" = true ]; then
     rmdir "$PRIVATE_KEYS_DIRECTORY" 2>/dev/null || true
   fi
+  rm -rf "$WORK_DIR"
 }
 trap cleanup EXIT
 
@@ -70,21 +72,52 @@ if ! openssl pkey -in "$PRIVATE_KEY_PATH" -noout >/dev/null 2>&1; then
   exit 1
 fi
 
+run_altool() {
+  local operation="$1"
+  local success_pattern="$2"
+  local log_path="$WORK_DIR/$operation.log"
+  shift 2
+
+  set +e
+  xcrun altool "$@" 2>&1 | tee "$log_path"
+  local altool_status="${PIPESTATUS[0]}"
+  set -e
+
+  if [ "$altool_status" -ne 0 ] \
+    || grep -Eiq '(VERIFY|VALIDATION|UPLOAD)[[:space:]]+FAILED|Failed to (validate|upload) package|(^|[[:space:]])ERROR:' "$log_path"; then
+    echo "ERROR: altool reportó un fallo durante $operation."
+    return 1
+  fi
+
+  if ! grep -Eiq "$success_pattern" "$log_path"; then
+    echo "ERROR: altool no confirmó que $operation terminara correctamente."
+    return 1
+  fi
+}
+
 echo "==> Validando el IPA con App Store Connect..."
-xcrun altool \
+if ! run_altool \
+  validation \
+  'No errors validating|VALIDATION SUCCEEDED|VERIFY SUCCEEDED' \
   --validate-app \
   --file "$IPA_PATH" \
   --type ios \
   --apiKey "$KEY_ID" \
-  --apiIssuer "$ISSUER_ID"
+  --apiIssuer "$ISSUER_ID"; then
+  exit 1
+fi
 
 echo "==> Subiendo el IPA a App Store Connect..."
-xcrun altool \
+if ! run_altool \
+  upload \
+  'UPLOAD SUCCEEDED|successfully uploaded' \
   --upload-app \
   --file "$IPA_PATH" \
   --type ios \
   --apiKey "$KEY_ID" \
-  --apiIssuer "$ISSUER_ID"
+  --apiIssuer "$ISSUER_ID"; then
+  exit 1
+fi
 
 echo ""
 echo "✓ IPA enviado a App Store Connect."
