@@ -8,6 +8,20 @@ on:
         required: true
         default: false
         type: boolean
+  workflow_call:
+    inputs:
+      upload_to_google_play:
+        description: Subir el AAB a la pista interna como borrador
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      ANDROID_KEYSTORE_BASE64:
+        required: true
+      ANDROID_SIGNING_PASSWORD:
+        required: true
+      GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:
+        required: false
 
 permissions:
   contents: read

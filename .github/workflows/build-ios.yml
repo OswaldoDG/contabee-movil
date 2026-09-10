@@ -8,6 +8,28 @@ on:
         required: true
         default: false
         type: boolean
+  workflow_call:
+    inputs:
+      upload_to_app_store_connect:
+        description: Subir el IPA a App Store Connect sin enviarlo a revisión
+        required: false
+        default: false
+        type: boolean
+    secrets:
+      IOS_CERTIFICATE_BASE64:
+        required: true
+      IOS_CERTIFICATE_PASSWORD:
+        required: true
+      IOS_APP_PROFILE_BASE64:
+        required: true
+      IOS_EXTENSION_PROFILE_BASE64:
+        required: true
+      APP_STORE_CONNECT_KEY_ID:
+        required: false
+      APP_STORE_CONNECT_ISSUER_ID:
+        required: false
+      APP_STORE_CONNECT_PRIVATE_KEY_BASE64:
+        required: false
 
 permissions:
   contents: read

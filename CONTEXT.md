@@ -5,6 +5,27 @@
 
 ---
 
+## 2026-09-10 — Carga a Google Play y App Store Connect validada
+
+**Etapa de carga a tiendas: completada.**
+
+**Hecho:**
+- Android genera el AAB firmado y, al activar `upload_to_google_play`, carga el mismo archivo en la pista interna de Google Play como borrador.
+- iOS genera el IPA firmado y, al activar `upload_to_app_store_connect`, carga el mismo archivo en App Store Connect mediante una Team API Key temporal, sin enviarlo a revisión ni publicarlo.
+- La versión común avanzó a `2.5.11 (67)` porque Apple ya había aprobado `2.5.10` y cerró ese pre-release train para builds nuevos; Google ya había consumido el código de prueba `66`.
+- `upload-app-store-connect.sh` ya no confía sólo en el código de salida de `altool`: también analiza su salida y exige una confirmación explícita de validación y carga exitosas.
+
+**Incidencia y corrección:**
+- El primer intento de iOS fue rechazado por Apple con `Invalid Pre-Release Train` y por requerir un `CFBundleShortVersionString` superior a `2.5.10`.
+- Aunque Apple imprimió `VERIFY FAILED` y `UPLOAD FAILED`, `altool` terminó con código cero y el workflow apareció exitoso. Se corrigió el script para detenerse ante esos mensajes y evitar volver a reportar un falso éxito.
+
+**Verificación:**
+- El usuario confirmó que los workflows corregidos de Android e iOS terminan correctamente y que ambas tiendas reciben la versión nueva `2.5.11 (67)`.
+- Las cargas permanecen fuera de producción: Android queda como borrador interno y el build de Apple queda en App Store Connect/TestFlight, sin envío automático a revisión.
+
+**Siguiente etapa:**
+- Crear un workflow orquestador que permita iniciar Android, iOS o ambos desde una sola Action y después automatizar, con controles separados, el envío a revisión y la publicación.
+
 ## 2026-09-10 — Carga de Android a Google Play desde GitHub
 
 **Etapa de carga Android: completada.**
