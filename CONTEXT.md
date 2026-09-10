@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-09-10 — Build iOS automatizado en GitHub Actions
+
+**Etapa iOS: completada.**
+
+**Hecho:**
+- Creado `.github/workflows/build-ios.yml`, ejecutable manualmente con `workflow_dispatch` sobre la rama seleccionada.
+- El job usa `macos-26`, Xcode 26.2, el SDK/workload fijado por `global.json` y un límite de 60 minutos.
+- La firma se reconstruye temporalmente desde cuatro GitHub Actions Secrets: certificado Apple Distribution, contraseña y perfiles App Store de la app y de la Share Extension.
+- El workflow valida la identidad, nombres y App IDs de los perfiles antes de compilar; instala todo en un keychain temporal y elimina el material de firma al finalizar, incluso si el job falla.
+- Agregados lockfiles exclusivos de iOS para `ContaBeeMovil`, `ContaBeeShareExtension` y `Contabee.Api`, junto con `ContaBeeIosOnly`, para ejecutar restore bloqueado de `ios-arm64` sin interferir con Android.
+- `build-release.sh` ahora admite los valores de firma por variables de entorno, ejecuta restore bloqueado, genera el IPA firmado y valida la firma profunda y la coincidencia de versión entre la app y la extensión.
+- El IPA se conserva como artifact de GitHub durante 14 días.
+
+**Verificación:**
+- Restore bloqueado de iOS exitoso para los tres proyectos; restore Android comprobado nuevamente para evitar regresiones.
+- Build Release firmado local exitoso: app y Share Extension con firma válida y versión `2.5.10 (65)`.
+- Primera ejecución de `Build iOS` en GitHub Actions exitosa en aproximadamente 18 minutos; el IPA firmado quedó disponible como artifact.
+- Las advertencias restantes son de nulabilidad C# preexistentes en `RegistroViewModel.cs`, `AppDelegate.cs` y `ApiException.cs`; no impidieron ni invalidaron el IPA y quedan fuera del cambio de automatización.
+
+**Siguiente etapa:**
+- Automatizar el envío del AAB a Google Play y del IPA a App Store Connect, y después definir cómo se controlarán la creación de versión, revisión y publicación en cada tienda.
+
 ## 2026-09-09 — Primer build Android en GitHub Actions
 
 **Resultado inicial:**
