@@ -11,6 +11,8 @@
     <ApplicationId>mx.contabee.app.shareextension</ApplicationId>
     <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
     <RootNamespace>ContaBeeShareExtension</RootNamespace>
+    <RestorePackagesWithLockFile Condition="'$(ContaBeeIosOnly)' == 'true'">true</RestorePackagesWithLockFile>
+    <NuGetLockFilePath Condition="'$(ContaBeeIosOnly)' == 'true'">$(MSBuildProjectDirectory)/packages.ios.lock.json</NuGetLockFilePath>
   </PropertyGroup>
 
   <ItemGroup>

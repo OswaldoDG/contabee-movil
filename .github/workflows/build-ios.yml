@@ -1,0 +1,174 @@
+name: Build iOS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-ios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-ios:
+    name: Generar IPA firmado
+    runs-on: macos-26
+    timeout-minutes: 60
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Seleccionar Xcode 26.2
+        shell: bash
+        run: |
+          sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Instalar .NET y workload de iOS
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          workloads: maui-ios
+
+      - name: Mostrar versiones instaladas
+        shell: bash
+        run: |
+          dotnet --version
+          dotnet workload --version
+
+      - name: Instalar certificado y perfiles de firma
+        shell: bash
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+          IOS_EXTENSION_PROFILE_BASE64: ${{ secrets.IOS_EXTENSION_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+
+          for variable_name in \
+            IOS_CERTIFICATE_BASE64 \
+            IOS_CERTIFICATE_PASSWORD \
+            IOS_APP_PROFILE_BASE64 \
+            IOS_EXTENSION_PROFILE_BASE64; do
+            if [ -z "${!variable_name}" ]; then
+              echo "ERROR: Falta el secret $variable_name."
+              exit 1
+            fi
+          done
+
+          certificate_path="$RUNNER_TEMP/contabee-distribution.p12"
+          app_profile_source="$RUNNER_TEMP/contabee-app.mobileprovision"
+          extension_profile_source="$RUNNER_TEMP/contabee-extension.mobileprovision"
+          keychain_path="$RUNNER_TEMP/contabee-signing.keychain-db"
+          keychain_password="$(openssl rand -hex 32)"
+          profiles_directory="$HOME/Library/MobileDevice/Provisioning Profiles"
+
+          printf '%s' "$IOS_CERTIFICATE_BASE64" \
+            | base64 --decode -o "$certificate_path"
+          printf '%s' "$IOS_APP_PROFILE_BASE64" \
+            | base64 --decode -o "$app_profile_source"
+          printf '%s' "$IOS_EXTENSION_PROFILE_BASE64" \
+            | base64 --decode -o "$extension_profile_source"
+          chmod 600 "$certificate_path" "$app_profile_source" "$extension_profile_source"
+
+          security create-keychain -p "$keychain_password" "$keychain_path"
+          security set-keychain-settings -lut 21600 "$keychain_path"
+          security unlock-keychain -p "$keychain_password" "$keychain_path"
+          security import "$certificate_path" \
+            -P "$IOS_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 \
+            -k "$keychain_path"
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -s \
+            -k "$keychain_password" \
+            "$keychain_path"
+          security list-keychains -d user -s "$keychain_path"
+
+          signing_identity="Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)"
+          if ! security find-identity -v -p codesigning "$keychain_path" \
+            | grep -Fq "$signing_identity"; then
+            echo "ERROR: El P12 no contiene la identidad Apple Distribution esperada."
+            exit 1
+          fi
+
+          mkdir -p "$profiles_directory"
+
+          install_profile() {
+            local source_path="$1"
+            local expected_name="$2"
+            local expected_application_id="$3"
+            local output_variable="$4"
+            local installation_basename="$5"
+            local plist_path="$source_path.plist"
+
+            security cms -D -i "$source_path" > "$plist_path"
+
+            local profile_name
+            local profile_uuid
+            local application_id
+            local expiration_date
+            profile_name=$(plutil -extract Name raw -o - "$plist_path")
+            profile_uuid=$(plutil -extract UUID raw -o - "$plist_path")
+            application_id=$(plutil -extract Entitlements.application-identifier raw -o - "$plist_path")
+            expiration_date=$(plutil -extract ExpirationDate raw -o - "$plist_path")
+
+            if [ "$profile_name" != "$expected_name" ]; then
+              echo "ERROR: Perfil incorrecto. Esperado '$expected_name', recibido '$profile_name'."
+              exit 1
+            fi
+
+            if [ "$application_id" != "$expected_application_id" ]; then
+              echo "ERROR: App ID incorrecto en el perfil '$profile_name': $application_id"
+              exit 1
+            fi
+
+            local destination="$profiles_directory/$installation_basename.mobileprovision"
+            cp "$source_path" "$destination"
+            printf '%s=%s\n' "$output_variable" "$destination" >> "$GITHUB_ENV"
+            echo "Perfil instalado: $profile_name ($profile_uuid), vence $expiration_date"
+          }
+
+          install_profile \
+            "$app_profile_source" \
+            "ContaBee AppStore" \
+            "X598HW3AYR.mx.contabee.app" \
+            IOS_APP_PROFILE_PATH \
+            "ContaBee_AppStore"
+          install_profile \
+            "$extension_profile_source" \
+            "ContaBee ShareExtension AppStore" \
+            "X598HW3AYR.mx.contabee.app.shareextension" \
+            IOS_EXTENSION_PROFILE_PATH \
+            "ContaBee ShareExtension AppStore"
+
+      - name: Generar y validar IPA firmado
+        shell: bash
+        run: ./build-release.sh
+
+      - name: Guardar IPA
+        uses: actions/upload-artifact@v7
+        with:
+          name: contabee-ios-${{ github.run_number }}
+          path: ContaBeeMovil/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Limpiar material de firma
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          security delete-keychain "$RUNNER_TEMP/contabee-signing.keychain-db" 2>/dev/null || true
+          if [ -n "${IOS_APP_PROFILE_PATH:-}" ]; then
+            rm -f "$IOS_APP_PROFILE_PATH"
+          fi
+          if [ -n "${IOS_EXTENSION_PROFILE_PATH:-}" ]; then
+            rm -f "$IOS_EXTENSION_PROFILE_PATH"
+          fi
+          rm -f \
+            "$RUNNER_TEMP/contabee-distribution.p12" \
+            "$RUNNER_TEMP/contabee-app.mobileprovision" \
+            "$RUNNER_TEMP/contabee-extension.mobileprovision"

@@ -8,6 +8,10 @@
 		<TargetFrameworks Condition="'$(ContaBeeAndroidOnly)' == 'true'">net10.0-android</TargetFrameworks>
 		<RestorePackagesWithLockFile Condition="'$(ContaBeeAndroidOnly)' == 'true'">true</RestorePackagesWithLockFile>
 		<NuGetLockFilePath Condition="'$(ContaBeeAndroidOnly)' == 'true'">$(MSBuildProjectDirectory)/packages.android.lock.json</NuGetLockFilePath>
+		<!-- Permite que CI restaure exclusivamente iOS sin instalar el workload Android. -->
+		<TargetFrameworks Condition="'$(ContaBeeIosOnly)' == 'true'">net10.0-ios</TargetFrameworks>
+		<RestorePackagesWithLockFile Condition="'$(ContaBeeIosOnly)' == 'true'">true</RestorePackagesWithLockFile>
+		<NuGetLockFilePath Condition="'$(ContaBeeIosOnly)' == 'true'">$(MSBuildProjectDirectory)/packages.ios.lock.json</NuGetLockFilePath>
 
 		<!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.

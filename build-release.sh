@@ -2,10 +2,11 @@
 
 set -euo pipefail
 
-CODESIGN_KEY="Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)"
-CODESIGN_PROVISION="ContaBee_AppStore"
-PROJECT_DIR="$(dirname "$0")/ContaBeeMovil"
-EXTENSION_PROJECT_DIR="$(dirname "$0")/ContaBeeShareExtension"
+CODESIGN_KEY="${IOS_CODESIGN_KEY:-Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)}"
+CODESIGN_PROVISION="${IOS_CODESIGN_PROVISION:-ContaBee_AppStore}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$SCRIPT_DIR/ContaBeeMovil"
+EXTENSION_PROJECT_DIR="$SCRIPT_DIR/ContaBeeShareExtension"
 IPA_PATH="$PROJECT_DIR/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa"
 WORK_DIR="$(mktemp -d /tmp/contabee-release.XXXXXX)"
 
@@ -26,13 +27,18 @@ rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj" \
        "$EXTENSION_PROJECT_DIR/bin" "$EXTENSION_PROJECT_DIR/obj"
 
 echo "==> Restaurando paquetes NuGet..."
-dotnet restore "$PROJECT_DIR" --locked-mode
+dotnet restore "$PROJECT_DIR" \
+  -r ios-arm64 \
+  --locked-mode \
+  -p:ContaBeeIosOnly=true
 
 echo "==> Generando IPA de Release..."
 dotnet publish "$PROJECT_DIR" \
   -f net10.0-ios \
   -r ios-arm64 \
   -c Release \
+  --no-restore \
+  -p:ContaBeeIosOnly=true \
   -p:ArchiveOnBuild=true \
   -p:CodesignKey="$CODESIGN_KEY" \
   -p:CodesignProvision="$CODESIGN_PROVISION"

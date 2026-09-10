@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <NoWarn>$(NoWarn);NU1902</NoWarn>
+    <RestorePackagesWithLockFile Condition="'$(ContaBeeIosOnly)' == 'true'">true</RestorePackagesWithLockFile>
+    <NuGetLockFilePath Condition="'$(ContaBeeIosOnly)' == 'true'">$(MSBuildProjectDirectory)/packages.ios.lock.json</NuGetLockFilePath>
   </PropertyGroup>
 
   <ItemGroup>
