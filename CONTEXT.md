@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-09-10 — Carga de Android a Google Play desde GitHub
+
+**Etapa de carga Android: completada.**
+
+**Hecho:**
+- Creada una cuenta de servicio de Google, limitada a ContaBee y a pistas de prueba, y guardada en GitHub como `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON`.
+- `build-android.yml` incluye la opción manual `upload_to_google_play`, desactivada por defecto. Al activarla conserva el AAB como artifact y luego lo carga en la pista `internal` con estado `draft`.
+- Agregado `upload-google-play.sh`: autentica mediante OAuth de cuenta de servicio, crea una edición de Google Play, conserva versiones activas, se detiene si ya existe otro borrador, sube el AAB, valida la edición y sólo entonces la confirma.
+- Incrementado `ApplicationVersion` de `65` a `66`; `ApplicationDisplayVersion` permanece en `2.5.10`.
+
+**Verificación:**
+- El workflow completo terminó correctamente en GitHub Actions.
+- Play Console muestra el App Bundle `66 / 2.5.10`, cargado el 10-sep-2026 y en estado **Inactivo**, que corresponde al borrador esperado y confirma que no se está distribuyendo a usuarios.
+
+**Siguiente etapa:**
+- Automatizar la carga del IPA a App Store Connect sin enviarlo todavía a revisión ni publicarlo.
+
 ## 2026-09-10 — Build iOS automatizado en GitHub Actions
 
 **Etapa iOS: completada.**

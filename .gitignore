@@ -268,8 +268,9 @@ orleans.codegen.cs
 *.keystore
 *.jks
 
-# Apple signing certificate and provisioning profiles — never commit to source control
+# Apple certificates, API keys and provisioning profiles — never commit to source control
 *.p12
+*.p8
 *.mobileprovision
 
 # Since there are multiple workflows, uncomment next line to ignore bower_components
