@@ -2,6 +2,12 @@ name: Build Android
 
 on:
   workflow_dispatch:
+    inputs:
+      upload_to_google_play:
+        description: Subir el AAB a la pista interna como borrador
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -62,3 +68,12 @@ jobs:
           path: ContaBeeMovil/bin/Release/net10.0-android/publish/*-Signed.aab
           if-no-files-found: error
           retention-days: 14
+
+      - name: Subir AAB a Google Play como borrador
+        if: ${{ inputs.upload_to_google_play }}
+        shell: bash
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          GOOGLE_PLAY_PACKAGE_NAME: mx.contabee.app
+          GOOGLE_PLAY_TRACK: internal
+        run: ./upload-google-play.sh
