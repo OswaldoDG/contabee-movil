@@ -5,6 +5,24 @@
 
 ---
 
+## 2026-09-10 — Action unificada de release móvil
+
+**Etapa de orquestación: completada.**
+
+**Hecho:**
+- Creado `.github/workflows/release-mobile.yml` como único punto de entrada manual para generar Android, iOS o ambas plataformas.
+- `build-android.yml` y `build-ios.yml` admiten ahora `workflow_call`, pero conservan `workflow_dispatch` para poder ejecutarlos y diagnosticarlos individualmente.
+- El orquestador ejecuta Android en Ubuntu e iOS en macOS como jobs paralelos y pasa a cada uno únicamente sus secretos correspondientes.
+- La opción `upload_to_stores` permanece desactivada por defecto. Al activarla, Android sube como borrador interno y iOS sube a App Store Connect, todavía sin revisión ni publicación.
+
+**Verificación:**
+- Primera ejecución de `Release móvil` exitosa sobre `release2.5`, seleccionando `android-ios` y sin carga a tiendas.
+- Ambos builds terminaron sin errores y generaron correctamente sus artifacts firmados.
+- No se repitió la carga de `2.5.11 (67)`, ya existente en ambas tiendas; cada nuevo envío deberá usar una versión/build no utilizados.
+
+**Siguiente etapa:**
+- Diseñar y automatizar el envío a revisión y la publicación/promoción, manteniendo controles explícitos para evitar una salida accidental a producción.
+
 ## 2026-09-10 — Carga a Google Play y App Store Connect validada
 
 **Etapa de carga a tiendas: completada.**
