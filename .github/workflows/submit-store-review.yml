@@ -1,0 +1,152 @@
+name: Enviar a revisión
+run-name: ${{ inputs.operation == 'validate' && 'Validar envío' || 'Enviar a revisión' }} (${{ inputs.platforms }}) ${{ inputs.version_name }} (${{ inputs.version_code }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Validar no modifica las tiendas; enviar sí inicia la revisión
+        required: true
+        default: validate
+        type: choice
+        options:
+          - validate
+          - submit
+      platforms:
+        description: Plataformas que se validarán o enviarán
+        required: true
+        default: android-ios
+        type: choice
+        options:
+          - android-ios
+          - android
+          - ios
+      version_name:
+        description: Versión comercial exacta (ejemplo 2.5.11)
+        required: true
+        type: string
+      version_code:
+        description: Número de build/versionCode exacto (ejemplo 67)
+        required: true
+        type: string
+      release_notes:
+        description: Novedades de esta versión (máximo 500 caracteres para Google Play)
+        required: true
+        type: string
+      confirmation:
+        description: Para enviar escribe ENVIAR A REVISION; para validar puede quedar vacío
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: submit-store-review
+  cancel-in-progress: false
+
+jobs:
+  validate-inputs:
+    name: Validar datos
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      submit_review: ${{ steps.inputs.outputs.submit_review }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Validar versión y confirmación
+        id: inputs
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+          VERSION_NAME: ${{ inputs.version_name }}
+          VERSION_CODE: ${{ inputs.version_code }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+
+          project_version_name="$(sed -n 's:.*<ApplicationDisplayVersion>\([^<]*\)</ApplicationDisplayVersion>.*:\1:p' ContaBeeMovil/ContaBeeMovil.csproj | head -n 1)"
+          project_version_code="$(sed -n 's:.*<ApplicationVersion>\([^<]*\)</ApplicationVersion>.*:\1:p' ContaBeeMovil/ContaBeeMovil.csproj | head -n 1)"
+
+          if [ "$VERSION_NAME" != "$project_version_name" ]; then
+            echo "ERROR: La versión indicada ($VERSION_NAME) no coincide con el proyecto ($project_version_name)."
+            exit 1
+          fi
+
+          if [ "$VERSION_CODE" != "$project_version_code" ]; then
+            echo "ERROR: El build indicado ($VERSION_CODE) no coincide con el proyecto ($project_version_code)."
+            exit 1
+          fi
+
+          if [ -z "$RELEASE_NOTES" ]; then
+            echo "ERROR: Las notas de versión no pueden estar vacías."
+            exit 1
+          fi
+
+          if [ "$OPERATION" = "submit" ]; then
+            if [ "$CONFIRMATION" != "ENVIAR A REVISION" ]; then
+              echo "ERROR: Para enviar debes escribir exactamente ENVIAR A REVISION."
+              exit 1
+            fi
+            echo "submit_review=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "submit_review=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "Versión verificada: $project_version_name ($project_version_code)"
+
+  android:
+    name: Android / Google Play
+    needs: validate-inputs
+    if: ${{ inputs.platforms == 'android-ios' || inputs.platforms == 'android' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Validar o enviar Android
+        shell: bash
+        env:
+          GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON }}
+          STORE_VERSION_NAME: ${{ inputs.version_name }}
+          STORE_VERSION_CODE: ${{ inputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+          STORE_SUBMIT_REVIEW: ${{ needs.validate-inputs.outputs.submit_review }}
+          STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./submit-google-play-review.sh
+
+  ios:
+    name: iOS / App Store Connect
+    needs: validate-inputs
+    if: ${{ inputs.platforms == 'android-ios' || inputs.platforms == 'ios' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Instalar Node.js para autenticar con Apple
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Validar o enviar iOS
+        shell: bash
+        env:
+          APP_STORE_CONNECT_REVIEW_KEY_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_KEY_ID }}
+          APP_STORE_CONNECT_REVIEW_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_ISSUER_ID }}
+          APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64 }}
+          STORE_VERSION_NAME: ${{ inputs.version_name }}
+          STORE_VERSION_CODE: ${{ inputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+          STORE_SUBMIT_REVIEW: ${{ needs.validate-inputs.outputs.submit_review }}
+          STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./submit-app-store-review.sh
