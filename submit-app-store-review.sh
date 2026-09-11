@@ -8,6 +8,7 @@ BUILD_NUMBER="${STORE_VERSION_CODE:-}"
 RELEASE_NOTES="${STORE_RELEASE_NOTES:-}"
 SUBMIT_REVIEW="${STORE_SUBMIT_REVIEW:-false}"
 CONFIRMATION="${STORE_REVIEW_CONFIRMATION:-}"
+WAIT_FOR_PROCESSING="${STORE_WAIT_FOR_PROCESSING:-false}"
 KEY_ID="${APP_STORE_CONNECT_REVIEW_KEY_ID:-}"
 ISSUER_ID="${APP_STORE_CONNECT_REVIEW_ISSUER_ID:-}"
 PRIVATE_KEY_BASE64="${APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64:-}"
@@ -64,6 +65,11 @@ fi
 
 if [ "$SUBMIT_REVIEW" != "true" ] && [ "$SUBMIT_REVIEW" != "false" ]; then
   echo "ERROR: STORE_SUBMIT_REVIEW sólo admite true o false."
+  exit 1
+fi
+
+if [ "$WAIT_FOR_PROCESSING" != "true" ] && [ "$WAIT_FOR_PROCESSING" != "false" ]; then
+  echo "ERROR: STORE_WAIT_FOR_PROCESSING sólo admite true o false."
   exit 1
 fi
 
@@ -191,17 +197,41 @@ app_id="$(jq -r '.data[0].id' "$apps_response_path")"
 primary_locale="$(jq -r '.data[0].attributes.primaryLocale // empty' "$apps_response_path")"
 
 echo "==> Buscando el build $VERSION_NAME ($BUILD_NUMBER)..."
-app_store_request \
-  GET \
-  "/builds?filter%5Bapp%5D=$app_id&filter%5Bversion%5D=$BUILD_NUMBER&filter%5BpreReleaseVersion.version%5D=$VERSION_NAME&filter%5BpreReleaseVersion.platform%5D=IOS&filter%5BprocessingState%5D=VALID&filter%5BbuildAudienceType%5D=APP_STORE_ELIGIBLE&fields%5Bbuilds%5D=version,processingState,uploadedDate,expired&limit=2" \
-  "$builds_response_path"
+processing_attempt=1
+max_processing_attempts=60
+while true; do
+  app_store_request \
+    GET \
+    "/builds?filter%5Bapp%5D=$app_id&filter%5Bversion%5D=$BUILD_NUMBER&filter%5BpreReleaseVersion.version%5D=$VERSION_NAME&filter%5BpreReleaseVersion.platform%5D=IOS&filter%5BbuildAudienceType%5D=APP_STORE_ELIGIBLE&fields%5Bbuilds%5D=version,processingState,uploadedDate,expired&limit=2" \
+    "$builds_response_path"
 
-build_count="$(jq '.data | length' "$builds_response_path")"
-if [ "$build_count" -ne 1 ]; then
-  echo "ERROR: Se esperaba un build válido y elegible $VERSION_NAME ($BUILD_NUMBER), pero Apple devolvió $build_count."
-  echo "El procesamiento del IPA debe haber terminado antes de enviar la versión a revisión."
-  exit 1
-fi
+  build_count="$(jq '.data | length' "$builds_response_path")"
+  processing_state="$(jq -r '.data[0].attributes.processingState // "NOT_FOUND"' "$builds_response_path")"
+
+  if [ "$build_count" -eq 1 ] && [ "$processing_state" = "VALID" ]; then
+    break
+  fi
+
+  if [ "$build_count" -gt 1 ]; then
+    echo "ERROR: Apple devolvió más de un build para $VERSION_NAME ($BUILD_NUMBER)."
+    exit 1
+  fi
+
+  if [ "$processing_state" = "FAILED" ] || [ "$processing_state" = "INVALID" ]; then
+    echo "ERROR: Apple terminó de procesar el build con estado $processing_state."
+    exit 1
+  fi
+
+  if [ "$WAIT_FOR_PROCESSING" != "true" ] || [ "$processing_attempt" -ge "$max_processing_attempts" ]; then
+    echo "ERROR: El build todavía no está listo. Estado: $processing_state."
+    echo "Espera a que App Store Connect termine de procesarlo y vuelve a ejecutar la Action."
+    exit 1
+  fi
+
+  echo "    Apple aún procesa el build ($processing_state). Reintento $processing_attempt/$max_processing_attempts en 30 segundos..."
+  processing_attempt="$((processing_attempt + 1))"
+  sleep 30
+done
 
 build_id="$(jq -r '.data[0].id' "$builds_response_path")"
 
