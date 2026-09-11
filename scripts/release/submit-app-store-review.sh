@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Valida o envía a revisión una versión ya cargada en App Store Connect.
 set -euo pipefail
 
 BUNDLE_ID="${APP_STORE_BUNDLE_ID:-mx.contabee.app}"

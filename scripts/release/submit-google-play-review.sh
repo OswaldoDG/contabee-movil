@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Valida o envía a revisión una versión ya cargada en Google Play.
 set -euo pipefail
 
 PACKAGE_NAME="${GOOGLE_PLAY_PACKAGE_NAME:-mx.contabee.app}"

@@ -1,13 +1,6 @@
 name: Build Android
 
 on:
-  workflow_dispatch:
-    inputs:
-      upload_to_google_play:
-        description: Subir el AAB a la pista interna como borrador
-        required: true
-        default: false
-        type: boolean
   workflow_call:
     inputs:
       upload_to_google_play:
@@ -73,7 +66,7 @@ jobs:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/contabee-release.keystore
           ANDROID_SIGNING_KEY_ALIAS: contabee
           ANDROID_SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
-        run: ./build-android-release.sh
+        run: ./scripts/release/mobile-release.sh build android
 
       - name: Guardar AAB
         uses: actions/upload-artifact@v7
@@ -90,4 +83,4 @@ jobs:
           GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
           GOOGLE_PLAY_PACKAGE_NAME: mx.contabee.app
           GOOGLE_PLAY_TRACK: internal
-        run: ./upload-google-play.sh
+        run: ./scripts/release/mobile-release.sh upload android

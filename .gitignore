@@ -26,6 +26,9 @@ mono_crash.*
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+# Scripts fuente del pipeline; no son artefactos de compilación.
+!scripts/release/
+!scripts/release/*.sh
 x64/
 x86/
 [Ww][Ii][Nn]32/

@@ -1,13 +1,6 @@
 name: Build iOS
 
 on:
-  workflow_dispatch:
-    inputs:
-      upload_to_app_store_connect:
-        description: Subir el IPA a App Store Connect sin enviarlo a revisión
-        required: true
-        default: false
-        type: boolean
   workflow_call:
     inputs:
       upload_to_app_store_connect:
@@ -175,7 +168,7 @@ jobs:
 
       - name: Generar y validar IPA firmado
         shell: bash
-        run: ./build-release.sh
+        run: ./scripts/release/mobile-release.sh build ios
 
       - name: Guardar IPA
         uses: actions/upload-artifact@v7
@@ -192,7 +185,7 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
-        run: ./upload-app-store-connect.sh
+        run: ./scripts/release/mobile-release.sh upload ios
 
       - name: Limpiar material de firma
         if: ${{ always() }}

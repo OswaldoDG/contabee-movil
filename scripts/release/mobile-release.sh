@@ -8,7 +8,7 @@ PLATFORM="${2:-}"
 
 usage() {
   cat <<'EOF'
-Uso: ./mobile-release.sh <acción> <plataforma>
+Uso: ./scripts/release/mobile-release.sh <acción> <plataforma>
 
 Acciones:
   build             Genera y valida el paquete firmado.

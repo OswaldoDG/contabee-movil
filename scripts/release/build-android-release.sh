@@ -3,9 +3,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PARENT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROJECT_DIR="$SCRIPT_DIR/ContaBeeMovil"
-KEYSTORE_PATH="${ANDROID_KEYSTORE_PATH:-$PARENT_DIR/contabee-release.keystore}"
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPOSITORY_PARENT="$(cd "$REPOSITORY_ROOT/.." && pwd)"
+PROJECT_DIR="$REPOSITORY_ROOT/ContaBeeMovil"
+KEYSTORE_PATH="${ANDROID_KEYSTORE_PATH:-$REPOSITORY_PARENT/contabee-release.keystore}"
 KEY_ALIAS="${ANDROID_SIGNING_KEY_ALIAS:-contabee}"
 PUBLISH_DIR="$PROJECT_DIR/bin/Release/net10.0-android/publish"
 WORK_DIR="$(mktemp -d /tmp/contabee-android-release.XXXXXX)"

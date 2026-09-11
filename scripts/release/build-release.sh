@@ -5,8 +5,9 @@ set -euo pipefail
 CODESIGN_KEY="${IOS_CODESIGN_KEY:-Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)}"
 CODESIGN_PROVISION="${IOS_CODESIGN_PROVISION:-ContaBee_AppStore}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$SCRIPT_DIR/ContaBeeMovil"
-EXTENSION_PROJECT_DIR="$SCRIPT_DIR/ContaBeeShareExtension"
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_DIR="$REPOSITORY_ROOT/ContaBeeMovil"
+EXTENSION_PROJECT_DIR="$REPOSITORY_ROOT/ContaBeeShareExtension"
 IPA_PATH="$PROJECT_DIR/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa"
 WORK_DIR="$(mktemp -d /tmp/contabee-release.XXXXXX)"
 

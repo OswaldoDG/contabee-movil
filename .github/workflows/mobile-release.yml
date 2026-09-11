@@ -237,7 +237,7 @@ jobs:
         shell: bash
         env:
           GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
-        run: ./mobile-release.sh upload android
+        run: ./scripts/release/mobile-release.sh upload android
 
   upload-ios:
     name: Carga / App Store Connect
@@ -270,7 +270,7 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
-        run: ./mobile-release.sh upload ios
+        run: ./scripts/release/mobile-release.sh upload ios
 
   uploads-ready:
     name: Barrera / Cargas correctas
@@ -330,7 +330,7 @@ jobs:
           STORE_VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
           STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
           STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
-        run: ./mobile-release.sh validate-review android
+        run: ./scripts/release/mobile-release.sh validate-review android
 
   validate-review-ios:
     name: Validar revisión / iOS
@@ -364,7 +364,7 @@ jobs:
           STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
           STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
           STORE_WAIT_FOR_PROCESSING: ${{ inputs.operation == 'full-release' && 'true' || 'false' }}
-        run: ./mobile-release.sh validate-review ios
+        run: ./scripts/release/mobile-release.sh validate-review ios
 
   reviews-ready:
     name: Barrera / Revisiones válidas
@@ -424,7 +424,7 @@ jobs:
           STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
           STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
           STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
-        run: ./mobile-release.sh submit-review android
+        run: ./scripts/release/mobile-release.sh submit-review android
 
   submit-review-ios:
     name: Enviar a revisión / iOS
@@ -457,7 +457,7 @@ jobs:
           STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
           STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
           STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
-        run: ./mobile-release.sh submit-review ios
+        run: ./scripts/release/mobile-release.sh submit-review ios
 
   submissions-ready:
     name: Barrera / Envíos completados

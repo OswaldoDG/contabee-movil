@@ -3,7 +3,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-IPA_PATH="${IOS_IPA_PATH:-$SCRIPT_DIR/ContaBeeMovil/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa}"
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+IPA_PATH="${IOS_IPA_PATH:-$REPOSITORY_ROOT/ContaBeeMovil/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa}"
 KEY_ID="${APP_STORE_CONNECT_KEY_ID:-}"
 ISSUER_ID="${APP_STORE_CONNECT_ISSUER_ID:-}"
 PRIVATE_KEY_BASE64="${APP_STORE_CONNECT_PRIVATE_KEY_BASE64:-}"
