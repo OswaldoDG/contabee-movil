@@ -5,6 +5,29 @@
 
 ---
 
+## 2026-09-11 — Pipeline móvil unificado y limpieza final
+
+**Etapa de unificación y reorganización: completada.**
+
+**Hecho:**
+- `.github/workflows/mobile-release.yml` quedó como único punto de entrada manual. Permite seleccionar `android`, `ios` o `android-ios` y ejecutar `build`, `build-upload`, `validate-existing`, `submit-existing` o `full-release`.
+- El pipeline aplica barreras entre etapas: cuando se seleccionan ambas plataformas, los dos builds deben terminar correctamente antes de cualquier carga; las dos cargas antes de validar; y las dos validaciones antes de enviar a revisión.
+- El proceso permanece exclusivamente manual. Las operaciones que envían a revisión exigen escribir exactamente `PUBLICAR` como autorización explícita del proceso que conduce a la publicación.
+- `build-android.yml` y `build-ios.yml` se conservan únicamente como workflows internos mediante `workflow_call`; ya no tienen ejecución manual.
+- Se eliminaron los orquestadores reemplazados `.github/workflows/release-mobile.yml` y `.github/workflows/submit-store-review.yml`.
+- Todos los scripts del pipeline se organizaron bajo `scripts/release/`. Los workflows invocan solamente `scripts/release/mobile-release.sh`, que distribuye cada operación al script especializado de la plataforma.
+- El envío completo espera hasta aproximadamente 30 minutos a que Apple termine de procesar el IPA antes de validar el candidato para revisión.
+- La publicación final sigue controlada: Google usa Managed Publishing y Apple crea la versión con liberación manual después de la aprobación.
+
+**Verificación:**
+- Sintaxis Bash, YAML, permisos ejecutables, referencias internas y `git diff --check` verificados localmente.
+- Sólo `mobile-release.yml` conserva `workflow_dispatch`.
+- Primera ejecución de la Action reorganizada exitosa con `build / android-ios`: ambos paquetes firmados se generaron correctamente y la barrera conjunta terminó en verde.
+
+**Pendiente:**
+- Probar `full-release` con la siguiente versión real de la app. No reutilizar `2.5.11 (67)`, porque ese build ya fue cargado en ambas tiendas.
+- Confirmar en esa liberación real el recorrido completo de la nueva Action: builds, cargas, espera de procesamiento de Apple, validaciones conjuntas y envío a revisión. La imposibilidad de revertir una aceptación individual de una tienda sigue siendo una limitación externa; las barreras evitan avanzar a la etapa posterior cuando alguna plataforma falla.
+
 ## 2026-09-10 — Action unificada de release móvil
 
 **Etapa de orquestación: completada.**

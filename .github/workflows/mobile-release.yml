@@ -37,7 +37,7 @@ on:
         required: false
         type: string
       confirmation:
-        description: Para enviar a revisión escribe ENVIAR A REVISION
+        description: Para autorizar el proceso de publicación escribe PUBLICAR
         required: false
         type: string
 
@@ -117,8 +117,8 @@ jobs:
 
           case "$OPERATION" in
             submit-existing|full-release)
-              if [ "$CONFIRMATION" != "ENVIAR A REVISION" ]; then
-                echo "ERROR: Para enviar debes escribir exactamente ENVIAR A REVISION."
+              if [ "$CONFIRMATION" != "PUBLICAR" ]; then
+                echo "ERROR: Para autorizar el envío debes escribir exactamente PUBLICAR."
                 exit 1
               fi
               ;;

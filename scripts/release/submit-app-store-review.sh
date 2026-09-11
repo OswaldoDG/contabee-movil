@@ -74,8 +74,8 @@ if [ "$WAIT_FOR_PROCESSING" != "true" ] && [ "$WAIT_FOR_PROCESSING" != "false" ]
   exit 1
 fi
 
-if [ "$SUBMIT_REVIEW" = "true" ] && [ "$CONFIRMATION" != "ENVIAR A REVISION" ]; then
-  echo "ERROR: La confirmación no coincide con ENVIAR A REVISION."
+if [ "$SUBMIT_REVIEW" = "true" ] && [ "$CONFIRMATION" != "PUBLICAR" ]; then
+  echo "ERROR: La confirmación no coincide con PUBLICAR."
   exit 1
 fi
 
