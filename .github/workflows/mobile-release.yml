@@ -1,0 +1,496 @@
+name: Mobile Release
+run-name: Mobile Release / ${{ inputs.operation }} / ${{ inputs.platforms }} / ${{ inputs.version_name || 'versión del proyecto' }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Etapa que ejecutará la Action
+        required: true
+        default: build
+        type: choice
+        options:
+          - build
+          - build-upload
+          - validate-existing
+          - submit-existing
+          - full-release
+      platforms:
+        description: Plataformas que se procesarán
+        required: true
+        default: android-ios
+        type: choice
+        options:
+          - android-ios
+          - android
+          - ios
+      version_name:
+        description: Versión comercial; vacío usa ApplicationDisplayVersion
+        required: false
+        type: string
+      version_code:
+        description: Build/versionCode; vacío usa ApplicationVersion
+        required: false
+        type: string
+      release_notes:
+        description: Obligatorio al validar o enviar a revisión; máximo 500 caracteres
+        required: false
+        type: string
+      confirmation:
+        description: Para enviar a revisión escribe ENVIAR A REVISION
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: Preparar release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      version_name: ${{ steps.release.outputs.version_name }}
+      version_code: ${{ steps.release.outputs.version_code }}
+      android: ${{ steps.release.outputs.android }}
+      ios: ${{ steps.release.outputs.ios }}
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Validar opciones y versión
+        id: release
+        shell: bash
+        env:
+          OPERATION: ${{ inputs.operation }}
+          PLATFORMS: ${{ inputs.platforms }}
+          INPUT_VERSION_NAME: ${{ inputs.version_name }}
+          INPUT_VERSION_CODE: ${{ inputs.version_code }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          set -euo pipefail
+
+          project_version_name="$(sed -n 's:.*<ApplicationDisplayVersion>\([^<]*\)</ApplicationDisplayVersion>.*:\1:p' ContaBeeMovil/ContaBeeMovil.csproj | head -n 1)"
+          project_version_code="$(sed -n 's:.*<ApplicationVersion>\([^<]*\)</ApplicationVersion>.*:\1:p' ContaBeeMovil/ContaBeeMovil.csproj | head -n 1)"
+          version_name="${INPUT_VERSION_NAME:-$project_version_name}"
+          version_code="${INPUT_VERSION_CODE:-$project_version_code}"
+
+          if [[ ! "$version_name" =~ ^[0-9]+(\.[0-9]+){1,2}$ ]]; then
+            echo "ERROR: La versión comercial debe tener un formato como 2.5.11."
+            exit 1
+          fi
+
+          if [[ ! "$version_code" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: El build/versionCode debe ser un número entero."
+            exit 1
+          fi
+
+          case "$OPERATION" in
+            build|build-upload|full-release)
+              if [ "$version_name" != "$project_version_name" ] || [ "$version_code" != "$project_version_code" ]; then
+                echo "ERROR: Al compilar, la versión indicada debe coincidir con el proyecto: $project_version_name ($project_version_code)."
+                exit 1
+              fi
+              ;;
+            validate-existing|submit-existing)
+              ;;
+            *)
+              echo "ERROR: Operación desconocida: $OPERATION"
+              exit 1
+              ;;
+          esac
+
+          case "$OPERATION" in
+            validate-existing|submit-existing|full-release)
+              if [ -z "$RELEASE_NOTES" ] || [ "${#RELEASE_NOTES}" -gt 500 ]; then
+                echo "ERROR: Las notas de versión deben contener entre 1 y 500 caracteres."
+                exit 1
+              fi
+              ;;
+          esac
+
+          case "$OPERATION" in
+            submit-existing|full-release)
+              if [ "$CONFIRMATION" != "ENVIAR A REVISION" ]; then
+                echo "ERROR: Para enviar debes escribir exactamente ENVIAR A REVISION."
+                exit 1
+              fi
+              ;;
+          esac
+
+          android=false
+          ios=false
+          case "$PLATFORMS" in
+            android-ios)
+              android=true
+              ios=true
+              ;;
+            android)
+              android=true
+              ;;
+            ios)
+              ios=true
+              ;;
+            *)
+              echo "ERROR: Selección de plataformas desconocida: $PLATFORMS"
+              exit 1
+              ;;
+          esac
+
+          echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
+          echo "version_code=$version_code" >> "$GITHUB_OUTPUT"
+          echo "android=$android" >> "$GITHUB_OUTPUT"
+          echo "ios=$ios" >> "$GITHUB_OUTPUT"
+          echo "Release preparado: $version_name ($version_code), $PLATFORMS, operación $OPERATION"
+
+  build-android:
+    name: Build / Android
+    needs: prepare
+    if: >-
+      ${{ needs.prepare.outputs.android == 'true' &&
+          (inputs.operation == 'build' || inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    uses: ./.github/workflows/build-android.yml
+    with:
+      upload_to_google_play: false
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
+
+  build-ios:
+    name: Build / iOS
+    needs: prepare
+    if: >-
+      ${{ needs.prepare.outputs.ios == 'true' &&
+          (inputs.operation == 'build' || inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    uses: ./.github/workflows/build-ios.yml
+    with:
+      upload_to_app_store_connect: false
+    secrets:
+      IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+      IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+      IOS_APP_PROFILE_BASE64: ${{ secrets.IOS_APP_PROFILE_BASE64 }}
+      IOS_EXTENSION_PROFILE_BASE64: ${{ secrets.IOS_EXTENSION_PROFILE_BASE64 }}
+
+  builds-ready:
+    name: Barrera / Builds correctos
+    needs:
+      - prepare
+      - build-android
+      - build-ios
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' &&
+          (inputs.operation == 'build' || inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Exigir todos los builds seleccionados
+        shell: bash
+        env:
+          ANDROID_SELECTED: ${{ needs.prepare.outputs.android }}
+          ANDROID_RESULT: ${{ needs.build-android.result }}
+          IOS_SELECTED: ${{ needs.prepare.outputs.ios }}
+          IOS_RESULT: ${{ needs.build-ios.result }}
+        run: |
+          set -euo pipefail
+
+          if [ "$ANDROID_SELECTED" = "true" ] && [ "$ANDROID_RESULT" != "success" ]; then
+            echo "ERROR: El build Android terminó en estado $ANDROID_RESULT."
+            exit 1
+          fi
+
+          if [ "$IOS_SELECTED" = "true" ] && [ "$IOS_RESULT" != "success" ]; then
+            echo "ERROR: El build iOS terminó en estado $IOS_RESULT."
+            exit 1
+          fi
+
+          echo "✓ Todos los builds seleccionados terminaron correctamente."
+
+  upload-android:
+    name: Carga / Google Play
+    needs:
+      - prepare
+      - builds-ready
+    if: >-
+      ${{ needs.builds-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
+          (inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Recuperar AAB generado
+        uses: actions/download-artifact@v8
+        with:
+          name: contabee-android-${{ github.run_number }}
+          path: ContaBeeMovil/bin/Release/net10.0-android/publish
+
+      - name: Cargar Android sin enviar a revisión
+        shell: bash
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: ./mobile-release.sh upload android
+
+  upload-ios:
+    name: Carga / App Store Connect
+    needs:
+      - prepare
+      - builds-ready
+    if: >-
+      ${{ needs.builds-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
+          (inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    runs-on: macos-26
+    timeout-minutes: 30
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Seleccionar Xcode 26.2
+        shell: bash
+        run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
+
+      - name: Recuperar IPA generado
+        uses: actions/download-artifact@v8
+        with:
+          name: contabee-ios-${{ github.run_number }}
+          path: ContaBeeMovil/bin/Release/net10.0-ios/ios-arm64/publish
+
+      - name: Cargar iOS sin enviar a revisión
+        shell: bash
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_BASE64 }}
+        run: ./mobile-release.sh upload ios
+
+  uploads-ready:
+    name: Barrera / Cargas correctas
+    needs:
+      - prepare
+      - upload-android
+      - upload-ios
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' &&
+          (inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Exigir todas las cargas seleccionadas
+        shell: bash
+        env:
+          ANDROID_SELECTED: ${{ needs.prepare.outputs.android }}
+          ANDROID_RESULT: ${{ needs.upload-android.result }}
+          IOS_SELECTED: ${{ needs.prepare.outputs.ios }}
+          IOS_RESULT: ${{ needs.upload-ios.result }}
+        run: |
+          set -euo pipefail
+
+          if [ "$ANDROID_SELECTED" = "true" ] && [ "$ANDROID_RESULT" != "success" ]; then
+            echo "ERROR: La carga Android terminó en estado $ANDROID_RESULT."
+            exit 1
+          fi
+
+          if [ "$IOS_SELECTED" = "true" ] && [ "$IOS_RESULT" != "success" ]; then
+            echo "ERROR: La carga iOS terminó en estado $IOS_RESULT."
+            exit 1
+          fi
+
+          echo "✓ Todas las cargas seleccionadas terminaron correctamente."
+
+  validate-review-android:
+    name: Validar revisión / Android
+    needs:
+      - prepare
+      - uploads-ready
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' && needs.prepare.outputs.android == 'true' &&
+          (inputs.operation == 'validate-existing' || inputs.operation == 'submit-existing' ||
+           (inputs.operation == 'full-release' && needs.uploads-ready.result == 'success')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Validar candidato Android
+        shell: bash
+        env:
+          GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON }}
+          STORE_VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+        run: ./mobile-release.sh validate-review android
+
+  validate-review-ios:
+    name: Validar revisión / iOS
+    needs:
+      - prepare
+      - uploads-ready
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' && needs.prepare.outputs.ios == 'true' &&
+          (inputs.operation == 'validate-existing' || inputs.operation == 'submit-existing' ||
+           (inputs.operation == 'full-release' && needs.uploads-ready.result == 'success')) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Instalar Node.js para autenticar con Apple
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Validar candidato iOS
+        shell: bash
+        env:
+          APP_STORE_CONNECT_REVIEW_KEY_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_KEY_ID }}
+          APP_STORE_CONNECT_REVIEW_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_ISSUER_ID }}
+          APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64 }}
+          STORE_VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+          STORE_WAIT_FOR_PROCESSING: ${{ inputs.operation == 'full-release' && 'true' || 'false' }}
+        run: ./mobile-release.sh validate-review ios
+
+  reviews-ready:
+    name: Barrera / Revisiones válidas
+    needs:
+      - prepare
+      - validate-review-android
+      - validate-review-ios
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' &&
+          (inputs.operation == 'validate-existing' || inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Exigir todas las validaciones seleccionadas
+        shell: bash
+        env:
+          ANDROID_SELECTED: ${{ needs.prepare.outputs.android }}
+          ANDROID_RESULT: ${{ needs.validate-review-android.result }}
+          IOS_SELECTED: ${{ needs.prepare.outputs.ios }}
+          IOS_RESULT: ${{ needs.validate-review-ios.result }}
+        run: |
+          set -euo pipefail
+
+          if [ "$ANDROID_SELECTED" = "true" ] && [ "$ANDROID_RESULT" != "success" ]; then
+            echo "ERROR: La validación Android terminó en estado $ANDROID_RESULT."
+            exit 1
+          fi
+
+          if [ "$IOS_SELECTED" = "true" ] && [ "$IOS_RESULT" != "success" ]; then
+            echo "ERROR: La validación iOS terminó en estado $IOS_RESULT."
+            exit 1
+          fi
+
+          echo "✓ Ambas tiendas están listas. Ya se puede enviar a revisión."
+
+  submit-review-android:
+    name: Enviar a revisión / Android
+    needs:
+      - prepare
+      - reviews-ready
+    if: >-
+      ${{ needs.reviews-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
+          (inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Enviar Android
+        shell: bash
+        env:
+          GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_RELEASE_SERVICE_ACCOUNT_JSON }}
+          STORE_VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+          STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./mobile-release.sh submit-review android
+
+  submit-review-ios:
+    name: Enviar a revisión / iOS
+    needs:
+      - prepare
+      - reviews-ready
+    if: >-
+      ${{ needs.reviews-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
+          (inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v6
+
+      - name: Instalar Node.js para autenticar con Apple
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Enviar iOS
+        shell: bash
+        env:
+          APP_STORE_CONNECT_REVIEW_KEY_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_KEY_ID }}
+          APP_STORE_CONNECT_REVIEW_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_REVIEW_ISSUER_ID }}
+          APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_REVIEW_PRIVATE_KEY_BASE64 }}
+          STORE_VERSION_NAME: ${{ needs.prepare.outputs.version_name }}
+          STORE_VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
+          STORE_RELEASE_NOTES: ${{ inputs.release_notes }}
+          STORE_REVIEW_CONFIRMATION: ${{ inputs.confirmation }}
+        run: ./mobile-release.sh submit-review ios
+
+  submissions-ready:
+    name: Barrera / Envíos completados
+    needs:
+      - prepare
+      - submit-review-android
+      - submit-review-ios
+    if: >-
+      ${{ always() && needs.prepare.result == 'success' &&
+          (inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Exigir todos los envíos seleccionados
+        shell: bash
+        env:
+          ANDROID_SELECTED: ${{ needs.prepare.outputs.android }}
+          ANDROID_RESULT: ${{ needs.submit-review-android.result }}
+          IOS_SELECTED: ${{ needs.prepare.outputs.ios }}
+          IOS_RESULT: ${{ needs.submit-review-ios.result }}
+        run: |
+          set -euo pipefail
+
+          if [ "$ANDROID_SELECTED" = "true" ] && [ "$ANDROID_RESULT" != "success" ]; then
+            echo "ERROR: El envío Android terminó en estado $ANDROID_RESULT."
+            exit 1
+          fi
+
+          if [ "$IOS_SELECTED" = "true" ] && [ "$IOS_RESULT" != "success" ]; then
+            echo "ERROR: El envío iOS terminó en estado $IOS_RESULT."
+            exit 1
+          fi
+
+          echo "✓ Todas las plataformas seleccionadas fueron enviadas a revisión."
+          echo "  Ninguna versión fue publicada por esta Action."
