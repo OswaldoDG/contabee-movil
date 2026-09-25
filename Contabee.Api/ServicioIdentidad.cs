@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using Contabee.Api.abstractions;
 using Contabee.Api.Identidad;
@@ -91,7 +91,10 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
             var content = new FormUrlEncodedContent(formData);
 
-            var httpResponse = await httpClient.PostAsync("/connect/token", content);
+            // Sin "/" inicial: relativa a BaseAddress ({UrlBase}/api/identity/).
+            // Con "/" inicial .NET descarta el path de la base y llamaría a
+            // {host}/connect/token, que no está enrutado en apidev.
+            var httpResponse = await httpClient.PostAsync("connect/token", content);
 
             var json = await httpResponse.Content.ReadAsStringAsync();
 

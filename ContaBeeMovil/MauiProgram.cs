@@ -120,17 +120,13 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<AuthHandler>();
 
 
-            var appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.Produccion);
-
-#if WINDOWS && DEBUG
-    appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.DebugLocal);
-#endif
+            var appConfig = ServicioConfiguracion.Actual;
 
 
             // Cliente sin AuthHandler para el endpoint de refresh token
             builder.Services.AddHttpClient("IdentityToken", client =>
             {
-                client.BaseAddress = new Uri(appConfig.UrlIdentityToken);
+                client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 // El default de HttpClient son 100 s: con el identity caído, la UI se quedaba
                 // colgada minuto y medio antes de que el refresh siquiera fallara. 15 s es de

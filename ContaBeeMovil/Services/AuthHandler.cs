@@ -336,8 +336,10 @@ public class AuthHandler : DelegatingHandler
                 ["dispositivoid"] = dispositivoId
             };
 
+            // Relativa a BaseAddress (mismo caso que ServicioIdentidad.IniciarSesion):
+            // "/connect/token" con "/" inicial caería en {host}/connect/token (404 en apidev).
             var response = await httpClient.PostAsync(
-                "/connect/token",
+                "connect/token",
                 new FormUrlEncodedContent(formData),
                 cancellationToken);
 

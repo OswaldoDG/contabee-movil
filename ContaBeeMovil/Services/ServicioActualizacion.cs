@@ -1,3 +1,4 @@
+using ContaBee.Services;
 using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using ContaBeeMovil.Pages.SinConexion;
@@ -54,7 +55,7 @@ public class ServicioActualizacion(IHttpClientFactory factory, IServicioLogs log
     private static readonly TimeSpan PERIODO_REMOSTRAR_IGNORADA = TimeSpan.FromDays(3);
     // ─────────────────────────────────────────────────────────────────────────
 
-    private const string URL_VERIFICA = "https://api.contabee.mx/api/identity/app/version-movil/verifica";
+    private static string UrlVerifica => $"{ServicioConfiguracion.Actual.UrlIdentity}app/version-movil/verifica";
     private const string CLAVE_VERSION_IGNORADA = "Actualizacion_VersionIgnorada";
     private const string CLAVE_FECHA_IGNORADA = "Actualizacion_FechaIgnorada";
     private const string CLAVE_ULTIMO_CHEQUEO = "Actualizacion_UltimoChequeo";
@@ -210,7 +211,7 @@ public class ServicioActualizacion(IHttpClientFactory factory, IServicioLogs log
         try
         {
             var version = VersionParaBackend();
-            var url = $"{URL_VERIFICA}?version={Uri.EscapeDataString(version)}&plataforma={plataforma}";
+            var url = $"{UrlVerifica}?version={Uri.EscapeDataString(version)}&plataforma={plataforma}";
 
             using var res = await client.GetAsync(url);
 
