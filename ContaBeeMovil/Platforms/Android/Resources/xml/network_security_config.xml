@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Parche temporal: apidev.contabee.mx no entrega el certificado cruzado
+  Sectigo R46 -> USERTrust, y Android viejo (p. ej. 10/11) no trae la raíz Sectigo R46,
+  así que la conexión SSL falla en equipos viejos. Aquí se agrega esa raíz
+  como confiable solo para *.contabee.mx. Quitar cuando el servidor
+  entregue la cadena completa (como ya lo hace api.contabee.mx).
+-->
+<network-security-config>
+	<domain-config>
+		<domain includeSubdomains="true">contabee.mx</domain>
+		<trust-anchors>
+			<certificates src="system" />
+			<certificates src="@raw/sectigo_public_server_auth_root_r46" />
+		</trust-anchors>
+	</domain-config>
+</network-security-config>

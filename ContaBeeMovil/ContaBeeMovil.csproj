@@ -58,6 +58,10 @@
 
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' AND '$(Configuration)' == 'Debug'">
+		<RuntimeIdentifiers>android-arm;android-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios' AND '$(Configuration)'=='Debug'">
 	  <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>
 	  <CodesignProvision>VS: mx.contabee.app Development</CodesignProvision>
