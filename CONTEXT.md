@@ -5,6 +5,19 @@
 
 ---
 
+## 2026-10-07 — Filtro "Todos" de Devoluciones/Comprobaciones solo traía el primer estado
+
+**Causa:** la UI mandaba `Estado Igual [todos los valores]`; el back (`ExtensionesFiltro.CondicionEnumeracion`) solo evalúa `Valores[0]` → "Todos" = solo Creada / solo Abierta. **Fix UI:** con "Todos" ya no se manda filtro `Estado` (`FiltrosDevolucionesView`, `FiltrosComprobacionesView`). Además: badge de estado en `DetalleComprobacionPage` y toast de éxito al cambiar estado en ambos detalles.
+
+**Pendiente back (`contabee-transcript-backend`), no corregido aún:**
+- Transiciones de estado sin validar en el back (la máquina de estados solo vive en la UI).
+- `ServicioDevolucion.ActualizaEstadoDevolucion`: `Admitida` pone `Cierre = UtcNow` (debería ser `null`).
+- `ServicioComprobacion.ActualizaEstado`: sobrescribe `Cierre` (= "Vence" capturado por el usuario) al cambiar estado; reabrir lo deja en `null`.
+- Ambos: validación `creador != u || validador/receptor != u` exige ser ambos; probablemente debería ser `&&`.
+- Enum + varios valores en filtros se ignora sin error (soportar `IN` o rechazar).
+
+---
+
 ## 2026-10-06 — Error SSL con apidev en Android viejos: parche temporal en la app
 
 **Síntoma:** en Android 10/11, toda llamada a `apidev.contabee.mx` fallaba con `The SSL connection could not be established`; `api.contabee.mx` funcionaba. **No era TLS** (apidev acepta TLS 1.2 con AES-GCM/ChaCha20).

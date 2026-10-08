@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Dev;
+using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Devoluciones;
@@ -17,6 +18,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 {
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
 
     private Guid _devolucionId;
@@ -105,12 +107,14 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     public DetalleDevolucionPage(
         IServicioTranscript servicioTranscript,
         IServicioAlerta servicioAlerta,
+        IServicioToast toast,
         IServicioLogs logs)
     {
         InitializeComponent();
         InicializarSelectores();
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
+        _toast = toast;
         _logs = logs;
 
         ActualizarEstadoCommand = new Command(async () => await ActualizarEstadoAsync());
@@ -407,6 +411,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
             PaginaDevoluciones.PendienteActualizarListado = true;
+            await _toast.MostrarAsync($"Estado actualizado a {EstadoTexto}");
         }
         finally
         {

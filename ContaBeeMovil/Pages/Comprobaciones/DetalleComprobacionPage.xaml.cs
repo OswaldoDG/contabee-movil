@@ -9,6 +9,7 @@ using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
 using ContaBeeMovil.Services.Dev;
+using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Comprobaciones;
@@ -17,6 +18,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
 {
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
+    private readonly IServicioToast _toast;
     private readonly IServicioLogs _logs;
 
     private Guid _comprobacionId;
@@ -33,6 +35,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
     private bool _estaCargando;
 
     public string Rfc => _rfc;
+    public string EstadoTexto => _comprobacion?.Estado.ToString() ?? "-";
     public string CreacionTexto => _comprobacion?.Creacion.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "-";
     public string CierreTexto => (_comprobacion?.Cierre?.ToLocalTime().ToString("dd/MM/yyyy") ?? "-");
     public string RequeridoTexto => $"{_comprobacion?.PorcentajeCompropbar ?? 0}%";
@@ -116,11 +119,13 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
     public DetalleComprobacionPage(
         IServicioTranscript servicioTranscript,
         IServicioAlerta servicioAlerta,
+        IServicioToast toast,
         IServicioLogs logs)
     {
         InitializeComponent();
         _servicioTranscript = servicioTranscript;
         _servicioAlerta = servicioAlerta;
+        _toast = toast;
         _logs = logs;
 
         ActualizarEstadoCommand = new Command(async () => await ActualizarEstadoAsync());
@@ -197,6 +202,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
 
     private void RefrescarBindings()
     {
+        OnPropertyChanged(nameof(EstadoTexto));
         OnPropertyChanged(nameof(CreacionTexto));
         OnPropertyChanged(nameof(CierreTexto));
         OnPropertyChanged(nameof(RequeridoTexto));
@@ -436,6 +442,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
             PaginaComprobaciones.PendienteActualizarListado = true;
+            await _toast.MostrarAsync($"Estado actualizado a {EstadoTexto}");
         }
         finally
         {

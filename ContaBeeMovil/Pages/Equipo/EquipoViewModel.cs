@@ -275,6 +275,8 @@ public class EquipoViewModel : INotifyPropertyChanged
                     item.ConfigurarCommand = new Command(async () => await AbrirPropiedadesAsync(item));
                 return item;
             })
+            // Usuario propio siempre al inicio; OrderBy es estable, el resto conserva el orden del back.
+            .OrderByDescending(i => i.EsUsuarioPropio)
             .ToList();
     }
 

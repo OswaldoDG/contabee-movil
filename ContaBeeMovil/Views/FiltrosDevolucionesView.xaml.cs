@@ -38,9 +38,6 @@ public partial class FiltrosDevolucionesView : ContentView
     private static readonly List<string> _estados =
         ["Todos", "Creada", "Admitida", "Aceptada", "Declinada"];
 
-    private static readonly List<string> _estadosFiltroTodos =
-        ["Creada", "Admitida", "Aceptada", "Declinada"];
-
     private static readonly List<string> _camposOrden =
         ["Apertura", "Monto"];
 
@@ -214,18 +211,17 @@ public partial class FiltrosDevolucionesView : ContentView
                 });
             }
 
-        var estados = SelectorEstado.IndiceSeleccionado <= 0
-            ? _estadosFiltroTodos
-            : SelectorEstado.ElementoSeleccionado is string estadoSeleccionado
-                ? [estadoSeleccionado]
-                : _estadosFiltroTodos;
-
-        filtros.Add(new Filtro
-        {
-            Propiedad = "Estado",
-            Operador = Operador.Igual,
-            Valores = estados
-        });
+            // "Todos" = sin filtro de Estado: el back solo evalúa Valores[0] en filtros de enum.
+            if (SelectorEstado.IndiceSeleccionado > 0
+                && SelectorEstado.ElementoSeleccionado is string estadoSeleccionado)
+            {
+                filtros.Add(new Filtro
+                {
+                    Propiedad = "Estado",
+                    Operador = Operador.Igual,
+                    Valores = [estadoSeleccionado]
+                });
+            }
 
             return new Busqueda
             {
