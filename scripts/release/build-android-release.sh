@@ -66,6 +66,7 @@ rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj"
 echo "==> Restaurando paquetes NuGet..."
 dotnet restore "$PROJECT_DIR" \
   --locked-mode \
+  -p:Configuration=Release \
   -p:ContaBeeAndroidOnly=true
 
 echo "==> Generando Android App Bundle de Release..."
