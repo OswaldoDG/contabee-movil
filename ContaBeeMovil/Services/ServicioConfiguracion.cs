@@ -12,7 +12,7 @@ public static class ServicioConfiguracion
     private const string URL_BASE_DESARROLLO = "https://apidev.contabee.mx";
 
     /// <summary>Ambiente de toda la app: Local, Desarrollo o Produccion.</summary>
-    private const TipoConfiguracion AMBIENTE_ACTIVO = TipoConfiguracion.Desarrollo;
+    private const TipoConfiguracion AMBIENTE_ACTIVO = TipoConfiguracion.Produccion;
 
     /// <summary>Configuración activa de la app.</summary>
     public static ConfiguracionApp Actual { get; } = ObtieneConfiguracion(AMBIENTE_ACTIVO);
