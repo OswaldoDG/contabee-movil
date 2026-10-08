@@ -38,9 +38,6 @@ public partial class FiltrosComprobacionesView : ContentView
     private static readonly List<string> _estados =
         ["Todos", "Abierta", "Cerrada", "Cancelada"];
 
-    private static readonly List<string> _estadosFiltroTodos =
-        ["Abierta", "Cerrada", "Cancelada"];
-
     private static readonly List<string> _cumplimiento =
         ["Todos", "10 %", "20 %", "30 %", "40 %", "50 %", "60 %", "70 %", "80 %", "90 %", "100 %"];
 
@@ -226,18 +223,17 @@ public partial class FiltrosComprobacionesView : ContentView
                 });
             }
 
-        var estados = SelectorEstado.IndiceSeleccionado <= 0
-            ? _estadosFiltroTodos
-            : SelectorEstado.ElementoSeleccionado is string estadoSeleccionado
-                ? [estadoSeleccionado]
-                : _estadosFiltroTodos;
-
-        filtros.Add(new Filtro
-        {
-            Propiedad = "Estado",
-            Operador = Operador.Igual,
-            Valores = estados
-        });
+            // "Todos" = sin filtro de Estado: el back solo evalúa Valores[0] en filtros de enum.
+            if (SelectorEstado.IndiceSeleccionado > 0
+                && SelectorEstado.ElementoSeleccionado is string estadoSeleccionado)
+            {
+                filtros.Add(new Filtro
+                {
+                    Propiedad = "Estado",
+                    Operador = Operador.Igual,
+                    Valores = [estadoSeleccionado]
+                });
+            }
 
             if (SelectorCumplimiento.IndiceSeleccionado > 0
                 && SelectorCumplimiento.ElementoSeleccionado is string cumplimientoSeleccionado)

@@ -120,44 +120,40 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<AuthHandler>();
 
 
-            var appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.Produccion);
-
-#if WINDOWS && DEBUG
-    appConfig = ServicioConfiguracion.ObtieneConfiguracion(TipoConfiguracion.DebugLocal);
-#endif
+            var appConfig = ServicioConfiguracion.Actual;
 
 
             // Cliente sin AuthHandler para el endpoint de refresh token
             builder.Services.AddHttpClient("IdentityToken", client =>
             {
-                client.BaseAddress = new Uri(appConfig.UrlIdentityToken);
+                client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
                 // El default de HttpClient son 100 s: con el identity caído, la UI se quedaba
                 // colgada minuto y medio antes de que el refresh siquiera fallara. 15 s es de
                 // sobra para un token, y AuthHandler reintenta con backoff.
                 client.Timeout = TimeSpan.FromSeconds(15);
-            });
+            }).ConHandlerNativo();
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>();
+            }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlCrm);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>();
+            }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlTranscript);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>();
+            }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioEcommerce, ServicioEcommerce>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlEcommerce);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-            }).AddHttpMessageHandler<AuthHandler>();
+            }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
 
 
 
@@ -213,6 +209,19 @@ namespace ContaBeeMovil
             var app = builder.Build();
             Services = app.Services;
             return app;
+        }
+
+        // Desde .NET 9, IHttpClientFactory usa SocketsHttpHandler (pila administrada) como
+        // handler primario, que ignora Platforms/Android/Resources/xml/network_security_config.xml.
+        // En Android forzamos el handler nativo para que la validación de certificados use la
+        // pila del sistema + esa configuración (raíz Sectigo R46 para apidev en equipos viejos).
+        static IHttpClientBuilder ConHandlerNativo(this IHttpClientBuilder builder)
+        {
+#if ANDROID
+            return builder.ConfigurePrimaryHttpMessageHandler(() => new Xamarin.Android.Net.AndroidMessageHandler());
+#else
+            return builder;
+#endif
         }
     }
 }

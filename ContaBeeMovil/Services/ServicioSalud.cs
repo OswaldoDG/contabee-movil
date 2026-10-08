@@ -1,3 +1,5 @@
+using ContaBee.Services;
+
 namespace ContaBeeMovil.Services;
 
 public interface IServicioSalud
@@ -7,20 +9,24 @@ public interface IServicioSalud
 
 public class ServicioSalud(IHttpClientFactory factory) : IServicioSalud
 {
-    private static readonly string[] _endpoints =
-    [
-        "https://api.contabee.mx/api/identity/health",
-        "https://api.contabee.mx/api/crm/health",
-        "https://api.contabee.mx/api/transcript/health",
-        "https://api.contabee.mx/api/ecommerce/health",
-    ];
+    private static string[] Endpoints()
+    {
+        var config = ServicioConfiguracion.Actual;
+        return
+        [
+            $"{config.UrlIdentity}health",
+            $"{config.UrlCrm}health",
+            $"{config.UrlTranscript}health",
+            $"{config.UrlEcommerce}health",
+        ];
+    }
 
     public async Task<bool> VerificarServiciosAsync()
     {
         var client = factory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(6);
 
-        var tareas = _endpoints.Select(async url =>
+        var tareas = Endpoints().Select(async url =>
         {
             try
             {

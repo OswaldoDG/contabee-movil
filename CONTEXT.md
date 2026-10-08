@@ -5,6 +5,35 @@
 
 ---
 
+## 2026-10-07 — Filtro "Todos" de Devoluciones/Comprobaciones solo traía el primer estado
+
+**Causa:** la UI mandaba `Estado Igual [todos los valores]`; el back (`ExtensionesFiltro.CondicionEnumeracion`) solo evalúa `Valores[0]` → "Todos" = solo Creada / solo Abierta. **Fix UI:** con "Todos" ya no se manda filtro `Estado` (`FiltrosDevolucionesView`, `FiltrosComprobacionesView`). Además: badge de estado en `DetalleComprobacionPage` y toast de éxito al cambiar estado en ambos detalles.
+
+**Pendiente back (`contabee-transcript-backend`), no corregido aún:**
+- Transiciones de estado sin validar en el back (la máquina de estados solo vive en la UI).
+- `ServicioDevolucion.ActualizaEstadoDevolucion`: `Admitida` pone `Cierre = UtcNow` (debería ser `null`).
+- `ServicioComprobacion.ActualizaEstado`: sobrescribe `Cierre` (= "Vence" capturado por el usuario) al cambiar estado; reabrir lo deja en `null`.
+- Ambos: validación `creador != u || validador/receptor != u` exige ser ambos; probablemente debería ser `&&`.
+- Enum + varios valores en filtros se ignora sin error (soportar `IN` o rechazar).
+
+---
+
+## 2026-10-06 — Error SSL con apidev en Android viejos: parche temporal en la app
+
+**Síntoma:** en Android 10/11, toda llamada a `apidev.contabee.mx` fallaba con `The SSL connection could not be established`; `api.contabee.mx` funcionaba. **No era TLS** (apidev acepta TLS 1.2 con AES-GCM/ChaCha20).
+
+**Causa:** `apidev` entrega la cadena incompleta (dominio → ZeroSSL CA 2, que cuelga de **Sectigo R46**). Android viejo no trae la raíz R46; producción sí manda el cruzado R46 → USERTrust, que esos equipos sí conocen. Se le pidió al encargado del deployment corregir la cadena del servidor.
+
+**Parche (probado por Beto: 2 Android viejos + 1 reciente OK):**
+- `Platforms/Android/Resources/raw/sectigo_public_server_auth_root_r46.pem` (raíz oficial, SHA-256 `7B:B6:47:A6…5A:06`) + `Resources/xml/network_security_config.xml` que la agrega como confiable **solo para `*.contabee.mx`**, sin quitar las del sistema. Referenciado en `AndroidManifest.xml`.
+- ⚠ **El XML solo no bastó:** desde .NET 9, `AddHttpClient` usa `SocketsHttpHandler` (pila administrada), que **ignora** `network_security_config`. Se agregó `ConHandlerNativo()` en `MauiProgram` que, solo en Android, pone `AndroidMessageHandler` como handler primario de los 5 clientes de la API.
+
+**Pendiente:**
+- Cuando `apidev` entregue la cadena completa (verificar con `openssl s_client -showcerts`: debe aparecer el tramo R46 → USERTrust como en producción), **quitar** el `.pem`, el XML y el atributo del manifest. `ConHandlerNativo()` puede quedarse (handler nativo es lo recomendado en Android), o quitarse si da problemas.
+- No cubre Android 6 (ignora `network_security_config`); se aceptó porque no se espera esa base de usuarios.
+
+---
+
 ## 2026-09-11 — Pipeline móvil unificado y limpieza final
 
 **Etapa de unificación y reorganización: completada.**

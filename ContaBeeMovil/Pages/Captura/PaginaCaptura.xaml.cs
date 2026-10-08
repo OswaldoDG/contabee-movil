@@ -801,7 +801,6 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             _notasAdicionales = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ResumenOpcionesAvanzadas));
-            Preferences.Default.Set(PrefNotas, value);
         }
     }
 
@@ -1041,9 +1040,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _desglosarIeps = Preferences.Default.Get(PrefDesgIeps, false);
         OnPropertyChanged(nameof(DesglosarIeps));
 
-        // Notas adicionales
-        _notasAdicionales = Preferences.Default.Get(PrefNotas, string.Empty);
-        OnPropertyChanged(nameof(NotasAdicionales));
+        // Notas adicionales: ya no se persisten; se borra el valor que pudo quedar guardado
+        // en versiones anteriores.
+        Preferences.Default.Remove(PrefNotas);
 
         _soloEvidencia = Preferences.Default.Get(PrefSoloEvidencia, false);
         OnPropertyChanged(nameof(SoloEvidencia));
@@ -1684,6 +1683,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 SoloEvidencia = false;
                 CapturaRemota = false;
                 EsUrgente = false;
+                NotasAdicionales = string.Empty;
                 await _servicioSesion.GetLicenciaAsync();
                 await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
