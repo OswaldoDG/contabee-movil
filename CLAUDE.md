@@ -164,7 +164,7 @@ _logs.Log("mensaje");   // alias de Info
 
 | Plataforma | Min OS |
 |---|---|
-| Android | 23.0 (Android 6.0) |
+| Android | 24.0 (Android 7.0) — exigido por protección automática de Play |
 | iOS | 15.0 |
 | MacCatalyst | 15.0 |
 | Windows | 10.0.17763 |
