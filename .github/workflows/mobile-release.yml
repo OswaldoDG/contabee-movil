@@ -218,7 +218,7 @@ jobs:
       - prepare
       - builds-ready
     if: >-
-      ${{ needs.builds-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
+      ${{ always() && needs.builds-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
           (inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -245,7 +245,7 @@ jobs:
       - prepare
       - builds-ready
     if: >-
-      ${{ needs.builds-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
+      ${{ always() && needs.builds-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
           (inputs.operation == 'build-upload' || inputs.operation == 'full-release') }}
     runs-on: macos-26
     timeout-minutes: 30
@@ -407,7 +407,7 @@ jobs:
       - prepare
       - reviews-ready
     if: >-
-      ${{ needs.reviews-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
+      ${{ always() && needs.reviews-ready.result == 'success' && needs.prepare.outputs.android == 'true' &&
           (inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -432,7 +432,7 @@ jobs:
       - prepare
       - reviews-ready
     if: >-
-      ${{ needs.reviews-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
+      ${{ always() && needs.reviews-ready.result == 'success' && needs.prepare.outputs.ios == 'true' &&
           (inputs.operation == 'submit-existing' || inputs.operation == 'full-release') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
