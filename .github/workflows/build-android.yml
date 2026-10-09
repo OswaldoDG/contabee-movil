@@ -37,7 +37,12 @@ jobs:
         uses: actions/setup-dotnet@v5
         with:
           global-json-file: global.json
-          workloads: maui-android
+
+      - name: Instalar workload maui-android fijo
+        shell: bash
+        # Fijado al workload set 10.300.0 (Android 36), que coincide con packages.*.lock.json.
+        # Sin fijarlo se instala el último (p. ej. iOS 27) y el restore --locked-mode truena.
+        run: dotnet workload install maui-android --version 10.300.0
 
       - name: Mostrar versiones instaladas
         shell: bash
