@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using ContaBeeMovil.Models;
+using ContaBeeMovil.Pages.AcercaDe;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Registro;
@@ -238,7 +240,7 @@ public class LoginViewModel : INotifyPropertyChanged
         }
         catch
         {
-            await _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
+            _ = _toast.MostrarAsync("Error al iniciar sesión.", ToastIcono.Warning, ToastPosicion.Bottom);
 
             var page = Application.Current?.Windows[0].Page as ContentPage;
             var formContainer = page?.FindByName<VerticalStackLayout>("FormContainer");
@@ -261,7 +263,9 @@ public class LoginViewModel : INotifyPropertyChanged
 
     private async Task Vincularme()
     {
-        await _toast.MostrarAsync("La funcionalidad de vinculación estará disponible próximamente.", ToastIcono.Warning, ToastPosicion.Bottom);
+        var page = App.Services.GetRequiredService<SolicitudTokenPage>();
+        page.EnSesion = false;
+        await Application.Current!.Windows[0].Page!.Navigation.PushAsync(page);
     }
 
     private async Task IrARegistro()
@@ -276,16 +280,16 @@ public class LoginViewModel : INotifyPropertyChanged
         _ = Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
     }
 
-    private async Task MostrarInfoApp()
+    private Task MostrarInfoApp()
     {
-        await _toast.MostrarAsync("ContaBee - Sistema de contabilidad móvil.", ToastIcono.Info, ToastPosicion.Bottom);
+        var pagina = App.Services.GetRequiredService<AcercaDePage>();
+        return Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
     }
 
-    private async Task MostrarInfo()
+    private Task MostrarInfo()
     {
-        var version = AppInfo.Current.VersionString;
-        var build = AppInfo.Current.BuildString;
-        await _toast.MostrarAsync($"ContaBee v{version} ({build})", ToastIcono.Info, ToastPosicion.Bottom);
+        var pagina = App.Services.GetRequiredService<AcercaDePage>();
+        return Application.Current!.Windows[0].Page!.Navigation.PushAsync(pagina);
     }
 
     #endregion

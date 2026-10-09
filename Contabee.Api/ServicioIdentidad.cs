@@ -40,13 +40,14 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                 ["client_id"] = "contabee-password",
                 ["username"] = email,
                 ["password"] = password,
-                ["scope"] = recordarme?"offline_access":null,
                 ["dispositivoid"] = dispositivoId
             };
 
+            if (recordarme)
+                formData["scope"] = "offline_access";
 
             var content = new FormUrlEncodedContent(formData);
-            
+
             var httpResponse = await httpClient.PostAsync("/connect/token", content);
 
             var json = await httpResponse.Content.ReadAsStringAsync();
@@ -67,7 +68,6 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
                     HttpCode = (System.Net.HttpStatusCode)httpResponse.StatusCode
                 };
             }
-            servicioIdentidad.TokenAsync();
         }
         catch (Exception ex)
         {
@@ -250,4 +250,179 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
 
         return r;
     }
-}
+
+    public async Task<RespuestaPayload<CuentaUsuario>> CrearUsuarioCaptura(CreaUsuarioCaptura usuarioCaptura, Guid cfid)
+    {
+        RespuestaPayload<CuentaUsuario> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.CapturaAsync(cfid,usuarioCaptura);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Crear Usuario Captura");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<RespuestaTokenVinculacion>> GetTokenVinculacion(string dispositivoId, bool enSesion)
+    {
+        RespuestaPayload<RespuestaTokenVinculacion> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.TokenvinculacionAsync(dispositivoId,enSesion);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Obtener  token vinculacion");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<RespuestaTokenVinculacion>> ValidaTokenVinculacionSinSesion(string dispositivoId, string token)
+    {
+        RespuestaPayload<RespuestaTokenVinculacion> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.Tokenvinculacion2Async(dispositivoId, token);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 200)
+        {
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Validar token vinculacion sin Sesion");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<RespuestaTokenVinculacion>> ValidaTokenVinculacionEnSesion(string dispositivoId, string token)
+    {
+        RespuestaPayload<RespuestaTokenVinculacion> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.VinculadoAsync(dispositivoId, token);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (ApiException ex) when (ex.StatusCode == 200)
+        {
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Validar token vinculacion en Sesion");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<ResultadoTokenLoginLess>> GetTokenLoginLess(string dispositivoId)
+    {
+        RespuestaPayload<ResultadoTokenLoginLess> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.TokenloginlessGETAsync(dispositivoId);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita token LoginLess");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload>> VincularUsuario(Guid cfid,SolictudVinculacion solictud)
+    {
+        RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.VincularAsync(cfid,solictud);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        {
+            // Servidor devuelve 200 con body vacío — NSwag lanza excepción pero es éxito
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicitar Vincular Usuario en Sesion");
+        }
+
+        return r;
+    }
+
+    public async Task<RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload>> VincularUsuarioLoginLess(Guid cfid, SolictudTokenLoginless solictud)
+    {
+        RespuestaPayload<ResultadoTokenLoginLessRespuestaPayload> r = new();
+
+        try
+        {
+            var res = await servicioIdentidad.TokenloginlessPOSTAsync(cfid,solictud);
+            r.Payload = res;
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex) when (ex.Message.Contains("Status: 200"))
+        {
+            // Servidor devuelve 200 con body vacío — NSwag lanza excepción pero es éxito
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");
+        }
+
+        return r;
+    }
+
+    public async Task<Respuesta> EliminarVinculoUsuario(Guid cfid,Guid usuarioId)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.CuentafiscalAsync(usuarioId,cfid); 
+            r.Ok = true;
+            r.HttpCode = System.Net.HttpStatusCode.OK;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-Solicita Vinculacion Usuario LoginLess");
+        }
+
+        return r;
+    }
+
+
+} 

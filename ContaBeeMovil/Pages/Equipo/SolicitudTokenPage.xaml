@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:ContaBeeMovil.Pages.Equipo"
+             x:Class="ContaBeeMovil.Pages.Equipo.SolicitudTokenPage"
+             x:DataType="vm:SolicitudTokenViewModel"
+             Shell.BackgroundColor="{toolkit:AppThemeResource AppBarPrimary}"
+             Shell.TabBarIsVisible="False"
+             BackgroundColor="{toolkit:AppThemeResource Background}"
+             Title="Token de vinculación"
+             Padding="0">
+
+    <Grid BackgroundColor="{toolkit:AppThemeResource Background}"
+          RowDefinitions="*,Auto">
+
+        <!-- Contenido centrado -->
+        <VerticalStackLayout Grid.Row="0"
+                             VerticalOptions="StartAndExpand"
+                             HorizontalOptions="Center"
+                             Spacing="32"
+                             Padding="24,10">
+
+            <!-- Logo -->
+            <Image Source="contabeesingle.png"
+                   WidthRequest="200"
+                   HeightRequest="200"
+                   HorizontalOptions="Center"
+                   Aspect="AspectFit" />
+
+            <!-- Spinner de carga inicial -->
+            <ActivityIndicator IsRunning="{Binding EstaCargando}"
+                               IsVisible="{Binding EstaCargando}"
+                               Color="{toolkit:AppThemeResource Primary}"
+                               HorizontalOptions="Center"
+                               WidthRequest="48"
+                               HeightRequest="48" />
+
+            <!-- Token + espera (visible tras obtener token) -->
+            <VerticalStackLayout IsVisible="{Binding MostrarToken}"
+                                 Spacing="24"
+                                 HorizontalOptions="Center">
+
+                <!-- Cajas de caracteres del token -->
+                <HorizontalStackLayout HorizontalOptions="FillAndExpand"
+                                       Spacing="10"
+                                       BindableLayout.ItemsSource="{Binding TokenChars}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="x:String">
+                            <Border WidthRequest="80"
+                                    HeightRequest="92"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="2"
+                                    Stroke="{toolkit:AppThemeResource Accent1}"
+                                    BackgroundColor="{toolkit:AppThemeResource SecondaryBackground}">
+                                <Border.Shadow>
+                                    <Shadow Brush="Black" Radius="8" Opacity="0.10" Offset="0,3" />
+                                </Border.Shadow>
+                                <Label Text="{Binding .}"
+                                       FontSize="40"
+                                       FontAttributes="Bold"
+                                       TextColor="{toolkit:AppThemeResource PrimaryText}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+
+                <!-- Spinner de espera + texto -->
+                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                    <ActivityIndicator IsRunning="True"
+                                       Color="{toolkit:AppThemeResource Primary}"
+                                       HorizontalOptions="Center"
+                                       WidthRequest="40"
+                                       HeightRequest="40" />
+                    <Label Text="Esperando vinculación..."
+                           FontSize="20"
+                           TextColor="{toolkit:AppThemeResource SecondaryText}"
+                           HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+
+        <!-- Botón Cancelar -->
+        <Button Grid.Row="1" HorizontalOptions="Center"
+                Text="Cancelar"
+                Command="{Binding CancelarCommand}"
+                BorderColor="{toolkit:AppThemeResource Accent1}"
+                BorderWidth="1"
+                Margin="24,12,24,32"
+                Padding="20,2,20,2"
+                HeightRequest="50"
+                CornerRadius="10"
+                BackgroundColor="Transparent"
+                TextColor="{toolkit:AppThemeResource PrimaryText}"
+                FontAttributes="Bold"
+                FontSize="16" />
+
+    </Grid>
+
+</ContentPage>

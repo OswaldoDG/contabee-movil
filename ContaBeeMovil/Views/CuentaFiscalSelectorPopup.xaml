@@ -58,6 +58,7 @@
                     </Border>
                 </Grid>
             </Border>
+            <BoxView Style="{StaticResource Divider}" />
 
             <ScrollView MaximumHeightRequest="300">
                 <VerticalStackLayout x:Name="PanelLista" Spacing="10" />

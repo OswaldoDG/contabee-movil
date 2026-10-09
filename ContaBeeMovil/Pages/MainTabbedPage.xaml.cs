@@ -1,16 +1,22 @@
+using ContaBeeMovil.Services.Device;
+
 namespace ContaBeeMovil.Pages;
 
 public partial class MainTabbedPage : ContentPage
 {
     private readonly DashboardPage   _dashboardPage;
     private readonly FacturacionPage _facturacionPage;
+    private readonly EquipoPage      _equipoPage;
 
     // Guardadas por separado para sobrevivir el single-parent constraint de MAUI.
     // Al extraer Content antes de asignar parent, podemos reasignarla al volver al tab.
     private View? _dashboardView;
     private View? _facturacionView;
+    private View? _equipoView;
 
     private int _currentIndex = -1;
+
+    internal static event Action? EquipoRequested;
 
     public MainTabbedPage(IServiceProvider services)
     {
@@ -18,9 +24,11 @@ public partial class MainTabbedPage : ContentPage
 
         _dashboardPage   = services.GetRequiredService<DashboardPage>();
         _facturacionPage = services.GetRequiredService<FacturacionPage>();
+        _equipoPage      = services.GetRequiredService<EquipoPage>();
 
         _dashboardView   = _dashboardPage.Content;
         _facturacionView = _facturacionPage.Content;
+        _equipoView      = _equipoPage.Content;
 
         MonthNavBar.BindingContext = _dashboardPage.BindingContext;
         // Sincronizar título cuando cambia el periodo en facturación
@@ -30,7 +38,28 @@ public partial class MainTabbedPage : ContentPage
                 LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
         };
 
+        EquipoRequested += ForceEquipoTab;
+
+        AppState.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppState.EsLoginLess))
+                MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
+        };
+
+        ActualizarVisibilidadEquipo();
         SwitchToTab(0);
+    }
+
+    private void ActualizarVisibilidadEquipo()
+    {
+        TabBar.SetEquipoVisible(!AppState.Instance.EsLoginLess);
+    }
+
+    private void ForceEquipoTab()
+    {
+        if (AppState.Instance.EsLoginLess) return;
+        _currentIndex = -1;
+        SwitchToTab(2);
     }
 
     protected override void OnAppearing()
@@ -45,6 +74,7 @@ public partial class MainTabbedPage : ContentPage
 
     private async void SwitchToTab(int index)
     {
+        if (index == 2 && AppState.Instance.EsLoginLess) return;
         if (_currentIndex == index) return;
         _currentIndex = index;
 
@@ -55,7 +85,7 @@ public partial class MainTabbedPage : ContentPage
         PageContainer.Opacity = 0;
 
         MonthNavBar.IsVisible = index == 0;
-        LabelTitulo.IsVisible = index == 1;
+        LabelTitulo.IsVisible = index != 0;
 
         switch (index)
         {
@@ -67,8 +97,13 @@ public partial class MainTabbedPage : ContentPage
             case 1:
                 PageContainer.Content = _facturacionView;
                 PageContainer.BindingContext = _facturacionPage.BindingContext;
-                // Solo MES AÑO sin "Comprobantes"
                 LabelTitulo.Text = _facturacionPage.Filtros.PeriodoTexto;
+                break;
+
+            case 2:
+                PageContainer.Content = _equipoView;
+                PageContainer.BindingContext = _equipoPage.BindingContext;
+                LabelTitulo.Text = "Equipo";
                 break;
         }
 
@@ -82,6 +117,7 @@ public partial class MainTabbedPage : ContentPage
             {
                 case 0: _dashboardPage.OnTabActivated(); break;
                 case 1: _facturacionPage.OnTabActivated(); break;
+                case 2: _equipoPage.OnTabActivated(); break;
             }
         });
     }

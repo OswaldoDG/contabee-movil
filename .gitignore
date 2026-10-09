@@ -424,3 +424,9 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Graphify
+graphify-out/
+.graphify_*.json
+.graphify_python
+.graphify_manifest.json

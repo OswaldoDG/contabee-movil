@@ -1,11 +1,13 @@
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
 using StatusBar = CommunityToolkit.Maui.Core.Platform.StatusBar;
+using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Pages.Confirmar;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dev;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
@@ -39,6 +41,7 @@ namespace ContaBeeMovil
             RegisterRoutes();
             _ = CargarNombreUsuarioAsync();
             _ = servicioSesion.GetTarjetasAsync();
+            _ = RestaurarEsLoginLessAsync();
 
             ActualizarVisibilidadLogs();
 
@@ -48,7 +51,11 @@ namespace ContaBeeMovil
                     MainThread.BeginInvokeOnMainThread(ActualizarNombreLabel);
                 else if (e.PropertyName == nameof(AppState.EsDev))
                     MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLogs);
+                else if (e.PropertyName == nameof(AppState.EsLoginLess))
+                    MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadLoginLess);
             };
+
+            ActualizarVisibilidadLoginLess();
 
             Navigated += (_, _) => AplicarEstiloIconosConDelay();
             Loaded += (_, _) => AplicarEstiloIconosConDelay();
@@ -142,6 +149,12 @@ namespace ContaBeeMovil
 
         // ── Header: nombre de usuario ─────────────────────────────────────
 
+        private async Task RestaurarEsLoginLessAsync()
+        {
+            var token = await _servicioSesion.LeeTokenLoginLessAsync();
+            AppState.Instance.EsLoginLess = !string.IsNullOrEmpty(token);
+        }
+
         private async Task CargarNombreUsuarioAsync()
         {
             _emailUsuario = AppState.Instance.Perfil?.DisplayName;
@@ -154,6 +167,13 @@ namespace ContaBeeMovil
         {
             if (this.FindByName<Grid>("LogsMenuItem") is { } logs)
                 logs.IsVisible = AppState.Instance.EsDev;
+        }
+
+        private void ActualizarVisibilidadLoginLess()
+        {
+            var esLoginLess = AppState.Instance.EsLoginLess;
+            TiendaCard.IsVisible = !esLoginLess;
+            BtnCerrarSesion.IsVisible = !esLoginLess;
         }
 
         private void ActualizarNombreLabel()
@@ -206,7 +226,8 @@ namespace ContaBeeMovil
         private async void OnVincularmeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            await Shell.Current.GoToAsync(nameof(VincularCuentaPage));
+            var enSesion = !AppState.Instance.EsLoginLess;
+            await Shell.Current.GoToAsync($"{nameof(SolicitudTokenPage)}?enSesion={enSesion}");
         }
 
         private async void OnTiendaClicked(object? sender, EventArgs e)
@@ -266,9 +287,7 @@ namespace ContaBeeMovil
         private async void OnAcercaDeClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
-            var version = AppInfo.VersionString;
-            await _servicioAlerta.MostrarAsync("Acerca de", $"ContaBee — Versión {version}",
-                verBotonCancelar: false, confirmarText: "OK");
+            await Shell.Current.GoToAsync(nameof(AcercaDePage));
         }
 
         private async void OnCompartirClicked(object? sender, EventArgs e)
@@ -287,6 +306,8 @@ namespace ContaBeeMovil
         {
             Routing.RegisterRoute("cuenta/confirmar", typeof(ConfirmarCuentaPage));
             Routing.RegisterRoute(nameof(PaginaRegistro), typeof(PaginaRegistro));
+            Routing.RegisterRoute(nameof(VincularPage), typeof(VincularPage));
+            Routing.RegisterRoute(nameof(SolicitudTokenPage), typeof(SolicitudTokenPage));
             Routing.RegisterRoute(nameof(TiendaPage), typeof(TiendaPage));
             Routing.RegisterRoute(nameof(VincularCuentaPage), typeof(VincularCuentaPage));
             Routing.RegisterRoute(nameof(TarjetasPage), typeof(TarjetasPage));
@@ -300,6 +321,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(VisorImagenPage), typeof(VisorImagenPage));
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
             Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
+            Routing.RegisterRoute(nameof(AcercaDePage), typeof(AcercaDePage));
         }
     }
 }

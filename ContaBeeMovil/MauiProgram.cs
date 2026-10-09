@@ -14,8 +14,10 @@ using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Sugerencias;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
+using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Dev;
 using ContaBeeMovil.Pages.SinConexion;
+using ContaBeeMovil.Pages.AcercaDe;
 using ContaBeeMovil.Services.Almacenamiento;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Camara;
@@ -91,6 +93,7 @@ namespace ContaBeeMovil
             builder.Services.AddSingleton<IServicioCamara, ServicioCamara>();
             builder.Services.AddSingleton<IServicioIAP, ServicioIAP>();
             builder.Services.AddSingleton<IServicioLogs, ServicioLogs>();
+            builder.Services.AddSingleton<IServicioSalud, ServicioSalud>();
             builder.Services.AddTransient<AuthHandler>();
 
 
@@ -134,10 +137,15 @@ namespace ContaBeeMovil
             // ViewModels
             builder.Services.AddTransient<DashboardViewModel>();
             builder.Services.AddTransient<PaginaCuponesViewModel>();
+            builder.Services.AddTransient<EquipoViewModel>();
+            builder.Services.AddTransient<VincularViewModel>();
+            builder.Services.AddTransient<SolicitudTokenViewModel>();
             // Pages
             builder.Services.AddTransient<DashboardPage>();
             builder.Services.AddTransient<FacturacionPage>();
             builder.Services.AddTransient<EquipoPage>();
+            builder.Services.AddTransient<VincularPage>();
+            builder.Services.AddTransient<SolicitudTokenPage>();
             builder.Services.AddTransient<MainTabbedPage>();
             builder.Services.AddTransient<PaginaCupones>();
             builder.Services.AddTransient<RegistroViewModel>();
@@ -158,6 +166,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<EliminarCuentaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
             builder.Services.AddTransient<SugerenciasPage>();
+            builder.Services.AddTransient<AcercaDePage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();
             builder.Services.AddTransient<VisorImagenPage>();

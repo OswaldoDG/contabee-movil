@@ -44,13 +44,19 @@ public partial class RFCsPage : ContentPage
 
     private void CargarCuentas()
     {
+        var info      = DeviceDisplay.MainDisplayInfo;
+        double density  = info.Density > 0 ? info.Density : 1;
+        double cardWidth  = (info.Width / density) - 20; // CollectionView Margin="10,10" → 10×2 horizontal
+        double swipeWidth = cardWidth * 0.75;
+
         var cuentas = AppState.Instance.CuentasFiscales ?? new List<AsociacionCuentaFiscalCompleta>();
         ListaCuentas.ItemsSource = cuentas.Select(c => new CuentaItem
         {
-            Nombre = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
-            Rfc = c.Rfc ?? "—",
-            Regimen = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
-            DeleteCommand = new Command(async () => await ConfirmarEliminar(c))
+            Nombre         = c.DireccionesFiscales?.FirstOrDefault()?.CuentaFiscal?.Nombre ?? string.Empty,
+            Rfc            = c.Rfc ?? "—",
+            Regimen        = ObtenerDescripcionRegimen(c.ClaveRegimenFiscal),
+            SwipeItemWidth = swipeWidth,
+            DeleteCommand  = new Command(async () => await ConfirmarEliminar(c))
         }).ToList();
     }
 
@@ -121,6 +127,7 @@ public partial class RFCsPage : ContentPage
         public string Nombre { get; init; } = "";
         public string Rfc { get; init; } = "";
         public string Regimen { get; init; } = "";
+        public double SwipeItemWidth { get; init; }
         public ICommand DeleteCommand { get; init; } = null!;
         public bool TieneNombre => !string.IsNullOrWhiteSpace(Nombre);
     }

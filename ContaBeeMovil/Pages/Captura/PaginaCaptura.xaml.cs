@@ -1,4 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Globalization;
 using System.Windows.Input;
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
@@ -31,6 +34,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private const string PrefUsoCfdi   = "captura_uso_cfdi";
     private const string PrefDesgIeps  = "captura_desg_ieps";
     private const string PrefNotas     = "captura_notas";
+    private const string PrefSoloEvidencia = "captura_solo_evidencia";
+    private const string PrefCapturaRemota = "captura_remota";
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -45,12 +50,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         FormasPago = FormaPagoProvider.GetFormasPago();
         _capturas  = [];
-        _capturas.CollectionChanged += (_, _) =>
-        {
-            OnPropertyChanged(nameof(TieneCapturas));
-            OnPropertyChanged(nameof(ColumnSpanCamara));
-            OnPropertyChanged(nameof(PuedeEnviar));
-        };
+        _capturas.CollectionChanged += OnCapturasCollectionChanged;
         ActualizarUsoCfdi();
 
         TomarFotoCommand        = new Command(async () => await TomarFotoAsync());
@@ -122,7 +122,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (string.IsNullOrEmpty(sharedFileName)) return;
 
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = sharedFileName, EsCompartida = true };
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
+        CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
         await _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
@@ -137,7 +138,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void OnImagenCompartidaRecibida(string fileName)
     {
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
+        CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         OnPropertyChanged(nameof(TieneCapturas));
         _ = _servicioToast.MostrarAsync("Imagen agregada correctamente.", ToastIcono.Info, ToastPosicion.Bottom);
@@ -164,6 +166,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
 
         capturasGuardadas = capturasGuardadas.Where(c => File.Exists(c.Path)).ToList();
+        capturasGuardadas = capturasGuardadas
+            .OrderByDescending(c => File.GetLastWriteTimeUtc(c.Path))
+            .ToList();
         _logs.Log($"[PaginaCaptura] VerificarFotos — con archivo en disco={capturasGuardadas.Count}");
 
         if (capturasGuardadas.Count == 0) return;
@@ -180,6 +185,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         {
             foreach (var c in capturasGuardadas)
                 _capturas.Add(c);
+
+            if (_capturas.Count > 0)
+                CapturaSeleccionada = _capturas[0];
         }
         else
         {
@@ -237,6 +245,46 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _usoCfdiSeleccionado is not null &&
         (!MostrarTarjetas || _tarjetaSeleccionada is not null);
 
+    // ── Evidencias ───────────────────────────────────────────────────────────
+
+    private bool _soloEvidencia;
+    public bool SoloEvidencia
+    {
+        get => _soloEvidencia;
+        set
+        {
+            if (_soloEvidencia == value) return;
+            _soloEvidencia = value;
+            Preferences.Default.Set(PrefSoloEvidencia, value);
+
+            if (!value)
+                CapturaRemota = false;
+
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(MostrarCapturaRemota));
+            OnPropertyChanged(nameof(MostrarMontoTicketInput));
+            OnPropertyChanged(nameof(CapturaItemHeight));
+        }
+    }
+
+    private bool _capturaRemota;
+    public bool CapturaRemota
+    {
+        get => _capturaRemota;
+        set
+        {
+            if (_capturaRemota == value) return;
+            _capturaRemota = value;
+            Preferences.Default.Set(PrefCapturaRemota, value);
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(MostrarMontoTicketInput));
+            OnPropertyChanged(nameof(CapturaItemHeight));
+        }
+    }
+
+    public bool MostrarCapturaRemota   => SoloEvidencia;
+    public bool MostrarMontoTicketInput => SoloEvidencia && !CapturaRemota;
+
     // ── Tarjetas ─────────────────────────────────────────────────────────────
 
     private TarjetaModel? _tarjetaSeleccionada;
@@ -280,6 +328,17 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     public ObservableCollection<CapturaLote> Capturas => _capturas;
 
+    private CapturaLote? _capturaSeleccionada;
+    public CapturaLote? CapturaSeleccionada
+    {
+        get => _capturaSeleccionada;
+        set
+        {
+            _capturaSeleccionada = value;
+            OnPropertyChanged();
+        }
+    }
+
     public bool TieneCapturas    => _capturas.Count > 0;
     public int  ColumnSpanCamara => TieneCapturas ? 1 : 2;
     public int  CreditosCaptura  =>
@@ -300,7 +359,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         }
     }
 
-    public double CapturaItemHeight => _capturaItemWidth * (4.0 / 3.0);
+    public double CapturaItemHeight => _capturaItemWidth * (MostrarMontoTicketInput ? 1.08 : 1.22);
 
     protected override void OnSizeAllocated(double width, double height)
     {
@@ -374,6 +433,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         // Notas adicionales
         _notasAdicionales = Preferences.Default.Get(PrefNotas, string.Empty);
         OnPropertyChanged(nameof(NotasAdicionales));
+
+        _soloEvidencia = Preferences.Default.Get(PrefSoloEvidencia, false);
+        OnPropertyChanged(nameof(SoloEvidencia));
+        _capturaRemota = _soloEvidencia && Preferences.Default.Get(PrefCapturaRemota, false);
+        OnPropertyChanged(nameof(CapturaRemota));
+        OnPropertyChanged(nameof(MostrarCapturaRemota));
+        OnPropertyChanged(nameof(MostrarMontoTicketInput));
 
         // Forma de pago
         var codigoFP = Preferences.Default.Get(PrefFormaPago, string.Empty);
@@ -537,7 +603,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
         var captura = new CapturaLote { TipoCaptura = TipoCaptura, FileName = fileName };
         _logs.Log($"[PaginaCaptura] TomarFoto — path resuelto: '{captura.Path}' | existe={File.Exists(captura.Path)}");
-        _capturas.Add(captura);
+        _capturas.Insert(0, captura);
+        CapturaSeleccionada = captura;
         AppState.Instance.CapturasLote = [.. _capturas];
         _logs.Log($"[PaginaCaptura] TomarFoto — AppState actualizado, total capturas={AppState.Instance.CapturasLote?.Count}");
     }
@@ -557,6 +624,8 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         if (!confirmar) return;
 
         _capturas.Remove(captura);
+        if (ReferenceEquals(CapturaSeleccionada, captura))
+            CapturaSeleccionada = _capturas.FirstOrDefault();
         AppState.Instance.CapturasLote = _capturas.Count > 0 ? [.. _capturas] : null;
 
         if (!captura.EsCompartida && File.Exists(captura.Path))
@@ -611,6 +680,18 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             return;
         }
 
+        List<double>? montosCierre = null;
+        if (SoloEvidencia && !CapturaRemota)
+        {
+            if (!TryConstruirMontosCierre(out var montos, out var mensajeError))
+            {
+                await _servicioToast.MostrarAsync(mensajeError, ToastIcono.Warning, ToastPosicion.Bottom);
+                return;
+            }
+
+            montosCierre = montos;
+        }
+
         // ── Punto 0: Mostrar overlay ─────────────────────────────────────────
         EstaEnviando     = true;
         EnviandoProgreso = 0;
@@ -621,6 +702,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         long? loteId              = null;
         bool exitoso              = false;
         bool canceladoPorUsuario  = false;
+        var cantidadEnviadaLote   = 0;
 
         try
         {
@@ -628,12 +710,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             var loteRequest = new CreaLoteCaptura
             {
                 CuentaFiscalId = cuentaFiscal.CuentaFiscalId,
-                Tipo = TipoCaptura,
+                Tipo = SoloEvidencia ? TipoProcesoCaptura.Evidencia : TipoCaptura,
                 ClaveUsoCfdi = usoCfdi.Codigo,
                 ClaveFormaPago = formaPago.Codigo,
                 TerminacionMedioPago = tarjeta?.UltimosDigitos ?? string.Empty,
                 Comentario = NotasAdicionales,
-                DesglosarIEPS = DesglosarIeps
+                DesglosarIEPS = DesglosarIeps,
+                CapturaRemota = SoloEvidencia && CapturaRemota
             };
 
             var loteResult = await _servicioTranscript.CrearLoteAsync(loteRequest);
@@ -689,8 +772,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
                     if (continuar)
                     {
+                        cantidadEnviadaLote = cantidadAEnviar;
+
                         // ── Punto 5: Subir archivos al Blob Storage ──────────
                         var rutas = _capturas
+                            .Reverse()
                             .Take(cantidadAEnviar)
                             .Select(c => c.Path)
                             .ToList();
@@ -721,12 +807,19 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         // Se llama sólo si el lote fue creado Y el usuario no canceló en el diálogo de créditos.
         if (loteId.HasValue && !canceladoPorUsuario)
         {
-            var completarResult = await _servicioTranscript.CompletarLoteAsync(loteId.Value);
+            DtoCierreLote? cierreLote = null;
+            if (SoloEvidencia && !CapturaRemota)
+                cierreLote = new DtoCierreLote { Montos = (montosCierre ?? []).Take(cantidadEnviadaLote).ToList() };
+
+            var completarResult = await _servicioTranscript.CompletarLoteAsync(loteId.Value, cierreLote);
             if (completarResult.Ok && exitoso)
             {
                 await Task.Delay(400); // Pausa breve para ver el 100 %
                 AppState.Instance.CapturasLote = null;
                 _capturas.Clear();
+                CapturaSeleccionada = null;
+                SoloEvidencia = false;
+                CapturaRemota = false;
                 await _servicioSesion.GetLicenciaAsync();
                 await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
@@ -739,8 +832,86 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         EstaEnviando = false;
     }
 
+    private bool TryConstruirMontosCierre(out List<double> montos, out string mensajeError)
+    {
+        montos = [];
+        mensajeError = string.Empty;
+
+        var capturasEnOrdenDeEnvio = _capturas.Reverse().ToList();
+
+        for (var i = 0; i < capturasEnOrdenDeEnvio.Count; i++)
+        {
+            var captura = capturasEnOrdenDeEnvio[i];
+            var textoMonto = (captura.MontoTexto ?? string.Empty).Trim();
+
+            if (string.IsNullOrWhiteSpace(textoMonto))
+            {
+                mensajeError = $"Captura el monto del ticket #{i + 1} antes de enviar.";
+                return false;
+            }
+
+            if (!decimal.TryParse(textoMonto, NumberStyles.Number, CultureInfo.CurrentCulture, out var montoDecimal) &&
+                !decimal.TryParse(textoMonto, NumberStyles.Number, CultureInfo.InvariantCulture, out montoDecimal))
+            {
+                mensajeError = $"El monto del ticket #{i + 1} no tiene un formato válido.";
+                return false;
+            }
+
+            if (montoDecimal < 0)
+            {
+                mensajeError = $"El monto del ticket #{i + 1} debe ser mayor o igual a cero.";
+                return false;
+            }
+
+            montos.Add((double)montoDecimal);
+        }
+
+        return true;
+    }
+
     private async Task CancelarAsync()
         => await Shell.Current.GoToAsync("..");
+
+    private void OnCapturasCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems is not null)
+        {
+            foreach (var item in e.OldItems.OfType<CapturaLote>())
+                item.PropertyChanged -= OnCapturaPropertyChanged;
+        }
+
+        if (e.NewItems is not null)
+        {
+            foreach (var item in e.NewItems.OfType<CapturaLote>())
+                item.PropertyChanged += OnCapturaPropertyChanged;
+        }
+
+        ActualizarTitulosMontos();
+
+        if (_capturas.Count == 0)
+            CapturaSeleccionada = null;
+        else if (CapturaSeleccionada is null || !_capturas.Contains(CapturaSeleccionada))
+            CapturaSeleccionada = _capturas[0];
+
+        AppState.Instance.CapturasLote = [.. _capturas];
+
+        OnPropertyChanged(nameof(TieneCapturas));
+        OnPropertyChanged(nameof(ColumnSpanCamara));
+        OnPropertyChanged(nameof(PuedeEnviar));
+    }
+
+    private void OnCapturaPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(CapturaLote.MontoTexto))
+            AppState.Instance.CapturasLote = [.. _capturas];
+    }
+
+    private void ActualizarTitulosMontos()
+    {
+        var total = _capturas.Count;
+        for (var i = 0; i < total; i++)
+            _capturas[i].MontoTitulo = $"Monto ticket {total - i}";
+    }
 
     // ── Drawable: círculo de progreso ─────────────────────────────────────────
 
