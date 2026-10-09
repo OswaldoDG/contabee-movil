@@ -379,6 +379,30 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Verificar aviso de privacidad en línea
+        shell: bash
+        env:
+          PRIVACY_URL: https://www.contabee.mx/privacidad
+        run: |
+          set -uo pipefail
+
+          # Las tiendas rechazan la revisión si el aviso de privacidad no carga.
+          for intento in 1 2 3; do
+            body_file="$(mktemp)"
+            status="$(curl -sSL --max-time 30 -A 'ContaBee-Release-Check' -o "$body_file" -w '%{http_code}' "$PRIVACY_URL" || echo 000)"
+
+            if [ "$status" = "200" ] && grep -qi 'datos personales' "$body_file"; then
+              echo "✓ Aviso de privacidad disponible: $PRIVACY_URL"
+              exit 0
+            fi
+
+            echo "Intento $intento: $PRIVACY_URL respondió HTTP $status o no contiene el aviso de privacidad."
+            [ "$intento" -lt 3 ] && sleep 15
+          done
+
+          echo "ERROR: La página de privacidad no está disponible. No se enviará a revisión."
+          exit 1
+
       - name: Exigir todas las validaciones seleccionadas
         shell: bash
         env:
