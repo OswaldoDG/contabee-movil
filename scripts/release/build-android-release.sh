@@ -13,6 +13,7 @@ WORK_DIR="$(mktemp -d /tmp/contabee-android-release.XXXXXX)"
 STORE_PASSWORD_FILE="$WORK_DIR/store-password.txt"
 KEY_PASSWORD_FILE="$WORK_DIR/key-password.txt"
 CERTIFICATE_PATH="$WORK_DIR/upload-certificate.der"
+export NUGET_PACKAGES="$WORK_DIR/nuget-packages"
 
 cleanup() {
   rm -rf "$WORK_DIR"
@@ -65,6 +66,7 @@ rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj"
 
 echo "==> Restaurando paquetes NuGet..."
 dotnet restore "$PROJECT_DIR" \
+  --no-http-cache \
   --locked-mode \
   -p:Configuration=Release \
   -p:ContaBeeAndroidOnly=true
