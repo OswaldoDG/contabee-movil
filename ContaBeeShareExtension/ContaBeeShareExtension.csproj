@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0-ios</TargetFramework>
-    <RuntimeIdentifiers Condition="'$(OS)' != 'Windows_NT'">ios-arm64;iossimulator-arm64;iossimulator-x64</RuntimeIdentifiers>
     <OutputType>Library</OutputType>
     <IsAppExtension>true</IsAppExtension>
     <Registrar>static</Registrar>
@@ -31,6 +30,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- La publicación App Store siempre compila la extensión para dispositivo. -->
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
     <CodesignKey>Apple Distribution: Neurofant Mexico  S.A.P.I. de C.V (X598HW3AYR)</CodesignKey>
     <CodesignProvision>ContaBee ShareExtension AppStore</CodesignProvision>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
