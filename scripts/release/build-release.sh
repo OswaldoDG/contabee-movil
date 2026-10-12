@@ -10,7 +10,6 @@ PROJECT_DIR="$REPOSITORY_ROOT/ContaBeeMovil"
 EXTENSION_PROJECT_DIR="$REPOSITORY_ROOT/ContaBeeShareExtension"
 IPA_PATH="$PROJECT_DIR/bin/Release/net10.0-ios/ios-arm64/publish/ContaBeeMovil.ipa"
 WORK_DIR="$(mktemp -d /tmp/contabee-release.XXXXXX)"
-export NUGET_PACKAGES="$WORK_DIR/nuget-packages"
 
 cleanup() {
   rm -rf "$WORK_DIR"
@@ -31,7 +30,6 @@ rm -rf "$PROJECT_DIR/bin" "$PROJECT_DIR/obj" \
 echo "==> Restaurando paquetes NuGet..."
 dotnet restore "$PROJECT_DIR" \
   -r ios-arm64 \
-  --no-http-cache \
   --locked-mode \
   -p:ContaBeeIosOnly=true
 
