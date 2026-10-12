@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    "net10.0-ios26.2": {
+    "net10.0-ios26.5": {
       "banditoth.MAUI.DeviceId": {
         "type": "Direct",
         "requested": "[1.0.2, )",
@@ -454,7 +454,7 @@
         "type": "Project"
       }
     },
-    "net10.0-ios26.2/ios-arm64": {
+    "net10.0-ios26.5/ios-arm64": {
       "SkiaSharp.NativeAssets.iOS": {
         "type": "Transitive",
         "resolved": "3.119.2",

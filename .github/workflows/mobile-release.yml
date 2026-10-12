@@ -254,9 +254,9 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v6
 
-      - name: Seleccionar Xcode 26.2
+      - name: Seleccionar Xcode 26.5
         shell: bash
-        run: sudo xcode-select --switch /Applications/Xcode_26.2.app/Contents/Developer
+        run: sudo xcode-select --switch /Applications/Xcode_26.5.app/Contents/Developer
 
       - name: Recuperar IPA generado
         uses: actions/download-artifact@v8
