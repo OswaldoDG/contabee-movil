@@ -52,16 +52,16 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Instalar workload maui-ios fijo
-        shell: bash
-        # global.json fija el workload set compatible con el SDK y evita actualizarlo implícitamente.
-        run: dotnet workload install maui-ios
-
-      - name: Mostrar versiones instaladas
+      - name: Mostrar versiones seleccionadas
         shell: bash
         run: |
           dotnet --version
           dotnet workload --version
+
+      - name: Instalar workload maui-ios fijo
+        shell: bash
+        # global.json fija el workload set compatible con el SDK y evita actualizarlo implícitamente.
+        run: dotnet workload install maui-ios
 
       - name: Instalar certificado y perfiles de firma
         shell: bash
