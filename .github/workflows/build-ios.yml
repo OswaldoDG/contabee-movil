@@ -41,10 +41,10 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v6
 
-      - name: Seleccionar Xcode 26.5
+      - name: Seleccionar Xcode 26.6
         shell: bash
         run: |
-          sudo xcode-select --switch /Applications/Xcode_26.5.app/Contents/Developer
+          sudo xcode-select --switch /Applications/Xcode_26.6.app/Contents/Developer
           xcodebuild -version
 
       - name: Instalar .NET y workload de iOS
