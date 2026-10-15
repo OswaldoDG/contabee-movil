@@ -1,0 +1,101 @@
+<Project>
+  <!--
+    Google Play exige ≥25% de ofuscación del DEX (fecha límite feb 2027).
+    El SDK de .NET Android activa R8 con <AndroidLinkTool>r8</AndroidLinkTool>, pero su
+    proguard_xamarin.cfg (embebido en Xamarin.Android.Build.Tasks.dll) trae -dontobfuscate
+    fijo y no hay propiedad para quitarlo (sigue igual en .NET 11).
+
+    Este target sustituye ese .cfg en la lista que recibe R8 por una copia sin -dontobfuscate,
+    extraída en cada build de la DLL del SDK instalado (se actualiza sola al subir de versión).
+    También reescribe las líneas que el task R8 agrega a ese archivo (-ignorewarnings,
+    atributos de línea y -printmapping para mapping.txt).
+
+    Los nombres que C# usa por JNI no se ofuscan: el SDK genera -keep para las clases Java
+    referenciadas por bindings (proguard_project_references.cfg), las ACW
+    (proguard_project_primary.cfg) y lo declarado en el manifest (aapt_rules.txt).
+  -->
+
+  <UsingTask TaskName="ExtraerConfigR8SinDontObfuscate"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Salida ParameterType="System.String" Required="true" />
+      <ReglasReferencias ParameterType="System.String" Required="true" />
+      <LineasExtra ParameterType="System.String[]" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        // Xamarin.Android.Build.Tasks ya está cargado: sus tasks corrieron antes que este target.
+        var tareas = AppDomain.CurrentDomain.GetAssemblies()
+            .FirstOrDefault(a => a.GetName().Name == "Xamarin.Android.Build.Tasks");
+        string contenido;
+        using (var s = tareas?.GetManifestResourceStream("proguard_xamarin.cfg"))
+        {
+            if (s == null)
+            {
+                Log.LogError("No se encontró el recurso proguard_xamarin.cfg en Xamarin.Android.Build.Tasks. Revisar R8Ofuscacion.targets tras actualizar el SDK de Android.");
+                return false;
+            }
+            using (var r = new StreamReader(s))
+                contenido = r.ReadToEnd();
+        }
+
+        // El .cfg que el SDK genera para las clases Java usadas desde C# lista sus métodos pero
+        // NINGÚN campo; C# lee campos por nombre vía JNI (p. ej. valores de enum como
+        // Lifecycle$State.DESTROYED → NoSuchFieldError). Se conservan los campos de esas clases.
+        if (!File.Exists(ReglasReferencias))
+        {
+            Log.LogError("No existe " + ReglasReferencias + ". Revisar R8Ofuscacion.targets tras actualizar el SDK de Android.");
+            return false;
+        }
+        var campos = File.ReadAllLines(ReglasReferencias)
+            .Where(l => l.StartsWith("-keep class ") && !l.Contains("{"))
+            .Select(l => l.Substring("-keep class ".Length).Trim())
+            .Distinct()
+            .Select(c => "-keepclassmembers class " + c + " { <fields>; }");
+
+        var lineas = contenido.Split('\n')
+            .Select(l => l.TrimEnd('\r'))
+            .Where(l => l.Trim() != "-dontobfuscate")
+            .Concat(LineasExtra ?? new string[0])
+            .Concat(campos);
+
+        Directory.CreateDirectory(Path.GetDirectoryName(Salida));
+        File.WriteAllLines(Salida, lineas);
+      ]]></Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="_ContaBeeHabilitarOfuscacionR8"
+          AfterTargets="_CalculateProguardConfigurationFiles"
+          DependsOnTargets="_SetProguardMappingFileProperty"
+          Condition=" '$(AndroidLinkTool)' == 'r8' ">
+    <PropertyGroup>
+      <_CfgXamarinOriginal>$(IntermediateOutputPath)proguard\proguard_xamarin.cfg</_CfgXamarinOriginal>
+      <_CfgXamarinOfuscable>$(IntermediateOutputPath)proguard\proguard_xamarin_ofuscable.cfg</_CfgXamarinOfuscable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <!-- Clases Java del runtime .NET que el host nativo busca por nombre (FindClass) y que
+           el .cfg del SDK no protege porque cuenta con -dontobfuscate.
+           Sin esto: ClassNotFoundException net.dot.android.ApplicationRegistration al abrir. -->
+      <_LineasExtraR8 Include="-keep class net.dot.android.** { *%3B &lt;init&gt;(...)%3B }" />
+      <_LineasExtraR8 Include="-keep class android.runtime.** { *%3B &lt;init&gt;(...)%3B }" />
+      <_LineasExtraR8 Include="-ignorewarnings" Condition=" '$(AndroidR8IgnoreWarnings)' == 'true' " />
+      <_LineasExtraR8 Include="-keepattributes SourceFile;-keepattributes LineNumberTable" Condition=" '$(AndroidProguardMappingFile)' != '' " />
+      <_LineasExtraR8 Include="-printmapping &quot;$([MSBuild]::NormalizePath('$(MSBuildProjectDirectory)', '$(AndroidProguardMappingFile)'))&quot;" Condition=" '$(AndroidProguardMappingFile)' != '' " />
+    </ItemGroup>
+
+    <ExtraerConfigR8SinDontObfuscate Salida="$(_CfgXamarinOfuscable)"
+                                     ReglasReferencias="$(_ProguardProjectConfiguration)"
+                                     LineasExtra="@(_LineasExtraR8)" />
+
+    <ItemGroup>
+      <_ProguardConfiguration Remove="$(_CfgXamarinOriginal)" />
+      <_ProguardConfiguration Include="$(_CfgXamarinOfuscable)" />
+    </ItemGroup>
+  </Target>
+</Project>

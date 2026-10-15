@@ -97,9 +97,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "xi+BDjFpW+Sb+MHFHaH6Y/gV9I8BluFwRXc1QyCdoZbIK26eNiBeFuMTe/FMwc33G1wdHCyDg7CVTmb8OdQrMQ=="
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "40yrBMsLEcjixBR4G+FiUaBPvxXIPSKJ2OgSrbOZcmSDBda4Sb0k7BWrfDpIvn3IvvDzwOL/tEPa6gDQfh6aRw=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -1930,7 +1930,7 @@
         "contentHash": "r/IIcpJRl2C6xBadDvtdeXRfyQcjvZ5Md8e7J5piZE785JM1WjTq69xoduKt48qTbUza86GhO92dYaXkYNxnxA=="
       }
     },
-    "net10.0-ios26.5": {
+    "net10.0-ios27.0": {
       "banditoth.MAUI.DeviceId": {
         "type": "Direct",
         "requested": "[1.0.2, )",
@@ -2022,9 +2022,9 @@
       },
       "Microsoft.NET.ILLink.Tasks": {
         "type": "Direct",
-        "requested": "[10.0.12, )",
-        "resolved": "10.0.12",
-        "contentHash": "xi+BDjFpW+Sb+MHFHaH6Y/gV9I8BluFwRXc1QyCdoZbIK26eNiBeFuMTe/FMwc33G1wdHCyDg7CVTmb8OdQrMQ=="
+        "requested": "[10.0.13, )",
+        "resolved": "10.0.13",
+        "contentHash": "40yrBMsLEcjixBR4G+FiUaBPvxXIPSKJ2OgSrbOZcmSDBda4Sb0k7BWrfDpIvn3IvvDzwOL/tEPa6gDQfh6aRw=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -2383,28 +2383,28 @@
         "type": "Project"
       }
     },
-    "net10.0-ios26.5/android-arm": {
+    "net10.0-ios27.0/android-arm": {
       "SkiaSharp.NativeAssets.iOS": {
         "type": "Transitive",
         "resolved": "3.119.2",
         "contentHash": "nAtAvEUi1Yn0MBdgYubbXerik2zZgZdBbiiLH2EZIbsGR39BugXryvcUS9YHAOWkPghlVCrN8Iz5iihj3670aA=="
       }
     },
-    "net10.0-ios26.5/android-arm64": {
+    "net10.0-ios27.0/android-arm64": {
       "SkiaSharp.NativeAssets.iOS": {
         "type": "Transitive",
         "resolved": "3.119.2",
         "contentHash": "nAtAvEUi1Yn0MBdgYubbXerik2zZgZdBbiiLH2EZIbsGR39BugXryvcUS9YHAOWkPghlVCrN8Iz5iihj3670aA=="
       }
     },
-    "net10.0-ios26.5/ios-arm64": {
+    "net10.0-ios27.0/ios-arm64": {
       "SkiaSharp.NativeAssets.iOS": {
         "type": "Transitive",
         "resolved": "3.119.2",
         "contentHash": "nAtAvEUi1Yn0MBdgYubbXerik2zZgZdBbiiLH2EZIbsGR39BugXryvcUS9YHAOWkPghlVCrN8Iz5iihj3670aA=="
       }
     },
-    "net10.0-ios26.5/win-x64": {
+    "net10.0-ios27.0/win-x64": {
       "SkiaSharp.NativeAssets.iOS": {
         "type": "Transitive",
         "resolved": "3.119.2",

@@ -44,7 +44,7 @@
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>2.5.13</ApplicationDisplayVersion>
-		<ApplicationVersion>69</ApplicationVersion>
+		<ApplicationVersion>70</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -61,6 +61,12 @@
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' AND '$(Configuration)' == 'Debug'">
 		<RuntimeIdentifiers>android-arm;android-arm64</RuntimeIdentifiers>
 	</PropertyGroup>
+
+	<!-- R8: reducción + optimización + ofuscación del DEX (Google Play exige ≥25%). Ver R8Ofuscacion.targets -->
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' AND '$(Configuration)' == 'Release'">
+		<AndroidLinkTool>r8</AndroidLinkTool>
+	</PropertyGroup>
+	<Import Project="Platforms\Android\R8Ofuscacion.targets" Condition="'$(TargetFramework)' == 'net10.0-android'" />
 
 	<PropertyGroup Condition="'$(TargetFramework)'=='net10.0-ios' AND '$(Configuration)'=='Debug'">
 	  <CodesignKey>Apple Development: Created via API (489HK3K7TX)</CodesignKey>

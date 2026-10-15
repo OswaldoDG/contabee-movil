@@ -12,7 +12,9 @@ public partial class QRPage : ContentPage
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioPermisos _permisos;
     private readonly IServicioLogs _logs;
-    private bool _isProcessing;
+    private int _isProcessing;
+    private int _cerrando;
+    private CameraBarcodeReaderView? BarcodeReader;
 
     /// <summary>
     /// Invocado en cuanto se detecta la URL del QR. El llamador (RegistrarRFCsPage) hace el preview, muestra el popup y registra.
@@ -30,71 +32,136 @@ public partial class QRPage : ContentPage
         _servicioAlerta = servicioAlerta;
         _permisos = permisos;
         _logs = logs;
+    }
 
-        BarcodeReader.Options = new BarcodeReaderOptions
+    /// <summary>
+    /// El lector abre la cámara al conectarse su handler; si eso pasa antes de conceder el
+    /// permiso falla y se queda en negro sin reintentar. Por eso se crea hasta tener permiso.
+    /// </summary>
+    private void CrearLector()
+    {
+        BarcodeReader = new CameraBarcodeReaderView
         {
-            Formats = BarcodeFormats.All,
-            AutoRotate = true,
-            Multiple = false
+            Options = new BarcodeReaderOptions
+            {
+                Formats = BarcodeFormats.All,
+                AutoRotate = true,
+                Multiple = false
+            }
         };
+        BarcodeReader.BarcodesDetected += OnBarcodesDetected;
+        CameraGrid.Insert(0, BarcodeReader); // debajo de la guía de encuadre
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
 
-        _isProcessing = false;
-        BarcodeReader.IsVisible = true;
+        Interlocked.Exchange(ref _isProcessing, 0);
 
         // Se re-evalúa en cada OnAppearing — también al volver de los ajustes del sistema,
         // así el escáner queda operativo sin tener que reiniciar la app.
-        if (await _permisos.AsegurarCamaraAsync("para escanear el código QR"))
+        var tienePermiso = await _permisos.AsegurarCamaraAsync("para escanear el código QR");
+        if (Volatile.Read(ref _cerrando) != 0 || Navigation.ModalStack.LastOrDefault() != this)
+            return;
+
+        if (tienePermiso)
         {
-            BarcodeReader.IsDetecting = true;
+            if (BarcodeReader == null)
+                CrearLector();
+            BarcodeReader!.IsDetecting = true;
         }
         else if (Navigation.ModalStack.Contains(this))
         {
             // Sin permiso el visor queda en negro: se cierra en lugar de dejar al usuario atorado.
-            await Navigation.PopModalAsync();
+            await CerrarModalAsync();
         }
     }
 
     protected override void OnDisappearing()
     {
         base.OnDisappearing();
+        if (BarcodeReader == null) return;
+
+        // No quitar el lector del Grid aquí: durante PopModalAsync el contexto del layout
+        // puede estar desconectado y Grid.Remove provoca InvalidOperationException.
         BarcodeReader.IsDetecting = false;
-        BarcodeReader.Handler?.DisconnectHandler();
+        if (Volatile.Read(ref _cerrando) != 0)
+        {
+            BarcodeReader.BarcodesDetected -= OnBarcodesDetected;
+            BarcodeReader.Handler?.DisconnectHandler();
+        }
     }
 
-    private void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
+    private void OnBarcodesDetected(object? sender, BarcodeDetectionEventArgs e)
     {
-        if (_isProcessing) return;
+        if (Volatile.Read(ref _cerrando) != 0) return;
 
         var result = e.Results?.FirstOrDefault();
         if (result is null || string.IsNullOrEmpty(result.Value)) return;
 
-        _isProcessing = true;
-        BarcodeReader.IsDetecting = false;
+        // ZXing llama este evento desde otro hilo y puede entregar varios frames del
+        // mismo QR. Solo uno debe intentar cerrar el modal.
+        if (Interlocked.CompareExchange(ref _isProcessing, 1, 0) != 0) return;
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {
             try
             {
+                if (BarcodeReader != null) BarcodeReader.IsDetecting = false;
                 await ProcessQrResultAsync(result.Value);
             }
             catch (Exception ex)
             {
-                _logs.Log($"[QRPage] {ex.GetType().Name}: {ex.Message}");
-                await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error al procesar el código QR.", verBotonCancelar: false, confirmarText: "OK");
-                _isProcessing = false;
-                BarcodeReader.IsDetecting = true;
+                _logs.Error($"[QRPage] {ex}");
+                try
+                {
+                    await _servicioAlerta.MostrarAsync("Error", "Ocurrió un error al procesar el código QR.", verBotonCancelar: false, confirmarText: "OK");
+                }
+                catch (Exception alertaEx)
+                {
+                    _logs.Error($"[QRPage] No se pudo mostrar el error: {alertaEx}");
+                }
+                finally
+                {
+                    ReactivarEscaner();
+                }
             }
         });
     }
 
     private async void BtnCancelar_Clicked(object? sender, EventArgs e)
     {
-        await Navigation.PopModalAsync();
+        await CerrarModalAsync();
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+        _ = CerrarModalAsync();
+        return true;
+    }
+
+    private async Task<bool> CerrarModalAsync()
+    {
+        if (Interlocked.CompareExchange(ref _cerrando, 1, 0) != 0) return false;
+
+        var cerrado = false;
+        try
+        {
+            if (Navigation.ModalStack.LastOrDefault() != this) return false;
+            await Navigation.PopModalAsync();
+            cerrado = true;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logs.Error($"[QRPage] No se pudo cerrar el escáner: {ex}");
+            return false;
+        }
+        finally
+        {
+            if (!cerrado) Interlocked.Exchange(ref _cerrando, 0);
+        }
     }
 
     private const string DemoQrUrl = "https://siat.sat.gob.mx/app/qr/faces/pages/mobile/validadorqr.jsf?D1=10&D2=1&D3=00000000000_DEMO800101AA1";
@@ -103,21 +170,22 @@ public partial class QRPage : ContentPage
     {
         if (url.Equals(DemoQrUrl, StringComparison.OrdinalIgnoreCase))
         {
-            await Navigation.PopModalAsync();
+            if (!await CerrarModalAsync()) { ReactivarEscaner(); return; }
             if (AlRegistrarDemo != null)
                 await AlRegistrarDemo();
             return;
         }
 
         // Cerrar la cámara de inmediato y delegar preview + popup + registro al llamador.
-        await Navigation.PopModalAsync();
+        if (!await CerrarModalAsync()) { ReactivarEscaner(); return; }
         if (AlObtenerUrl != null)
             await AlObtenerUrl(url);
     }
 
     private void ReactivarEscaner()
     {
-        _isProcessing = false;
-        BarcodeReader.IsDetecting = true;
+        Interlocked.Exchange(ref _isProcessing, 0);
+        if (Navigation.ModalStack.LastOrDefault() == this && BarcodeReader != null)
+            BarcodeReader.IsDetecting = true;
     }
 }

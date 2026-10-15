@@ -19,6 +19,7 @@ public partial class App : Application
     {
         base.OnStart();
         AppState.Instance.CargarDesdePreferencias();
+        Services.GetRequiredService<IServicioSalud>().IniciarCalentamiento();
         _ = _modoDeveloper.ValidarVigenciaAsync();
         _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync();
         _ = Services.GetRequiredService<IServicioReconciliacionIAP>().ReconciliarAsync();
@@ -28,6 +29,7 @@ public partial class App : Application
     {
         base.OnResume();
         AppState.Instance.CargarDesdePreferencias();
+        Services.GetRequiredService<IServicioSalud>().IniciarCalentamiento();
         _ = _modoDeveloper.ValidarVigenciaAsync();
         _ = Services.GetRequiredService<IServicioSesion>().VerificarSesionAlReanudarAsync();
         _ = Services.GetRequiredService<IServicioActualizacion>().VerificarAsync(esArranque: false);
@@ -37,6 +39,13 @@ public partial class App : Application
         // la notificación "foto lista" que programa la Share Extension
         ContaBeeMovil.Helpers.SharedImageHandler.NotifySharedImageScheme();
 #endif
+    }
+
+    protected override void OnSleep()
+    {
+        base.OnSleep();
+        // En segundo plano no se mantiene nada prendido: Azure apaga los pods y ahorra.
+        Services.GetRequiredService<IServicioSalud>().DetenerCalentamiento();
     }
 
     protected override Window CreateWindow(IActivationState? activationState)

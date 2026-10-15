@@ -120,6 +120,18 @@ for f in glob.glob('Contabee.Api/swagger/*.json'):
 
 ---
 
+## ⚠️ Android Release: R8 + ofuscación (exigido por Google Play)
+
+Play exige ≥25% de ofuscación del DEX (fecha límite feb 2027). Release Android usa `<AndroidLinkTool>r8</AndroidLinkTool>` + `Platforms/Android/R8Ofuscacion.targets`, que quita el `-dontobfuscate` fijo que mete el SDK de .NET (`proguard_xamarin.cfg`) cambiándolo por una copia sin esa línea en la lista que recibe R8. Sin `-dontobfuscate` las reglas del SDK no bastan, así que el `.targets` además conserva: clases del runtime (`net.dot.android.**`, `android.runtime.**`) y los **campos** de toda clase usada desde C# (el `.cfg` generado por .NET solo lista métodos → `NoSuchFieldError`, p. ej. `Lifecycle$State.DESTROYED`).
+
+**Al actualizar .NET/MAUI o el workload de Android**, tras un build Release verifica:
+- El log de R8 trae `--pg-conf ...proguard_xamarin_ofuscable.cfg` y **no** `proguard_xamarin.cfg`.
+- `bin/Release/net10.0-android/mapping.txt` tiene clases renombradas (oct 2026: 76% clases, 55% miembros).
+
+Si un flujo truena en Release con `ClassNotFoundException` / `NoSuchMethodError`, falta un `-keep` (agregarlo en un `.cfg` como `ProguardConfiguration`), no quitar la ofuscación. Subir `mapping.txt` a Play para leer crashes de Java.
+
+---
+
 ## Servicios custom — OBLIGATORIO usarlos siempre
 
 > **NUNCA** uses `DisplayAlert`, `Console.WriteLine`, `Debug.WriteLine` ni toasts de terceros. Siempre usa los servicios propios del proyecto.

@@ -5,6 +5,46 @@
 
 ---
 
+## 2026-10-15 — Calentamiento de pods del API (Azure scale-to-zero)
+
+- Azure apaga los pods tras ~5 min sin tráfico. La primera llamada encadena arranques en frío en serie (identity → crm → …), así que las esperas son largas pero no hay errores.
+- `ServicioSalud.IniciarCalentamiento()` / `DetenerCalentamiento()`: ping en paralelo a los 4 `/health` + `{transcript}/diagnostico` (despierta también los pods internos vía Consul). Corre al instante y luego cada 4 min mientras la app está al frente. Usa un cliente HTTP sin `AuthHandler` (no toca el interruptor), timeout de 60 s y throttle por OnSleep/OnResume seguidos. Se conecta en `App.OnStart`/`OnResume` y se detiene en el nuevo `OnSleep`.
+- **Distinguir "tarda" de "no responde"** (`AuthHandler`): el banner "No pudimos conectar" ya no sale con el primer fallo, solo cuando abre el `InterruptorApi` (3 fallos consecutivos). Antes, un 5xx suelto en un arranque en frío lo prendía y la siguiente respuesta buena mostraba un toast "Servicio restablecido" falso. Los GET se reintentan ante 502/503/504 o error de conexión (esperas de 2 y 5 s). Una respuesta de más de 8 s se loguea como `Respuesta lenta`.
+- Timeouts: API 100 → 180 s (`timeoutApi` en MauiProgram; el ingress de Azure corta a 240 s), refresh de token 15 → 45 s.
+- Log `[Salud] Calentamiento: ruta código ms…` para medir.
+- **Menos llamadas (caché):**
+  - Tarjetas: al reanudar solo se vuelven a pedir si pasaron más de 30 min o hay cambios pendientes. Antes era un GET a crm en cada `OnResume`, incluido volver de la cámara.
+  - Cupón de bienvenida del Dashboard: se pide como mucho cada 30 min. Se fuerza con `CuponesVersion` (también al registrar un cupón por código), al cambiar de cuenta fiscal o con pull-to-refresh.
+  - Catálogo de la Tienda: caché estática de 1 h.
+  - Sin caché a propósito: licencia/créditos y listados. Pendiente: Beto prueba en dispositivo. Si sigue lento, la solución de raíz es infra (mínimo 1 réplica en horario laboral).
+
+---
+
+## 2026-10-12 — SDK 10.0.401 y Action de release
+
+- `global.json` fija SDK 10.0.401 y workload set 10.0.401.1; los lockfiles de Android, iOS y solución se regeneraron. Los restores de release para Android e iOS pasan en `--locked-mode`.
+- El workload iOS 27.0.10722 requiere Xcode 27.0; `build-ios.yml` usa el runner `xcode-27` y selecciona `/Applications/Xcode_27.app`.
+- Android Release compiló localmente con 0 errores y generó AAB y `mapping.txt` con R8. Pendiente comprobar build firmado de iOS en GitHub Actions y probar la app en dispositivo. Incluir `Platforms/Android/R8Ofuscacion.targets` (todavía sin seguimiento en Git) al enviar estos cambios.
+
+---
+
+## 2026-10-12 — Cierre de la app al leer QR fiscal
+
+- Logcat mostró `MauiContext should have been set on parent` en `QRPage.OnDisappearing`: se quitaba el lector del `Grid` después de desconectar su handler. También hubo cierres por `PopModalAsync` duplicado.
+- `QRPage` ya no quita el lector del `Grid` al cerrar; limita el procesamiento a un QR y protege el cierre del modal contra llamadas simultáneas.
+- Android Debug compiló con 0 errores usando SDK 10.0.401. Pendiente prueba de escaneo en dispositivo por Beto.
+
+---
+
+## 2026-10-09 — Avisos de Google Play en Android (rama `fix/android-produccion`, desde `release2.5`)
+
+- **Edge-to-edge (aviso):** `EdgeToEdge.Enable(this)` en `MainActivity.OnCreate` antes de `base.OnCreate`. MAUI 10 ya aplica insets. Pendiente probar en Android ≤14.
+- **APIs obsoletas `setStatusBarColor`/`setNavigationBarColor` (aviso):** vienen de la librería Material de Google (`BottomSheetDialog`, `EdgeToEdgeUtils`, `SheetDialog`), no de nuestro código; siguen en Material 1.14.0.6. Sin acción.
+- **Optimización DEX < 25% ofuscación (obligatorio, feb 2027):** R8 activado en Release + `R8Ofuscacion.targets` (ver CLAUDE.md). Build local: DEX 20 MB → 8.8 MB, 76% clases ofuscadas.
+- **Pendiente:** Beto prueba AAB Release en track interno (IAP, cámara/QR, OCR, widget, deep link, share, popups, tema). Fase 5: subir `mapping.txt` a Play en `upload-google-play.sh` y como artefacto de CI.
+
+---
+
 ## 2026-10-07 — Filtro "Todos" de Devoluciones/Comprobaciones solo traía el primer estado
 
 **Causa:** la UI mandaba `Estado Igual [todos los valores]`; el back (`ExtensionesFiltro.CondicionEnumeracion`) solo evalúa `Valores[0]` → "Todos" = solo Creada / solo Abierta. **Fix UI:** con "Todos" ya no se manda filtro `Estado` (`FiltrosDevolucionesView`, `FiltrosComprobacionesView`). Además: badge de estado en `DetalleComprobacionPage` y toast de éxito al cambiar estado en ambos detalles.

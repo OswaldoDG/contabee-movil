@@ -31,7 +31,14 @@ namespace ContaBeeMovil
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
+            // Android 15+ (targetSdk 35+) fuerza edge-to-edge; esto lo activa también en
+            // versiones anteriores para que se vea igual en todas. MAUI 10 aplica los
+            // insets de las barras del sistema (SafeAreaEdges).
+            // Debe ir DESPUÉS de base.OnCreate: Enable() crea el DecorView, y si eso pasa antes
+            // de que MAUI cambie de Maui.SplashTheme a su tema principal, el fondo del splash
+            // (blanco con logo) queda como fondo de la ventana y se asoma al navegar.
             base.OnCreate(savedInstanceState);
+            AndroidX.Activity.EdgeToEdge.Enable(this);
             HandleIntent(Intent, desdeOnCreate: true);
 
             if (_pendingRecreate)

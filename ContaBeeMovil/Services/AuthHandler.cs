@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Contabee.Api.Identidad;
@@ -59,6 +60,18 @@ public class AuthHandler : DelegatingHandler
         TimeSpan.FromSeconds(1),
         TimeSpan.FromSeconds(3)
     ];
+
+    // Arranque en frío: Azure apaga los pods sin tráfico y, mientras uno prende, el gateway
+    // (o un pod que llama a otro) puede responder 502/503/504 o cortar la conexión. Un GET
+    // es idempotente, así que se reintenta: el usuario ve una espera, no un error.
+    private static readonly TimeSpan[] _esperasReintentoGet =
+    [
+        TimeSpan.FromSeconds(2),
+        TimeSpan.FromSeconds(5)
+    ];
+
+    // Arriba de esto la respuesta se loguea como lenta: separa "tarda" de "no responde".
+    private static readonly TimeSpan _umbralLento = TimeSpan.FromSeconds(8);
 
     public AuthHandler(IServiceProvider serviceProvider)
     {
@@ -174,7 +187,11 @@ public class AuthHandler : DelegatingHandler
 
         try
         {
-            var response = await base.SendAsync(request, cancellationToken);
+            var reloj = Stopwatch.StartNew();
+            var response = await EnviarConReintentoAsync(request, path, cancellationToken);
+
+            if (reloj.Elapsed > _umbralLento)
+                Logs.Warn($"[AuthHandler] Respuesta lenta {reloj.Elapsed.TotalSeconds:F1}s — {request.Method} {path} ({(int)response.StatusCode})");
 
             // Si llegamos aquí, el servidor respondió — hay internet.
             // Limpiar offline mode por si ConnectivityChanged no lo hizo.
@@ -224,14 +241,46 @@ public class AuthHandler : DelegatingHandler
         }
     }
 
-    // Contabiliza un fallo atribuible al backend y enciende el aviso de servicio caído.
+    private async Task<HttpResponseMessage> EnviarConReintentoAsync(
+        HttpRequestMessage request, string path, CancellationToken cancellationToken)
+    {
+        for (int intento = 0; ; intento++)
+        {
+            bool ultimo = request.Method != HttpMethod.Get || intento >= _esperasReintentoGet.Length;
+            try
+            {
+                var response = await base.SendAsync(request, cancellationToken);
+                if (ultimo || !EsTransitorio(response.StatusCode))
+                    return response;
+
+                Logs.Warn($"[AuthHandler] HTTP {(int)response.StatusCode} en {path} — reintento {intento + 1}/{_esperasReintentoGet.Length}");
+                response.Dispose();
+            }
+            catch (HttpRequestException ex) when (!ultimo && Connectivity.Current.NetworkAccess is NetworkAccess.Internet or NetworkAccess.ConstrainedInternet)
+            {
+                Logs.Warn($"[AuthHandler] {ex.GetType().Name} en {path} — reintento {intento + 1}/{_esperasReintentoGet.Length}");
+            }
+
+            await Task.Delay(_esperasReintentoGet[intento], cancellationToken);
+        }
+    }
+
+    private static bool EsTransitorio(System.Net.HttpStatusCode code) =>
+        code is System.Net.HttpStatusCode.BadGateway
+             or System.Net.HttpStatusCode.ServiceUnavailable
+             or System.Net.HttpStatusCode.GatewayTimeout;
+
+    // Contabiliza un fallo atribuible al backend. El aviso de servicio caído solo se enciende
+    // cuando el interruptor abre (fallos consecutivos): un fallo suelto durante un arranque en
+    // frío es "tarda", no "no responde", y encenderlo ahí disparaba un "Servicio restablecido"
+    // falso en cuanto llegaba la siguiente respuesta buena.
     private void RegistrarFalloInfraestructura(string detalle)
     {
-        if (Interruptor.RegistrarFallo())
-            Logs.Error($"[AuthHandler] Interruptor ABIERTO tras fallos consecutivos — último: {detalle}");
+        if (!Interruptor.RegistrarFallo())
+            return;
 
-        if (!AppState.Instance.ServicioNoDisponible)
-            MainThread.BeginInvokeOnMainThread(() => AppState.Instance.ServicioNoDisponible = true);
+        Logs.Error($"[AuthHandler] Interruptor ABIERTO tras fallos consecutivos — último: {detalle}");
+        MainThread.BeginInvokeOnMainThread(() => AppState.Instance.ServicioNoDisponible = true);
     }
 
     // El backend contestó: cierra el interruptor y apaga el aviso.

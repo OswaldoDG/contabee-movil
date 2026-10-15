@@ -38,6 +38,13 @@ public class ServicioSesion : IServicioSesion
     private DateTime _ultimaDesvinculacion = DateTime.MinValue;
     private static readonly TimeSpan _cooldownDesvinculacion = TimeSpan.FromSeconds(30);
 
+    // Las tarjetas solo cambian cuando el usuario las edita (GuardarTarjetasAsync ya deja
+    // servidor y caché local al día). Al reanudar no se vuelven a pedir si la última
+    // sincronización es reciente: en Android volver de la cámara o del selector de fotos
+    // también es OnResume, y cada uno costaba un GET a crm.
+    private DateTime _ultimaSyncTarjetas = DateTime.MinValue;
+    private static readonly TimeSpan _vigenciaTarjetas = TimeSpan.FromMinutes(30);
+
     // Resolución perezosa del coordinador para evitar un ciclo de DI en el constructor
     // (el coordinador depende de IServicioSesion). El coordinador es la ÚNICA autoridad
     // de navegación y terminación de sesión; ServicioSesion delega ahí toda decisión
@@ -335,6 +342,7 @@ public class ServicioSesion : IServicioSesion
 
             _appState.Tarjetas = tarjetas;
             await _almacenamiento.GuardarSeguroAsync(clave, tarjetas);
+            _ultimaSyncTarjetas = DateTime.UtcNow;
         }
         else
         {
@@ -358,6 +366,7 @@ public class ServicioSesion : IServicioSesion
         if (respuesta.Ok)
         {
             Preferences.Set("TarjetasPendienteSincronizacion", false);
+            _ultimaSyncTarjetas = DateTime.UtcNow;
         }
         else
         {
@@ -407,7 +416,9 @@ public class ServicioSesion : IServicioSesion
             return;
         }
 
-        await GetTarjetasAsync();
+        if (DateTime.UtcNow - _ultimaSyncTarjetas > _vigenciaTarjetas ||
+            Preferences.Get("TarjetasPendienteSincronizacion", false))
+            await GetTarjetasAsync();
 
         bool esLoginLess = !string.IsNullOrEmpty(await LeeTokenLoginLessAsync());
         var expiracion = await LeeExpiracionAsync();

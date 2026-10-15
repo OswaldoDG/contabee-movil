@@ -145,6 +145,7 @@ public class PaginaCuponesViewModel : INotifyPropertyChanged
 
             _logs.Info("[Cupones] Cupón registrado por código");
             CodigoCupon = string.Empty;
+            AppState.Instance.CuponesVersion++;   // el Dashboard recalcula su aviso de cupón
         }
         finally
         {

@@ -31,6 +31,13 @@ public partial class TiendaPage : ContentPage
     };
 
     private bool _cargado;
+
+    // La página es Transient: sin esto cada apertura de la Tienda volvía a pedir el catálogo,
+    // que casi no cambia. Vigencia corta porque de aquí sale el precio que se registra en la
+    // compra; los productos y precios que se muestran los da la tienda (IAP) en cada apertura.
+    private static List<DtoCategoriasProducto>? _catalogoCache;
+    private static DateTime _catalogoCacheHora = DateTime.MinValue;
+    private static readonly TimeSpan _vigenciaCatalogo = TimeSpan.FromHours(1);
     private bool _comprando;   // guard de reentrada: evita que un doble-tap dispare dos compras
 
     // El catálogo publica un precio Público POR pasarela (Interbancario/MercadoPago/Apple/Google),
@@ -128,19 +135,30 @@ public partial class TiendaPage : ContentPage
                 })
                 .ToList();
 
-            var resultado = await _servicioEcommerce.GetCatalogoProductos();
-            if (!resultado.Ok || resultado.Payload is null)
+            var catalogo = _catalogoCache;
+            if (catalogo is null || DateTime.UtcNow - _catalogoCacheHora > _vigenciaCatalogo)
             {
-                _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
-                await _servicioAlerta.MostrarAsync("Error", "No se pudo obtener el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
-                ActualizarUI();
-                return;
+                var resultado = await _servicioEcommerce.GetCatalogoProductos();
+                if (!resultado.Ok || resultado.Payload is null)
+                {
+                    _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
+                    await _servicioAlerta.MostrarAsync("Error", "No se pudo obtener el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
+                    ActualizarUI();
+                    return;
+                }
+
+                catalogo = _catalogoCache = resultado.Payload;
+                _catalogoCacheHora = DateTime.UtcNow;
+            }
+            else
+            {
+                _logs.Log("Tienda: catálogo desde caché");
             }
 
             // ── Créditos por categoría (captura / colaboración / autoservicio) ──
-            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOS",      "credcaptura", "CREDITOS_CAPTURA",      "Captura",      "captura");
-            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOSCOLAB", "credcolab",   "CREDITOS_COLABORACION", "Colaboración", "colaboracion");
-            await CargarCategoriaCreditosAsync(resultado.Payload, "CREDITOSAUTO",  "credauto",    "CREDITOS_AUTOSERVICIO", "Autoservicio", "autoservicio");
+            await CargarCategoriaCreditosAsync(catalogo, "CREDITOS",      "credcaptura", "CREDITOS_CAPTURA",      "Captura",      "captura");
+            await CargarCategoriaCreditosAsync(catalogo, "CREDITOSCOLAB", "credcolab",   "CREDITOS_COLABORACION", "Colaboración", "colaboracion");
+            await CargarCategoriaCreditosAsync(catalogo, "CREDITOSAUTO",  "credauto",    "CREDITOS_AUTOSERVICIO", "Autoservicio", "autoservicio");
 
             ActualizarUI();
         }

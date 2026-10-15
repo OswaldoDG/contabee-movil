@@ -128,31 +128,40 @@ namespace ContaBeeMovil
             {
                 client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
-                // El default de HttpClient son 100 s: con el identity caído, la UI se quedaba
-                // colgada minuto y medio antes de que el refresh siquiera fallara. 15 s es de
-                // sobra para un token, y AuthHandler reintenta con backoff.
-                client.Timeout = TimeSpan.FromSeconds(15);
+                // Con Azure scale-to-zero un identity frío (más los pods que llama) puede tardar
+                // bastante más que 15 s. 45 s × 3 intentos de AuthHandler cabe en el timeout
+                // del API (timeoutApi), así que el refresh nunca lo agota.
+                client.Timeout = TimeSpan.FromSeconds(45);
             }).ConHandlerNativo();
+
+            // El default (100 s) cancelaba operaciones que solo tardaban: con Azure scale-to-zero
+            // una llamada puede encadenar varios arranques en frío. 180 s queda debajo de los
+            // 240 s que Azure Container Apps da por petición en su ingress.
+            var timeoutApi = TimeSpan.FromSeconds(180);
 
             builder.Services.AddHttpClient<IServicioIdentidad, ServicioIdentidad>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlIdentity);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = timeoutApi;
             }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioCrm, ServicioCrm>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlCrm);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = timeoutApi;
             }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioTranscript, ServicioTranscript>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlTranscript);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = timeoutApi;
             }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
             builder.Services.AddHttpClient<IServicioEcommerce, ServicioEcommerce>(client =>
             {
                 client.BaseAddress = new Uri(appConfig.UrlEcommerce);
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
+                client.Timeout = timeoutApi;
             }).ConHandlerNativo().AddHttpMessageHandler<AuthHandler>();
 
 

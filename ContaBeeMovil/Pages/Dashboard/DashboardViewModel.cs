@@ -40,6 +40,11 @@ public class DashboardViewModel : INotifyPropertyChanged
     private bool _sinActividad;
     private bool _estaRefrescando;
     private bool _tieneCuponBienvenida;
+
+    // El aviso de cupón no se vuelve a pedir en cada cambio a la pestaña Inicio: los cambios
+    // reales llegan por CuponesVersion / CuentaFiscalActual (forzados) o por pull-to-refresh.
+    private DateTime _ultimaConsultaCupones = DateTime.MinValue;
+    private static readonly TimeSpan _vigenciaCupones = TimeSpan.FromMinutes(30);
     private string _mensajeError = string.Empty;
     private ObservableCollection<DiaActividadItem> _datosGrafica = [];
 
@@ -66,11 +71,11 @@ public class DashboardViewModel : INotifyPropertyChanged
             if (e.PropertyName is nameof(AppState.CuentaFiscalActual))
             {
                 _ = CargarEstadisticasAsync(forzarActualizacion: true);
-                _ = CargarCuponBienvenidaAsync();
+                _ = CargarCuponBienvenidaAsync(forzar: true);
             }
             else if (e.PropertyName is nameof(AppState.CuponesVersion))
             {
-                _ = CargarCuponBienvenidaAsync();
+                _ = CargarCuponBienvenidaAsync(forzar: true);
             }
             else if (e.PropertyName is nameof(AppState.Licenciamiento))
             {
@@ -214,19 +219,23 @@ public class DashboardViewModel : INotifyPropertyChanged
     {
         await Task.WhenAll(
             CargarEstadisticasAsync(forzarActualizacion),
-            CargarCuponBienvenidaAsync());
+            CargarCuponBienvenidaAsync(forzarActualizacion));
     }
 
     #endregion
 
     #region Private Methods
 
-    private async Task CargarCuponBienvenidaAsync()
+    private async Task CargarCuponBienvenidaAsync(bool forzar = false)
     {
+        if (!forzar && DateTime.UtcNow - _ultimaConsultaCupones < _vigenciaCupones)
+            return;
+
         try
         {
             var cupones = await _servicioEcommerce.CuponesUsuario();
             TieneCuponBienvenida = cupones.Any(c => c.Tipo == TipoCupon.CreditoCaptura && (c.Aplicado == false || c.Fecha == null));
+            _ultimaConsultaCupones = DateTime.UtcNow;
         }
         catch (Exception ex)
         {
@@ -242,7 +251,7 @@ public class DashboardViewModel : INotifyPropertyChanged
             LimpiarCache();
             await Task.WhenAll(
                 CargarEstadisticasAsync(forzarActualizacion: true),
-                CargarCuponBienvenidaAsync(),
+                CargarCuponBienvenidaAsync(forzar: true),
                 _servicioSesion.GetLicenciaAsync());
         }
         finally

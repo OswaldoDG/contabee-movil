@@ -34,17 +34,17 @@ concurrency:
 jobs:
   build-ios:
     name: Generar IPA firmado
-    runs-on: macos-26
+    runs-on: xcode-27
     timeout-minutes: 60
 
     steps:
       - name: Descargar repositorio
         uses: actions/checkout@v6
 
-      - name: Seleccionar Xcode 26.6
+      - name: Seleccionar Xcode 27.0
         shell: bash
         run: |
-          sudo xcode-select --switch /Applications/Xcode_26.6.app/Contents/Developer
+          sudo xcode-select --switch /Applications/Xcode_27.app/Contents/Developer
           xcodebuild -version
 
       - name: Instalar .NET y workload de iOS

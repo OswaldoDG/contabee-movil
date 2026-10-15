@@ -2,7 +2,6 @@
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.Maui.Controls"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:views="clr-namespace:ContaBeeMovil.Views"
     x:Class="ContaBeeMovil.Pages.Camara.QRPage"
@@ -19,11 +18,9 @@
                Padding="0,4"
                TextColor="{toolkit:AppThemeResource PrimaryText}" />
 
-        <!-- Scanner en tiempo real -->
+        <!-- Scanner en tiempo real: el CameraBarcodeReaderView se inserta desde código
+             hasta tener permiso de cámara (ver QRPage.CrearLector). -->
         <Grid Grid.Row="1" x:Name="CameraGrid">
-            <zxing:CameraBarcodeReaderView
-                x:Name="BarcodeReader"
-                BarcodesDetected="OnBarcodesDetected" />
 
             <!-- Guía visual de encuadre -->
             <Border StrokeShape="RoundRectangle 10"
