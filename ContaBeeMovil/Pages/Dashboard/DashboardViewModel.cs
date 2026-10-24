@@ -7,12 +7,12 @@ using Contabee.Api.Crm;
 using Contabee.Api.Ecommerce;
 using Contabee.Api.Transcript;
 using ContaBee.Pages.Cupones;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
-using Newtonsoft.Json;
 
 namespace ContaBeeMovil.Pages.Dashboard;
 
@@ -24,9 +24,14 @@ public class DashboardViewModel : INotifyPropertyChanged
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioLogs _logs;
 
-    private const string CacheDataKey        = "Dashboard_Actividad_Data";
-    private const string CacheTimestampKey  = "Dashboard_Actividad_Timestamp";
-    private const string CacheSinActividadKey = "Dashboard_Actividad_SinDatos";
+    // Resumen cacheado por cuenta fiscal + mes: se pinta al instante y se refresca en segundo
+    // plano (los pods de Azure arrancan en frío y la respuesta puede tardar). Dentro de esta
+    // ventana no se vuelve a pedir, para no repetir la consulta en cada cambio de pestaña.
+    private static readonly TimeSpan _vigenciaResumen = TimeSpan.FromMinutes(2);
+    private sealed record ResumenGuardado(ResumenCapturaCuentaFiscal Resumen, bool SinActividad);
+
+    private Task? _cargaEnCurso;
+    private string? _claveEnCurso;
 
     private int _mes;
     private int _anio;
@@ -246,17 +251,24 @@ public class DashboardViewModel : INotifyPropertyChanged
     private async Task PullRefreshAsync()
     {
         EstaRefrescando = true;
+        var recarga = Task.WhenAll(
+            CargarEstadisticasAsync(forzarActualizacion: true),
+            CargarCuponBienvenidaAsync(forzar: true),
+            _servicioSesion.GetLicenciaAsync());
+
+        // El indicador solo confirma el gesto: los datos en pantalla siguen siendo válidos y lo
+        // nuevo se pinta solo al llegar. Si el API está despertando (~15 s), dejarlo girando
+        // hace parecer que algo anda mal.
+        await Task.WhenAny(recarga, Task.Delay(TimeSpan.FromMilliseconds(800)));
+        EstaRefrescando = false;
+
         try
         {
-            LimpiarCache();
-            await Task.WhenAll(
-                CargarEstadisticasAsync(forzarActualizacion: true),
-                CargarCuponBienvenidaAsync(forzar: true),
-                _servicioSesion.GetLicenciaAsync());
+            await recarga;
         }
-        finally
+        catch (Exception ex)
         {
-            EstaRefrescando = false;
+            _logs.Error($"[Dashboard] Pull-to-refresh: {ex.GetType().Name} - {ex.Message}");
         }
     }
 
@@ -308,30 +320,48 @@ public class DashboardViewModel : INotifyPropertyChanged
             return;
         }
 
-        bool esMesActual = _mes == DateTime.Now.Month && _anio == DateTime.Now.Year;
+        var clave = ClaveCache(cfid.Value, _anio, _mes);
 
-        _logs.Info($"[Dashboard] Cargando {_mes}/{_anio} forzar={forzarActualizacion}");
-
-        if (esMesActual && !forzarActualizacion)
+        // Al cambiar de cuenta llegan dos cargas seguidas (PropertyChanged + reactivación de la
+        // pestaña): la segunda espera a la que ya va en camino en vez de repetir la consulta.
+        if (_claveEnCurso == clave && _cargaEnCurso is { IsCompleted: false })
         {
-            var cached = LeerCache();
-            if (cached != null)
+            await _cargaEnCurso;
+            return;
+        }
+
+        _claveEnCurso = clave;
+        _cargaEnCurso = CargarResumenAsync(cfid.Value, _anio, _mes, clave, forzarActualizacion);
+        await _cargaEnCurso;
+    }
+
+    private async Task CargarResumenAsync(Guid cfid, int anio, int mes, string clave, bool forzar)
+    {
+        // El usuario pudo cambiar de mes o de cuenta mientras esperábamos al servidor:
+        // en ese caso la respuesta solo se guarda en caché, no se pinta.
+        bool esVigente() => clave == ClaveActual();
+
+        var cache = CacheConsultas.Leer<ResumenGuardado>(clave);
+        if (cache != null)
+        {
+            TieneError   = false;
+            SinActividad = cache.Datos.SinActividad;
+            AplicarDatos(cache.Datos.Resumen);
+
+            if (!forzar && DateTime.UtcNow - cache.GuardadoUtc < _vigenciaResumen)
             {
-                _logs.Info($"[Dashboard] Usando caché para {_mes}/{_anio}");
-                TieneError   = false;
-                SinActividad = Preferences.Default.Get(CacheSinActividadKey, false);
-                AplicarDatos(cached);
+                _logs.Info($"[Dashboard] Caché reciente para {mes}/{anio}, sin consultar");
                 return;
             }
         }
 
-        if (forzarActualizacion)
-            LimpiarCache();
+        _logs.Info($"[Dashboard] Cargando {mes}/{anio} forzar={forzar} cache={cache != null}");
 
-        EstaCargando = true;
+        // Con caché en pantalla el refresco es silencioso; el spinner solo sale la primera vez.
+        EstaCargando = cache == null;
         try
         {
-            var resultado = await _servicioTranscript.GetEstadisticas(cfid.Value, _anio, _mes);
+            var resultado = await _servicioTranscript.GetEstadisticas(cfid, anio, mes);
             if (!resultado.Ok || resultado.Payload == null)
             {
                 var errorMsg = resultado.Error?.Mensaje ?? string.Empty;
@@ -341,54 +371,61 @@ public class DashboardViewModel : INotifyPropertyChanged
                 // NO mostramos el error de "verifica tu conexión" (sería engañoso).
                 if (CodigosErrorApi.EsAsociacionInactiva(resultado.Error?.HttpCode, errorMsg))
                 {
-                    TieneError   = false;
-                    SinActividad = false;
+                    if (esVigente())
+                    {
+                        TieneError   = false;
+                        SinActividad = false;
+                    }
                     return;
                 }
 
                 if (errorMsg.Contains("CRM-LIC-INEXISTENTE", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logs.Warn($"[Dashboard] Sin actividad (CRM-LIC-INEXISTENTE) para {_mes}/{_anio}");
-                    var datosVacios = new ResumenCapturaCuentaFiscal { Ano = _anio, Mes = _mes };
-                    SinActividad = true;
-                    TieneError   = false;
-                    AplicarDatos(datosVacios);
-                    if (esMesActual)
+                    _logs.Warn($"[Dashboard] Sin actividad (CRM-LIC-INEXISTENTE) para {mes}/{anio}");
+                    var datosVacios = new ResumenCapturaCuentaFiscal { Ano = anio, Mes = mes };
+                    CacheConsultas.Guardar(clave, new ResumenGuardado(datosVacios, SinActividad: true));
+                    if (esVigente())
                     {
-                        GuardarCache(datosVacios);
-                        Preferences.Default.Set(CacheSinActividadKey, true);
+                        SinActividad = true;
+                        TieneError   = false;
+                        AplicarDatos(datosVacios);
                     }
                 }
                 else
                 {
-                    _logs.Warn($"[Dashboard] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje}");
-                    TieneError   = true;
-                    MensajeError = "No se pudieron cargar los datos.\nVerifica tu conexión e intenta de nuevo.";
+                    _logs.Warn($"[Dashboard] Error API: {resultado.Error?.Codigo} - {resultado.Error?.Mensaje} (caché={cache != null})");
+                    if (cache == null && esVigente())
+                    {
+                        TieneError   = true;
+                        MensajeError = "No se pudieron cargar los datos.\nVerifica tu conexión e intenta de nuevo.";
+                    }
                 }
                 return;
             }
 
-            SinActividad = false;
-            TieneError   = false;
-            AplicarDatos(resultado.Payload);
             var p = resultado.Payload;
+            CacheConsultas.Guardar(clave, new ResumenGuardado(p, SinActividad: false));
             _logs.Info($"[Dashboard] OK — Ano={p.Ano} Mes={p.Mes} Solicitudes={p.Solicitudes} Emitidas={p.Emitidas} Pendientes={p.Pendientes} Declinadas={p.Declinadas} CreditosAdquiridos={p.CreditosAdquiridos} CreditosRestantes={p.CreditosRestantes} TotalFacturado={p.TotalFacturado}");
 
-            if (esMesActual)
-            {
-                GuardarCache(resultado.Payload);
-                Preferences.Default.Remove(CacheSinActividadKey);
-            }
+            if (!esVigente()) return;
+            SinActividad = false;
+            TieneError   = false;
+            AplicarDatos(p);
         }
         catch (Exception ex)
         {
-            _logs.Error($"[Dashboard] Excepción: {ex.GetType().Name} - {ex.Message}");
-            TieneError   = true;
-            MensajeError = "Ocurrió un error inesperado.\nIntenta de nuevo.";
+            _logs.Error($"[Dashboard] Excepción: {ex.GetType().Name} - {ex.Message} (caché={cache != null})");
+            if (cache == null && esVigente())
+            {
+                TieneError   = true;
+                MensajeError = "Ocurrió un error inesperado.\nIntenta de nuevo.";
+            }
         }
         finally
         {
-            EstaCargando = false;
+            // Si el usuario ya está en otro mes/cuenta, esa carga maneja su propio spinner.
+            if (esVigente())
+                EstaCargando = false;
         }
     }
 
@@ -405,32 +442,13 @@ public class DashboardViewModel : INotifyPropertyChanged
 
     // ── Caché ────────────────────────────────────────────────────────────────
 
-    private static ResumenCapturaCuentaFiscal? LeerCache()
+    private static string ClaveCache(Guid cfid, int anio, int mes)
+        => CacheConsultas.Clave(CacheConsultas.Dashboard, cfid, $"{anio}-{mes}");
+
+    private string? ClaveActual()
     {
-        var json  = Preferences.Default.Get(CacheDataKey, string.Empty);
-        var tsStr = Preferences.Default.Get(CacheTimestampKey, string.Empty);
-
-        if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(tsStr)) return null;
-
-        if (!DateTime.TryParse(tsStr, null,
-                System.Globalization.DateTimeStyles.RoundtripKind, out var ts)) return null;
-
-        if (DateTime.UtcNow - ts > TimeSpan.FromHours(1)) return null;
-
-        return JsonConvert.DeserializeObject<ResumenCapturaCuentaFiscal>(json);
-    }
-
-    private static void GuardarCache(ResumenCapturaCuentaFiscal data)
-    {
-        Preferences.Default.Set(CacheDataKey, JsonConvert.SerializeObject(data));
-        Preferences.Default.Set(CacheTimestampKey, DateTime.UtcNow.ToString("O"));
-    }
-
-    private static void LimpiarCache()
-    {
-        Preferences.Default.Remove(CacheDataKey);
-        Preferences.Default.Remove(CacheTimestampKey);
-        Preferences.Default.Remove(CacheSinActividadKey);
+        var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        return cfid is Guid id ? ClaveCache(id, _anio, _mes) : null;
     }
 
     // ── Chart ─────────────────────────────────────────────────────────────────

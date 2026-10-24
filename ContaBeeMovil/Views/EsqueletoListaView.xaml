@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+             x:Class="ContaBeeMovil.Views.EsqueletoListaView">
+
+    <!-- Tarjetas grises con la forma de un resultado, pulsando mientras carga la lista -->
+    <VerticalStackLayout x:Name="Esqueleto"
+                         Spacing="8"
+                         Padding="10,10,10,0"
+                         InputTransparent="True">
+        <BindableLayout.ItemTemplate>
+            <DataTemplate x:DataType="sys:Int32">
+                <Border BackgroundColor="{toolkit:AppThemeResource CardBackground}"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="12">
+                    <Grid ColumnDefinitions="40,*" ColumnSpacing="12" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
+                        <BoxView Grid.RowSpan="3"
+                                 WidthRequest="40" HeightRequest="40" CornerRadius="20"
+                                 VerticalOptions="Start"
+                                 Color="{toolkit:AppThemeResource SecondaryText}"
+                                 Opacity="0.18" />
+                        <BoxView Grid.Column="1" Grid.Row="0"
+                                 HeightRequest="12" CornerRadius="6"
+                                 HorizontalOptions="Fill" Margin="0,0,60,0"
+                                 Color="{toolkit:AppThemeResource SecondaryText}"
+                                 Opacity="0.18" />
+                        <BoxView Grid.Column="1" Grid.Row="1"
+                                 HeightRequest="10" CornerRadius="5"
+                                 HorizontalOptions="Fill" Margin="0,0,120,0"
+                                 Color="{toolkit:AppThemeResource SecondaryText}"
+                                 Opacity="0.14" />
+                        <BoxView Grid.Column="1" Grid.Row="2"
+                                 HeightRequest="10" CornerRadius="5"
+                                 WidthRequest="70" HorizontalOptions="End"
+                                 Color="{toolkit:AppThemeResource SecondaryText}"
+                                 Opacity="0.14" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+        </BindableLayout.ItemTemplate>
+    </VerticalStackLayout>
+
+</ContentView>

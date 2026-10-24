@@ -92,6 +92,39 @@
                     </Grid>
                 </Border>
 
+                <!-- ── Preferencias ── -->
+                <Label Text="Preferencias"
+                   Style="{StaticResource SectionHeader}"
+                   Margin="0,8,0,0" />
+
+                <Border Style="{StaticResource ElevatedCard}" Padding="10">
+                    <Grid ColumnDefinitions="4,Auto,*,Auto" ColumnSpacing="10">
+                        <BoxView Grid.Column="0"
+                             BackgroundColor="{toolkit:AppThemeResource Primary}"
+                             WidthRequest="4" CornerRadius="2"
+                             VerticalOptions="Fill" />
+                        <Label Grid.Column="1"
+                                     Text="{x:Static f:FluentUIFilled.layout_row_two_20_filled}" FontFamily="FluentUIFilled"
+                                     FontSize="22"
+                                     TextColor="{toolkit:AppThemeResource Icon}"
+                                     VerticalOptions="Start"
+                                     Margin="0,2,0,0" />
+                        <VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="4">
+                            <Label Text="Modo simple"
+                               Style="{StaticResource Body1}" />
+                            <Label Text="Muestra solo Inicio y Facturación, ideal si solo tomas fotos de tus tickets para facturarlos."
+                               FontSize="12"
+                               TextColor="{toolkit:AppThemeResource SecondaryText}" />
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="3"
+                                x:Name="ModoSimpleSwitch"
+                                ThumbColor="{toolkit:AppThemeResource Primary}"
+                                OnColor="{toolkit:AppThemeResource Alternate}"
+                                VerticalOptions="Start"
+                                Toggled="OnModoSimpleToggled" />
+                    </Grid>
+                </Border>
+
             </VerticalStackLayout>
         </ScrollView>
 

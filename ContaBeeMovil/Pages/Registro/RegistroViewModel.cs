@@ -213,6 +213,9 @@ public class RegistroViewModel : INotifyPropertyChanged
             }
 
             _logs.Info("[Registro] Registro completado exitosamente");
+            // Usuario nuevo: arranca en modo simple (solo Inicio y Facturación). Pasa a completo
+            // solo cuando aparezca algo que lo requiera (ver MainTabbedPage.EvaluarModoCompleto).
+            ContaBeeMovil.Services.Device.AppState.Instance.ModoSimple = true;
             PaginaLogin.LimpiarAlNavegar = true;
             await IrALogin();
             _ = _toast.MostrarAsync(

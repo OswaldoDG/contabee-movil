@@ -119,54 +119,131 @@ public partial class TiendaPage : ContentPage
 
     // ── Carga del catálogo ────────────────────────────────────────────────────
 
+    private static string ClaveCatalogoGuardado => CacheConsultas.Clave(CacheConsultas.Tienda, Guid.Empty, "catalogo");
+
+    // Consulta del catálogo al servidor en esta apertura. La compra la espera: el precio que se
+    // registra sale de aquí, así que nunca se compra con el catálogo guardado en disco.
+    private Task<bool>? _refrescoCatalogo;
+
     private async Task CargarProductosAsync()
     {
         _logs.Log("Tienda: iniciando carga de catálogo");
+
+        bool fresco = _catalogoCache is not null && DateTime.UtcNow - _catalogoCacheHora <= _vigenciaCatalogo;
+        var catalogo = _catalogoCache;
+        if (fresco)
+        {
+            _logs.Log("Tienda: catálogo desde caché en memoria");
+            _refrescoCatalogo = Task.FromResult(true);
+        }
+        else
+        {
+            // Arranque en frío: se muestra lo guardado en disco mientras ecommerce despierta.
+            _refrescoCatalogo = RefrescarCatalogoAsync();
+            catalogo = CacheConsultas.Leer<List<DtoCategoriasProducto>>(ClaveCatalogoGuardado)?.Datos;
+            if (catalogo is not null)
+                _logs.Log("Tienda: catálogo guardado mientras llega el del servidor");
+        }
+
         SetCargando(true);
         try
         {
-            // Inicializar las 4 categorías vacías
-            _categorias = CategoriasConfig
-                .Select((c, i) => new CategoriaTabModel
-                {
-                    Clave          = c.Clave,
-                    Nombre         = c.Nombre,
-                    EsSeleccionada = i == 0,
-                })
-                .ToList();
-
-            var catalogo = _catalogoCache;
-            if (catalogo is null || DateTime.UtcNow - _catalogoCacheHora > _vigenciaCatalogo)
+            if (catalogo is null)
             {
-                var resultado = await _servicioEcommerce.GetCatalogoProductos();
-                if (!resultado.Ok || resultado.Payload is null)
+                // Nada guardado: se espera al servidor como siempre.
+                if (!await _refrescoCatalogo)
                 {
-                    _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
                     await _servicioAlerta.MostrarAsync("Error", "No se pudo obtener el catálogo.", verBotonCancelar: false, confirmarText: "Aceptar");
                     ActualizarUI();
                     return;
                 }
-
-                catalogo = _catalogoCache = resultado.Payload;
-                _catalogoCacheHora = DateTime.UtcNow;
-            }
-            else
-            {
-                _logs.Log("Tienda: catálogo desde caché");
+                catalogo = _catalogoCache!;
             }
 
-            // ── Créditos por categoría (captura / colaboración / autoservicio) ──
-            await CargarCategoriaCreditosAsync(catalogo, "CREDITOS",      "credcaptura", "CREDITOS_CAPTURA",      "Captura",      "captura");
-            await CargarCategoriaCreditosAsync(catalogo, "CREDITOSCOLAB", "credcolab",   "CREDITOS_COLABORACION", "Colaboración", "colaboracion");
-            await CargarCategoriaCreditosAsync(catalogo, "CREDITOSAUTO",  "credauto",    "CREDITOS_AUTOSERVICIO", "Autoservicio", "autoservicio");
-
-            ActualizarUI();
+            // No se repinta cuando llega el del servidor: pintar consulta a la tienda (billing),
+            // que no admite llamadas simultáneas, y podría cruzarse con una compra. Los precios
+            // mostrados los da la tienda; la compra usa el catálogo fresco (AsegurarCatalogoFrescoAsync).
+            await PintarCatalogoAsync(catalogo);
         }
         finally
         {
             SetCargando(false);
         }
     }
+
+    private async Task<bool> RefrescarCatalogoAsync()
+    {
+        try
+        {
+            var resultado = await _servicioEcommerce.GetCatalogoProductos();
+            if (!resultado.Ok || resultado.Payload is null)
+            {
+                _logs.Log($"Tienda: error al obtener catálogo — {resultado.Error?.Mensaje ?? "sin detalle"}");
+                return false;
+            }
+
+            _catalogoCache = resultado.Payload;
+            _catalogoCacheHora = DateTime.UtcNow;
+            CacheConsultas.Guardar(ClaveCatalogoGuardado, resultado.Payload);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logs.Log($"Tienda: excepción al obtener catálogo — {ex.GetType().Name}: {ex.Message}");
+            return false;
+        }
+    }
+
+    private async Task PintarCatalogoAsync(List<DtoCategoriasProducto> catalogo)
+    {
+        // Inicializar las 4 categorías vacías
+        _categorias = CategoriasConfig
+            .Select((c, i) => new CategoriaTabModel
+            {
+                Clave          = c.Clave,
+                Nombre         = c.Nombre,
+                EsSeleccionada = i == 0,
+            })
+            .ToList();
+
+        // ── Créditos por categoría (captura / colaboración / autoservicio) ──
+        await CargarCategoriaCreditosAsync(catalogo, "CREDITOS",      "credcaptura", "CREDITOS_CAPTURA",      "Captura",      "captura");
+        await CargarCategoriaCreditosAsync(catalogo, "CREDITOSCOLAB", "credcolab",   "CREDITOS_COLABORACION", "Colaboración", "colaboracion");
+        await CargarCategoriaCreditosAsync(catalogo, "CREDITOSAUTO",  "credauto",    "CREDITOS_AUTOSERVICIO", "Autoservicio", "autoservicio");
+
+        ActualizarUI();
+    }
+
+    /// <summary>
+    /// Antes de cobrar: espera el catálogo del servidor (con el overlay) si aún no llega, y
+    /// reintenta una vez si falló. Sin catálogo fresco no se compra.
+    /// </summary>
+    private async Task<bool> AsegurarCatalogoFrescoAsync()
+    {
+        if (_refrescoCatalogo is { IsCompletedSuccessfully: true, Result: true }) return true;
+
+        SetCargando(true);
+        try
+        {
+            if (_refrescoCatalogo is not null && await _refrescoCatalogo) return true;
+            _refrescoCatalogo = RefrescarCatalogoAsync();
+            if (await _refrescoCatalogo) return true;
+        }
+        finally
+        {
+            SetCargando(false);
+        }
+
+        await _servicioAlerta.MostrarAsync("Error", "No se pudo actualizar el catálogo. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "Aceptar");
+        return false;
+    }
+
+    /// <summary>Producto del catálogo del servidor (no del mostrado) por su id de tienda.</summary>
+    private static DtoProducto? BuscarProductoEnCatalogoFresco(string iapId) =>
+        _catalogoCache?
+            .SelectMany(c => (c.Productos ?? []).Select(p => (Categoria: c, Producto: p)))
+            .FirstOrDefault(x => string.Equals(iapId, $"contabee.{x.Categoria.Clave}.{x.Producto.Clave}", StringComparison.OrdinalIgnoreCase))
+            .Producto;
 
     private async Task CargarCategoriaCreditosAsync(
         ICollection<DtoCategoriasProducto> catalogo,
@@ -423,7 +500,10 @@ public partial class TiendaPage : ContentPage
             return;
         }
 
-        var productoCatalogo = BuscarProductoEnCatalogo(modelo.Clave);
+        if (_comprando) return;
+        if (!await AsegurarCatalogoFrescoAsync()) return;
+
+        var productoCatalogo = BuscarProductoEnCatalogoFresco(modelo.Clave);
         if (productoCatalogo is null)
         {
             _logs.Log($"Tienda: producto no encontrado en catálogo — clave={modelo.Clave}");

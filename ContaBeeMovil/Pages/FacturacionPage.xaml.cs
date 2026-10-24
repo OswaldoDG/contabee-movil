@@ -4,6 +4,7 @@ using Contabee.Api.Transcript;
 using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ContaBeeMovil.Config;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Captura;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
@@ -21,6 +22,15 @@ public partial class FacturacionPage : ContentPage
     private readonly IServicioSesion _servicioSesion;
     private readonly IServicioLogs _logs;
     private Contabee.Api.Transcript.Busqueda? _ultimaBusqueda;
+
+    // Página 1 de cada combinación de filtros se cachea: se pinta al instante y se refresca en
+    // segundo plano. Las búsquedas de un solo uso (por proceso o por ventana de envío) no.
+    private bool _cachearBusqueda;
+    private sealed record PaginaCacheada(List<ElementoPaginaCapturaDespliegue> Elementos, long Total);
+
+    // Cada búsqueda toma un número; una respuesta que llega cuando el usuario ya cambió de
+    // filtro o de página se guarda en caché pero no se pinta.
+    private int _versionBusqueda;
     internal static Guid? ProcesoAsociadoFiltroId { get; set; }
     internal static TipoProcesoCaptura? ProcesoAsociadoFiltroTipo { get; set; }
     internal static DateTimeOffset? CapturaRecienCreadaFiltroFecha { get; set; }
@@ -217,7 +227,7 @@ public partial class FacturacionPage : ContentPage
             var busquedaProceso = CrearBusquedaPorProceso(ProcesoAsociadoFiltroId.Value, ProcesoAsociadoFiltroTipo);
             ProcesoAsociadoFiltroId = null;
             ProcesoAsociadoFiltroTipo = null;
-            await OnBuscarFacturas(busquedaProceso);
+            await OnBuscarFacturas(busquedaProceso, cachear: false);
             return;
         }
 
@@ -228,7 +238,7 @@ public partial class FacturacionPage : ContentPage
             var fechaEnvio = CapturaRecienCreadaFiltroFecha.Value;
             CapturaRecienCreadaFiltroFecha = null;
             PendienteActualizarFacturas = false;
-            await OnBuscarFacturas(CrearBusquedaPorFechaCreacion(fechaEnvio));
+            await OnBuscarFacturas(CrearBusquedaPorFechaCreacion(fechaEnvio), cachear: false);
             return;
         }
 
@@ -239,12 +249,33 @@ public partial class FacturacionPage : ContentPage
     }
 
     /// <summary>
+    /// Carga en segundo plano la búsqueda con los filtros guardados, para que al abrir la
+    /// pestaña ya haya datos (los pods de Azure tardan en despertar). La llama
+    /// <see cref="MainTabbedPage"/>; no hace nada si ya hay consulta o una búsqueda dirigida
+    /// pendiente (tras captura / por proceso), que resuelve <see cref="OnTabActivated"/>.
+    /// </summary>
+    public async Task PrecargarAsync()
+    {
+        if (ConsultaEjecutada || EstaCargando || PendienteActualizarFacturas) return;
+        if (ProcesoAsociadoFiltroId.HasValue || CapturaRecienCreadaFiltroFecha.HasValue) return;
+        if (AppState.Instance.ModoOffline || AppState.Instance.CuentaFiscalActual is null) return;
+
+        _logs.Log("[FacturacionPage] Precarga");
+        PanelFiltros.RestaurarEstado();
+        if (AppState.Instance.MisUsuarios is null || AppState.Instance.MisUsuarios.Count == 0)
+            await _servicioSesion.GetMisUsuariosAsync();
+        await OnBuscarFacturas(PanelFiltros.BusquedaActual);
+    }
+
+    /// <summary>
     /// Invalida los resultados cacheados (que pertenecen a la cuenta fiscal anterior)
     /// y deja la página marcada para recargar. La llama <see cref="MainTabbedPage"/>
     /// al detectar un cambio de cuenta fiscal activa.
     /// </summary>
     public void InvalidarConsulta()
     {
+        _versionBusqueda++; // una respuesta en vuelo de la cuenta anterior ya no se pinta
+        EstaCargando = false;
         _ultimaBusqueda = null;
         Elementos = null;
         TotalEncontrados = 0;
@@ -264,7 +295,7 @@ public partial class FacturacionPage : ContentPage
     }
 
 
-    private async Task OnBuscarFacturas(Contabee.Api.Transcript.Busqueda busqueda)
+    private async Task OnBuscarFacturas(Contabee.Api.Transcript.Busqueda busqueda, bool cachear = true)
     {
         if (AppState.Instance.CuentaFiscalActual is null)
         {
@@ -276,6 +307,7 @@ public partial class FacturacionPage : ContentPage
         }
 
         _ultimaBusqueda = busqueda;
+        _cachearBusqueda = cachear;
         await EjecutarBusqueda(1);
     }
 
@@ -285,26 +317,47 @@ public partial class FacturacionPage : ContentPage
 
         _ultimaBusqueda.Paginado = new Contabee.Api.Transcript.Paginado { Pagina = pagina, TamanoPagina = AppSettings.Consulta.TamanoPagina };
 
+        var version = ++_versionBusqueda;
+        bool esVigente() => version == _versionBusqueda;
+
+        // Solo la página 1: es la que se ve al entrar; las siguientes llegan rápido porque la
+        // primera consulta ya despertó los pods.
+        var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        var clave = _cachearBusqueda && pagina == 1 && cfid is Guid id
+            ? CacheConsultas.Clave(CacheConsultas.Facturacion, id, _ultimaBusqueda)
+            : null;
+
+        var cache = clave is null ? null : CacheConsultas.Leer<PaginaCacheada>(clave);
+
+        // El esqueleto sale siempre como respuesta al toque. Con caché solo dura PausaVisual
+        // y el refresco sigue en silencio; sin caché dura lo que tarde el servidor.
         EstaCargando = true;
+        var consulta = _servicioTranscript.BusquedaCapturas(_ultimaBusqueda);
+        if (cache != null)
+        {
+            await Task.Delay(CacheConsultas.PausaVisual);
+            if (esVigente())
+            {
+                AplicarResultado(cache.Datos.Elementos, cache.Datos.Total, pagina);
+                EstaCargando = false;
+            }
+        }
+
         try
         {
-            var resultado = await _servicioTranscript.BusquedaCapturas(_ultimaBusqueda);
-
-            int offset = (pagina - 1) * AppSettings.Consulta.TamanoPagina;
+            var resultado = await consulta;
             var elementosPagina = resultado.Elementos?.ToList() ?? [];
-            Elementos = elementosPagina
-                .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e))
-                .ToList();
-            TotalEncontrados = resultado.Total;
-            PaginaActual = pagina;
-            TotalPaginas = (int)Math.Ceiling((double)resultado.Total / AppSettings.Consulta.TamanoPagina);
-            if (TotalPaginas < 1) TotalPaginas = 1;
-            ConsultaEjecutada = true;
 
+            if (clave != null)
+                CacheConsultas.Guardar(clave, new PaginaCacheada(elementosPagina, resultado.Total));
+
+            if (!esVigente()) return;
+            AplicarResultado(elementosPagina, resultado.Total, pagina);
         }
         catch (ApiException ex)
         {
-            _logs.Log($"[FacturacionPage] ApiException Status={ex.StatusCode} Body={ex.Response}");
+            _logs.Log($"[FacturacionPage] ApiException Status={ex.StatusCode} Body={ex.Response} (caché={cache != null})");
+            if (!esVigente()) return;
 
             // Asociación desactivada/eliminada (403): el CoordinadorSesion reconcilia la
             // sesión y avisa con toast. Aquí solo dejamos el listado vacío; sin error genérico.
@@ -316,16 +369,34 @@ public partial class FacturacionPage : ContentPage
                 return;
             }
 
-            await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
+            // Con caché en pantalla no interrumpimos con una alerta: el usuario ya ve datos.
+            if (cache == null)
+                await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         catch (Exception ex)
         {
-            _logs.Log($"[FacturacionPage] {ex.GetType().Name}: {ex.Message}");
-            await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
+            _logs.Log($"[FacturacionPage] {ex.GetType().Name}: {ex.Message} (caché={cache != null})");
+            if (esVigente() && cache == null)
+                await _servicioAlerta.MostrarAsync("Error", "No se pudieron cargar los resultados. Intenta de nuevo.", verBotonCancelar: false, confirmarText: "OK");
         }
         finally
         {
-            EstaCargando = false;
+            // Si ya hay otra búsqueda en curso, esa maneja su propio overlay.
+            if (esVigente())
+                EstaCargando = false;
         }
+    }
+
+    private void AplicarResultado(List<ElementoPaginaCapturaDespliegue> elementosPagina, long total, int pagina)
+    {
+        int offset = (pagina - 1) * AppSettings.Consulta.TamanoPagina;
+        Elementos = elementosPagina
+            .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e))
+            .ToList();
+        TotalEncontrados = total;
+        PaginaActual = pagina;
+        TotalPaginas = (int)Math.Ceiling((double)total / AppSettings.Consulta.TamanoPagina);
+        if (TotalPaginas < 1) TotalPaginas = 1;
+        ConsultaEjecutada = true;
     }
 }

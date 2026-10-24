@@ -139,6 +139,16 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         if (query.TryGetValue("rfc", out var rfcObj) && rfcObj is string rfc && !string.IsNullOrWhiteSpace(rfc))
             _rfc = rfc;
 
+        // La lista pasa el objeto que ya tiene: el encabezado se pinta al instante y
+        // CargarDetalleAsync solo lo actualiza con la versión del servidor.
+        if (query.TryGetValue("devolucion", out var devObj) && devObj is Devolucion devolucion)
+        {
+            _devolucion = devolucion;
+            _devolucionId = devolucion.Id;
+            ConfigurarEstadosDisponibles();
+            RefrescarBindings();
+        }
+
         OnPropertyChanged(nameof(Rfc));
     }
 
@@ -157,6 +167,8 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
         if (_navegandoTrasEliminacion || _detalleNoDisponible) return;
 
         EstaCargando = true;
+        // En paralelo con el detalle: las capturas solo dependen del Id.
+        var capturas = CargarCapturasRelacionadasAsync(1);
         try
         {
             var res = await _servicioTranscript.ObtenerDevolucionAsync(_devolucionId);
@@ -165,7 +177,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                 if (EsEntidadNoEncontrada(res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
-                    PaginaDevoluciones.PendienteActualizarListado = true;
+                    PaginaDevoluciones.MarcarListadoModificado();
                     await RegresarAListadoSiSigueAbiertaAsync();
                     return;
                 }
@@ -175,7 +187,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                 if (CodigosErrorApi.EsAsociacionInactiva(res.Error?.HttpCode, res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
-                    PaginaDevoluciones.PendienteActualizarListado = true;
+                    PaginaDevoluciones.MarcarListadoModificado();
                     await RegresarAListadoSiSigueAbiertaAsync();
                     return;
                 }
@@ -184,13 +196,17 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                 return;
             }
 
+            var anterior = _devolucion;
             _devolucion = res.Payload;
-            ConfigurarEstadosDisponibles();
-            await CargarCapturasRelacionadasAsync(1);
+            // Solo se rearma el selector si cambió el estado: si el usuario ya eligió uno
+            // mientras llegaba la respuesta, no se le regresa al primero.
+            if (anterior?.Estado != _devolucion.Estado)
+                ConfigurarEstadosDisponibles();
             RefrescarBindings();
         }
         finally
         {
+            await capturas;
             EstaCargando = false;
         }
     }
@@ -235,7 +251,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
     {
         const int tamanoPaginaCapturas = 5;
 
-        if (_devolucion is null)
+        if (_devolucionId == Guid.Empty)
         {
             CapturasRelacionadas = [];
             TotalCapturasEncontradas = 0;
@@ -267,7 +283,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             {
                 Propiedad = "ProcesoAsociadoId",
                 Operador = Operador.Igual,
-                Valores = [_devolucion.Id.ToString()]
+                Valores = [_devolucionId.ToString()]
             });
 
             var busqueda = new Busqueda
@@ -331,7 +347,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
 
             _devolucion = res.Payload;
             RefrescarBindings();
-            PaginaDevoluciones.PendienteActualizarListado = true;
+            PaginaDevoluciones.MarcarListadoModificado();
         }
         finally
         {
@@ -361,7 +377,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
                 return;
             }
 
-            PaginaDevoluciones.PendienteActualizarListado = true;
+            PaginaDevoluciones.MarcarListadoModificado();
             _navegandoTrasEliminacion = true;
             _detalleNoDisponible = true;
             await Shell.Current.GoToAsync("..");
@@ -410,7 +426,7 @@ public partial class DetalleDevolucionPage : ContentPage, IQueryAttributable
             _devolucion = res.Payload;
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
-            PaginaDevoluciones.PendienteActualizarListado = true;
+            PaginaDevoluciones.MarcarListadoModificado();
             await _toast.MostrarAsync($"Estado actualizado a {EstadoTexto}");
         }
         finally

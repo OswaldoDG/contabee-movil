@@ -7,7 +7,10 @@ using ContaBeeMovil.Services.Dev;
 
 namespace ContaBeeMovil
 {
+    // Solo vertical: la app no tiene diseño horizontal. Android 16+ ignora este bloqueo en
+    // pantallas grandes (tablets/plegables), así que ahí la app puede rotar igual.
     [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTask,
+        ScreenOrientation = ScreenOrientation.Portrait,
         ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation |
                                ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     [IntentFilter(new[] { Intent.ActionView },

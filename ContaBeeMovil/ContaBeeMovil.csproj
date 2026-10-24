@@ -43,8 +43,8 @@
 		<ApplicationId>mx.contabee.app</ApplicationId>
 
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.5.14</ApplicationDisplayVersion>
-		<ApplicationVersion>71</ApplicationVersion>
+		<ApplicationDisplayVersion>2.5.15</ApplicationDisplayVersion>
+		<ApplicationVersion>72</ApplicationVersion>
 
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
@@ -65,6 +65,10 @@
 	<!-- R8: reducción + optimización + ofuscación del DEX (Google Play exige ≥25%). Ver R8Ofuscacion.targets -->
 	<PropertyGroup Condition="'$(TargetFramework)' == 'net10.0-android' AND '$(Configuration)' == 'Release'">
 		<AndroidLinkTool>r8</AndroidLinkTool>
+		<!-- Desde .NET 10 el default de Android ya no incluye 32 bits (android-arm): sin esta línea el
+		     AAB sale solo arm64/x64 y Play marca "no compatible" a los celulares con Android de 32 bits
+		     (p. ej. Moto E20). Al cambiar esta lista hay que regenerar packages.android.lock.json. -->
+		<RuntimeIdentifiers>android-arm;android-arm64;android-x64</RuntimeIdentifiers>
 	</PropertyGroup>
 	<Import Project="Platforms\Android\R8Ofuscacion.targets" Condition="'$(TargetFramework)' == 'net10.0-android'" />
 

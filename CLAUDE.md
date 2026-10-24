@@ -128,6 +128,8 @@ Play exige ≥25% de ofuscación del DEX (fecha límite feb 2027). Release Andro
 - El log de R8 trae `--pg-conf ...proguard_xamarin_ofuscable.cfg` y **no** `proguard_xamarin.cfg`.
 - `bin/Release/net10.0-android/mapping.txt` tiene clases renombradas (oct 2026: 76% clases, 55% miembros).
 
+**Arquitecturas:** Release fija `RuntimeIdentifiers` = `android-arm;android-arm64;android-x64`. Desde .NET 10 el default ya no trae `android-arm` (32 bits) y Play marca "no compatible" a celulares de 32 bits (pasó con un Moto E20). Tras actualizar .NET o tocar esa lista: regenerar `packages.android.lock.json` (`dotnet restore -p:Configuration=Release -p:ContaBeeAndroidOnly=true --force-evaluate`, luego `dotnet restore` normal para no romper VS) y confirmar que el AAB trae `base/lib/armeabi-v7a`.
+
 Si un flujo truena en Release con `ClassNotFoundException` / `NoSuchMethodError`, falta un `-keep` (agregarlo en un `.cfg` como `ProguardConfiguration`), no quitar la ofuscación. Subir `mapping.txt` a Play para leer crashes de Java.
 
 ---

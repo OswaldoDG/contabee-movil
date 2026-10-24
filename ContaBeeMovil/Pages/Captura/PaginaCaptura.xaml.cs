@@ -1688,6 +1688,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 await _servicioToast.MostrarAsync("¡Envío completado!", ToastIcono.Info, ToastPosicion.Bottom);
                 FacturacionPage.PendienteActualizarFacturas = true;
                 FacturacionPage.CapturaRecienCreadaFiltroFecha = DateTimeOffset.UtcNow;
+                // Los listados cacheados ya no traen las capturas recién enviadas. El resumen del
+                // Home no se invalida: sus números se corrigen en su lugar al recargar, y sin caché
+                // el Home se taparía con el spinner.
+                CacheConsultas.Invalidar(CacheConsultas.Facturacion);
                 DashboardPage.PendienteActualizar = true;
                 await Shell.Current.GoToAsync("..");
             }

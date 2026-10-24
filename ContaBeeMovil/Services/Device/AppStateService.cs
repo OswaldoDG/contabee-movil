@@ -53,6 +53,7 @@ public partial class AppState : ObservableObject
         _esDev                   = Preferences.Get(PrefsKeys.EsDev, false);
         _capturasLote            = LeerObjeto<List<CapturaLote>>(PrefsKeys.CapturasLote);
         _misUsuarios             = LeerObjeto<List<Contabee.Api.Identidad.CuentaUsuario>>(PrefsKeys.MisUsuarios);
+        _modoSimple              = Preferences.Get(PrefsKeys.ModoSimple, false);
 #if DEBUG
         System.Diagnostics.Debug.WriteLine($"[AppState] CargarDesdePreferencias — CapturasLote cargadas: {_capturasLote?.Count ?? 0}");
 #endif
@@ -68,6 +69,7 @@ public partial class AppState : ObservableObject
         OnPropertyChanged(nameof(EsDev));
         OnPropertyChanged(nameof(CapturasLote));
         OnPropertyChanged(nameof(MisUsuarios));
+        OnPropertyChanged(nameof(ModoSimple));
     }
 
     // ── Claves de Preferences ──────────────────────────────────────────────────
@@ -83,6 +85,7 @@ public partial class AppState : ObservableObject
         public const string EsDev                  = "AppState_EsDev";
         public const string CapturasLote           = "AppState_CapturasLote";
         public const string MisUsuarios            = "AppState_MisUsuarios";
+        public const string ModoSimple             = "AppState_ModoSimple";
     }
 
     // ══════════════════════════════════════════════════════════════════════════
@@ -291,6 +294,24 @@ public partial class AppState : ObservableObject
     {
         get => _logs;
         set => SetProperty(ref _logs, value);
+    }
+
+    // ── ModoSimple ─────────────────────────────────────────────────────────────
+    private bool _modoSimple;
+
+    /// <summary>
+    /// Para quien solo toma y envía tickets: la barra muestra solo Inicio y Facturación
+    /// (oculta Reembolsos, Comprobaciones y Equipo). Arranca en true al registrarse desde la
+    /// app; MainTabbedPage lo apaga solo cuando aparece algo que lo requiere. Persiste.
+    /// </summary>
+    public bool ModoSimple
+    {
+        get => _modoSimple;
+        set
+        {
+            if (SetProperty(ref _modoSimple, value))
+                Preferences.Set(PrefsKeys.ModoSimple, value);
+        }
     }
 
     // ── CuponesVersion ────────────────────────────────────────────────────────

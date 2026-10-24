@@ -5,6 +5,69 @@
 
 ---
 
+## 2026-10-23 — Modo simple (solo Inicio y Facturación)
+
+- `AppState.ModoSimple` (persistido). Interruptor en **Mi cuenta → Preferencias** (`MiCuentaPage`, con descripción de qué oculta y cuándo vuelve solo a completo); al activarlo regresa al menú anterior y `MainTabbedPage` cambia a Inicio. Se probó en el menú lateral y se movió a petición de Beto. `MainTabbedPage.TabVisible(i)` decide visibilidad (2-3 ocultas en simple; Equipo además con las reglas previas); `SimpleTabBar.SetTabVisible(i, v)` reemplaza a `SetEquipoVisible`. La precarga no pide las pestañas ocultas; al pasar a completo precarga las que reaparecen.
+- **Por defecto:** `true` solo al registrarse desde la app (`RegistroViewModel`); usuarios existentes quedan en completo. Persiste por dispositivo (no se resetea al cerrar sesión).
+- **Cambio automático a completo** (`EvaluarModoCompleto`, con toast): cuando aparece una señal **nueva** respecto a la última vista — créditos de Colaboración > 0, `MisUsuarios.Count > 1` (equipo), o alguna cuenta `Secundaria` (vinculado, p. ej. al terminar "Vincularme"). Solo transiciones: quien regresa a simple a propósito no es devuelto a completo en cada recarga.
+- Decisiones (Beto): Tienda completa en ambos modos; "Mi Equipo" en Captura ya depende de los créditos; "Vincularme" se queda. No hay deep links a reembolsos/comprobaciones, así que esa señal no aplica.
+
+## 2026-10-23 — Detalles instantáneos + catálogo de Tienda persistente
+
+- **Detalles (reembolso/comprobación):** la lista pasa el objeto (`["devolucion"]` / `["comprobacion"]`) → `ApplyQueryAttributes` pinta el encabezado al instante; `CargarDetalleAsync` lo actualiza y pide las capturas relacionadas **en paralelo** (antes en serie, dependían de `_devolucion`; ahora de `_devolucionId`). El selector de estado solo se rearma si el estado cambió (no se le resetea al usuario). Sin objeto (otra ruta) funciona como antes.
+- **Tienda:** catálogo guardado con `CacheConsultas` (`Tienda`, `Guid.Empty`). Arranque en frío → pinta el guardado mientras pide el del servidor (`_refrescoCatalogo`). **La compra espera el catálogo fresco** (`AsegurarCatalogoFrescoAsync`, reintenta 1 vez; sin él no compra) y busca el producto en ese (`BuscarProductoEnCatalogoFresco`), porque de ahí sale el precio registrado. **No se repinta** al llegar el fresco: pintar llama a billing (`ServicioIAP` conecta/desconecta sin candado) y podría cruzarse con una compra o la reconciliación. Productos nuevos aparecen en la siguiente apertura.
+
+## 2026-10-23 — Invalidar caché tras modificar datos
+
+- `CacheConsultas.Invalidar(pantalla)`: borra todas las entradas de esa pantalla para la cuenta fiscal actual (todos los filtros). Constantes `CacheConsultas.Dashboard/Facturacion/Devoluciones/Comprobaciones` usadas al construir **y** al invalidar las claves.
+- Se llama tras: crear reembolso/comprobación (lista), y en los detalles vía `PaginaDevoluciones/PaginaComprobaciones.MarcarListadoModificado()` (editar, eliminar, cambiar estado, entidad no encontrada, asociación inactiva) — reemplaza el `PendienteActualizarListado = true` directo. Enviar captura invalida Facturación. **El Home no se invalida** a propósito: sus números se corrigen en su lugar y sin caché se taparía con el spinner.
+- Cambio de cuenta fiscal (`InvalidarConsulta`) sigue usando la bandera directa: **no** borra caché, para que la cuenta nueva pinte al instante.
+- La búsqueda por Id tras crear ya no se cachea (`_cachearBusqueda`, igual que Facturación).
+- Lo que no cubre: cambios hechos en el servidor por otros (CFDI emitido, otro usuario del equipo) → solo los corrige la recarga en segundo plano.
+
+## 2026-10-21 — Play: "ya no es compatible" en celulares de 32 bits
+
+- **Causa:** desde .NET 10 el default de RIDs de Android ya no incluye `android-arm` (32 bits). El csproj solo lo pedía en **Debug** → desde VS funcionaba, pero el AAB de producción salía con `arm64-v8a` + `x86_64` y Play marcaba incompatibles los equipos con Android de 32 bits. Detectado en un **Moto E20** (Android 11, `abilist = armeabi-v7a,armeabi`).
+- **Fix:** `<RuntimeIdentifiers>android-arm;android-arm64;android-x64</RuntimeIdentifiers>` en el PropertyGroup de Release Android. `packages.android.lock.json` regenerado (solo agrega la sección `android-arm`); `restore --locked-mode` como CI pasa. AAB local de verificación: `armeabi-v7a`, `arm64-v8a`, `x86_64` (70 MB; Play entrega a cada equipo solo su arquitectura).
+- **Pendiente:** subir versión nueva y probar en el Moto E20 desde la pista interna. La versión publicada sigue sin ser compatible con esos equipos hasta entonces.
+
+## 2026-10-20 — Calentamiento sin /diagnostico
+
+- `ServicioSalud.PingCalentamientoAsync` ya solo pega en paralelo a `/health` de identity, crm, transcript y ecommerce (`Endpoints()`). Se quitó `{transcript}/diagnostico`: en el back (`ServicioDiagnostico`) recorre los hosts de Consul **en serie**. ⚠ Los pods internos (solo en Consul, sin URL pública) ya no se despiertan desde la app; si la primera llamada que los usa vuelve a tardar, regresar `/diagnostico` o pedir mínimo de réplicas.
+
+## 2026-10-20 — Orientación bloqueada en vertical (Android + iPhone)
+
+- `MainActivity`: `ScreenOrientation.Portrait`. iOS `Info.plist`: `UISupportedInterfaceOrientations` solo Portrait; **iPad se dejó libre** (`~ipad` intacto) para no perder multitarea/Split View.
+- Android 16+ ignora el bloqueo en pantallas grandes → ahí puede rotar. Pendiente si hace falta: en `ActividadView.xaml` el Grid del Home tiene `HeightRequest` atado al alto del `ScrollView`, por eso en horizontal no hay scroll; cambiar a `MinimumHeightRequest` lo arregla.
+
+## 2026-10-20 — Precarga de listados + carga progresiva (ocultar arranque en frío ~15 s)
+
+- **Precarga:** `MainTabbedPage.OnAppearing` → `PrecargarListadosAsync()` (1.5 s después, para dejar pasar al Home) llama `PrecargarAsync()` de Facturación, Devoluciones y Comprobaciones: buscan con sus filtros guardados en segundo plano. Cada una no hace nada si ya tiene consulta, está cargando, tiene recarga pendiente, está offline o no hay cuenta (evita el popup selector). ⚠ Las páginas de lista son contenido reparentado en `MainTabbedPage`: su `OnAppearing` **no** corre, por eso la precarga sale de ahí.
+- **Cambio de comportamiento:** Facturación ahora muestra resultados al abrir la pestaña (antes esperaba a "Buscar").
+- Devoluciones y Comprobaciones ya tienen la misma caché de página 1 + guardia de versión que Facturación (`AplicarResultado` recalcula RFC/nombres sobre la respuesta cruda).
+- **`Views/EsqueletoListaView`** (nuevo): `Activo` → 6 tarjetas grises pulsantes. Usado en `ResultadosListaView` (overlay ahora opaco `Accent1`: el esqueleto sustituye la lista; aplica también a Equipo y a las capturas de los detalles). Se probaron mensajes progresivos por tiempo (3 s "Conectando…", 8 s mascota "Despertando el servidor") y **Beto los descartó**: no convencieron. El Home conserva su spinner original.
+- **Ajuste (feedback de Beto):** con caché la lista cambiaba al instante y parecía que el toque no hizo nada → ahora el esqueleto sale **siempre** al menos `CacheConsultas.PausaVisual` (400 ms) antes de pintar la caché; la consulta arranca en paralelo, no se retrasa. Home: el indicador del pull-to-refresh se apaga a los 800 ms (o antes si responde) y la recarga sigue en silencio; antes giraba los ~15 s del arranque en frío y "se veía que algo andaba mal".
+- Pendiente: Beto prueba en dispositivo con el API dormido (>5 min sin uso).
+
+## 2026-10-19 — Facturación: misma caché (página 1) + helper compartido
+
+- Nuevo `Helpers/CacheConsultas.cs`: `Clave(pantalla, cfid, consulta)` (SHA-256 del JSON de la búsqueda), `Leer<T>`, `Guardar<T>`, `Limpiar()`. Lleva un índice de claves (Preferences no enumera): poda FIFO a 60 entradas y `Limpiar()` se llama en `CoordinadorSesion.CerrarSesionAsync` (datos fiscales no se quedan en el teléfono tras logout). El Dashboard ya usa el helper.
+- `FacturacionPage.EjecutarBusqueda`: solo **página 1** de cada combinación de filtros se cachea. Con caché: se pinta y no sale el overlay; error con caché → sin `AlertaPopup`, solo log. No se cachean las búsquedas de un solo uso (`CrearBusquedaPorProceso`, `CrearBusquedaPorFechaCreacion`).
+- Guardia de versión (`_versionBusqueda`): respuesta de un filtro/página/cuenta anterior se guarda pero no se pinta. `InvalidarConsulta` la incrementa.
+- Facturación **no consulta sola** al abrir la pestaña (espera Buscar / regreso de Captura / cambio de cuenta); eso no se cambió.
+- **Siguiente:** Devoluciones y Comprobaciones (ahí la proyección de RFC/nombre se recalcula sobre la respuesta cruda cacheada).
+
+## 2026-10-19 — Home: Resumen de actividad muestra caché y refresca en segundo plano
+
+- `DashboardViewModel`: caché **por cuenta fiscal + mes** (vía `CacheConsultas`, JSON con resumen + `SinActividad` + fecha). Siempre se pinta primero lo cacheado y después se consulta sin spinner; el spinner solo sale si esa cuenta/mes no tiene caché. Si los datos tienen menos de 2 min (y no es forzado), no se consulta.
+- Forzar (cambio de cuenta, `PendienteActualizar`, Reintentar, pull-to-refresh) **ya no borra la caché**: solo salta la ventana de 2 min.
+- Error con caché en pantalla → se conserva, solo log. Sin caché → panel de error como antes.
+- Guarda de carrera: si el usuario cambió de mes/cuenta durante la consulta, la respuesta solo se guarda, no se pinta. Se deduplican cargas en vuelo de la misma clave (al cambiar de cuenta llegan dos).
+- Las claves viejas `Dashboard_Actividad_*` quedan huérfanas (inofensivas). Créditos ya salían al instante (`AppState.Licenciamiento` persiste).
+- **Siguiente:** mismo patrón en Facturación, Devoluciones y Comprobaciones. Pendiente: Beto prueba en dispositivo.
+
+---
+
 ## 2026-10-15 — Calentamiento de pods del API (Azure scale-to-zero)
 
 - Azure apaga los pods tras ~5 min sin tráfico. La primera llamada encadena arranques en frío en serie (identity → crm → …), así que las esperas son largas pero no hay errores.

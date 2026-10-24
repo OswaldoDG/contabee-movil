@@ -5,6 +5,7 @@ using Contabee.Api;
 using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using ContaBeeMovil.Config;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
@@ -17,6 +18,16 @@ public partial class PaginaComprobaciones : ContentPage
 {
     internal static bool PendienteActualizarListado { get; set; }
 
+    /// <summary>
+    /// Una comprobación cambió (editada, eliminada, cambio de estado): recarga el listado al
+    /// volver y descarta la caché para no mostrar primero el estado anterior.
+    /// </summary>
+    internal static void MarcarListadoModificado()
+    {
+        PendienteActualizarListado = true;
+        CacheConsultas.Invalidar(CacheConsultas.Comprobaciones);
+    }
+
     private readonly IServicioTranscript _servicioTranscript;
     private readonly IServicioAlerta _servicioAlerta;
     private readonly IServicioSesion _servicioSesion;
@@ -25,6 +36,15 @@ public partial class PaginaComprobaciones : ContentPage
     private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
     private bool _abriendoPopup;
     private string? _emailSesion;
+
+    // Página 1 de cada combinación de filtros se cachea para pintarla al instante.
+    private sealed record PaginaCacheada(List<Comprobacion> Elementos, long Total);
+
+    // Una respuesta de un filtro/página/cuenta anterior se guarda en caché pero no se pinta.
+    private int _versionBusqueda;
+
+    // La búsqueda por Id que se arma tras crear es de un solo uso: no se cachea.
+    private bool _cachearBusqueda = true;
 
     private static readonly PopupOptions _popupOpts = new()
     {
@@ -149,7 +169,8 @@ public partial class PaginaComprobaciones : ContentPage
             new Dictionary<string, object>
             {
                 ["comprobacionId"] = item.Datos.Id,
-                ["rfc"] = item.CuentaFiscalRfc
+                ["rfc"] = item.CuentaFiscalRfc,
+                ["comprobacion"] = item.Datos   // el detalle se pinta al instante y luego se actualiza
             });
     }
 
@@ -168,6 +189,8 @@ public partial class PaginaComprobaciones : ContentPage
     /// </summary>
     public void InvalidarConsulta()
     {
+        _versionBusqueda++; // una respuesta en vuelo de la cuenta anterior ya no se pinta
+        EstaCargando = false;
         _ultimaBusqueda = null;
         Elementos = null;
         TotalEncontrados = 0;
@@ -202,6 +225,7 @@ public partial class PaginaComprobaciones : ContentPage
         }
 
         _ultimaBusqueda = busqueda;
+        _cachearBusqueda = true;
         _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
         await EjecutarBusqueda(1);
     }
@@ -224,35 +248,51 @@ public partial class PaginaComprobaciones : ContentPage
             : string.Join(" | ", _ultimaBusqueda.Filtros.Select(f =>
                 $"{f.Propiedad}:{f.Operador}=[{string.Join(",", f.Valores ?? [])}]"));
 
+        var version = ++_versionBusqueda;
+        bool esVigente() => version == _versionBusqueda;
+
+        // Solo la página 1 de cada combinación de filtros: es la que se ve al entrar.
+        var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+        var clave = _cachearBusqueda && pagina == 1 && cfid is Guid id
+            ? CacheConsultas.Clave(CacheConsultas.Comprobaciones, id, _ultimaBusqueda)
+            : null;
+
+        var cache = clave is null ? null : CacheConsultas.Leer<PaginaCacheada>(clave);
+        _logs.Log($"[PaginaComprobaciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}, caché={cache != null}");
+
+        // El esqueleto sale siempre como respuesta al toque. Con caché solo dura PausaVisual
+        // y el refresco sigue en silencio; sin caché dura lo que tarde el servidor.
         EstaCargando = true;
+        var consulta = _servicioTranscript.BusquedaComprobaciones(_ultimaBusqueda);
+        if (cache != null)
+        {
+            await Task.Delay(CacheConsultas.PausaVisual);
+            if (esVigente())
+            {
+                AplicarResultado(cache.Datos.Elementos, cache.Datos.Total, pagina);
+                EstaCargando = false;
+            }
+        }
+
         try
         {
-            _logs.Log($"[PaginaComprobaciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}");
-            var resultado = await _servicioTranscript.BusquedaComprobaciones(_ultimaBusqueda);
+            var resultado = await consulta;
 
             var elementosPagina = resultado.Elementos?.ToList() ?? [];
             _logs.Log($"[PaginaComprobaciones] Respuesta: Total={resultado.Total}, EnPagina={elementosPagina.Count}");
             foreach (var e in elementosPagina)
                 _logs.Log($"  -> Id={e.Id} Creador={e.UsuarioCreadorId} Receptor={e.UsuarioReceptorId} CuentaFiscal={e.CuentaFiscalId}");
 
-            if (pagina == 1 && elementosPagina.Count > 0)
-                _tamanoPaginaEfectivo = elementosPagina.Count;
+            if (clave != null)
+                CacheConsultas.Guardar(clave, new PaginaCacheada(elementosPagina, resultado.Total));
 
-            var offset = (pagina - 1) * _tamanoPaginaEfectivo;
-            Elementos = elementosPagina
-                .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreReceptor(e.UsuarioCreadorId), ResolverNombreReceptor(e.UsuarioReceptorId)))
-                .ToList();
-
-            TotalEncontrados = resultado.Total;
-            PaginaActual = pagina;
-            var divisorPaginas = Math.Max(1, _tamanoPaginaEfectivo);
-            TotalPaginas = (int)Math.Ceiling((double)resultado.Total / divisorPaginas);
-            if (TotalPaginas < 1) TotalPaginas = 1;
-            ConsultaEjecutada = true;
+            if (!esVigente()) return;
+            AplicarResultado(elementosPagina, resultado.Total, pagina);
         }
         catch (ApiException ex)
         {
-            _logs.Log($"[PaginaComprobaciones] ApiException Status={ex.StatusCode} Body={ex.Response}");
+            _logs.Log($"[PaginaComprobaciones] ApiException Status={ex.StatusCode} Body={ex.Response} (caché={cache != null})");
+            if (!esVigente()) return;
 
             // Asociación desactivada/eliminada (403): el CoordinadorSesion ya reconcilia la
             // sesión (recarga → modo limitado / cambia de cuenta) y avisa con toast. Aquí
@@ -265,6 +305,8 @@ public partial class PaginaComprobaciones : ContentPage
                 return;
             }
 
+            // Con caché en pantalla no interrumpimos con una alerta: el usuario ya ve datos.
+            if (cache != null) return;
             await _servicioAlerta.MostrarAsync(
                 "Error",
                 !string.IsNullOrWhiteSpace(ex.Response)
@@ -275,7 +317,8 @@ public partial class PaginaComprobaciones : ContentPage
         }
         catch (Exception ex)
         {
-            _logs.Log($"[PaginaComprobaciones] {ex.GetType().Name}: {ex.Message}");
+            _logs.Log($"[PaginaComprobaciones] {ex.GetType().Name}: {ex.Message} (caché={cache != null})");
+            if (!esVigente() || cache != null) return;
             await _servicioAlerta.MostrarAsync(
                 "Error",
                 "No se pudieron cargar las comprobaciones. Intenta de nuevo.",
@@ -284,8 +327,42 @@ public partial class PaginaComprobaciones : ContentPage
         }
         finally
         {
-            EstaCargando = false;
+            // Si ya hay otra búsqueda en curso, esa maneja su propio indicador.
+            if (esVigente())
+                EstaCargando = false;
         }
+    }
+
+    private void AplicarResultado(List<Comprobacion> elementosPagina, long total, int pagina)
+    {
+        if (pagina == 1 && elementosPagina.Count > 0)
+            _tamanoPaginaEfectivo = elementosPagina.Count;
+
+        var offset = (pagina - 1) * _tamanoPaginaEfectivo;
+        Elementos = elementosPagina
+            .Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreReceptor(e.UsuarioCreadorId), ResolverNombreReceptor(e.UsuarioReceptorId)))
+            .ToList();
+
+        TotalEncontrados = total;
+        PaginaActual = pagina;
+        var divisorPaginas = Math.Max(1, _tamanoPaginaEfectivo);
+        TotalPaginas = (int)Math.Ceiling((double)total / divisorPaginas);
+        if (TotalPaginas < 1) TotalPaginas = 1;
+        ConsultaEjecutada = true;
+    }
+
+    /// <summary>
+    /// Carga en segundo plano la búsqueda con los filtros guardados, para que al abrir la
+    /// pestaña ya haya datos (los pods de Azure tardan en despertar). La llama
+    /// <see cref="MainTabbedPage"/>; no hace nada si ya hay consulta o una recarga pendiente.
+    /// </summary>
+    public async Task PrecargarAsync()
+    {
+        if (ConsultaEjecutada || EstaCargando || PendienteActualizarListado) return;
+        if (AppState.Instance.ModoOffline || AppState.Instance.CuentaFiscalActual is null) return;
+
+        _logs.Log("[PaginaComprobaciones] Precarga");
+        await OnBuscarComprobaciones(PanelFiltros.BusquedaActual);
     }
 
     private async void OnCrearComprobacionClicked(object sender, TappedEventArgs e)
@@ -392,6 +469,7 @@ public partial class PaginaComprobaciones : ContentPage
             }
 
             await _servicioSesion.GetLicenciaAsync();
+            CacheConsultas.Invalidar(CacheConsultas.Comprobaciones);
 
             // Tras crear, mostrar únicamente la comprobación recién creada
             // (no recargar el listado completo del periodo).
@@ -400,11 +478,13 @@ public partial class PaginaComprobaciones : ContentPage
                 var busqueda = PanelFiltros.BusquedaActual;
                 busqueda.Filtros = ConstruirFiltrosPorId(creada.Id);
                 _ultimaBusqueda = busqueda;
+                _cachearBusqueda = false; // búsqueda de un solo uso
             }
             else
             {
                 PanelFiltros.SeleccionarPeriodoActual();
                 _ultimaBusqueda = PanelFiltros.BusquedaActual;
+                _cachearBusqueda = true;
             }
 
             MostrarOverlayCarga = false;

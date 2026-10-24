@@ -22,7 +22,27 @@ public partial class MiCuentaPage : ContentPage
         DangerZone.IsVisible = noEsLoginLess;
         Divide.IsVisible = noEsLoginLess;
 
+        // Puede haber cambiado solo (paso automático a completo) desde la última vez.
+        _sincronizandoModoSimple = true;
+        ModoSimpleSwitch.IsToggled = AppState.Instance.ModoSimple;
+        _sincronizandoModoSimple = false;
+
         _ = CargarDatosSesionAsync();
+    }
+
+    private bool _sincronizandoModoSimple;
+
+    private async void OnModoSimpleToggled(object? sender, ToggledEventArgs e)
+    {
+        if (_sincronizandoModoSimple || AppState.Instance.ModoSimple == e.Value) return;
+
+        AppState.Instance.ModoSimple = e.Value;
+        if (!e.Value) return;
+
+        // Al activarlo: deja ver el switch moverse y regresa al Inicio, donde ya se ven solo
+        // las pestañas del modo simple (MainTabbedPage cambia a Inicio al activarse).
+        await Task.Delay(250);
+        await Shell.Current.GoToAsync("..");
     }
 
     private async Task CargarDatosSesionAsync()

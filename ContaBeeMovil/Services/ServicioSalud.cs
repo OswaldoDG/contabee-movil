@@ -118,11 +118,9 @@ public class ServicioSalud(IHttpClientFactory factory, IServicioLogs logs) : ISe
         var client = factory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(60);
 
-        // /diagnostico pega desde dentro al /health de todos los pods registrados en Consul,
-        // incluidos los internos que la app no puede ver.
-        var urls = Endpoints().Append($"{ServicioConfiguracion.Actual.UrlTranscript}diagnostico");
-
-        var tiempos = await Task.WhenAll(urls.Select(async url =>
+        // Todos en paralelo y directo a cada pod. No se usa {transcript}/diagnostico: recorre
+        // los hosts de Consul uno tras otro, así que su respuesta tarda la suma de los arranques.
+        var tiempos = await Task.WhenAll(Endpoints().Select(async url =>
         {
             var reloj = Stopwatch.StartNew();
             var ruta = new Uri(url).AbsolutePath;

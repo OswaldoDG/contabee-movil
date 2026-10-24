@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:f="clr-namespace:Fonts"
+             xmlns:local="clr-namespace:ContaBeeMovil.Views"
              x:Class="ContaBeeMovil.Views.ResultadosListaView">
 
     <Grid RowDefinitions="*,Auto">
@@ -14,18 +15,14 @@
                         SelectionMode="Single"
                         SelectionChanged="OnItemSelectionChanged"/>
 
-        <!-- Overlay de carga -->
+        <!-- Overlay de carga: esqueleto. Fondo opaco del mismo color que la lista para que el
+             esqueleto sustituya a los resultados viejos en vez de mezclarse. -->
         <Grid x:Name="LoadingOverlay"
               Grid.Row="0"
               IsVisible="False"
-              BackgroundColor="Transparent"
+              BackgroundColor="{toolkit:AppThemeResource Accent1}"
               InputTransparent="False">
-            <ActivityIndicator IsRunning="True"
-                               Color="{toolkit:AppThemeResource Primary}"
-                               HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               WidthRequest="48"
-                               HeightRequest="48" />
+            <local:EsqueletoListaView x:Name="Carga" />
         </Grid>
 
         <!-- Contenedor con fondo para la zona inferior -->

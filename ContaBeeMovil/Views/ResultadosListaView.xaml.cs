@@ -21,7 +21,12 @@ public partial class ResultadosListaView : ContentView
 
     public static readonly BindableProperty EstaCargandoProperty =
         BindableProperty.Create(nameof(EstaCargando), typeof(bool), typeof(ResultadosListaView), false,
-            propertyChanged: (b, _, v) => ((ResultadosListaView)b).LoadingOverlay.IsVisible = (bool)v);
+            propertyChanged: (b, _, v) =>
+            {
+                var vista = (ResultadosListaView)b;
+                vista.LoadingOverlay.IsVisible = (bool)v;
+                vista.Carga.Activo = (bool)v;
+            });
 
     public bool EstaCargando
     {

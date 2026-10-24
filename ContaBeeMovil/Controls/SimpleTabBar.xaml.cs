@@ -40,10 +40,12 @@ public partial class SimpleTabBar : ContentView
         TabChanged?.Invoke(this, index);
     }
 
-    public void SetEquipoVisible(bool visible)
+    /// <summary>Muestra u oculta una pestaña; oculta, su columna mide 0 y las demás se reparten el ancho.</summary>
+    public void SetTabVisible(int index, bool visible)
     {
-        TabEquipo.IsVisible = visible;
-        TabsGrid.ColumnDefinitions[4].Width = visible ? GridLength.Star : new GridLength(0);
+        View[] tabs = [TabInicio, TabFacturacion, TabDevoluciones, TabComprobaciones, TabEquipo];
+        tabs[index].IsVisible = visible;
+        TabsGrid.ColumnDefinitions[index].Width = visible ? GridLength.Star : new GridLength(0);
     }
 
     private void UpdateVisualState(int index)

@@ -5,6 +5,7 @@ using Contabee.Api.abstractions;
 using Contabee.Api.Transcript;
 using Contabee.Api;
 using ContaBeeMovil.Config;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Dev;
@@ -17,6 +18,16 @@ public partial class PaginaDevoluciones : ContentPage
 {
     internal static bool PendienteActualizarListado { get; set; }
 
+    /// <summary>
+    /// Un reembolso cambió (editado, eliminado, cambio de estado): recarga el listado al
+    /// volver y descarta la caché para no mostrar primero el estado anterior.
+    /// </summary>
+    internal static void MarcarListadoModificado()
+    {
+        PendienteActualizarListado = true;
+        CacheConsultas.Invalidar(CacheConsultas.Devoluciones);
+    }
+
 	private readonly IServicioTranscript _servicioTranscript;
 	private readonly IServicioAlerta _servicioAlerta;
 	private readonly IServicioSesion _servicioSesion;
@@ -24,6 +35,15 @@ public partial class PaginaDevoluciones : ContentPage
 	private Busqueda? _ultimaBusqueda;
 	private int _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
 	private bool _abriendoPopup;
+
+	// Página 1 de cada combinación de filtros se cachea para pintarla al instante.
+	private sealed record PaginaCacheada(List<Devolucion> Elementos, long Total);
+
+	// Una respuesta de un filtro/página/cuenta anterior se guarda en caché pero no se pinta.
+	private int _versionBusqueda;
+
+	// La búsqueda por Id que se arma tras crear es de un solo uso: no se cachea.
+	private bool _cachearBusqueda = true;
 
 	private static readonly PopupOptions _popupOpts = new()
 	{
@@ -158,7 +178,8 @@ public partial class PaginaDevoluciones : ContentPage
 			new Dictionary<string, object>
 			{
 				["devolucionId"] = item.Datos.Id,
-				["rfc"] = item.CuentaFiscalRfc
+				["rfc"] = item.CuentaFiscalRfc,
+				["devolucion"] = item.Datos   // el detalle se pinta al instante y luego se actualiza
 			});
 	}
 
@@ -177,6 +198,8 @@ public partial class PaginaDevoluciones : ContentPage
 	/// </summary>
 	public void InvalidarConsulta()
 	{
+		_versionBusqueda++; // una respuesta en vuelo de la cuenta anterior ya no se pinta
+		EstaCargando = false;
 		_ultimaBusqueda = null;
 		Elementos = null;
 		TotalEncontrados = 0;
@@ -200,6 +223,7 @@ public partial class PaginaDevoluciones : ContentPage
 		}
 
 		_ultimaBusqueda = busqueda;
+		_cachearBusqueda = true;
       _tamanoPaginaEfectivo = AppSettings.Consulta.TamanoPagina;
 		await EjecutarBusqueda(1);
 	}
@@ -222,31 +246,47 @@ public partial class PaginaDevoluciones : ContentPage
 			: string.Join(" | ", _ultimaBusqueda.Filtros.Select(f =>
 				$"{f.Propiedad}:{f.Operador}=[{string.Join(",", f.Valores ?? [])}]"));
 
-        EstaCargando = true;
+		var version = ++_versionBusqueda;
+		bool esVigente() => version == _versionBusqueda;
+
+		// Solo la página 1 de cada combinación de filtros: es la que se ve al entrar.
+		var cfid = AppState.Instance.CuentaFiscalActual?.CuentaFiscalId;
+		var clave = _cachearBusqueda && pagina == 1 && cfid is Guid id
+			? CacheConsultas.Clave(CacheConsultas.Devoluciones, id, _ultimaBusqueda)
+			: null;
+
+		var cache = clave is null ? null : CacheConsultas.Leer<PaginaCacheada>(clave);
+		_logs.Log($"[PaginaDevoluciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}, caché={cache != null}");
+
+		// El esqueleto sale siempre como respuesta al toque. Con caché solo dura PausaVisual
+		// y el refresco sigue en silencio; sin caché dura lo que tarde el servidor.
+		EstaCargando = true;
+		var consulta = _servicioTranscript.BusquedaDevoluciones(_ultimaBusqueda);
+		if (cache != null)
+		{
+			await Task.Delay(CacheConsultas.PausaVisual);
+			if (esVigente())
+			{
+				AplicarResultado(cache.Datos.Elementos, cache.Datos.Total, pagina);
+				EstaCargando = false;
+			}
+		}
+
 		try
 		{
-          _logs.Log($"[PaginaDevoluciones] Ejecutando búsqueda. Pagina={pagina}, Filtros={_ultimaBusqueda.Filtros?.Count ?? 0}, Orden={_ultimaBusqueda.OrdenarPropiedad}, Desc={_ultimaBusqueda.OrdernarDesc}, Payload={filtrosTxt}");
-			var resultado = await _servicioTranscript.BusquedaDevoluciones(_ultimaBusqueda);
+			var resultado = await consulta;
+			var elementosPagina = resultado.Elementos?.ToList() ?? [];
 
-          var elementosPagina = resultado.Elementos?.ToList() ?? [];
-			if (pagina == 1 && elementosPagina.Count > 0)
-				_tamanoPaginaEfectivo = elementosPagina.Count;
+			if (clave != null)
+				CacheConsultas.Guardar(clave, new PaginaCacheada(elementosPagina, resultado.Total));
 
-			var offset = (pagina - 1) * _tamanoPaginaEfectivo;
-			Elementos = elementosPagina
-				.Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreUsuario(e.UsuarioCreadorId)))
-				.ToList();
-
-			TotalEncontrados = resultado.Total;
-			PaginaActual = pagina;
-          var divisorPaginas = Math.Max(1, _tamanoPaginaEfectivo);
-			TotalPaginas = (int)Math.Ceiling((double)resultado.Total / divisorPaginas);
-			if (TotalPaginas < 1) TotalPaginas = 1;
-			ConsultaEjecutada = true;
+			if (!esVigente()) return;
+			AplicarResultado(elementosPagina, resultado.Total, pagina);
 		}
-        catch (ApiException ex)
+		catch (ApiException ex)
 		{
-			_logs.Log($"[PaginaDevoluciones] ApiException Status={ex.StatusCode} Body={ex.Response}");
+			_logs.Log($"[PaginaDevoluciones] ApiException Status={ex.StatusCode} Body={ex.Response} (caché={cache != null})");
+			if (!esVigente()) return;
 
 			// Asociación desactivada/eliminada (403): el CoordinadorSesion ya reconcilia la
 			// sesión (recarga → modo limitado / cambia de cuenta) y avisa con toast. Aquí
@@ -259,6 +299,8 @@ public partial class PaginaDevoluciones : ContentPage
 				return;
 			}
 
+			// Con caché en pantalla no interrumpimos con una alerta: el usuario ya ve datos.
+			if (cache != null) return;
 			await _servicioAlerta.MostrarAsync(
 				"Error",
 				!string.IsNullOrWhiteSpace(ex.Response)
@@ -269,7 +311,8 @@ public partial class PaginaDevoluciones : ContentPage
 		}
 		catch (Exception ex)
 		{
-			_logs.Log($"[PaginaDevoluciones] {ex.GetType().Name}: {ex.Message}");
+			_logs.Log($"[PaginaDevoluciones] {ex.GetType().Name}: {ex.Message} (caché={cache != null})");
+			if (!esVigente() || cache != null) return;
 			await _servicioAlerta.MostrarAsync(
 				"Error",
 				"No se pudieron cargar los reembolsos. Intenta de nuevo.",
@@ -278,8 +321,42 @@ public partial class PaginaDevoluciones : ContentPage
 		}
 		finally
 		{
-			EstaCargando = false;
+			// Si ya hay otra búsqueda en curso, esa maneja su propio indicador.
+			if (esVigente())
+				EstaCargando = false;
 		}
+	}
+
+	private void AplicarResultado(List<Devolucion> elementosPagina, long total, int pagina)
+	{
+		if (pagina == 1 && elementosPagina.Count > 0)
+			_tamanoPaginaEfectivo = elementosPagina.Count;
+
+		var offset = (pagina - 1) * _tamanoPaginaEfectivo;
+		Elementos = elementosPagina
+			.Select((e, i) => new ItemConConsecutivo(offset + i + 1, e, ResolverRfcCuentaFiscal(e), ResolverNombreUsuario(e.UsuarioCreadorId)))
+			.ToList();
+
+		TotalEncontrados = total;
+		PaginaActual = pagina;
+		var divisorPaginas = Math.Max(1, _tamanoPaginaEfectivo);
+		TotalPaginas = (int)Math.Ceiling((double)total / divisorPaginas);
+		if (TotalPaginas < 1) TotalPaginas = 1;
+		ConsultaEjecutada = true;
+	}
+
+	/// <summary>
+	/// Carga en segundo plano la búsqueda con los filtros guardados, para que al abrir la
+	/// pestaña ya haya datos (los pods de Azure tardan en despertar). La llama
+	/// <see cref="MainTabbedPage"/>; no hace nada si ya hay consulta o una recarga pendiente.
+	/// </summary>
+	public async Task PrecargarAsync()
+	{
+		if (ConsultaEjecutada || EstaCargando || PendienteActualizarListado) return;
+		if (AppState.Instance.ModoOffline || AppState.Instance.CuentaFiscalActual is null) return;
+
+		_logs.Log("[PaginaDevoluciones] Precarga");
+		await OnBuscarDevoluciones(PanelFiltros.BusquedaActual);
 	}
 
   private async void OnCrearDevolucionClicked(object sender, TappedEventArgs e)
@@ -360,6 +437,7 @@ public partial class PaginaDevoluciones : ContentPage
 			}
 
 			await _servicioSesion.GetLicenciaAsync();
+			CacheConsultas.Invalidar(CacheConsultas.Devoluciones);
 
             // Tras crear, mostrar únicamente la devolución recién creada
             // (no recargar el listado completo del periodo).
@@ -368,11 +446,13 @@ public partial class PaginaDevoluciones : ContentPage
                 var busqueda = PanelFiltros.BusquedaActual;
                 busqueda.Filtros = ConstruirFiltrosPorId(creada.Id);
                 _ultimaBusqueda = busqueda;
+                _cachearBusqueda = false; // búsqueda de un solo uso
             }
             else
             {
                 PanelFiltros.SeleccionarPeriodoActual();
                 _ultimaBusqueda = PanelFiltros.BusquedaActual;
+                _cachearBusqueda = true;
             }
 
           MostrarOverlayCarga = false;

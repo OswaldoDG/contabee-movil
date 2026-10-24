@@ -1,4 +1,5 @@
 using System.Net;
+using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Pages.Login;
 using ContaBeeMovil.Services.Dev;
 using ContaBeeMovil.Services.Device;
@@ -110,6 +111,7 @@ public class CoordinadorSesion : ICoordinadorSesion
         // limitado (ver ServicioSesion.ProcesarDesvinculacionAsync).
         FiltrosDevolucionesView.LimpiarEstadoPersistido();
         FiltrosComprobacionesView.LimpiarEstadoPersistido();
+        CacheConsultas.Limpiar(); // datos fiscales del usuario guardados para pintar al instante
 
         await _sesion.LimpiaTokensAsync(conservarLoginLess: false); // ya remueve la expiración
 

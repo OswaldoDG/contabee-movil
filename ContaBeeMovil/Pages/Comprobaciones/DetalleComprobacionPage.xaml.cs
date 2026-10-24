@@ -144,6 +144,16 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         if (query.TryGetValue("rfc", out var rfcObj) && rfcObj is string rfc && !string.IsNullOrWhiteSpace(rfc))
             _rfc = rfc;
 
+        // La lista pasa el objeto que ya tiene: el encabezado se pinta al instante y
+        // CargarDetalleAsync solo lo actualiza con la versión del servidor.
+        if (query.TryGetValue("comprobacion", out var compObj) && compObj is Comprobacion comprobacion)
+        {
+            _comprobacion = comprobacion;
+            _comprobacionId = comprobacion.Id;
+            ConfigurarEstadosDisponibles();
+            RefrescarBindings();
+        }
+
         OnPropertyChanged(nameof(Rfc));
     }
 
@@ -162,6 +172,8 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
         if (_navegandoTrasEliminacion || _detalleNoDisponible) return;
 
         EstaCargando = true;
+        // En paralelo con el detalle: las capturas solo dependen del Id.
+        var capturas = CargarCapturasRelacionadasAsync(1);
         try
         {
             var res = await _servicioTranscript.ObtenerComprobacionAsync(_comprobacionId);
@@ -170,7 +182,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
                 if (EsEntidadNoEncontrada(res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
-                    PaginaComprobaciones.PendienteActualizarListado = true;
+                    PaginaComprobaciones.MarcarListadoModificado();
                     await RegresarAListadoSiSigueAbiertaAsync();
                     return;
                 }
@@ -180,7 +192,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
                 if (CodigosErrorApi.EsAsociacionInactiva(res.Error?.HttpCode, res.Error?.Mensaje))
                 {
                     _detalleNoDisponible = true;
-                    PaginaComprobaciones.PendienteActualizarListado = true;
+                    PaginaComprobaciones.MarcarListadoModificado();
                     await RegresarAListadoSiSigueAbiertaAsync();
                     return;
                 }
@@ -189,13 +201,17 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
                 return;
             }
 
+            var anterior = _comprobacion;
             _comprobacion = res.Payload;
-            ConfigurarEstadosDisponibles();
-            await CargarCapturasRelacionadasAsync(1);
+            // Solo se rearma el selector si cambió el estado: si el usuario ya eligió uno
+            // mientras llegaba la respuesta, no se le regresa al primero.
+            if (anterior?.Estado != _comprobacion.Estado)
+                ConfigurarEstadosDisponibles();
             RefrescarBindings();
         }
         finally
         {
+            await capturas;
             EstaCargando = false;
         }
     }
@@ -240,7 +256,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
     {
         const int tamanoPaginaCapturas = 5;
 
-        if (_comprobacion is null)
+        if (_comprobacionId == Guid.Empty)
         {
             CapturasRelacionadas = [];
             TotalCapturasEncontradas = 0;
@@ -272,7 +288,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             {
                 Propiedad = "ProcesoAsociadoId",
                 Operador = Operador.Igual,
-                Valores = [_comprobacion.Id.ToString()]
+                Valores = [_comprobacionId.ToString()]
             });
 
             var busqueda = new Busqueda
@@ -341,7 +357,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
 
             _comprobacion = res.Payload;
             RefrescarBindings();
-            PaginaComprobaciones.PendienteActualizarListado = true;
+            PaginaComprobaciones.MarcarListadoModificado();
         }
         finally
         {
@@ -371,7 +387,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
                 return;
             }
 
-            PaginaComprobaciones.PendienteActualizarListado = true;
+            PaginaComprobaciones.MarcarListadoModificado();
             _navegandoTrasEliminacion = true;
             _detalleNoDisponible = true;
             await Shell.Current.GoToAsync("..");
@@ -441,7 +457,7 @@ public partial class DetalleComprobacionPage : ContentPage, IQueryAttributable
             _comprobacion = res.Payload;
             ConfigurarEstadosDisponibles();
             RefrescarBindings();
-            PaginaComprobaciones.PendienteActualizarListado = true;
+            PaginaComprobaciones.MarcarListadoModificado();
             await _toast.MostrarAsync($"Estado actualizado a {EstadoTexto}");
         }
         finally

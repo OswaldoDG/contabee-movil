@@ -69,11 +69,19 @@ public partial class MainTabbedPage : ContentPage
         EquipoRequested += ForceEquipoTab;
         ResaltarCreditosRequested += OnResaltarCreditosRequested;
 
+        _senalesModoCompleto = LeerSenalesModoCompleto();
+
         AppState.Instance.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(AppState.EsLoginLess) ||
                 e.PropertyName == nameof(AppState.CuentaFiscalActual))
-                MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadEquipo);
+                MainThread.BeginInvokeOnMainThread(ActualizarVisibilidadTabs);
+            else if (e.PropertyName == nameof(AppState.ModoSimple))
+                MainThread.BeginInvokeOnMainThread(OnModoSimpleCambiado);
+            else if (e.PropertyName == nameof(AppState.Licenciamiento) ||
+                     e.PropertyName == nameof(AppState.MisUsuarios) ||
+                     e.PropertyName == nameof(AppState.CuentasFiscales))
+                MainThread.BeginInvokeOnMainThread(EvaluarModoCompleto);
             else if (e.PropertyName == nameof(AppState.ModoOffline) ||
                      e.PropertyName == nameof(AppState.ServicioNoDisponible))
                 MainThread.BeginInvokeOnMainThread(ActualizarModoOffline);
@@ -83,21 +91,81 @@ public partial class MainTabbedPage : ContentPage
                 MainThread.BeginInvokeOnMainThread(ActualizarOverlayCarga);
         };
 
-        ActualizarVisibilidadEquipo();
+        ActualizarVisibilidadTabs();
         ActualizarModoOffline();
         SwitchToTab(0);
     }
 
     private bool EquipoDebeEstarVisible() =>
+        !AppState.Instance.ModoSimple &&
         !AppState.Instance.EsLoginLess &&
         AppState.Instance.CuentaFiscalActual?.TipoCuenta != TipoCuenta.Secundaria;
 
-    private void ActualizarVisibilidadEquipo()
+    private bool TabVisible(int index) => index switch
     {
-        var visible = EquipoDebeEstarVisible();
-        TabBar.SetEquipoVisible(visible);
-        if (!visible && _currentIndex == 4)
+        2 or 3 => !AppState.Instance.ModoSimple,
+        4      => EquipoDebeEstarVisible(),
+        _      => true,
+    };
+
+    private void ActualizarVisibilidadTabs()
+    {
+        for (int i = 2; i <= 4; i++)
+            TabBar.SetTabVisible(i, TabVisible(i));
+
+        if (_currentIndex >= 0 && !TabVisible(_currentIndex))
             SwitchToTab(0);
+    }
+
+    // ── Modo simple ───────────────────────────────────────────────────────────
+
+    private void OnModoSimpleCambiado()
+    {
+        ActualizarVisibilidadTabs();
+
+        if (AppState.Instance.ModoSimple)
+            SwitchToTab(0);   // al activarlo se regresa al Inicio (con el fade normal de pestaña)
+        else
+            _ = PrecargarListadosAsync();   // las pestañas que reaparecen cargan en segundo plano
+    }
+
+    // Señales de que el usuario ya necesita el modo completo. Se comparan con las del último
+    // vistazo: solo una señal NUEVA lo cambia, así quien regresa a simple a propósito no vuelve
+    // a completo en cada recarga de la licencia o de los usuarios.
+    private (bool Colaboracion, bool Equipo, bool Vinculado) _senalesModoCompleto;
+
+    private static (bool Colaboracion, bool Equipo, bool Vinculado) LeerSenalesModoCompleto()
+    {
+        var estado = AppState.Instance;
+        return (
+            // Solo sirven para reembolsos y comprobaciones.
+            (estado.Licenciamiento?.CreditosColabDisponibles ?? 0) > 0,
+            // MisUsuarios incluye al propio usuario: más de uno = hay equipo en la cuenta.
+            (estado.MisUsuarios?.Count ?? 0) > 1,
+            // Vinculado a la cuenta de alguien más (p. ej. al terminar "Vincularme").
+            estado.CuentasFiscales?.Any(c => c.TipoCuenta == TipoCuenta.Secundaria) == true);
+    }
+
+    private void EvaluarModoCompleto()
+    {
+        var actuales = LeerSenalesModoCompleto();
+        var previas = _senalesModoCompleto;
+        _senalesModoCompleto = actuales;
+
+        if (!AppState.Instance.ModoSimple) return;
+
+        string? motivo =
+            actuales.Colaboracion && !previas.Colaboracion ? "para que uses tus créditos de Colaboración"
+            : actuales.Vinculado && !previas.Vinculado     ? "porque te vinculaste a una cuenta"
+            : actuales.Equipo && !previas.Equipo           ? "porque tu cuenta ya tiene equipo"
+            : null;
+        if (motivo is null) return;
+
+        App.Services.GetRequiredService<IServicioLogs>().Info($"[ModoSimple] Cambio a modo completo: {motivo}");
+        AppState.Instance.ModoSimple = false;
+        _ = App.Services.GetRequiredService<IServicioToast>().MostrarAsync(
+            $"Activamos el modo completo {motivo}. Puedes volver al modo simple desde el menú.",
+            ToastIcono.Info, ToastPosicion.Bottom, 5000);
     }
 
     private void ActualizarOverlayCarga()
@@ -214,13 +282,38 @@ public partial class MainTabbedPage : ContentPage
         base.OnAppearing();
         if (_currentIndex >= 0)
             ActivarTabActual();
+        _ = PrecargarListadosAsync();
+    }
+
+    /// <summary>
+    /// Mientras el usuario está en el Home, los listados piden sus datos con los filtros
+    /// guardados. Si el API estaba dormido (Azure apaga los pods sin tráfico, ~15 s en
+    /// despertar), esa espera pasa aquí y no cuando el usuario abre la pestaña. Cada página
+    /// ignora la llamada si ya tiene datos, así que repetirla al volver de otra página es gratis.
+    /// </summary>
+    private async Task PrecargarListadosAsync()
+    {
+        // Deja pasar primero la consulta del Home y el primer pintado.
+        await Task.Delay(1500);
+        try
+        {
+            // En modo simple no se piden las pestañas ocultas.
+            Task[] tareas = AppState.Instance.ModoSimple
+                ? [_facturacionPage.PrecargarAsync()]
+                : [_facturacionPage.PrecargarAsync(), _devolucionesPage.PrecargarAsync(), _comprobacionesPage.PrecargarAsync()];
+            await Task.WhenAll(tareas);
+        }
+        catch (Exception ex)
+        {
+            App.Services.GetRequiredService<IServicioLogs>().Error($"[Precarga] {ex.GetType().Name}: {ex.Message}");
+        }
     }
 
     private void OnTabChanged(object? sender, int index) => SwitchToTab(index);
 
     private async void SwitchToTab(int index)
     {
-        if (index == 4 && !EquipoDebeEstarVisible()) return;
+        if (!TabVisible(index)) return;
         if (_currentIndex == index) return;
         _currentIndex = index;
 
