@@ -12,6 +12,7 @@ using ContaBeeMovil.Pages.Perfil;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Pages.RecuperarPass;
 using ContaBeeMovil.Pages.Sugerencias;
+using ContaBeeMovil.Pages.Invitar;
 using ContaBeeMovil.Pages.Registro;
 using ContaBeeMovil.Pages.Dashboard;
 using ContaBeeMovil.Pages.Equipo;
@@ -203,6 +204,7 @@ namespace ContaBeeMovil
             builder.Services.AddTransient<EliminarCuentaPage>();
             builder.Services.AddTransient<ManualRegistroPage>();
             builder.Services.AddTransient<SugerenciasPage>();
+            builder.Services.AddTransient<InvitarPage>();
             builder.Services.AddTransient<AcercaDePage>();
             builder.Services.AddTransient<CambiarContrasenaPage>();
             builder.Services.AddTransient<PaginaCaptura>();

@@ -10,6 +10,7 @@ using ContaBeeMovil.Pages.Devoluciones;
 using ContaBeeMovil.Pages.Comprobaciones;
 using ContaBeeMovil.Pages.Equipo;
 using ContaBeeMovil.Pages.Sugerencias;
+using ContaBeeMovil.Pages.Invitar;
 using ContaBeeMovil.Pages.Tienda;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
@@ -185,6 +186,7 @@ namespace ContaBeeMovil
             CuponesCard.IsVisible = !degradado;
             VincularmeCard.IsVisible = !degradado;
             BuzonItem.IsVisible = !degradado;
+            InvitarItem.IsVisible = !degradado;
         }
 
         private void ActualizarNombreLabel()
@@ -296,6 +298,12 @@ namespace ContaBeeMovil
             await Shell.Current.GoToAsync(nameof(AcercaDePage));
         }
 
+        private async void OnInvitarClicked(object? sender, EventArgs e)
+        {
+            FlyoutIsPresented = false;
+            await Shell.Current.GoToAsync(nameof(InvitarPage));
+        }
+
         private async void OnCompartirClicked(object? sender, EventArgs e)
         {
             FlyoutIsPresented = false;
@@ -335,6 +343,7 @@ namespace ContaBeeMovil
             Routing.RegisterRoute(nameof(LogsPage), typeof(LogsPage));
             Routing.RegisterRoute(nameof(PaginaCupones), typeof(PaginaCupones));
             Routing.RegisterRoute(nameof(AcercaDePage), typeof(AcercaDePage));
+            Routing.RegisterRoute(nameof(InvitarPage), typeof(InvitarPage));
         }
     }
 }

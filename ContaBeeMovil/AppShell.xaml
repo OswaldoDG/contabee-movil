@@ -256,6 +256,21 @@
                            VerticalOptions="Center" />
                 </Grid>
 
+                <Grid x:Name="InvitarItem"
+                      ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnInvitarClicked" />
+                    </Grid.GestureRecognizers>
+                    <Label Grid.Column="0"
+                                 Text="{x:Static f:FluentUIFilled.person_add_20_filled}" FontFamily="FluentUIFilled"
+                                 FontSize="22"
+                                 TextColor="{toolkit:AppThemeResource SecondaryIcon}"
+                                 VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="Invitar"
+                           Style="{StaticResource Body1}"
+                           VerticalOptions="Center" />
+                </Grid>
+
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14" Padding="4,10">
                     <Grid.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCompartirClicked" />
