@@ -279,6 +279,23 @@ public class ServicioIdentidad(HttpClient httpClient) : IServicioIdentidad
         return r;
     }
 
+    public async Task<Respuesta> InvitarPorEmail(List<string> emails)
+    {
+        Respuesta r = new();
+
+        try
+        {
+            await servicioIdentidad.InvitarPorEmailAsync(emails);
+            r.Ok = true;
+        }
+        catch (Exception ex)
+        {
+            r.Error = ex.ErrorGenerico("ServicioIdentidad-InvitarPorEmail");
+        }
+
+        return r;
+    }
+
     public async Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid)
     {
         RespuestaPayload<List<CuentaUsuario>> r = new();

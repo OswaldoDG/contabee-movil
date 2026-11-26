@@ -16,6 +16,7 @@ public interface
     Task<RespuestaPayload<List<CuentaUsuario>>> MisUsuarios(Guid cfid);
     Task<RespuestaPayload<CuentaUsuarioResultadoPaginado>> BuscarUsuarios(Guid cfid, Busqueda busqueda);
     Task<Respuesta> EliminarCuenta(string password);
+    Task<Respuesta> InvitarPorEmail(List<string> emails);
     Task<RespuestaPayload<CuentaUsuario>> CrearUsuarioCaptura(CreaUsuarioCaptura usuarioCaptura, Guid cfid);
     Task<RespuestaPayload<RespuestaTokenVinculacion>> GetTokenVinculacion(string dispositivoId, bool enSesion = false);
     Task<RespuestaPayload<RespuestaTokenVinculacion>> ValidaTokenVinculacionEnSesion(string dispositivoId, string token);
