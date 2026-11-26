@@ -46,7 +46,7 @@
                                        Text="{x:Static f:FluentUI.dismiss_20_regular}"
                                        FontFamily="FluentUI"
                                        FontSize="20"
-                                       Padding="6"
+                                       Padding="12"
                                        TextColor="{toolkit:AppThemeResource SecondaryIcon}"
                                        VerticalOptions="Center"
                                        IsVisible="{Binding PuedeQuitar, Source={x:Reference Pagina}, x:DataType=local:InvitarPage}">

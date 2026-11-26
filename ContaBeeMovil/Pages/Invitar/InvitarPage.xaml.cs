@@ -27,9 +27,9 @@ public partial class FilaCorreo : ObservableObject
 
 public partial class InvitarPage : ContentPage
 {
-    // Caracteres que sólo llegan al pegar una lista; el espacio se trata aparte
-    // (sólo reparte si separa dos correos).
-    private static readonly char[] SeparadoresPegado = [',', ';', '\r', '\n', '\t'];
+    // Caracteres que sólo llegan al pegar una lista (o "Nombre <correo>"); el espacio se
+    // trata aparte (sólo reparte si separa dos correos).
+    private static readonly char[] SeparadoresPegado = [',', ';', '\r', '\n', '\t', '<'];
 
     private readonly IServicioIdentidad _identidad;
     private readonly IServicioAlerta _alerta;
@@ -83,11 +83,16 @@ public partial class InvitarPage : ContentPage
         _repartiendo = true;
         try
         {
-            fila.Texto = partes.FirstOrDefault() ?? string.Empty;
+            // Sin repetidos: ni dentro de lo pegado ni contra lo que ya está en otras filas,
+            // para no gastar cupos de los 5.
+            var existentes = Filas.Where(f => f != fila).Select(f => CorreosInvitacion.Normalizar(f.Texto)).ToHashSet();
+            var nuevos = partes.Distinct().Where(c => !existentes.Contains(c)).ToList();
+
+            fila.Texto = nuevos.FirstOrDefault() ?? string.Empty;
             fila.Tocada = true;
 
             var indice = Filas.IndexOf(fila);
-            foreach (var correo in partes.Skip(1))
+            foreach (var correo in nuevos.Skip(1))
             {
                 if (Filas.Count >= CorreosInvitacion.Maximo) { sobrantes++; continue; }
                 Filas.Insert(++indice, new FilaCorreo { Texto = correo, Tocada = true });
@@ -169,6 +174,7 @@ public partial class InvitarPage : ContentPage
         BtnEnviar.IsEnabled = false;
         MostrarLoader(true);
 
+        string mensaje;
         try
         {
             var correos = Filas.Select(f => CorreosInvitacion.Normalizar(f.Texto))
@@ -176,37 +182,36 @@ public partial class InvitarPage : ContentPage
                                .ToList();
 
             var resultado = await _identidad.InvitarPorEmail(correos);
-            MostrarLoader(false);
-
             if (resultado.Ok)
             {
+                MostrarLoader(false);
                 await _alerta.MostrarAsync("Invitación enviada", "Enviamos la invitación a tus contactos.",
                     verBotonCancelar: false, confirmarText: "OK");
-                await Shell.Current.GoToAsync("..");
+                // Con red lenta el usuario pudo haberse ido de la página: no cerrar otra.
+                if (Shell.Current.CurrentPage == this)
+                    await Shell.Current.GoToAsync("..");
                 return;
             }
 
             // Mensaje fijo por código: el Mensaje de ErrorGenerico sale del texto crudo de la excepción.
             _logs.Warn($"[InvitarPage] InvitarPorEmail falló: {resultado.Error?.HttpCode}");
-            var mensaje = resultado.Error?.HttpCode switch
+            mensaje = resultado.Error?.HttpCode switch
             {
                 HttpStatusCode.BadRequest => $"Puedes invitar de 1 a {CorreosInvitacion.Maximo} correos a la vez.",
                 HttpStatusCode.ServiceUnavailable => "No fue posible enviar las invitaciones, intenta más tarde.",
                 _ => "Ocurrió un error al enviar las invitaciones."
             };
-            await _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
         }
         catch (Exception ex)
         {
-            MostrarLoader(false);
             _logs.Error($"[InvitarPage] {ex.GetType().Name}: {ex.Message}");
-            await _toast.MostrarAsync("Ocurrió un error al enviar las invitaciones.", ToastIcono.Error, ToastPosicion.Bottom);
-        }
-        finally
-        {
-            _enviando = false;
+            mensaje = "Ocurrió un error al enviar las invitaciones.";
         }
 
+        // Reactivar antes del toast: MostrarAsync tarda ~3.5 s y el 503 invita a reintentar.
+        MostrarLoader(false);
+        _enviando = false;
         Revalidar();
+        await _toast.MostrarAsync(mensaje, ToastIcono.Error, ToastPosicion.Bottom);
     }
 }
