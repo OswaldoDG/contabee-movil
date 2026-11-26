@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-11-26 — Invitar por correo (release2.5, sin push)
+
+- Menú lateral → **Invitar** (`Pages/Invitar/InvitarPage`), oculto en modo degradado. 1–5 filas `Entry` (BindableLayout + `FilaCorreo`); pegar una lista (o "Nombre <correo>") reparte en filas sin repetidos. Enviar sólo con correos válidos y sin repetidos. Llama `POST usuario/invitar/email` (back: rama `RecomendarPorCorreo`).
+- `Helpers/CorreosInvitacion`: separar/validar con el mismo criterio que el back (`Maximo = 5`).
+- **Swagger:** ruta `/usuario/invitar/email` agregada **a mano** en `ServicioIdentidad.json`. Si se re-descarga antes de que el back mergee, se pierde.
+- Errores: mensaje fijo por `HttpCode` (400/503/otro), no `Error.Mensaje` (sale del texto crudo de `ApiException`).
+- Pendientes menores: log no guarda folio del 500; espacio accidental parte la fila.
+
 ## 2026-10-23 — Modo simple (solo Inicio y Facturación)
 
 - `AppState.ModoSimple` (persistido). Interruptor en **Mi cuenta → Preferencias** (`MiCuentaPage`, con descripción de qué oculta y cuándo vuelve solo a completo); al activarlo regresa al menú anterior y `MainTabbedPage` cambia a Inicio. Se probó en el menú lateral y se movió a petición de Beto. `MainTabbedPage.TabVisible(i)` decide visibilidad (2-3 ocultas en simple; Equipo además con las reglas previas); `SimpleTabBar.SetTabVisible(i, v)` reemplaza a `SetEquipoVisible`. La precarga no pide las pestañas ocultas; al pasar a completo precarga las que reaparecen.
