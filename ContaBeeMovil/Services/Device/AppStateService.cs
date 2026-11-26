@@ -157,10 +157,17 @@ public partial class AppState : ObservableObject
         get => _cuentaFiscalActual;
         set
         {
+            var idAnterior = _cuentaFiscalActual?.CuentaFiscalId;
             if (SetProperty(ref _cuentaFiscalActual, value))
             {
                 GuardarObjeto(PrefsKeys.CuentaFiscalActual, value);
                 DireccionFiscalActual = value?.DireccionesFiscales?.FirstOrDefault();
+
+                // Los usuarios son de la cuenta anterior: se descartan para que nadie los
+                // muestre mientras llegan los de la nueva (GetMisUsuariosAsync ya no borra
+                // la lista cuando falla el API, así que aquí es donde se invalida).
+                if (idAnterior != value?.CuentaFiscalId)
+                    MisUsuarios = null;
             }
         }
     }

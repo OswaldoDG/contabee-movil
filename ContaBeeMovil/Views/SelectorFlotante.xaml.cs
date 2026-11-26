@@ -87,6 +87,10 @@ public partial class SelectorFlotante : ContentView
         set => SetValue(AnchoDropdownExpandidoProperty, value);
     }
 
+    // Índice tras el cual se dibuja una línea divisoria en el dropdown (-1 = ninguna).
+    // Separa las opciones recientes del resto.
+    public int SeparadorDespuesDe { get; set; } = -1;
+
     public event EventHandler<int>? IndiceCambiado;
 
     private bool _sincronizando;
@@ -153,6 +157,13 @@ public partial class SelectorFlotante : ContentView
             itemGrid.GestureRecognizers.Add(tap);
 
             lista.Add(itemGrid);
+
+            if (i == SeparadorDespuesDe && i < elementos.Count - 1)
+            {
+                var separador = new BoxView();
+                separador.SetDynamicResource(StyleProperty, "Divider");
+                lista.Add(separador);
+            }
         }
 
         const double altoItem = 42;

@@ -5,6 +5,7 @@ using ContaBeeMovil.Helpers;
 using ContaBeeMovil.Models;
 using ContaBeeMovil.Services;
 using ContaBeeMovil.Services.Device;
+using ContaBeeMovil.Services.Notifications;
 using ContaBeeMovil.Views;
 
 namespace ContaBeeMovil.Pages.Perfil;
@@ -28,11 +29,14 @@ public partial class TarjetasPage : ContentPage
         CanBeDismissedByTappingOutsideOfPopup = false,
     };
 
-    public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta)
+    private readonly IServicioToast _toast;
+
+    public TarjetasPage(IServicioSesion sesion, IServicioAlerta servicioAlerta, IServicioToast toast)
     {
         InitializeComponent();
         _sesion = sesion;
         _servicioAlerta = servicioAlerta;
+        _toast = toast;
         ListaTarjetas.ItemsSource = _tarjetas;
     }
 
@@ -48,6 +52,9 @@ public partial class TarjetasPage : ContentPage
 
         if (_enCRUD) return;
         CargarTarjetas();
+
+        if (_sesion.TarjetasSinSincronizar)
+            _ = _toast.MostrarAsync("No se pudieron sincronizar tus tarjetas", ToastIcono.Warning, ToastPosicion.Bottom);
     }
 
     // ── Helpers de color ──────────────────────────────────────────────────────

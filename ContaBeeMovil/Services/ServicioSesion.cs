@@ -297,7 +297,11 @@ public class ServicioSesion : IServicioSesion
         if (cfid.HasValue)
         {
             var usuarios = await _servicioIdentidad.MisUsuarios(cfid.Value);
-            _appState.MisUsuarios = usuarios.Ok ? usuarios.Payload : [];
+            // Si falla (API dormido, timeout) se conserva la lista guardada. Antes se
+            // guardaba [] y, como las pestañas esperan este llamado cuando la lista está
+            // vacía, cada pestaña quedaba esperando al API antes de pintar su caché.
+            if (usuarios.Ok)
+                _appState.MisUsuarios = usuarios.Payload;
         }
     }
 
@@ -307,6 +311,14 @@ public class ServicioSesion : IServicioSesion
         if (string.IsNullOrEmpty(email)) return;
 
         var clave = $"CLAVE_{email.Split('@')[0]}";
+
+        // Caché primero: tras un arranque en frío (MIUI mata la app seguido) AppState está
+        // vacío; se pinta la copia local al instante y el servidor la actualiza al responder.
+        if (_appState.Tarjetas is null)
+        {
+            try { _appState.Tarjetas = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave); }
+            catch { /* copia local ilegible: se espera al servidor */ }
+        }
 
         // Si hay cambios locales offline pendientes, subirlos antes de hacer fetch del servidor
         if (Preferences.Get("TarjetasPendienteSincronizacion", false))
@@ -343,17 +355,21 @@ public class ServicioSesion : IServicioSesion
             _appState.Tarjetas = tarjetas;
             await _almacenamiento.GuardarSeguroAsync(clave, tarjetas);
             _ultimaSyncTarjetas = DateTime.UtcNow;
+            TarjetasSinSincronizar = false;
         }
         else
         {
             try { _appState.Tarjetas = await _almacenamiento.LeerSeguroAsync<List<TarjetaModel>>(clave) ?? []; }
             catch { _appState.Tarjetas = []; }
 
-            var toast = _serviceProvider.GetRequiredService<IServicioToast>();
-            await MainThread.InvokeOnMainThreadAsync(() =>
-                toast.MostrarAsync("No se pudieron sincronizar tus tarjetas", ToastIcono.Warning, ToastPosicion.Bottom));
+            // Sin toast aquí: esta sync corre en segundo plano (arranque, reanudar, cierre de
+            // sesión) y el aviso salía en pantallas que no tienen que ver. TarjetasPage lo
+            // muestra al entrar.
+            TarjetasSinSincronizar = true;
         }
     }
+
+    public bool TarjetasSinSincronizar { get; private set; }
 
     public async Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas)
     {

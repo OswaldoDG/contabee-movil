@@ -20,6 +20,8 @@ public interface IServicioSesion
     Task GetLicenciaAsync();
     Task GetMisUsuariosAsync();
     Task GetTarjetasAsync();
+    /// <summary>True si la última sincronización de tarjetas con el API falló (se usa la copia local).</summary>
+    bool TarjetasSinSincronizar { get; }
     Task GuardarTarjetasAsync(List<TarjetaModel> tarjetas);
     Task PosLoginAsync();
     Task VerificarSesionAlReanudarAsync();

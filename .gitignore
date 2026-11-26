@@ -451,3 +451,7 @@ graphify-out/
 # Notas de trabajo locales (auditorías, análisis). NO se comparten:
 # detallan vulnerabilidades aún sin corregir.
 docs/
+
+# Herramientas de Claude (bocetos, bitácoras, config de plugins)
+.impeccable/
+.superpowers/

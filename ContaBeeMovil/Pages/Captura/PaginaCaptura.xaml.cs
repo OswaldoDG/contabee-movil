@@ -58,9 +58,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         _servicioHorario   = servicioHorario;
         _logs              = logs;
 
-        FormasPago = FormaPagoProvider.GetFormasPago()
-                                      .OrderBy(f => f.Descripcion, StringComparer.CurrentCultureIgnoreCase)
-                                      .ToList();
+        FormasPago = OrdenarConRecientes(FormaPagoProvider.GetFormasPago(), f => f.Codigo, f => f.Descripcion, _recientesFormaPago);
         _capturas  = [];
         _capturas.CollectionChanged += OnCapturasCollectionChanged;
         ActualizarUsoCfdi();
@@ -84,9 +82,10 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
         CircularProgress.Drawable = _progressDrawable;
 
         SelectorFormaPago.Elementos = FormasPago.Select(f => f.Descripcion).ToList();
+        SelectorFormaPago.SeparadorDespuesDe = ContarRecientes(FormasPago, f => f.Codigo, _recientesFormaPago) - 1;
         SelectorFormaPago.IndiceCambiado += OnFormaPagoCambiada;
         SelectorTarjeta.IndiceCambiado   += OnTarjetaCambiada;
-        SelectorUsoCfdi.Elementos = ConstruirElementosUsoCfdi(_usoCfdiOpciones);
+        AsignarElementosUsoCfdi();
         SelectorUsoCfdi.IndiceCambiado   += OnUsoCfdiCambiado;
 
         RestaurarPreferencias();
@@ -101,6 +100,9 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     {
         if (e.PropertyName is nameof(AppState.Licenciamiento))
             RefrescarCreditos();
+        else if (e.PropertyName is nameof(AppState.Tarjetas))
+            // Llegan dos veces tras un arranque en frío: copia local y luego la del servidor.
+            MainThread.BeginInvokeOnMainThread(RefrescarTarjetas);
         else if (e.PropertyName is nameof(AppState.EsDev))
         {
             OnPropertyChanged(nameof(EsDev));
@@ -744,22 +746,66 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     private TarjetaModel? _tarjetaSeleccionada;
 
-    // Tarjetas ordenadas alfabéticamente por su etiqueta. Los índices del dropdown
+    // Tarjetas: recientes arriba y el resto en orden alfabético. Los índices del dropdown
     // se resuelven contra esta lista, así que SIEMPRE hay que usar este helper en
     // lugar de AppState.Instance.Tarjetas directamente.
-    private static List<TarjetaModel> TarjetasOrdenadas()
-        => (AppState.Instance.Tarjetas ?? [])
-           .OrderBy(t => t.DisplayLabel, StringComparer.CurrentCultureIgnoreCase)
-           .ToList();
+    private List<TarjetaModel> TarjetasOrdenadas()
+        => OrdenarConRecientes(AppState.Instance.Tarjetas ?? [], t => t.Id, t => t.DisplayLabel, _recientesTarjeta);
 
     // El dropdown de tarjetas lleva "Sin tarjeta" en el índice 0 y las tarjetas
     // registradas a partir del índice 1.
-    private static List<string> ConstruirElementosTarjeta(IReadOnlyList<TarjetaModel> tarjetas)
+    private void AsignarElementosTarjeta(IReadOnlyList<TarjetaModel> tarjetas)
     {
         var elementos = new List<string> { SinTarjetaLabel };
         elementos.AddRange(tarjetas.Select(t => t.DisplayLabel));
-        return elementos;
+        SelectorTarjeta.Elementos = elementos;
+        var recientes = ContarRecientes(tarjetas, t => t.Id, _recientesTarjeta);
+        SelectorTarjeta.SeparadorDespuesDe = recientes > 0 ? recientes : -1;
     }
+
+    // ── Recientes en los dropdowns ───────────────────────────────────────────
+    // Las últimas MaxRecientes opciones ENVIADAS (no sólo tocadas) van arriba, la más
+    // reciente primero; el resto va en orden alfabético. Se leen una sola vez por
+    // instancia de página: los índices de los selectores se resuelven contra las
+    // listas ordenadas, y reordenarlas a media página los desfasaría.
+
+    private const int MaxRecientes = 3;
+    private const string PrefRecientesFormaPago = "captura_recientes_forma_pago";
+    private const string PrefRecientesTarjeta   = "captura_recientes_tarjeta";
+    private const string PrefRecientesUsoCfdi   = "captura_recientes_uso_cfdi";
+
+    private readonly List<string> _recientesFormaPago = LeerRecientes(PrefRecientesFormaPago);
+    private readonly List<string> _recientesTarjeta   = LeerRecientes(PrefRecientesTarjeta);
+    private readonly List<string> _recientesUsoCfdi   = LeerRecientes(PrefRecientesUsoCfdi);
+
+    private static List<string> LeerRecientes(string pref)
+        => Preferences.Default.Get(pref, string.Empty)
+                      .Split('|', StringSplitOptions.RemoveEmptyEntries)
+                      .ToList();
+
+    private static void RegistrarReciente(string pref, string? clave)
+    {
+        if (string.IsNullOrEmpty(clave)) return;
+        var lista = LeerRecientes(pref);
+        lista.Remove(clave);
+        lista.Insert(0, clave);
+        Preferences.Default.Set(pref, string.Join('|', lista.Take(MaxRecientes)));
+    }
+
+    private static List<T> OrdenarConRecientes<T>(IEnumerable<T> opciones, Func<T, string> clave,
+                                                  Func<T, string> texto, List<string> recientes) where T : class
+    {
+        var resto = opciones.OrderBy(texto, StringComparer.CurrentCultureIgnoreCase).ToList();
+        var arriba = recientes.Select(r => resto.FirstOrDefault(o => clave(o) == r))
+                              .OfType<T>()
+                              .Take(MaxRecientes)
+                              .ToList();
+        return [.. arriba, .. resto.Except(arriba)];
+    }
+
+    // Cuántas opciones al inicio de la lista son recientes (para la línea divisoria).
+    private static int ContarRecientes<T>(IEnumerable<T> ordenadas, Func<T, string> clave, List<string> recientes)
+        => ordenadas.Take(MaxRecientes).TakeWhile(o => recientes.Contains(clave(o))).Count();
 
     // Índice del dropdown → tarjeta (índice 0 = "Sin tarjeta" → null).
     private static TarjetaModel? TarjetaDesdeIndice(IReadOnlyList<TarjetaModel> tarjetas, int indice)
@@ -772,8 +818,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
 
     // El catálogo c_UsoCFDI del SAT trae las descripciones con punto final; el de
     // formas de pago no. Se recorta sólo para mostrar — el catálogo queda intacto.
-    private static List<string> ConstruirElementosUsoCfdi(IEnumerable<UsoCfdi> opciones)
-        => opciones.Select(u => u.Descripcion.TrimEnd('.')).ToList();
+    private void AsignarElementosUsoCfdi()
+    {
+        SelectorUsoCfdi.Elementos = _usoCfdiOpciones.Select(u => u.Descripcion.TrimEnd('.')).ToList();
+        SelectorUsoCfdi.SeparadorDespuesDe = ContarRecientes(_usoCfdiOpciones, u => u.Codigo, _recientesUsoCfdi) - 1;
+    }
 
     // ── Desglosar IEPS ───────────────────────────────────────────────────────
 
@@ -1079,7 +1128,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
                 _formaPagoSeleccionada = FormasPago[idx];
                 SelectorFormaPago.IndiceSeleccionado = idx;
                 var tarjetas = TarjetasOrdenadas();
-                SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
+                AsignarElementosTarjeta(tarjetas);
                 OnPropertyChanged(nameof(MostrarTarjetas));
                 OnPropertyChanged(nameof(MostrarSelectorTarjeta));
 
@@ -1118,7 +1167,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void RefrescarTarjetas()
     {
         var tarjetas = TarjetasOrdenadas();
-        SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
+        AsignarElementosTarjeta(tarjetas);
 
         // Por defecto "Sin tarjeta" (índice 0); si hay una guardada, mantenerla.
         _tarjetaSeleccionada = null;
@@ -1144,13 +1193,11 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
     private void ActualizarUsoCfdi()
     {
         var regimen = AppState.Instance.CuentaFiscalActual?.ClaveRegimenFiscal;
-        _usoCfdiOpciones    = UsoCfdiProvider.GetUsoCfdi(regimen)
-                                             .OrderBy(u => u.Descripcion, StringComparer.CurrentCultureIgnoreCase)
-                                             .ToList();
+        _usoCfdiOpciones    = OrdenarConRecientes(UsoCfdiProvider.GetUsoCfdi(regimen), u => u.Codigo, u => u.Descripcion, _recientesUsoCfdi);
         _usoCfdiSeleccionado = null;
         if (SelectorUsoCfdi is null) return;
 
-        SelectorUsoCfdi.Elementos = ConstruirElementosUsoCfdi(_usoCfdiOpciones);
+        AsignarElementosUsoCfdi();
 
         // Restaurar preferencia si el código guardado sigue siendo válido en el nuevo régimen
         var codigoUso = Preferences.Default.Get(PrefUsoCfdi, string.Empty);
@@ -1176,7 +1223,7 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             Preferences.Default.Set(PrefFormaPago, _formaPagoSeleccionada.Codigo);
 
         var tarjetas = TarjetasOrdenadas();
-        SelectorTarjeta.Elementos = ConstruirElementosTarjeta(tarjetas);
+        AsignarElementosTarjeta(tarjetas);
         _tarjetaSeleccionada = null;
         SelectorTarjeta.IndiceSeleccionado = -1;
         OnPropertyChanged(nameof(MostrarTarjetas));
@@ -1553,6 +1600,13 @@ public partial class PaginaCaptura : ContentPage, IQueryAttributable
             else
             {
                 loteId = loteResult.Payload!.Id;
+
+                // Con el lote creado, los valores cuentan como "usados" para los dropdowns
+                // (el orden nuevo se ve la próxima vez que se abra la página).
+                RegistrarReciente(PrefRecientesFormaPago, formaPago.Codigo);
+                RegistrarReciente(PrefRecientesTarjeta, tarjeta?.Id);
+                RegistrarReciente(PrefRecientesUsoCfdi, usoCfdi.Codigo);
+
                 await AnimarProgresoAsync(0.2f);
 
                 // ── Punto 3b: Obtener precarga (SAS token + créditos del lote)
