@@ -244,6 +244,28 @@ google_request \
   --header 'Content-Type: application/json' \
   --data-binary "@$track_request_path"
 
+# La carga deja esta versión como borrador en la pista interna. Se quita en la misma
+# edición: si el envío falla, el borrador sigue ahí; si sale bien, la siguiente carga
+# no choca con él. Solo se toca el borrador de este versionCode.
+borrador_interno='
+  [.versionCodes[]? | tostring] | index($version_code) != null
+'
+if jq -e --arg version_code "$VERSION_CODE" \
+  ".releases // [] | any(.status == \"draft\" and ($borrador_interno))" \
+  "$internal_track_path" >/dev/null; then
+  jq --arg version_code "$VERSION_CODE" \
+    ".releases = ((.releases // []) | map(select((.status == \"draft\" and ($borrador_interno)) | not)))" \
+    "$internal_track_path" > "$WORK_DIR/internal-request.json"
+
+  echo "==> Quitando el borrador $VERSION_CODE de la pista interna..."
+  google_request \
+    PUT \
+    "$api_root/edits/$edit_id/tracks/internal" \
+    "$WORK_DIR/internal-response.json" \
+    --header 'Content-Type: application/json' \
+    --data-binary "@$WORK_DIR/internal-request.json"
+fi
+
 echo "==> Validando la edición en Google Play..."
 google_request \
   POST \
