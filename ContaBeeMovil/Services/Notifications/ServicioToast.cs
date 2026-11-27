@@ -144,10 +144,11 @@ public class ServicioToast : IServicioToast
 
         var (verticalOptions, margin) = posicion switch
         {
-            ToastPosicion.Top    => (LayoutOptions.Start,  new Thickness(20, 50, 5, 0)),
-            ToastPosicion.Center => (LayoutOptions.Center, new Thickness(20, 0, 5, 0)),
-            ToastPosicion.Bottom => (LayoutOptions.End,    new Thickness(20, 5, 20, 5)),
-            _                    => (LayoutOptions.Start,  new Thickness(20, 50, 10, 0))
+            // Mismo margen a ambos lados (arriba y al centro quedaba cargado a la izquierda).
+            ToastPosicion.Top    => (LayoutOptions.Start,  new Thickness(20, 50, 20, 0)),
+            ToastPosicion.Center => (LayoutOptions.Center, new Thickness(20, 0, 20, 0)),
+            ToastPosicion.Bottom => (LayoutOptions.End,    new Thickness(20, 5, 20, 12)),
+            _                    => (LayoutOptions.Start,  new Thickness(20, 50, 20, 0))
         };
 
         var frame = new Border
@@ -156,6 +157,8 @@ public class ServicioToast : IServicioToast
             StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(5, 5, 5, 150) },
             HorizontalOptions = LayoutOptions.Fill,
             VerticalOptions = LayoutOptions.Center,
+            // Explícito: el estilo implícito de Border pone 15 parejo.
+            Padding = new Thickness(14, 12, 12, 12),
         };
 
         var grid = new Grid
@@ -166,7 +169,7 @@ public class ServicioToast : IServicioToast
                 new ColumnDefinition { Width = GridLength.Star },
                 new ColumnDefinition { Width = GridLength.Auto },
             },
-            ColumnSpacing = 5,
+            ColumnSpacing = 12,
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Fill,
         };
@@ -193,7 +196,15 @@ public class ServicioToast : IServicioToast
             WidthRequest = 28,
             HeightRequest = 28,
             Padding = 0,
-            VerticalOptions = LayoutOptions.Center,
+            // Arriba: con varias líneas acompaña a la primera en vez de flotar a media altura.
+            VerticalOptions = LayoutOptions.Start,
+            Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Colors.Black),
+                Offset = new Point(0, 2),
+                Radius = 4f,
+                Opacity = 0.25f,
+            },
             Content = new Label
             {
                 Text = textoIcono,
@@ -211,6 +222,9 @@ public class ServicioToast : IServicioToast
             TextColor = UIHelpers.GetColor("PrimaryText"),
             FontSize = 15,
             FontAttributes = FontAttributes.Bold,
+            LineHeight = 1.15,
+            MaxLines = 4,
+            LineBreakMode = LineBreakMode.TailTruncation,
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Fill,
         };
@@ -220,7 +234,9 @@ public class ServicioToast : IServicioToast
             Text = "✕",
             TextColor = Color.FromArgb("#999999"),
             FontSize = 16,
-            VerticalOptions = LayoutOptions.Center,
+            // Arriba a la derecha: con mensajes largos ya no queda junto a la curva.
+            VerticalOptions = LayoutOptions.Start,
+            Margin = new Thickness(0, 3, 0, 0),
         };
 
         var accent = new BoxView
@@ -242,6 +258,14 @@ public class ServicioToast : IServicioToast
             Color = UIHelpers.GetColor("Background"),
             CornerRadius = new CornerRadius(5, 5, 5, 150),
             BackgroundColor = Color.FromArgb("00FFFFFF"),
+            // Volumen: el panel se levanta un poco sobre el marco amarillo.
+            Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Colors.Black),
+                Offset = new Point(0, 1.5),
+                Radius = 4f,
+                Opacity = 0.18f,
+            },
         };
 
         var stack = new Grid { HorizontalOptions = LayoutOptions.Fill };
