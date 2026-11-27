@@ -7,8 +7,9 @@
 
 ## 2026-11-26 — Invitar por correo (release2.5, sin push)
 
-- Menú lateral → **Invitar** (`Pages/Invitar/InvitarPage`), oculto en modo degradado. 1–5 filas `Entry` (BindableLayout + `FilaCorreo`); pegar una lista (o "Nombre <correo>") reparte en filas sin repetidos. Enviar sólo con correos válidos y sin repetidos. Llama `POST usuario/invitar/email` (back: rama `RecomendarPorCorreo`).
-- `Helpers/CorreosInvitacion`: separar/validar con el mismo criterio que el back (`Maximo = 5`).
+- Menú lateral → **Invitar** (`Pages/Invitar/InvitarPage`), oculto en modo degradado. 1–3 filas `Entry` (BindableLayout + `FilaCorreo`) con ✓ si es válido, borde rojo + mensaje si no, contador "n de 3", botón fijo abajo. Pegar una lista (o "Nombre <correo>") reparte en filas sin repetidos. Llama `POST usuario/invitar/email` (back: rama `RecomendarPorCorreo`, que también limita a 3).
+- `Helpers/CorreosInvitacion`: separar/validar con el mismo criterio que el back (`Maximo = 3`).
+- Probado E2E en local (2026-11-27) con MailerSend falso: invitación, cupón heredado de distribuidor y canje al confirmar.
 - **Swagger:** ruta `/usuario/invitar/email` agregada **a mano** en `ServicioIdentidad.json`. Si se re-descarga antes de que el back mergee, se pierde.
 - Errores: mensaje fijo por `HttpCode` (400/503/otro), no `Error.Mensaje` (sale del texto crudo de `ApiException`).
 - Pendientes menores: log no guarda folio del 500; espacio accidental parte la fila.

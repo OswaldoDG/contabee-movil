@@ -18,7 +18,10 @@ public partial class FilaCorreo : ObservableObject
     [NotifyPropertyChangedFor(nameof(TieneErrorVisible))]
     private string? _error;
 
-    // "Correo no válido" sólo se muestra cuando el usuario sale de la fila (o la pegó),
+    [ObservableProperty]
+    private bool _esValida;
+
+    // El error de formato sólo se muestra cuando el usuario sale de la fila (o la pegó),
     // para no marcar error mientras escribe.
     public bool Tocada { get; set; }
 
@@ -43,7 +46,14 @@ public partial class InvitarPage : ContentPage
 
     public bool PuedeQuitar => Filas.Count > 1;
     public bool PuedeAgregar => Filas.Count < CorreosInvitacion.Maximo;
-    public string TextoAgregar => $"Agregar otro correo ({Filas.Count}/{CorreosInvitacion.Maximo})";
+    public string TextoContador => $"{Filas.Count} de {CorreosInvitacion.Maximo}";
+
+    private bool _hayErrores;
+    public bool HayErrores
+    {
+        get => _hayErrores;
+        private set { if (_hayErrores == value) return; _hayErrores = value; OnPropertyChanged(); }
+    }
 
     public InvitarPage(IServicioIdentidad identidad, IServicioAlerta alerta, IServicioToast toast, IServicioLogs logs)
     {
@@ -57,7 +67,7 @@ public partial class InvitarPage : ContentPage
         {
             OnPropertyChanged(nameof(PuedeQuitar));
             OnPropertyChanged(nameof(PuedeAgregar));
-            OnPropertyChanged(nameof(TextoAgregar));
+            OnPropertyChanged(nameof(TextoContador));
             Revalidar();
         };
         BindingContext = this;
@@ -140,23 +150,30 @@ public partial class InvitarPage : ContentPage
         {
             var correo = CorreosInvitacion.Normalizar(fila.Texto);
             string? error = null;
+            var valida = false;
 
             if (correo.Length == 0) { }
             else if (!CorreosInvitacion.EsValido(correo))
             {
                 todoValido = false;
-                if (fila.Tocada) error = "Correo no válido";
+                if (fila.Tocada) error = "Revisa este correo, por ejemplo nombre@gmail.com";
             }
             else if (!vistos.Add(correo))
             {
                 todoValido = false;
-                error = "Correo repetido";
+                error = "Ya agregaste este correo";
             }
-            else hayCorreo = true;
+            else
+            {
+                hayCorreo = true;
+                valida = true;
+            }
 
             fila.Error = error;
+            fila.EsValida = valida;
         }
 
+        HayErrores = Filas.Any(f => f.TieneErrorVisible);
         if (BtnEnviar is not null)
             BtnEnviar.IsEnabled = hayCorreo && todoValido && !_enviando;
     }

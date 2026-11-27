@@ -9,8 +9,8 @@ namespace ContaBeeMovil.Helpers;
 /// </summary>
 public static class CorreosInvitacion
 {
-    /// <summary>Límite del back por petición.</summary>
-    public const int Maximo = 5;
+    /// <summary>Límite de correos por envío (el back acepta hasta 5; producto pidió 3).</summary>
+    public const int Maximo = 3;
 
     private static readonly char[] Separadores = [',', ';', '\r', '\n', '\t'];
     private static readonly Regex EntreAngulos = new("<([^>]*)>");
